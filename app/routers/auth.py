@@ -56,7 +56,7 @@ def login(
     log_with_context(
         "info",
         "Usuario autenticado correctamente",
-        alumno_id=alumno.id,
+        usuario=alumno.usuario,
         nombre=alumno.nombre,
         client_ip=request.client.host if request.client else "unknown"
     )
@@ -73,7 +73,7 @@ def get_current_alumno(
     log_with_context(
         "info",
         "Usuario consultó su información",
-        alumno_id=alumno.id,
+        usuario=alumno.usuario,
         nombre=alumno.nombre
     )
 

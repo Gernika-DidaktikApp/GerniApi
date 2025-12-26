@@ -14,21 +14,21 @@ def login(
     login_data: LoginRequest,
     db: Session = Depends(get_db)
 ):
-    # Buscar alumno por usuario
-    alumno = db.query(Alumno).filter(Alumno.usuario == login_data.usuario).first()
+    # Buscar alumno por nombre
+    alumno = db.query(Alumno).filter(Alumno.nombre == login_data.nombre).first()
 
     # Verificar que existe y la contraseña coincide
     if not alumno or alumno.contrasenya != login_data.contrasenya:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario o contraseña incorrectos",
+            detail="Nombre o contraseña incorrectos",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     # Crear token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": alumno.usuario},
+        data={"sub": alumno.nombre},
         expires_delta=access_token_expires
     )
 

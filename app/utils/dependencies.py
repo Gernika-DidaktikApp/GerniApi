@@ -21,11 +21,11 @@ def get_current_user(
     if payload is None:
         raise credentials_exception
 
-    usuario: str = payload.get("sub")
-    if usuario is None:
+    nombre: str = payload.get("sub")
+    if nombre is None:
         raise credentials_exception
 
-    alumno = db.query(Alumno).filter(Alumno.usuario == usuario).first()
+    alumno = db.query(Alumno).filter(Alumno.nombre == nombre).first()
     if alumno is None:
         raise credentials_exception
 

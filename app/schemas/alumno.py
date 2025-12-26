@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 class LoginRequest(BaseModel):
-    usuario: str
+    nombre: str
     contrasenya: str
 
 class Token(BaseModel):

@@ -7,9 +7,14 @@ __pycache__/
 venv/
 env/
 ENV/
+.venv/
 
 # FastAPI
 .env
+
+# Logs
+logs/
+*.log
 
 # IDEs
 .vscode/
@@ -21,5 +26,5 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# local deployment script
+# Local development
 deploy_local.sh

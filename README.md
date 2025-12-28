@@ -5,7 +5,7 @@ API REST con FastAPI para gestionar la autenticación de la aplicación móvil G
 ## Requisitos Previos
 
 - Python 3.8+
-- MySQL con la base de datos `didaktikapp2024` configurada
+- MariaDB con la base de datos configurada
 - Tabla `alumno` creada en la base de datos
 
 ## Instalación

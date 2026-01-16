@@ -1,13 +1,12 @@
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
-from sqlalchemy.dialects.mysql import CHAR
 from datetime import datetime
 from app.database import Base
 
 class Partida(Base):
     __tablename__ = "juego"
 
-    id = Column(CHAR(36), primary_key=True, nullable=False)
-    id_usuario = Column(CHAR(36), ForeignKey("usuario.id"), nullable=False)
+    id = Column(String(36), primary_key=True, nullable=False)
+    id_usuario = Column(String(36), ForeignKey("usuario.id"), nullable=False)
     fecha_inicio = Column(DateTime, default=datetime.now, nullable=False)
     fecha_fin = Column(DateTime, nullable=True)
     duracion = Column(Integer, nullable=True)

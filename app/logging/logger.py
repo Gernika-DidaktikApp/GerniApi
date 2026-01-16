@@ -96,10 +96,10 @@ def setup_logging(
     Returns:
         Logger configurado
     """
+    import os
 
-    # Crear directorio de logs si no existe
-    log_path = Path(log_dir)
-    log_path.mkdir(exist_ok=True)
+    # Detectar si estamos en Railway o entorno de producción
+    is_production = os.getenv("RAILWAY_ENVIRONMENT") is not None or os.getenv("PORT") is not None
 
     # Obtener o crear el logger principal
     logger = logging.getLogger(app_name)
@@ -110,69 +110,79 @@ def setup_logging(
 
     # ====================================
     # Handler 1: Consola (salida estándar)
+    # SIEMPRE presente (funciona en Railway)
     # ====================================
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(getattr(logging, console_level.upper()))
     console_handler.setFormatter(SimpleFormatter())
     logger.addHandler(console_handler)
 
-    # ====================================
-    # Handler 2: Archivo principal (app.log)
-    # Logs de nivel INFO y superior
-    # ====================================
-    app_log_file = log_path / "app.log"
-    app_file_handler = RotatingFileHandler(
-        app_log_file,
-        maxBytes=max_bytes,
-        backupCount=backup_count,
-        encoding="utf-8"
-    )
-    app_file_handler.setLevel(getattr(logging, file_level.upper()))
-    app_file_handler.setFormatter(StructuredFormatter())
-    logger.addHandler(app_file_handler)
+    # Solo añadir file handlers en desarrollo local
+    if not is_production:
+        try:
+            # Crear directorio de logs si no existe
+            log_path = Path(log_dir)
+            log_path.mkdir(exist_ok=True)
 
-    # ====================================
-    # Handler 3: Archivo de debug (debug.log)
-    # Todos los logs incluyendo DEBUG
-    # ====================================
-    debug_log_file = log_path / "debug.log"
-    debug_file_handler = RotatingFileHandler(
-        debug_log_file,
-        maxBytes=max_bytes,
-        backupCount=backup_count,
-        encoding="utf-8"
-    )
-    debug_file_handler.setLevel(getattr(logging, debug_level.upper()))
-    debug_file_handler.setFormatter(StructuredFormatter())
-    logger.addHandler(debug_file_handler)
+            # ====================================
+            # Handler 2: Archivo principal (app.log)
+            # ====================================
+            app_log_file = log_path / "app.log"
+            app_file_handler = RotatingFileHandler(
+                app_log_file,
+                maxBytes=max_bytes,
+                backupCount=backup_count,
+                encoding="utf-8"
+            )
+            app_file_handler.setLevel(getattr(logging, file_level.upper()))
+            app_file_handler.setFormatter(StructuredFormatter())
+            logger.addHandler(app_file_handler)
 
-    # ====================================
-    # Handler 4: Archivo de errores (error.log)
-    # Solo errores y críticos
-    # ====================================
-    error_log_file = log_path / "error.log"
-    error_file_handler = RotatingFileHandler(
-        error_log_file,
-        maxBytes=max_bytes,
-        backupCount=backup_count,
-        encoding="utf-8"
-    )
-    error_file_handler.setLevel(logging.ERROR)
-    error_file_handler.setFormatter(StructuredFormatter())
-    logger.addHandler(error_file_handler)
+            # ====================================
+            # Handler 3: Archivo de debug (debug.log)
+            # ====================================
+            debug_log_file = log_path / "debug.log"
+            debug_file_handler = RotatingFileHandler(
+                debug_log_file,
+                maxBytes=max_bytes,
+                backupCount=backup_count,
+                encoding="utf-8"
+            )
+            debug_file_handler.setLevel(getattr(logging, debug_level.upper()))
+            debug_file_handler.setFormatter(StructuredFormatter())
+            logger.addHandler(debug_file_handler)
+
+            # ====================================
+            # Handler 4: Archivo de errores (error.log)
+            # ====================================
+            error_log_file = log_path / "error.log"
+            error_file_handler = RotatingFileHandler(
+                error_log_file,
+                maxBytes=max_bytes,
+                backupCount=backup_count,
+                encoding="utf-8"
+            )
+            error_file_handler.setLevel(logging.ERROR)
+            error_file_handler.setFormatter(StructuredFormatter())
+            logger.addHandler(error_file_handler)
+
+            logger.info(
+                f"Sistema de logging inicializado (desarrollo)",
+                extra={"extra_fields": {
+                    "log_dir": str(log_path),
+                    "max_file_size": f"{max_bytes / 1024 / 1024}MB",
+                    "backup_count": backup_count
+                }}
+            )
+        except Exception as e:
+            # Si falla la creación de archivos, solo usar consola
+            logger.warning(f"No se pudieron crear archivos de log: {e}. Usando solo consola.")
+    else:
+        # En producción (Railway), solo consola
+        logger.info("Sistema de logging inicializado (producción - solo consola)")
 
     # Evitar que los logs se propaguen al logger raíz
     logger.propagate = False
-
-    # Log inicial para confirmar que el sistema está funcionando
-    logger.info(
-        f"Sistema de logging inicializado",
-        extra={"extra_fields": {
-            "log_dir": str(log_path),
-            "max_file_size": f"{max_bytes / 1024 / 1024}MB",
-            "backup_count": backup_count
-        }}
-    )
 
     return logger
 

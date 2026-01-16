@@ -205,3 +205,70 @@ def log_with_context(level: str, message: str, **context):
     """
     log_method = getattr(logger, level.lower())
     log_method(message, extra={"extra_fields": context})
+
+
+def log_debug(message: str, **context):
+    """Log de nivel DEBUG con contexto"""
+    log_with_context("debug", message, **context)
+
+
+def log_info(message: str, **context):
+    """Log de nivel INFO con contexto"""
+    log_with_context("info", message, **context)
+
+
+def log_warning(message: str, **context):
+    """Log de nivel WARNING con contexto"""
+    log_with_context("warning", message, **context)
+
+
+def log_error(message: str, exc_info: bool = False, **context):
+    """Log de nivel ERROR con contexto y opcionalmente traceback"""
+    if exc_info:
+        logger.error(message, exc_info=True, extra={"extra_fields": context})
+    else:
+        log_with_context("error", message, **context)
+
+
+def log_critical(message: str, exc_info: bool = True, **context):
+    """Log de nivel CRITICAL con contexto y traceback"""
+    logger.critical(message, exc_info=exc_info, extra={"extra_fields": context})
+
+
+def log_request(method: str, path: str, status_code: int, duration_ms: float, **extra):
+    """Log específico para peticiones HTTP"""
+    level = "error" if status_code >= 500 else "warning" if status_code >= 400 else "info"
+    log_with_context(
+        level,
+        f"{method} {path} - {status_code} ({duration_ms}ms)",
+        http_method=method,
+        path=path,
+        status_code=status_code,
+        duration_ms=duration_ms,
+        **extra
+    )
+
+
+def log_db_operation(operation: str, table: str, record_id: str = None, **extra):
+    """Log específico para operaciones de base de datos"""
+    log_with_context(
+        "debug",
+        f"DB {operation}: {table}" + (f" (id={record_id})" if record_id else ""),
+        db_operation=operation,
+        table=table,
+        record_id=record_id,
+        **extra
+    )
+
+
+def log_auth(event: str, username: str = None, success: bool = True, **extra):
+    """Log específico para eventos de autenticación"""
+    level = "info" if success else "warning"
+    log_with_context(
+        level,
+        f"Auth: {event}" + (f" - user={username}" if username else ""),
+        auth_event=event,
+        username=username,
+        success=success,
+        **extra
+    )

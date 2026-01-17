@@ -9,7 +9,7 @@ from app.models.usuario import Usuario
 from app.schemas.partida import PartidaCreate, PartidaUpdate, PartidaResponse
 from app.logging import log_with_context
 
-router = APIRouter(prefix="/partidas", tags=["Partidas"])
+router = APIRouter(prefix="/partidas", tags=["🎮 Partidas"])
 
 @router.post("", response_model=PartidaResponse, status_code=status.HTTP_201_CREATED)
 def crear_partida(partida_data: PartidaCreate, db: Session = Depends(get_db)):

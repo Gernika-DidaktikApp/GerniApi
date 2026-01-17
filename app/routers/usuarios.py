@@ -10,11 +10,36 @@ from app.schemas.usuario import UsuarioCreate, UsuarioUpdate, UsuarioResponse
 from app.utils.security import hash_password
 from app.logging import log_info, log_warning, log_db_operation
 
-router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
+router = APIRouter(
+    prefix="/usuarios",
+    tags=["👥 Usuarios"],
+    responses={
+        404: {"description": "Usuario no encontrado"},
+        422: {"description": "Error de validación"}
+    }
+)
 
-@router.post("", response_model=UsuarioResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=UsuarioResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Crear usuario",
+    description="Crea un nuevo usuario en el sistema con su información básica y contraseña hasheada."
+)
 def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
-    """Crear un nuevo usuario."""
+    """
+    ## Crear Nuevo Usuario
+
+    Registra un nuevo usuario en el sistema.
+
+    ### Validaciones
+    - El username debe ser único
+    - Si se proporciona id_clase, la clase debe existir
+    - La contraseña se hashea automáticamente con bcrypt
+
+    ### Retorna
+    Los datos del usuario creado (sin la contraseña)
+    """
     # Validar que el username no exista
     existe = db.query(Usuario).filter(Usuario.username == usuario_data.username).first()
     if existe:
@@ -51,15 +76,54 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
 
     return nuevo_usuario
 
-@router.get("", response_model=List[UsuarioResponse])
-def listar_usuarios(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Obtener lista de usuarios."""
+@router.get(
+    "",
+    response_model=List[UsuarioResponse],
+    summary="Listar usuarios",
+    description="Obtiene una lista paginada de todos los usuarios registrados."
+)
+def listar_usuarios(
+    skip: int = Field(0, ge=0, description="Número de registros a saltar (para paginación)"),
+    limit: int = Field(100, ge=1, le=1000, description="Número máximo de registros a retornar"),
+    db: Session = Depends(get_db)
+):
+    """
+    ## Listar Todos los Usuarios
+
+    Retorna una lista paginada de usuarios.
+
+    ### Paginación
+    - **skip**: Número de registros a saltar (default: 0)
+    - **limit**: Número máximo de registros (default: 100, max: 1000)
+
+    ### Ejemplo
+    - Para obtener los primeros 10: `?skip=0&limit=10`
+    - Para obtener la segunda página: `?skip=10&limit=10`
+    """
     usuarios = db.query(Usuario).offset(skip).limit(limit).all()
     return usuarios
 
-@router.get("/{usuario_id}", response_model=UsuarioResponse)
-def obtener_usuario(usuario_id: str, db: Session = Depends(get_db)):
-    """Obtener un usuario por ID."""
+@router.get(
+    "/{usuario_id}",
+    response_model=UsuarioResponse,
+    summary="Obtener usuario",
+    description="Obtiene los detalles de un usuario específico por su ID."
+)
+def obtener_usuario(
+    usuario_id: str = Field(..., description="ID único del usuario (UUID)"),
+    db: Session = Depends(get_db)
+):
+    """
+    ## Obtener Usuario por ID
+
+    Retorna los detalles completos de un usuario específico.
+
+    ### Parámetros
+    - **usuario_id**: ID único del usuario (UUID)
+
+    ### Errores
+    - **404**: Si el usuario no existe
+    """
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(

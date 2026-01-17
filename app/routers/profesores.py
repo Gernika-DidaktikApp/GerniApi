@@ -9,7 +9,7 @@ from app.schemas.profesor import ProfesorCreate, ProfesorUpdate, ProfesorRespons
 from app.utils.security import hash_password
 from app.logging import log_with_context
 
-router = APIRouter(prefix="/profesores", tags=["Profesores"])
+router = APIRouter(prefix="/profesores", tags=["👨‍🏫 Profesores"])
 
 @router.post("", response_model=ProfesorResponse, status_code=status.HTTP_201_CREATED)
 def crear_profesor(profesor_data: ProfesorCreate, db: Session = Depends(get_db)):

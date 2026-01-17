@@ -8,7 +8,7 @@ from app.models.actividad import Actividad
 from app.schemas.actividad import ActividadCreate, ActividadUpdate, ActividadResponse
 from app.logging import log_with_context
 
-router = APIRouter(prefix="/actividades", tags=["Actividades"])
+router = APIRouter(prefix="/actividades", tags=["📝 Actividades"])
 
 @router.post("", response_model=ActividadResponse, status_code=status.HTTP_201_CREATED)
 def crear_actividad(actividad_data: ActividadCreate, db: Session = Depends(get_db)):

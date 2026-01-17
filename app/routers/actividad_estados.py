@@ -10,7 +10,7 @@ from app.models.actividad import Actividad
 from app.schemas.actividad_estado import ActividadEstadoCreate, ActividadEstadoUpdate, ActividadEstadoResponse
 from app.logging import log_with_context
 
-router = APIRouter(prefix="/actividad-estados", tags=["Estados de Actividad"])
+router = APIRouter(prefix="/actividad-estados", tags=["📊 Estados"])
 
 @router.post("", response_model=ActividadEstadoResponse, status_code=status.HTTP_201_CREATED)
 def crear_actividad_estado(estado_data: ActividadEstadoCreate, db: Session = Depends(get_db)):

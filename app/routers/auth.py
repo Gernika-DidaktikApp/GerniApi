@@ -16,18 +16,73 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-router = APIRouter(prefix="/auth", tags=["Autenticación"])
+router = APIRouter(
+    prefix="/auth",
+    tags=["🔐 Autenticación"],
+    responses={
+        401: {"description": "Credenciales inválidas"},
+        422: {"description": "Error de validación en los datos enviados"}
+    }
+)
 
-# Comentado temporalmente - requiere modelo Alumno
-# @router.post("/login", response_model=Token)
-# def login(...):
-
-@router.post("/login-app", response_model=Token)
+@router.post(
+    "/login-app",
+    response_model=Token,
+    summary="Login de usuario",
+    description="Autenticar usuario con username y contraseña. Devuelve un token JWT válido por 30 minutos.",
+    responses={
+        200: {
+            "description": "Login exitoso",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "token_type": "bearer"
+                    }
+                }
+            }
+        },
+        401: {
+            "description": "Credenciales incorrectas",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Username o contraseña incorrectos"
+                    }
+                }
+            }
+        }
+    }
+)
 def login_app(
     login_data: LoginAppRequest,
     request: Request,
     db: Session = Depends(get_db)
 ):
+    """
+    ## Autenticar Usuario
+
+    Valida las credenciales del usuario y devuelve un token JWT.
+
+    ### Parámetros
+    - **username**: Nombre de usuario único
+    - **password**: Contraseña del usuario
+
+    ### Respuesta Exitosa
+    - **access_token**: Token JWT para autenticación
+    - **token_type**: Tipo de token (siempre "bearer")
+
+    ### Uso del Token
+    Incluye el token en el header de las peticiones:
+    ```
+    Authorization: Bearer <access_token>
+    ```
+
+    ### Notas
+    - El token expira en 30 minutos
+    - La contraseña se valida con bcrypt
+    - Se registra cada intento de login en los logs
+    """
     client_ip = request.client.host if request.client else "unknown"
 
     # Log de intento de inicio de sesión

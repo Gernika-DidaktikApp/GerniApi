@@ -10,7 +10,7 @@ from app.models.actividad import Actividad
 from app.schemas.evento_estado import EventoEstadoCreate, EventoEstadoUpdate, EventoEstadoResponse
 from app.logging import log_with_context
 
-router = APIRouter(prefix="/evento-estados", tags=["Estados de Evento"])
+router = APIRouter(prefix="/evento-estados", tags=["📊 Estados"])
 
 @router.post("", response_model=EventoEstadoResponse, status_code=status.HTTP_201_CREATED)
 def crear_evento_estado(estado_data: EventoEstadoCreate, db: Session = Depends(get_db)):

@@ -9,7 +9,7 @@ from app.models.actividad import Actividad
 from app.schemas.evento import EventoCreate, EventoUpdate, EventoResponse
 from app.logging import log_with_context
 
-router = APIRouter(prefix="/eventos", tags=["Eventos"])
+router = APIRouter(prefix="/eventos", tags=["📅 Eventos"])
 
 @router.post("", response_model=EventoResponse, status_code=status.HTTP_201_CREATED)
 def crear_evento(evento_data: EventoCreate, db: Session = Depends(get_db)):

@@ -17,10 +17,86 @@ from app.database import Base, engine
 # Importar modelos para que SQLAlchemy los conozca
 import app.models  # noqa
 
-app = FastAPI(title=settings.PROJECT_NAME)
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    description="""
+    ## 🎯 API REST para GerniBide
+
+    API completa para la gestión de usuarios, clases, profesores, partidas y actividades.
+
+    ### 🔐 Autenticación
+
+    Esta API utiliza **JWT (JSON Web Tokens)** para autenticación:
+
+    1. **Login**: Obtén un token en `/api/v1/auth/login-app`
+    2. **Usar token**: Incluye el header `Authorization: Bearer <token>` en tus peticiones
+    3. **Expiración**: Los tokens expiran en 30 minutos
+
+    ### 📚 Características
+
+    - ✅ Autenticación JWT segura
+    - ✅ Hash de contraseñas con bcrypt
+    - ✅ Validación automática de datos
+    - ✅ Paginación en listados
+    - ✅ Logging estructurado
+    - ✅ Base de datos PostgreSQL
+
+    ### 🔗 Enlaces Útiles
+
+    - [Documentación completa](https://github.com/tu-repo)
+    - [Colección de Postman](./GerniBide.postman_collection.json)
+    - [Guía de integración](./API_ENDPOINTS.md)
+
+    ### 📧 Soporte
+
+    ¿Necesitas ayuda? Revisa los logs o contacta al equipo de desarrollo.
+    """,
+    version="1.0.0",
+    contact={
+        "name": "Equipo GerniBide",
+        "email": "soporte@GerniBide.com"
+    },
+    license_info={
+        "name": "Uso privado",
+    },
+    openapi_tags=[
+        {
+            "name": "🔐 Autenticación",
+            "description": "Endpoints para login y gestión de tokens JWT"
+        },
+        {
+            "name": "👥 Usuarios",
+            "description": "CRUD completo de usuarios del sistema"
+        },
+        {
+            "name": "👨‍🏫 Profesores",
+            "description": "Gestión de profesores"
+        },
+        {
+            "name": "🏫 Clases",
+            "description": "Gestión de clases y asignaciones"
+        },
+        {
+            "name": "🎮 Partidas",
+            "description": "Gestión de partidas de juego"
+        },
+        {
+            "name": "📝 Actividades",
+            "description": "Gestión de actividades dentro de partidas"
+        },
+        {
+            "name": "📅 Eventos",
+            "description": "Gestión de eventos de actividades"
+        },
+        {
+            "name": "📊 Estados",
+            "description": "Estados de actividades y eventos"
+        }
+    ]
+)
 
 # Configurar logging al inicio de la aplicación
-logger.info("Iniciando GernikApp API", extra={"extra_fields": {"version": "1.0.0"}})
+logger.info("Iniciando GerniBide API", extra={"extra_fields": {"version": "1.0.0"}})
 
 # Registrar manejadores de excepciones globales
 register_exception_handlers(app)
@@ -73,7 +149,7 @@ async def shutdown_event():
 @app.get("/")
 def root():
     logger.debug("Endpoint raíz accedido")
-    return {"message": "GernikApp API - Funcionando correctamente"}
+    return {"message": "GerniBide API - Funcionando correctamente"}
 
 
 @app.get("/health")

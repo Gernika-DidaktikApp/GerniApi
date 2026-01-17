@@ -9,7 +9,7 @@ from app.models.profesor import Profesor
 from app.schemas.clase import ClaseCreate, ClaseUpdate, ClaseResponse
 from app.logging import log_with_context
 
-router = APIRouter(prefix="/clases", tags=["Clases"])
+router = APIRouter(prefix="/clases", tags=["🏫 Clases"])
 
 @router.post("", response_model=ClaseResponse, status_code=status.HTTP_201_CREATED)
 def crear_clase(clase_data: ClaseCreate, db: Session = Depends(get_db)):

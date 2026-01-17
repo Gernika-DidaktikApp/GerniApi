@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "gernikapp-api-collection",
-		"name": "GernikApp API",
-		"description": "Colección completa de endpoints para GernikApp API",
+		"_postman_id": "GerniBide-api-collection",
+		"name": "GerniBide API",
+		"description": "Colección completa de endpoints para GerniBide API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [

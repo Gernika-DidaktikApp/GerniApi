@@ -7,39 +7,33 @@ import logging
 import sys
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
-import json
-from datetime import datetime
-from typing import Any, Dict
+from datetime import datetime, timezone
 
 
 class StructuredFormatter(logging.Formatter):
     """
-    Formateador personalizado que genera logs en formato JSON estructurado
-    Facilita el análisis y parsing de logs
+    Formateador personalizado que genera logs estructurados
+    Facilita el análisis de logs sin necesidad de JSON
     """
 
     def format(self, record: logging.LogRecord) -> str:
-        # Crear estructura base del log
-        log_data: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
-            "level": record.levelname,
-            "logger": record.name,
-            "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno,
-        }
+        # Formato base del log
+        timestamp = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+        base = f"[{timestamp}] [{record.levelname:8}] [{record.module}:{record.lineno}] - {record.getMessage()}"
+
+        # Añadir campos extra si existen
+        if hasattr(record, "extra_fields") and record.extra_fields:
+            extras = []
+            for key, value in record.extra_fields.items():
+                extras.append(f"{key}={value}")
+            if extras:
+                base += " | " + " | ".join(extras)
 
         # Añadir información de excepción si existe
         if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
+            base += "\n" + self.formatException(record.exc_info)
 
-        # Añadir campos extra si existen
-        if hasattr(record, "extra_fields"):
-            log_data.update(record.extra_fields)
-
-        # Convertir a JSON
-        return json.dumps(log_data, ensure_ascii=False)
+        return base
 
 
 class SimpleFormatter(logging.Formatter):
@@ -57,19 +51,40 @@ class SimpleFormatter(logging.Formatter):
         'CRITICAL': '\033[35m',   # Magenta
     }
     RESET = '\033[0m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+
+    # Emojis para cada nivel
+    ICONS = {
+        'DEBUG': '🔍',
+        'INFO': '✓',
+        'WARNING': '⚠️ ',
+        'ERROR': '✗',
+        'CRITICAL': '🔥',
+    }
 
     def format(self, record: logging.LogRecord) -> str:
+        # Obtener emoji
+        icon = self.ICONS.get(record.levelname, '•')
+
         # Añadir color al nivel de log
         levelname = record.levelname
         if levelname in self.COLORS:
-            colored_levelname = f"{self.COLORS[levelname]}{levelname:8}{self.RESET}"
-            record.levelname = colored_levelname
+            colored_level = f"{self.COLORS[levelname]}{self.BOLD}{levelname:8}{self.RESET}"
+        else:
+            colored_level = f"{levelname:8}"
 
-        # Formato: [TIMESTAMP] [LEVEL] [module:line] - message
-        log_format = "[%(asctime)s] [%(levelname)s] [%(module)s:%(lineno)d] - %(message)s"
-        formatter = logging.Formatter(log_format, datefmt="%Y-%m-%d %H:%M:%S")
+        # Timestamp con formato más compacto
+        timestamp = self.formatTime(record, "%H:%M:%S")
 
-        return formatter.format(record)
+        # Módulo y línea en gris tenue
+        location = f"{self.DIM}{record.module}:{record.lineno}{self.RESET}"
+
+        # Mensaje
+        message = record.getMessage()
+
+        # Formato final bonito: 🔍 14:23:45 INFO     auth:42 → Usuario autenticado
+        return f"{icon} {self.DIM}{timestamp}{self.RESET} {colored_level} {location} → {message}"
 
 
 def setup_logging(

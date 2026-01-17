@@ -24,23 +24,37 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         # Timestamp de inicio para calcular duración
         start_time = time.time()
 
-        # Extraer información de la petición
-        method = request.method
-        path = request.url.path
-        client_host = request.client.host if request.client else "unknown"
-        user_agent = request.headers.get("user-agent", "unknown")
+        # Extraer información de la petición de forma segura
+        try:
+            method = request.method
+            path = str(request.url.path) if hasattr(request.url, 'path') else "unknown"
+            client_host = request.client.host if (hasattr(request, 'client') and request.client) else "unknown"
+            user_agent = request.headers.get("user-agent", "unknown") if hasattr(request, 'headers') else "unknown"
+            query_params = str(request.query_params) if hasattr(request, 'query_params') else ""
+        except Exception as e:
+            # Si falla la extracción de información, usar valores por defecto
+            method = "UNKNOWN"
+            path = "unknown"
+            client_host = "unknown"
+            user_agent = "unknown"
+            query_params = ""
+            logger.warning(f"Error extrayendo información de request: {e}")
 
         # Log de petición entrante (nivel DEBUG)
-        logger.debug(
-            f"Petición entrante: {method} {path}",
-            extra={"extra_fields": {
-                "http_method": method,
-                "path": path,
-                "client_ip": client_host,
-                "user_agent": user_agent,
-                "query_params": str(request.query_params)
-            }}
-        )
+        try:
+            logger.debug(
+                f"Petición entrante: {method} {path}",
+                extra={"extra_fields": {
+                    "http_method": method,
+                    "path": path,
+                    "client_ip": client_host,
+                    "user_agent": user_agent,
+                    "query_params": query_params
+                }}
+            )
+        except Exception as e:
+            # Si falla el logging, no detener la petición
+            logger.warning(f"Error logging petición entrante: {e}")
 
         # Procesar la petición y capturar posibles errores
         try:

@@ -56,11 +56,22 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     # Extraer errores de validación
     errors = []
     for error in exc.errors():
-        errors.append({
+        error_detail = {
             "field": ".".join(str(loc) for loc in error["loc"]),
             "message": error["msg"],
             "type": error["type"]
-        })
+        }
+        # Añadir input si está disponible para debugging
+        if "input" in error:
+            error_detail["input_received"] = str(error["input"])[:100]  # Limitar longitud
+        errors.append(error_detail)
+
+    # Intentar obtener el body para logging
+    try:
+        body = await request.body()
+        body_preview = body.decode('utf-8')[:200] if body else "empty"
+    except Exception:
+        body_preview = "unable_to_read"
 
     log_with_context(
         "warning",
@@ -68,8 +79,9 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         path=str(request.url.path),
         method=request.method,
         client_ip=request.client.host if request.client else "unknown",
-        validation_errors=errors,
-        error_count=len(errors)
+        validation_errors=str(errors),
+        error_count=len(errors),
+        body_preview=body_preview
     )
 
     return JSONResponse(

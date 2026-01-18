@@ -1,1 +1,173 @@
-<!-- Login page -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Accede a tu cuenta para gestionar el entorno educativo natural de Gernibide">
+    <title>Entrar en Gernibide - Didaktik App</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" type="image/x-icon">
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/navbar.css">
+    <link rel="stylesheet" href="/static/css/login.css">
+</head>
+
+<body class="has-navbar">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-logo">
+                <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
+                <span>Gernibide</span>
+            </a>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li class="navbar-menu-item">
+                    <a href="/" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3 12L5 10M5 10L10 5L15 10M5 10V18C5 18.5523 5.44772 19 6 19H9M15 10L17 12M15 10V18C15 18.5523 14.5523 19 14 19H11M9 19C9.55228 19 10 18.5523 10 18V15C10 14.4477 10.4477 14 11 14C11.5523 14 12 14.4477 12 15V18C12 18.5523 11.5523 19 11 19M9 19H11"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Inicio
+                    </a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="#" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M13 7H7M13 11H7M17 4V16C17 17.1046 16.1046 18 15 18H5C3.89543 18 3 17.1046 3 16V4C3 2.89543 3.89543 2 5 2H15C16.1046 2 17 2.89543 17 4Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Servicios
+                    </a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="#" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.663 17H7C4.23858 17 2 14.7614 2 12V7C2 4.23858 4.23858 2 7 2H13C15.7614 2 18 4.23858 18 7V9.663M16 18L18 16M17 14C17 15.6569 15.6569 17 14 17C12.3431 17 11 15.6569 11 14C11 12.3431 12.3431 11 14 11C15.6569 11 17 12.3431 17 14Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Tecnología
+                    </a>
+                </li>
+            </ul>
+
+            <a href="#" class="navbar-contact">Contacto</a>
+
+            <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
+                <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo -->
+            <div class="logo-container">
+                <div class="logo-box">
+                    <img src="/static/icons/gernibide-logo.png" alt="Gernibide Logo" class="logo-icon" id="logoIcon">
+                </div>
+            </div>
+
+            <!-- Header -->
+            <header class="login-header">
+                <h1>Entrar en Gernibide</h1>
+                <p class="subtitle">Accede a tu cuenta para gestionar el entorno educativo natural</p>
+            </header>
+
+            <!-- Login Form -->
+            <form class="login-form" id="loginForm" novalidate>
+                <!-- Username Field -->
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10 10C12.7614 10 15 7.76142 15 5C15 2.23858 12.7614 0 10 0C7.23858 0 5 2.23858 5 5C5 7.76142 7.23858 10 10 10Z"
+                                    fill="currentColor" />
+                                <path
+                                    d="M10 12.5C4.47715 12.5 0 14.4772 0 17.5V20H20V17.5C20 14.4772 15.5228 12.5 10 12.5Z"
+                                    fill="currentColor" />
+                            </svg>
+                        </span>
+                        <input type="text" id="username" name="username" placeholder="Usuario" required
+                            autocomplete="username" aria-label="Nombre de usuario">
+                    </div>
+                    <span class="error-message" id="usernameError"></span>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M15.8333 9.16667H4.16667C3.24619 9.16667 2.5 9.91286 2.5 10.8333V16.6667C2.5 17.5871 3.24619 18.3333 4.16667 18.3333H15.8333C16.7538 18.3333 17.5 17.5871 17.5 16.6667V10.8333C17.5 9.91286 16.7538 9.16667 15.8333 9.16667Z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M5.83333 9.16667V5.83333C5.83333 4.72826 6.27232 3.66846 7.05372 2.88706C7.83512 2.10565 8.89493 1.66667 10 1.66667C11.1051 1.66667 12.1649 2.10565 12.9463 2.88706C13.7277 3.66846 14.1667 4.72826 14.1667 5.83333V9.16667"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <input type="password" id="password" name="password" placeholder="Password" required
+                            autocomplete="current-password" aria-label="Contraseña">
+                        <button type="button" class="toggle-password" id="togglePassword"
+                            aria-label="Mostrar contraseña">
+                            <svg class="eye-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M1.66667 10C1.66667 10 4.16667 4.16667 10 4.16667C15.8333 4.16667 18.3333 10 18.3333 10C18.3333 10 15.8333 15.8333 10 15.8333C4.16667 15.8333 1.66667 10 1.66667 10Z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M10 12.5C11.3807 12.5 12.5 11.3807 12.5 10C12.5 8.61929 11.3807 7.5 10 7.5C8.61929 7.5 7.5 8.61929 7.5 10C7.5 11.3807 8.61929 12.5 10 12.5Z"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                    </div>
+                    <span class="error-message" id="passwordError"></span>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span class="btn-text">Entrar</span>
+                    <span class="btn-loader" id="btnLoader"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="login-footer">
+        <p class="copyright">GERNIBIDE EDUCACIÓN © 2024</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/static/js/login.js" defer></script>
+</body>
+
+</html>

@@ -1,1 +1,332 @@
-<!-- Dashboard page -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Panel de administración de Gernibide">
+    <title>Dashboard - Gernibide Admin</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" type="image/x-icon">
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/navbar.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+
+<body class="has-navbar">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-logo">
+                <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
+                <span>Gernibide</span>
+            </a>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li class="navbar-menu-item">
+                    <a href="/" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3 12L5 10M5 10L10 5L15 10M5 10V18C5 18.5523 5.44772 19 6 19H9M15 10L17 12M15 10V18C15 18.5523 14.5523 19 14 19H11M9 19C9.55228 19 10 18.5523 10 18V15C10 14.4477 10.4477 14 11 14C11.5523 14 12 14.4477 12 15V18C12 18.5523 11.5523 19 11 19M9 19H11"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Inicio
+                    </a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="#" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M13 7H7M13 11H7M17 4V16C17 17.1046 16.1046 18 15 18H5C3.89543 18 3 17.1046 3 16V4C3 2.89543 3.89543 2 5 2H15C16.1046 2 17 2.89543 17 4Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Servicios
+                    </a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="#" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.663 17H7C4.23858 17 2 14.7614 2 12V7C2 4.23858 4.23858 2 7 2H13C15.7614 2 18 4.23858 18 7V9.663M16 18L18 16M17 14C17 15.6569 15.6569 17 14 17C12.3431 17 11 15.6569 11 14C11 12.3431 12.3431 11 14 11C15.6569 11 17 12.3431 17 14Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Tecnología
+                    </a>
+                </li>
+            </ul>
+
+            <a href="/login" class="navbar-contact">Cerrar Sesión</a>
+
+            <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
+                <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Dashboard Layout -->
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="/static/icons/gernibide-logo.png" alt="Gernibide">
+                </div>
+                <h3>Gernibide Admin</h3>
+            </div>
+
+            <!-- Team Section -->
+            <div class="sidebar-team">
+                <div class="team-header">
+                    <span>Equipo</span>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div class="team-avatars">
+                    <div class="avatar" style="background: linear-gradient(135deg, #6B8E6F 0%, #7FA083 100%)"></div>
+                    <div class="avatar" style="background: linear-gradient(135deg, #B8C74A 0%, #C5D35F 100%)"></div>
+                    <div class="avatar" style="background: linear-gradient(135deg, #8B6F47 0%, #9D7E56 100%)"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-nav-item active">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 4H17M3 8H17M3 12H17M3 16H17" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" />
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M9 2C13.418 2 17 5.582 17 10C17 14.418 13.418 18 9 18C4.582 18 1 14.418 1 10C1 5.582 4.582 2 9 2ZM9 4C5.686 4 3 6.686 3 10C3 13.314 5.686 16 9 16C12.314 16 15 13.314 15 10C15 6.686 12.314 4 9 4Z"
+                            fill="currentColor" />
+                    </svg>
+                    <span>Estadísticas</span>
+                </a>
+                <a href="#" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M10 9C11.6569 9 13 7.65685 13 6C13 4.34315 11.6569 3 10 3C8.34315 3 7 4.34315 7 6C7 7.65685 8.34315 9 10 9Z"
+                            stroke="currentColor" stroke-width="2" />
+                        <path d="M3 18C3 14.134 6.134 11 10 11C13.866 11 17 14.134 17 18" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <span>Usuarios</span>
+                </a>
+                <a href="#" class="sidebar-nav-item">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.5 2.5L2 7L10.5 11.5L19 7L10.5 2.5Z" stroke="currentColor" stroke-width="2"
+                            stroke-linejoin="round" />
+                        <path d="M2 12L10.5 16.5L19 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                    <span>Actividades</span>
+                </a>
+            </nav>
+
+            <!-- Footer Info -->
+            <div class="sidebar-footer">
+                <div class="sidebar-info">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z"
+                            stroke="currentColor" stroke-width="2" />
+                        <path d="M10 14V10M10 6H10.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    <span>Cultivando el Futuro de las Ciudades</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <div class="dashboard-container">
+                <!-- Hero Section -->
+                <section class="dashboard-hero">
+                    <h1 class="dashboard-title">
+                        Gestión Educativa de
+                        <span class="highlight">Gernibide</span>
+                    </h1>
+                    <p class="dashboard-subtitle">
+                        Panel de control para gestionar actividades, usuarios y estadísticas del entorno educativo
+                        natural
+                    </p>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <button class="action-btn action-btn-primary">
+                            <span>Explorar más</span>
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                        <button class="action-btn action-btn-secondary">
+                            Gestionar
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Charts Grid -->
+                <section class="charts-section">
+                    <h2 class="section-title">Estadísticas y Análisis</h2>
+
+                    <div class="charts-grid">
+                        <!-- Chart 1 - Large -->
+                        <div class="chart-card chart-large">
+                            <div class="chart-header">
+                                <h3>Actividad de Usuarios</h3>
+                                <div class="chart-tags">
+                                    <span class="tag">Inteligente</span>
+                                    <span class="tag">Sostenible</span>
+                                    <span class="tag">Innovación</span>
+                                </div>
+                            </div>
+                            <div class="chart-placeholder" id="chart1">
+                                <!-- Plotly chart will go here -->
+                                <div class="placeholder-content">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M7 14L11 10L15 14L21 8" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <p>Gráfico de Plotly</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart 2 - Small -->
+                        <div class="chart-card chart-small">
+                            <div class="chart-header">
+                                <h3>Eventos Completados</h3>
+                            </div>
+                            <div class="chart-placeholder" id="chart2">
+                                <div class="placeholder-content">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                                        <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    <p>Gráfico Plotly</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart 3 - Small -->
+                        <div class="chart-card chart-small">
+                            <div class="chart-header">
+                                <h3>Distribución</h3>
+                            </div>
+                            <div class="chart-placeholder" id="chart3">
+                                <div class="placeholder-content">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
+                                            stroke-linejoin="round" />
+                                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <p>Gráfico Plotly</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart 4 - Medium -->
+                        <div class="chart-card chart-medium">
+                            <div class="chart-header">
+                                <h3>Tendencias Mensuales</h3>
+                            </div>
+                            <div class="chart-placeholder" id="chart4">
+                                <div class="placeholder-content">
+                                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                        <rect x="7" y="11" width="3" height="7" fill="currentColor" opacity="0.3" />
+                                        <rect x="11" y="8" width="3" height="10" fill="currentColor" opacity="0.5" />
+                                        <rect x="15" y="5" width="3" height="13" fill="currentColor" opacity="0.7" />
+                                    </svg>
+                                    <p>Gráfico Plotly</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart 5 - Medium -->
+                        <div class="chart-card chart-medium">
+                            <div class="chart-header">
+                                <h3>Rendimiento</h3>
+                            </div>
+                            <div class="chart-placeholder" id="chart5">
+                                <div class="placeholder-content">
+                                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
+                                            stroke="currentColor" stroke-width="2" />
+                                        <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    <p>Gráfico Plotly</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bottom Cards -->
+                <section class="bottom-section">
+                    <div class="info-cards">
+                        <div class="info-card">
+                            <h4>Sistemas Ecológicos</h4>
+                            <p>Gestión integrada de recursos naturales</p>
+                        </div>
+                        <div class="info-card">
+                            <h4>Diseño de Infraestructura Verde</h4>
+                            <div class="card-icon">
+                                <img src="/static/icons/gernibide-logo.png" alt="Icon">
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <h4>Sistema de Riego Inteligente</h4>
+                            <p>Optimización de recursos hídricos</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/static/js/dashboard.js" defer></script>
+</body>
+
+</html>

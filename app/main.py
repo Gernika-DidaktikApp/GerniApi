@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from app.config import settings
 from app.routers import (
     auth,
@@ -12,6 +14,7 @@ from app.routers import (
     actividad_estados,
     evento_estados,
 )
+from app.web import routes as web_routes
 from app.logging import logger, LoggingMiddleware, register_exception_handlers
 from app.database import Base, engine
 # Importar modelos para que SQLAlchemy los conozca
@@ -113,7 +116,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Incluir routers
+# Montar archivos estáticos para la interfaz web
+STATIC_DIR = Path(__file__).parent / "web" / "static"
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+logger.info(f"Archivos estáticos montados en /static desde {STATIC_DIR}")
+
+# Incluir routers de API
 app.include_router(auth.router, prefix=settings.API_V1_PREFIX)
 app.include_router(usuarios.router, prefix=settings.API_V1_PREFIX)
 app.include_router(profesores.router, prefix=settings.API_V1_PREFIX)
@@ -123,7 +131,11 @@ app.include_router(eventos.router, prefix=settings.API_V1_PREFIX)
 app.include_router(partidas.router, prefix=settings.API_V1_PREFIX)
 app.include_router(actividad_estados.router, prefix=settings.API_V1_PREFIX)
 app.include_router(evento_estados.router, prefix=settings.API_V1_PREFIX)
-logger.info(f"Routers registrados en {settings.API_V1_PREFIX}")
+logger.info(f"Routers de API registrados en {settings.API_V1_PREFIX}")
+
+# Incluir router de interfaz web
+app.include_router(web_routes.router)
+logger.info("Router de interfaz web registrado")
 
 
 @app.on_event("startup")

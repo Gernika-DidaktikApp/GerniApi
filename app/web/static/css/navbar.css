@@ -1,0 +1,163 @@
+/* ============================================
+   Navbar Styles - Gernibide
+   ============================================ */
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1rem 0;
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+/* Logo */
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: #2C3E3F;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.navbar-logo-icon {
+    width: 32px;
+    height: 32px;
+}
+
+/* Nav Menu */
+.navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-menu-item {
+    position: relative;
+}
+
+.navbar-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: #7B8C8D;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    transition: all 200ms ease;
+}
+
+.navbar-menu-link:hover {
+    color: #2C3E3F;
+    background: rgba(107, 142, 111, 0.1);
+}
+
+.navbar-menu-link.active {
+    color: #2C3E3F;
+    background: rgba(184, 199, 74, 0.15);
+}
+
+.navbar-menu-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+}
+
+/* Contact Button */
+.navbar-contact {
+    padding: 0.6rem 1.5rem;
+    background: #2C3E3F;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: all 200ms ease;
+    white-space: nowrap;
+}
+
+.navbar-contact:hover {
+    background: #1A1A1A;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile Menu Toggle */
+.navbar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #2C3E3F;
+}
+
+.navbar-toggle-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 0 1rem;
+    }
+
+    .navbar-toggle {
+        display: block;
+    }
+
+    .navbar-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        display: none;
+    }
+
+    .navbar-menu.active {
+        display: flex;
+    }
+
+    .navbar-menu-link {
+        padding: 0.75rem 1rem;
+    }
+
+    .navbar-contact {
+        margin-top: 0.5rem;
+        text-align: center;
+    }
+}
+
+/* Add padding to body when navbar is present */
+body.has-navbar {
+    padding-top: 80px;
+}

@@ -40,7 +40,10 @@ jobs:
       run: |
         pytest -v --tb=short
       env:
-        # Los tests usan SQLite en memoria, no necesitan variables de entorno de BD
+        # Variables requeridas por app/config.py
+        DATABASE_URL: "sqlite:///:memory:"
+        SECRET_KEY: "test-secret-key-for-ci-only-not-for-production"
+        # Path de Python
         PYTHONPATH: ${{ github.workspace }}
 
     - name: Generate coverage report
@@ -48,6 +51,10 @@ jobs:
       run: |
         pip install pytest-cov
         pytest --cov=app --cov-report=xml --cov-report=html
+      env:
+        DATABASE_URL: "sqlite:///:memory:"
+        SECRET_KEY: "test-secret-key-for-ci-only-not-for-production"
+        PYTHONPATH: ${{ github.workspace }}
 
     - name: Upload coverage to artifacts
       if: matrix.python-version == '3.12'

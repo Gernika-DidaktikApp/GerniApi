@@ -126,17 +126,33 @@ pytest --cov=app --cov-report=html
 
 ## 🔒 Variables de Entorno en CI
 
-Los tests **NO necesitan** variables de entorno de base de datos porque usan SQLite en memoria.
+El workflow configura automáticamente las variables de entorno necesarias:
 
-Si necesitas añadir variables de entorno:
+```yaml
+env:
+  DATABASE_URL: "sqlite:///:memory:"
+  SECRET_KEY: "test-secret-key-for-ci-only-not-for-production"
+  PYTHONPATH: ${{ github.workspace }}
+```
+
+**Notas importantes:**
+- `DATABASE_URL`: Apunta a SQLite en memoria (los tests no usan PostgreSQL)
+- `SECRET_KEY`: Clave de prueba solo para CI (no es la de producción)
+- `PYTHONPATH`: Permite importar el módulo `app` correctamente
+
+### Añadir más variables de entorno
+
+Si necesitas añadir variables de entorno adicionales:
 
 ```yaml
 - name: Run tests with pytest
   run: |
     pytest -v --tb=short
   env:
+    DATABASE_URL: "sqlite:///:memory:"
+    SECRET_KEY: "test-secret-key-for-ci-only-not-for-production"
     MI_VARIABLE: valor
-    SECRET_KEY: ${{ secrets.MI_SECRET }}  # Usar GitHub Secrets
+    MI_SECRET: ${{ secrets.MI_SECRET }}  # Usar GitHub Secrets
 ```
 
 ### Configurar Secrets en GitHub

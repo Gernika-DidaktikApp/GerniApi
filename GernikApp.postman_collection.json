@@ -452,10 +452,25 @@
 			]
 		},
 		{
-			"name": "Estados",
+			"name": "Estados de Actividades y Eventos",
 			"item": [
 				{
-					"name": "Crear Estado de Actividad",
+					"name": "Actividad - Iniciar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"actividad_estado_id\", jsonData.id);",
+									"    console.log(\"ID Estado Actividad guardado: \" + jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -466,18 +481,39 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"id_juego\": \"{{partida_id}}\",\n  \"id_parada\": \"{{parada_id}}\",\n  \"estado\": \"en_progreso\"\n}"
+							"raw": "{\n  \"id_juego\": \"{{partida_id}}\",\n  \"id_actividad\": \"{{actividad_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/actividad-estados",
+							"raw": "{{base_url}}/api/v1/actividad-estados/iniciar",
 							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "actividad-estados"]
-						}
+							"path": ["api", "v1", "actividad-estados", "iniciar"]
+						},
+						"description": "Inicia una actividad para un jugador. Registra automáticamente la fecha de inicio y establece el estado en 'en_progreso'."
 					},
 					"response": []
 				},
 				{
-					"name": "Crear Estado de Evento",
+					"name": "Evento - Iniciar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"evento_estado_id\", jsonData.id);",
+									"    console.log(\"ID Estado Evento guardado: \" + jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -488,13 +524,103 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"id_juego\": \"{{partida_id}}\",\n  \"id_actividad\": \"{{actividad_id}}\",\n  \"estado\": \"completado\"\n}"
+							"raw": "{\n  \"id_juego\": \"{{partida_id}}\",\n  \"id_actividad\": \"{{actividad_id}}\",\n  \"id_evento\": \"{{evento_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/evento-estados/iniciar",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "evento-estados", "iniciar"]
+						},
+						"description": "Inicia un evento dentro de una actividad. Registra automáticamente la fecha de inicio y establece el estado en 'en_progreso'."
+					},
+					"response": []
+				},
+				{
+					"name": "Evento - Completar",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"puntuacion\": 85.5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/evento-estados/{{evento_estado_id}}/completar",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "evento-estados", "{{evento_estado_id}}", "completar"]
+						},
+						"description": "Completa un evento registrando su puntuación. Calcula automáticamente la duración. Si es el último evento de la actividad, completa la actividad automáticamente con la suma total de puntuaciones."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Estados de Actividad",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/actividad-estados",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "actividad-estados"]
+						},
+						"description": "Lista todos los estados de actividades."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Estados de Evento",
+					"request": {
+						"method": "GET",
+						"header": [],
 						"url": {
 							"raw": "{{base_url}}/api/v1/evento-estados",
 							"host": ["{{base_url}}"],
 							"path": ["api", "v1", "evento-estados"]
-						}
+						},
+						"description": "Lista todos los estados de eventos."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Estado de Actividad",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/actividad-estados/{{actividad_estado_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "actividad-estados", "{{actividad_estado_id}}"]
+						},
+						"description": "Obtiene un estado de actividad específico."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Estado de Evento",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/evento-estados/{{evento_estado_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "evento-estados", "{{evento_estado_id}}"]
+						},
+						"description": "Obtiene un estado de evento específico."
 					},
 					"response": []
 				}
@@ -534,6 +660,21 @@
 		},
 		{
 			"key": "parada_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "evento_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "actividad_estado_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "evento_estado_id",
 			"value": "",
 			"type": "string"
 		}

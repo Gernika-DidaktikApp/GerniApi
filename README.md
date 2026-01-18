@@ -124,6 +124,19 @@ curl -X POST "http://localhost:8000/api/v1/auth/login-app" \
   -d '{"username":"test_user","password":"test_password"}'
 ```
 
+### Estados de Actividades y Eventos
+
+#### POST `/api/v1/actividad-estados/iniciar`
+Inicia una actividad para un jugador. Registra automáticamente fecha de inicio y establece estado "en_progreso".
+
+#### POST `/api/v1/evento-estados/iniciar`
+Inicia un evento dentro de una actividad. Registra automáticamente fecha de inicio.
+
+#### PUT `/api/v1/evento-estados/{id}/completar`
+Completa un evento con su puntuación. **Calcula automáticamente la duración** y si es el último evento, **completa la actividad automáticamente** sumando todas las puntuaciones.
+
+**Ver [API_ENDPOINTS.md](docs/API_ENDPOINTS.md) para documentación completa de estos endpoints.**
+
 ### Health Check
 
 #### GET `/health`
@@ -180,6 +193,27 @@ Verifica que la API está corriendo.
 - `id_actividad` (FK a Actividad)
 - `nombre`
 
+### ActividadEstado
+- `id` (UUID)
+- `id_juego` (FK a Partida)
+- `id_actividad` (FK a Actividad)
+- `fecha_inicio` (timestamp)
+- `fecha_fin` (timestamp, opcional)
+- `duracion` (segundos, calculado automáticamente)
+- `estado` (en_progreso/completado)
+- `puntuacion_total` (float, suma de puntuaciones de eventos)
+
+### EventoEstado
+- `id` (UUID)
+- `id_juego` (FK a Partida)
+- `id_actividad` (FK a Actividad)
+- `id_evento` (FK a Evento)
+- `fecha_inicio` (timestamp)
+- `fecha_fin` (timestamp, opcional)
+- `duracion` (segundos, calculado automáticamente)
+- `estado` (en_progreso/completado)
+- `puntuacion` (float, puntuación obtenida)
+
 ### Sesion
 - `id` (UUID)
 
@@ -224,6 +258,62 @@ GerniApi/
 ├── RAILWAY_DEPLOY.md    # Guía de despliegue en Railway
 └── QUICKSTART.md        # Inicio rápido
 ```
+
+---
+
+## 🎮 Sistema de Gestión de Estados
+
+El sistema permite rastrear el progreso de actividades y eventos de los jugadores con **cálculos automáticos** de tiempos y puntuaciones.
+
+### Flujo de Juego
+
+1. **Iniciar Actividad**: `POST /api/v1/actividad-estados/iniciar`
+   - Registra automáticamente la fecha de inicio
+   - Establece el estado como "en_progreso"
+   - Inicializa puntuación_total en 0
+
+2. **Iniciar Evento**: `POST /api/v1/evento-estados/iniciar`
+   - Registra automáticamente la fecha de inicio del evento
+   - Establece el estado como "en_progreso"
+
+3. **Completar Evento**: `PUT /api/v1/evento-estados/{id}/completar`
+   - Recibe la puntuación obtenida por el jugador
+   - **Calcula automáticamente** la duración (fecha_fin - fecha_inicio)
+   - Actualiza el estado a "completado"
+   - **Si es el último evento** de la actividad:
+     - Completa automáticamente la actividad
+     - **Suma todas las puntuaciones** de los eventos
+     - Calcula la duración total de la actividad
+
+### Ejemplo de Uso
+
+```javascript
+// 1. Iniciar actividad
+const actividad = await iniciarActividad(partidaId, actividadId);
+
+// 2. Para cada evento de la actividad
+for (const evento of eventos) {
+  // Iniciar evento
+  const eventoEstado = await iniciarEvento(partidaId, actividadId, evento.id);
+
+  // Jugador completa el evento
+  const puntuacion = await jugarEvento(evento);
+
+  // Completar evento (la API calcula duración automáticamente)
+  await completarEvento(eventoEstado.id, puntuacion);
+}
+
+// 3. Al completar el último evento, la actividad se completa automáticamente
+// con la suma total de puntuaciones y duración calculada
+```
+
+### Características Automáticas
+
+- ✅ **Cálculo de duraciones**: Se calcula automáticamente en segundos
+- ✅ **Suma de puntuaciones**: La actividad acumula puntos de todos los eventos
+- ✅ **Auto-completado**: La actividad se marca como completada automáticamente
+- ✅ **Validaciones**: No se pueden duplicar eventos en progreso
+- ✅ **Relaciones verificadas**: Se valida que los eventos pertenezcan a la actividad
 
 ---
 
@@ -457,6 +547,9 @@ Este proyecto está bajo licencia MIT.
 - ✅ **Manejo robusto de errores** con mensajes descriptivos
 - ✅ **Colección de Postman** lista para importar
 - ✅ **Validación automática** con Pydantic schemas
+- ✅ **Sistema de estados de actividades y eventos** con cálculos automáticos
+- ✅ **Tracking de progreso** con puntuaciones y tiempos
+- ✅ **Auto-completado de actividades** cuando se completan todos los eventos
 
 ---
 

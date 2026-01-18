@@ -179,6 +179,424 @@ console.log(data.status); // "healthy"
 
 ---
 
+## 📊 Estados de Actividades y Eventos
+
+El sistema de gestión de estados permite rastrear el progreso de las actividades y eventos de los jugadores, calculando automáticamente tiempos y puntuaciones.
+
+### Flujo de Trabajo
+
+1. **Jugador inicia actividad** → POST `/api/v1/actividad-estados/iniciar`
+2. **Jugador inicia evento** → POST `/api/v1/evento-estados/iniciar`
+3. **Jugador completa evento** → PUT `/api/v1/evento-estados/{id}/completar`
+4. **Si es el último evento** → La actividad se completa automáticamente
+
+---
+
+### POST `/api/v1/actividad-estados/iniciar`
+
+Inicia una actividad para un jugador. Registra automáticamente la fecha de inicio.
+
+#### Request
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**Body:**
+```json
+{
+  "id_juego": "uuid-de-la-partida",
+  "id_actividad": "uuid-de-la-actividad"
+}
+```
+
+#### Response
+
+**Status: 201 Created**
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "id_juego": "uuid-de-la-partida",
+  "id_actividad": "uuid-de-la-actividad",
+  "fecha_inicio": "2026-01-18T10:30:00",
+  "duracion": null,
+  "fecha_fin": null,
+  "estado": "en_progreso",
+  "puntuacion_total": 0.0
+}
+```
+
+**Status: 400 Bad Request**
+```json
+{
+  "detail": "Ya existe una actividad en progreso para este juego y actividad"
+}
+```
+
+**Status: 404 Not Found**
+```json
+{
+  "detail": "La actividad especificada no existe"
+}
+```
+
+#### Ejemplos
+
+**curl:**
+```bash
+curl -X POST "https://tu-api.up.railway.app/api/v1/actividad-estados/iniciar" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id_juego": "uuid-partida",
+    "id_actividad": "uuid-actividad"
+  }'
+```
+
+**JavaScript:**
+```javascript
+const response = await fetch(`${API_BASE_URL}/api/v1/actividad-estados/iniciar`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    id_juego: partidaId,
+    id_actividad: actividadId
+  })
+});
+
+const actividadEstado = await response.json();
+console.log('Actividad iniciada:', actividadEstado.id);
+```
+
+**Kotlin:**
+```kotlin
+val response = client.post("$baseUrl/api/v1/actividad-estados/iniciar") {
+    contentType(ContentType.Application.Json)
+    setBody(mapOf(
+        "id_juego" to partidaId,
+        "id_actividad" to actividadId
+    ))
+}
+val actividadEstado = response.body<ActividadEstadoResponse>()
+```
+
+---
+
+### POST `/api/v1/evento-estados/iniciar`
+
+Inicia un evento dentro de una actividad. Registra automáticamente la fecha de inicio.
+
+#### Request
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**Body:**
+```json
+{
+  "id_juego": "uuid-de-la-partida",
+  "id_actividad": "uuid-de-la-actividad",
+  "id_evento": "uuid-del-evento"
+}
+```
+
+#### Response
+
+**Status: 201 Created**
+```json
+{
+  "id": "660e8400-e29b-41d4-a716-446655440000",
+  "id_juego": "uuid-de-la-partida",
+  "id_actividad": "uuid-de-la-actividad",
+  "id_evento": "uuid-del-evento",
+  "fecha_inicio": "2026-01-18T10:35:00",
+  "duracion": null,
+  "fecha_fin": null,
+  "estado": "en_progreso",
+  "puntuacion": null
+}
+```
+
+**Status: 400 Bad Request**
+```json
+{
+  "detail": "Ya existe un evento en progreso para este juego y evento"
+}
+```
+
+**Status: 404 Not Found**
+```json
+{
+  "detail": "El evento especificado no existe o no pertenece a esta actividad"
+}
+```
+
+#### Ejemplos
+
+**curl:**
+```bash
+curl -X POST "https://tu-api.up.railway.app/api/v1/evento-estados/iniciar" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id_juego": "uuid-partida",
+    "id_actividad": "uuid-actividad",
+    "id_evento": "uuid-evento"
+  }'
+```
+
+**JavaScript:**
+```javascript
+const response = await fetch(`${API_BASE_URL}/api/v1/evento-estados/iniciar`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    id_juego: partidaId,
+    id_actividad: actividadId,
+    id_evento: eventoId
+  })
+});
+
+const eventoEstado = await response.json();
+// Guardar el ID para completar después
+localStorage.setItem('evento_estado_id', eventoEstado.id);
+```
+
+**Flutter:**
+```dart
+final response = await http.post(
+  Uri.parse('$baseUrl/api/v1/evento-estados/iniciar'),
+  headers: {'Content-Type': 'application/json'},
+  body: jsonEncode({
+    'id_juego': partidaId,
+    'id_actividad': actividadId,
+    'id_evento': eventoId
+  }),
+);
+
+if (response.statusCode == 201) {
+  final eventoEstado = jsonDecode(response.body);
+  // Guardar ID para completar después
+  await prefs.setString('evento_estado_id', eventoEstado['id']);
+}
+```
+
+---
+
+### PUT `/api/v1/evento-estados/{estado_id}/completar`
+
+Completa un evento y registra su puntuación. **Calcula automáticamente**:
+- Duración del evento (fecha_fin - fecha_inicio)
+- Verifica si es el último evento de la actividad
+- **Si es el último evento**: Completa la actividad automáticamente con la suma total de puntuaciones
+
+#### Request
+
+**Headers:**
+```
+Content-Type: application/json
+```
+
+**URL Parameters:**
+- `estado_id`: UUID del estado del evento (obtenido al iniciar el evento)
+
+**Body:**
+```json
+{
+  "puntuacion": 85.5
+}
+```
+
+#### Response
+
+**Status: 200 OK**
+```json
+{
+  "id": "660e8400-e29b-41d4-a716-446655440000",
+  "id_juego": "uuid-de-la-partida",
+  "id_actividad": "uuid-de-la-actividad",
+  "id_evento": "uuid-del-evento",
+  "fecha_inicio": "2026-01-18T10:35:00",
+  "fecha_fin": "2026-01-18T10:40:30",
+  "duracion": 330,
+  "estado": "completado",
+  "puntuacion": 85.5
+}
+```
+
+**Status: 400 Bad Request**
+```json
+{
+  "detail": "El evento no está en progreso. Estado actual: completado"
+}
+```
+
+**Status: 404 Not Found**
+```json
+{
+  "detail": "Estado de evento no encontrado"
+}
+```
+
+#### Comportamiento Automático
+
+Cuando se completa el **último evento** de una actividad:
+
+1. **Suma puntuaciones** de todos los eventos completados
+2. **Calcula duración total** de la actividad
+3. **Actualiza estado** a "completado"
+4. **Registra fecha de finalización**
+
+**Ejemplo de actividad completada automáticamente:**
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "id_juego": "uuid-de-la-partida",
+  "id_actividad": "uuid-de-la-actividad",
+  "fecha_inicio": "2026-01-18T10:30:00",
+  "fecha_fin": "2026-01-18T10:45:00",
+  "duracion": 900,
+  "estado": "completado",
+  "puntuacion_total": 256.5
+}
+```
+
+#### Ejemplos
+
+**curl:**
+```bash
+# Completar evento con puntuación
+curl -X PUT "https://tu-api.up.railway.app/api/v1/evento-estados/660e8400.../completar" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "puntuacion": 85.5
+  }'
+```
+
+**JavaScript:**
+```javascript
+// Completar evento
+const eventoEstadoId = localStorage.getItem('evento_estado_id');
+
+const response = await fetch(
+  `${API_BASE_URL}/api/v1/evento-estados/${eventoEstadoId}/completar`,
+  {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      puntuacion: playerScore
+    })
+  }
+);
+
+const eventoCompletado = await response.json();
+console.log('Evento completado con', eventoCompletado.puntuacion, 'puntos');
+console.log('Duración:', eventoCompletado.duracion, 'segundos');
+```
+
+**Kotlin:**
+```kotlin
+val eventoEstadoId = prefs.getString("evento_estado_id", "")
+
+val response = client.put("$baseUrl/api/v1/evento-estados/$eventoEstadoId/completar") {
+    contentType(ContentType.Application.Json)
+    setBody(mapOf("puntuacion" to 85.5))
+}
+
+val eventoCompletado = response.body<EventoEstadoResponse>()
+println("Duración: ${eventoCompletado.duracion} segundos")
+```
+
+**Flutter:**
+```dart
+final eventoEstadoId = await prefs.getString('evento_estado_id');
+
+final response = await http.put(
+  Uri.parse('$baseUrl/api/v1/evento-estados/$eventoEstadoId/completar'),
+  headers: {'Content-Type': 'application/json'},
+  body: jsonEncode({'puntuacion': playerScore}),
+);
+
+if (response.statusCode == 200) {
+  final evento = jsonDecode(response.body);
+  print('Evento completado: ${evento['puntuacion']} puntos');
+  print('Duración: ${evento['duracion']} segundos');
+}
+```
+
+---
+
+### Ejemplo de Flujo Completo
+
+```javascript
+// 1. Iniciar partida
+const partidaResponse = await fetch(`${API_BASE_URL}/api/v1/partidas`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ id_usuario: userId })
+});
+const { id: partidaId } = await partidaResponse.json();
+
+// 2. Iniciar actividad
+const actividadResponse = await fetch(
+  `${API_BASE_URL}/api/v1/actividad-estados/iniciar`,
+  {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id_juego: partidaId,
+      id_actividad: 'actividad-uuid'
+    })
+  }
+);
+const actividadEstado = await actividadResponse.json();
+
+// 3. Bucle para cada evento de la actividad
+for (const eventoId of eventosIds) {
+  // 3a. Iniciar evento
+  const eventoInicioResponse = await fetch(
+    `${API_BASE_URL}/api/v1/evento-estados/iniciar`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id_juego: partidaId,
+        id_actividad: 'actividad-uuid',
+        id_evento: eventoId
+      })
+    }
+  );
+  const { id: eventoEstadoId } = await eventoInicioResponse.json();
+
+  // 3b. Jugador completa el evento
+  // ... lógica del juego ...
+
+  // 3c. Completar evento con puntuación
+  await fetch(
+    `${API_BASE_URL}/api/v1/evento-estados/${eventoEstadoId}/completar`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ puntuacion: score })
+    }
+  );
+}
+
+// 4. La actividad se completa automáticamente al completar el último evento
+// Obtener actividad completada
+const actividadFinalResponse = await fetch(
+  `${API_BASE_URL}/api/v1/actividad-estados/${actividadEstado.id}`
+);
+const actividadCompletada = await actividadFinalResponse.json();
+
+console.log('Actividad completada!');
+console.log('Puntuación total:', actividadCompletada.puntuacion_total);
+console.log('Tiempo total:', actividadCompletada.duracion, 'segundos');
+```
+
+---
+
 ## 📚 Documentación Interactiva
 
 ### GET `/docs`

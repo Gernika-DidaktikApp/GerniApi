@@ -10,6 +10,7 @@ class ActividadEstadoUpdate(BaseModel):
     duracion: Optional[int] = None
     fecha_fin: Optional[datetime] = None
     estado: Optional[str] = Field(None, max_length=20)
+    puntuacion_total: Optional[float] = None
 
 class ActividadEstadoResponse(BaseModel):
     id: str
@@ -19,6 +20,7 @@ class ActividadEstadoResponse(BaseModel):
     duracion: Optional[int] = None
     fecha_fin: Optional[datetime] = None
     estado: str
+    puntuacion_total: Optional[float] = None
 
     class Config:
         from_attributes = True

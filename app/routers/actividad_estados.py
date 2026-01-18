@@ -12,6 +12,60 @@ from app.logging import log_with_context
 
 router = APIRouter(prefix="/actividad-estados", tags=["📊 Estados"])
 
+@router.post("/iniciar", response_model=ActividadEstadoResponse, status_code=status.HTTP_201_CREATED)
+def iniciar_actividad(estado_data: ActividadEstadoCreate, db: Session = Depends(get_db)):
+    """
+    Iniciar una actividad para un jugador.
+
+    Crea un nuevo registro de estado de actividad con estado 'en_progreso'.
+    La fecha de inicio se registra automáticamente.
+    """
+    # Validar que el juego existe
+    juego = db.query(Partida).filter(Partida.id == estado_data.id_juego).first()
+    if not juego:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="La partida especificada no existe"
+        )
+
+    # Validar que la actividad existe
+    actividad = db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
+    if not actividad:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="La actividad especificada no existe"
+        )
+
+    # Verificar si ya existe una actividad en progreso para este juego y actividad
+    actividad_existente = db.query(ActividadEstado).filter(
+        ActividadEstado.id_juego == estado_data.id_juego,
+        ActividadEstado.id_actividad == estado_data.id_actividad,
+        ActividadEstado.estado == "en_progreso"
+    ).first()
+
+    if actividad_existente:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ya existe una actividad en progreso para este juego y actividad"
+        )
+
+    # Crear estado de actividad con UUID generado
+    nuevo_estado = ActividadEstado(
+        id=str(uuid.uuid4()),
+        id_juego=estado_data.id_juego,
+        id_actividad=estado_data.id_actividad,
+        estado="en_progreso",
+        puntuacion_total=0.0
+    )
+
+    db.add(nuevo_estado)
+    db.commit()
+    db.refresh(nuevo_estado)
+
+    log_with_context("info", "Actividad iniciada", estado_id=nuevo_estado.id, actividad_id=estado_data.id_actividad)
+
+    return nuevo_estado
+
 @router.post("", response_model=ActividadEstadoResponse, status_code=status.HTTP_201_CREATED)
 def crear_actividad_estado(estado_data: ActividadEstadoCreate, db: Session = Depends(get_db)):
     """Crear un nuevo estado de actividad."""

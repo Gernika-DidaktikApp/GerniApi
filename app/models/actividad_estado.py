@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Float
 from datetime import datetime
 from app.database import Base
 
@@ -12,3 +12,4 @@ class ActividadEstado(Base):
     duracion = Column(Integer, nullable=True)
     fecha_fin = Column(DateTime, nullable=True)
     estado = Column(String(20), default="en_progreso", nullable=False)
+    puntuacion_total = Column(Float, nullable=True, default=0.0)

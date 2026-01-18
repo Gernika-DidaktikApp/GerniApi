@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
 from typing import List
 import uuid
@@ -83,8 +83,8 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
     description="Obtiene una lista paginada de todos los usuarios registrados."
 )
 def listar_usuarios(
-    skip: int = Field(0, ge=0, description="Número de registros a saltar (para paginación)"),
-    limit: int = Field(100, ge=1, le=1000, description="Número máximo de registros a retornar"),
+    skip: int = Query(0, ge=0, description="Número de registros a saltar (para paginación)"),
+    limit: int = Query(100, ge=1, le=1000, description="Número máximo de registros a retornar"),
     db: Session = Depends(get_db)
 ):
     """
@@ -110,7 +110,7 @@ def listar_usuarios(
     description="Obtiene los detalles de un usuario específico por su ID."
 )
 def obtener_usuario(
-    usuario_id: str = Field(..., description="ID único del usuario (UUID)"),
+    usuario_id: str = Path(..., description="ID único del usuario (UUID)"),
     db: Session = Depends(get_db)
 ):
     """

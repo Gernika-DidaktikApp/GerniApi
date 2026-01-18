@@ -2,14 +2,26 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.config import settings
 
-# Crear engine con pool de conexiones configurado para PostgreSQL
-engine = create_engine(
-    settings.DATABASE_URL,
-    pool_pre_ping=True,  # Verifica conexiones antes de usarlas
-    pool_size=5,  # Número de conexiones en el pool
-    max_overflow=10,  # Conexiones adicionales permitidas
-    echo=False  # Cambiar a True para debug SQL
-)
+# Detectar si estamos usando SQLite (para tests) o PostgreSQL (producción)
+is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+
+# Configurar engine según el tipo de base de datos
+if is_sqlite:
+    # SQLite: sin pool de conexiones (no soporta los parámetros de PostgreSQL)
+    engine = create_engine(
+        settings.DATABASE_URL,
+        connect_args={"check_same_thread": False},  # Permitir múltiples threads en SQLite
+        echo=False
+    )
+else:
+    # PostgreSQL: con pool de conexiones optimizado
+    engine = create_engine(
+        settings.DATABASE_URL,
+        pool_pre_ping=True,  # Verifica conexiones antes de usarlas
+        pool_size=5,  # Número de conexiones en el pool
+        max_overflow=10,  # Conexiones adicionales permitidas
+        echo=False  # Cambiar a True para debug SQL
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

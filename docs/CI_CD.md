@@ -124,6 +124,10 @@ pytest --cov=app --cov-report=html
 **Causa**: Dependencia faltante en requirements.txt
 **Solución**: Añadir la dependencia a requirements.txt
 
+#### Error: "Invalid argument(s) 'max_overflow' sent to create_engine()"
+**Causa**: SQLite no soporta los parámetros de pool de conexiones de PostgreSQL
+**Solución**: Ya está solucionado en `app/database.py` - detecta automáticamente el tipo de BD y usa los parámetros apropiados
+
 ## 🔒 Variables de Entorno en CI
 
 El workflow configura automáticamente las variables de entorno necesarias:
@@ -139,6 +143,37 @@ env:
 - `DATABASE_URL`: Apunta a SQLite en memoria (los tests no usan PostgreSQL)
 - `SECRET_KEY`: Clave de prueba solo para CI (no es la de producción)
 - `PYTHONPATH`: Permite importar el módulo `app` correctamente
+
+### Compatibilidad Automática SQLite/PostgreSQL
+
+El archivo `app/database.py` detecta automáticamente el tipo de base de datos y configura el engine apropiadamente:
+
+```python
+# Detecta automáticamente si es SQLite o PostgreSQL
+is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+
+if is_sqlite:
+    # SQLite: parámetros compatibles
+    engine = create_engine(
+        settings.DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        echo=False
+    )
+else:
+    # PostgreSQL: con pool de conexiones optimizado
+    engine = create_engine(
+        settings.DATABASE_URL,
+        pool_pre_ping=True,
+        pool_size=5,
+        max_overflow=10,
+        echo=False
+    )
+```
+
+Esto permite:
+- **Local/Producción**: Usa PostgreSQL con pool de conexiones
+- **CI/Tests**: Usa SQLite en memoria sin configuración adicional
+- **Sin cambios de código**: La misma aplicación funciona en ambos entornos
 
 ### Añadir más variables de entorno
 

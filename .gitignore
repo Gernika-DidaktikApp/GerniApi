@@ -12,6 +12,12 @@ ENV/
 # FastAPI
 .env
 
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
 # Logs
 logs/
 *.log

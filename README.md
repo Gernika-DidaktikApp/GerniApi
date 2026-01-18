@@ -403,7 +403,54 @@ Ver [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) para guía completa.
 
 ## 🧪 Testing
 
-### Crear Usuario de Prueba
+El proyecto incluye una suite completa de tests automatizados con pytest.
+
+### Ejecutar Tests
+
+```bash
+# Instalar dependencias (si no están instaladas)
+pip install -r requirements.txt
+
+# Ejecutar todos los tests
+pytest
+
+# Tests con mayor detalle
+pytest -v
+
+# Tests con reporte de cobertura
+pytest --cov=app --cov-report=html
+```
+
+### Tests Disponibles
+
+Los tests cubren:
+- ✅ Autenticación (login, tokens, errores)
+- ✅ Health checks y endpoints básicos
+- ✅ Sistema de estados de actividades
+- ✅ Sistema de estados de eventos
+- ✅ Auto-completado de actividades
+- ✅ Cálculo automático de duraciones
+- ✅ Suma de puntuaciones
+- ✅ Validaciones de datos
+- ✅ Manejo de errores
+
+Ver [tests/README.md](tests/README.md) para documentación completa de tests.
+
+### CI/CD con GitHub Actions
+
+El proyecto incluye integración continua que ejecuta los tests automáticamente:
+
+- ✅ **Tests automáticos** en cada push a `main` y `develop`
+- ✅ **Tests en Pull Requests** antes de merge
+- ✅ **Múltiples versiones de Python** (3.11, 3.12)
+- ✅ **Reporte de cobertura** generado automáticamente
+- ✅ **Cache de dependencias** para builds más rápidos
+
+El workflow se encuentra en [.github/workflows/tests.yml](.github/workflows/tests.yml).
+
+### Testing Manual
+
+#### Crear Usuario de Prueba
 
 ```sql
 INSERT INTO usuario (id, username, nombre, apellido, password, id_clase, creation, top_score)
@@ -419,7 +466,7 @@ VALUES (
 );
 ```
 
-### Probar Login
+#### Probar Login
 
 ```bash
 # Desde terminal

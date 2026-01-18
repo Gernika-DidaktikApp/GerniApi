@@ -49,7 +49,10 @@ class TestActividadEstados:
         )
 
         assert response.status_code == 400
-        assert "Ya existe una actividad en progreso" in response.json()["detail"]
+        data = response.json()
+        # La API puede devolver "detail" o un objeto "error"
+        error_msg = data.get("detail", data.get("error", {}).get("message", ""))
+        assert "Ya existe una actividad en progreso" in error_msg
 
     def test_iniciar_actividad_partida_inexistente(self, client, test_actividad):
         """Test: Iniciar actividad con partida inexistente debe fallar"""
@@ -62,7 +65,9 @@ class TestActividadEstados:
         )
 
         assert response.status_code == 404
-        assert "partida" in response.json()["detail"].lower()
+        data = response.json()
+        error_msg = data.get("detail", data.get("error", {}).get("message", ""))
+        assert "partida" in error_msg.lower()
 
     def test_iniciar_actividad_inexistente(self, client, test_partida):
         """Test: Iniciar actividad inexistente debe fallar"""
@@ -75,7 +80,9 @@ class TestActividadEstados:
         )
 
         assert response.status_code == 404
-        assert "actividad" in response.json()["detail"].lower()
+        data = response.json()
+        error_msg = data.get("detail", data.get("error", {}).get("message", ""))
+        assert "actividad" in error_msg.lower()
 
     def test_listar_actividad_estados(self, client, test_partida, test_actividad):
         """Test: Listar estados de actividades"""
@@ -167,7 +174,9 @@ class TestEventoEstados:
         )
 
         assert response.status_code == 400
-        assert "Ya existe un evento en progreso" in response.json()["detail"]
+        data = response.json()
+        error_msg = data.get("detail", data.get("error", {}).get("message", ""))
+        assert "Ya existe un evento en progreso" in error_msg
 
     def test_iniciar_evento_no_pertenece_actividad(self, client, db_session, test_partida, test_actividad, test_eventos):
         """Test: Iniciar evento que no pertenece a la actividad debe fallar"""
@@ -194,7 +203,9 @@ class TestEventoEstados:
         )
 
         assert response.status_code == 404
-        assert "no pertenece" in response.json()["detail"].lower()
+        data = response.json()
+        error_msg = data.get("detail", data.get("error", {}).get("message", ""))
+        assert "no pertenece" in error_msg.lower()
 
     def test_completar_evento_exitoso(self, client, test_partida, test_actividad, test_eventos):
         """Test: Completar evento debe calcular duración y guardar puntuación"""
@@ -262,7 +273,9 @@ class TestEventoEstados:
         )
 
         assert response.status_code == 400
-        assert "no está en progreso" in response.json()["detail"].lower()
+        data = response.json()
+        error_msg = data.get("detail", data.get("error", {}).get("message", ""))
+        assert "no está en progreso" in error_msg.lower()
 
 
 class TestAutoCompletado:

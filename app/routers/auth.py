@@ -4,6 +4,7 @@ from datetime import timedelta
 from app.database import get_db
 # from app.models.alumno import Alumno  # Comentado - modelo no existe
 from app.models.usuario import Usuario
+from app.models.profesor import Profesor
 # from app.schemas.alumno import LoginRequest, Token, AlumnoResponse  # Comentado
 from app.schemas.usuario import LoginAppRequest, UsuarioResponse
 from app.utils.security import create_access_token, verify_password
@@ -130,3 +131,92 @@ def login_app(
 # Comentado temporalmente - requiere modelo Alumno
 # @router.get("/me", response_model=AlumnoResponse)
 # def get_current_alumno(...):
+
+
+@router.post(
+    "/login-profesor",
+    response_model=Token,
+    summary="Login de profesor",
+    description="Autenticar profesor con username y contraseña. Devuelve un token JWT válido por 30 minutos.",
+    responses={
+        200: {
+            "description": "Login exitoso",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "token_type": "bearer"
+                    }
+                }
+            }
+        },
+        401: {
+            "description": "Credenciales incorrectas",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Username o contraseña incorrectos"
+                    }
+                }
+            }
+        }
+    }
+)
+def login_profesor(
+    login_data: LoginAppRequest,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """
+    ## Autenticar Profesor
+
+    Valida las credenciales del profesor y devuelve un token JWT.
+
+    ### Parámetros
+    - **username**: Nombre de usuario único del profesor
+    - **password**: Contraseña del profesor
+
+    ### Respuesta Exitosa
+    - **access_token**: Token JWT para autenticación
+    - **token_type**: Tipo de token (siempre "bearer")
+    """
+    client_ip = request.client.host if request.client else "unknown"
+
+    log_auth("login_profesor_attempt", username=login_data.username, success=True, client_ip=client_ip)
+
+    # Buscar profesor por username
+    log_debug(f"Buscando profesor en BD", username=login_data.username)
+    profesor = db.query(Profesor).filter(Profesor.username == login_data.username).first()
+
+    # Verificar que existe y la contraseña coincide
+    if not profesor or not verify_password(login_data.password, profesor.password):
+        log_auth(
+            "login_profesor_failed",
+            username=login_data.username,
+            success=False,
+            reason="Credenciales inválidas",
+            client_ip=client_ip
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Username o contraseña incorrectos",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Crear token
+    log_debug("Generando token de acceso para profesor", username=profesor.username)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": profesor.username, "type": "profesor"},
+        expires_delta=access_token_expires
+    )
+
+    log_auth(
+        "login_profesor_success",
+        username=profesor.username,
+        success=True,
+        profesor_id=profesor.id,
+        client_ip=client_ip
+    )
+
+    return {"access_token": access_token, "token_type": "bearer"}

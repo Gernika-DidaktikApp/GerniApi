@@ -179,8 +179,7 @@ async function handleSubmit(event) {
     };
 
     try {
-        // TODO: Replace with actual API endpoint
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch('/api/v1/auth/login-profesor', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -195,8 +194,8 @@ async function handleSubmit(event) {
             console.log('Login successful:', data);
 
             // Store token if provided
-            if (data.token) {
-                localStorage.setItem('authToken', data.token);
+            if (data.access_token) {
+                localStorage.setItem('authToken', data.access_token);
             }
 
             // Redirect after short delay for better UX
@@ -205,7 +204,7 @@ async function handleSubmit(event) {
             }, 500);
         } else {
             // Handle error response
-            throw new Error(data.message || 'Error al iniciar sesión');
+            throw new Error(data.detail || 'Error al iniciar sesión');
         }
     } catch (error) {
         console.error('Login error:', error);

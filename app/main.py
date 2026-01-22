@@ -25,57 +25,114 @@ from app.web import routes as web_routes
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="""
-    ## 🎯 API REST para GerniBide
+## 
+🎯 API REST para GerniBide
 
-    API completa para la gestión de usuarios, clases, profesores, partidas y actividades.
+API completa para la gestión de usuarios, clases, profesores, partidas y actividades.
 
-    ### 🔐 Autenticación
+---
 
-    Esta API utiliza **JWT (JSON Web Tokens)** para autenticación:
+🔐 Sistema de Autenticación
 
-    1. **Login**: Obtén un token en `/api/v1/auth/login-app`
-    2. **Usar token**: Incluye el header `Authorization: Bearer <token>` en tus peticiones
-    3. **Expiración**: Los tokens expiran en 30 minutos
+Esta API utiliza **dos mecanismos de autenticación**:
 
-    ### 📚 Características
+🔑 API Key (Acceso Administrativo)
+Para backends y operaciones administrativas:
+```
+X-API-Key: tu-api-key
+```
+- Acceso completo a todos los endpoints
+- Requerida para: crear usuarios, gestionar profesores/clases, eliminar recursos
 
-    - ✅ Autenticación JWT segura
-    - ✅ Hash de contraseñas con bcrypt
-    - ✅ Validación automática de datos
-    - ✅ Paginación en listados
-    - ✅ Logging estructurado
-    - ✅ Base de datos PostgreSQL
+🎫 Token JWT (Acceso de Usuario)
+Para la aplicación móvil:
+Authorization: Bearer <token>
+1. Obtén un token en `POST /api/v1/auth/login-app`
+2. El token expira en 30 minutos
+3. Acceso limitado a recursos propios
 
-    ### 🔗 Enlaces Útiles
+---
 
-    - [Documentación completa](https://github.com/tu-repo)
-    - [Colección de Postman](./GerniBide.postman_collection.json)
-    - [Guía de integración](./API_ENDPOINTS.md)
+📋 Niveles de Acceso por Endpoint
 
-    ### 📧 Soporte
+| Icono | Significado |
+|-------|-------------|
+| 🔓 | **Público** - Sin autenticación |
+| 🔑 | **Solo API Key** - Acceso administrativo |
+| 🎫 | **API Key o Token** - Acceso mixto |
 
-    ¿Necesitas ayuda? Revisa los logs o contacta al equipo de desarrollo.
+Endpoints Públicos 🔓
+- `GET /` - Root
+- `GET /health` - Health check
+- `POST /api/v1/auth/login-app` - Login usuario
+- `POST /api/v1/auth/login-profesor` - Login profesor
+
+Solo API Key 🔑
+- Profesores: Todo el CRUD
+- Clases: Todo el CRUD
+- Usuarios: POST, GET lista, DELETE
+- Actividades: POST, PUT, DELETE
+- Eventos: POST, PUT, DELETE
+- Partidas: GET lista, DELETE
+- Estados: GET lista, DELETE
+
+API Key o Token 🎫
+- Usuarios: GET/{id}, PUT/{id} *(solo su perfil)*
+- Partidas: POST, GET/{id}, PUT/{id} *(solo sus partidas)*
+- Actividades: GET, GET/{id} *(lectura)*
+- Eventos: GET, GET/{id} *(lectura)*
+- Estados: POST, GET/{id}, PUT/{id} *(via su partida)*
+
+---
+
+📚 Características
+
+- ✅ Autenticación dual (API Key + JWT)
+- ✅ Control de acceso por recurso
+- ✅ Hash de contraseñas con bcrypt
+- ✅ Validación automática de datos
+- ✅ Paginación en listados
+- ✅ Logging estructurado
+- ✅ Base de datos PostgreSQL
     """,
-    version="1.0.0",
-    contact={"name": "Equipo GerniBide", "email": "soporte@GerniBide.com"},
+    version="1.1.0",
+    contact={"name": "Equipo GerniBide"},
     license_info={
         "name": "Uso privado",
     },
     openapi_tags=[
         {
             "name": "🔐 Autenticación",
-            "description": "Endpoints para login y gestión de tokens JWT",
+            "description": "🔓 **Público** - Endpoints para login y gestión de tokens JWT",
         },
-        {"name": "👥 Usuarios", "description": "CRUD completo de usuarios del sistema"},
-        {"name": "👨‍🏫 Profesores", "description": "Gestión de profesores"},
-        {"name": "🏫 Clases", "description": "Gestión de clases y asignaciones"},
-        {"name": "🎮 Partidas", "description": "Gestión de partidas de juego"},
+        {
+            "name": "👥 Usuarios",
+            "description": "🔑🎫 **Mixto** - POST/GET lista/DELETE requieren API Key. GET/{id}/PUT/{id} permiten Token (solo perfil propio)",
+        },
+        {
+            "name": "👨‍🏫 Profesores",
+            "description": "🔑 **Solo API Key** - Gestión completa de profesores",
+        },
+        {
+            "name": "🏫 Clases",
+            "description": "🔑 **Solo API Key** - Gestión de clases y asignaciones",
+        },
+        {
+            "name": "🎮 Partidas",
+            "description": "🔑🎫 **Mixto** - GET lista/DELETE requieren API Key. POST/GET/{id}/PUT/{id} permiten Token (solo sus partidas)",
+        },
         {
             "name": "📝 Actividades",
-            "description": "Gestión de actividades dentro de partidas",
+            "description": "🔑🎫 **Mixto** - POST/PUT/DELETE requieren API Key. GET permite Token (lectura pública)",
         },
-        {"name": "📅 Eventos", "description": "Gestión de eventos de actividades"},
-        {"name": "📊 Estados", "description": "Estados de actividades y eventos"},
+        {
+            "name": "📅 Eventos",
+            "description": "🔑🎫 **Mixto** - POST/PUT/DELETE requieren API Key. GET permite Token (lectura pública)",
+        },
+        {
+            "name": "📊 Estados",
+            "description": "🔑🎫 **Mixto** - GET lista/DELETE requieren API Key. Resto permite Token (via su partida)",
+        },
     ],
 )
 

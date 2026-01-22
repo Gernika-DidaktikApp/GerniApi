@@ -1,37 +1,43 @@
+import uuid
+from datetime import datetime
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
-import uuid
 
 from app.database import get_db
-from app.models.evento_estado import EventoEstado
-from app.models.juego import Partida
+from app.logging import log_with_context
 from app.models.actividad import Actividad
 from app.models.actividad_estado import ActividadEstado
 from app.models.evento import Eventos
-from app.schemas.evento_estado import EventoEstadoCreate, EventoEstadoUpdate, EventoEstadoResponse, EventoEstadoCompletar
-from app.logging import log_with_context
-from datetime import datetime
+from app.models.evento_estado import EventoEstado
+from app.models.juego import Partida
+from app.schemas.evento_estado import (EventoEstadoCompletar,
+                                       EventoEstadoCreate,
+                                       EventoEstadoResponse,
+                                       EventoEstadoUpdate)
+from app.utils.dependencies import (AuthResult, require_api_key_only,
+                                    require_auth, validate_partida_ownership)
 
 router = APIRouter(prefix="/evento-estados", tags=["📊 Estados"])
 
 @router.post("/iniciar", response_model=EventoEstadoResponse, status_code=status.HTTP_201_CREATED)
-def iniciar_evento(estado_data: EventoEstadoCreate, db: Session = Depends(get_db)):
+def iniciar_evento(
+    estado_data: EventoEstadoCreate,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
+):
     """
     Iniciar un evento dentro de una actividad.
 
     Crea un nuevo registro de estado de evento con estado 'en_progreso'.
     La fecha de inicio se registra automáticamente.
-    """
-    # Validar que el juego existe
-    juego = db.query(Partida).filter(Partida.id == estado_data.id_juego).first()
-    if not juego:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="La partida especificada no existe"
-        )
 
-    # Validar que la actividad existe
+    - Con API Key: Puede iniciar eventos para cualquier partida
+    - Con Token: Solo puede iniciar eventos para sus propias partidas
+    """
+    validate_partida_ownership(auth, estado_data.id_juego, db)
+
     actividad = db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
     if not actividad:
         raise HTTPException(
@@ -39,7 +45,6 @@ def iniciar_evento(estado_data: EventoEstadoCreate, db: Session = Depends(get_db
             detail="La actividad especificada no existe"
         )
 
-    # Validar que el evento existe y pertenece a la actividad
     evento = db.query(Eventos).filter(
         Eventos.id == estado_data.id_evento,
         Eventos.id_actividad == estado_data.id_actividad
@@ -50,7 +55,6 @@ def iniciar_evento(estado_data: EventoEstadoCreate, db: Session = Depends(get_db
             detail="El evento especificado no existe o no pertenece a esta actividad"
         )
 
-    # Verificar si ya existe un evento en progreso para este juego y evento
     evento_existente = db.query(EventoEstado).filter(
         EventoEstado.id_juego == estado_data.id_juego,
         EventoEstado.id_evento == estado_data.id_evento,
@@ -63,7 +67,6 @@ def iniciar_evento(estado_data: EventoEstadoCreate, db: Session = Depends(get_db
             detail="Ya existe un evento en progreso para este juego y evento"
         )
 
-    # Crear estado de evento con UUID generado
     nuevo_estado = EventoEstado(
         id=str(uuid.uuid4()),
         id_juego=estado_data.id_juego,
@@ -81,7 +84,12 @@ def iniciar_evento(estado_data: EventoEstadoCreate, db: Session = Depends(get_db
     return nuevo_estado
 
 @router.put("/{estado_id}/completar", response_model=EventoEstadoResponse)
-def completar_evento(estado_id: str, data: EventoEstadoCompletar, db: Session = Depends(get_db)):
+def completar_evento(
+    estado_id: str,
+    data: EventoEstadoCompletar,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
+):
     """
     Completar un evento y registrar su puntuación.
 
@@ -90,8 +98,10 @@ def completar_evento(estado_id: str, data: EventoEstadoCompletar, db: Session = 
     - Registra la puntuación obtenida
     - Verifica si es el último evento de la actividad
     - Si es el último, completa automáticamente la actividad con la suma de puntos
+
+    - Con API Key: Puede completar eventos de cualquier partida
+    - Con Token: Solo puede completar eventos de sus propias partidas
     """
-    # Obtener el estado del evento
     estado = db.query(EventoEstado).filter(EventoEstado.id == estado_id).first()
     if not estado:
         raise HTTPException(
@@ -99,14 +109,14 @@ def completar_evento(estado_id: str, data: EventoEstadoCompletar, db: Session = 
             detail="Estado de evento no encontrado"
         )
 
-    # Verificar que el evento esté en progreso
+    validate_partida_ownership(auth, estado.id_juego, db)
+
     if estado.estado != "en_progreso":
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"El evento no está en progreso. Estado actual: {estado.estado}"
         )
 
-    # Actualizar el estado del evento
     estado.fecha_fin = datetime.now()
     estado.duracion = int((estado.fecha_fin - estado.fecha_inicio).total_seconds())
     estado.estado = "completado"
@@ -121,14 +131,11 @@ def completar_evento(estado_id: str, data: EventoEstadoCompletar, db: Session = 
                      puntuacion=data.puntuacion,
                      duracion=estado.duracion)
 
-    # Verificar si todos los eventos de la actividad están completados
-    # Obtener todos los eventos de la actividad
     todos_los_eventos = db.query(Eventos).filter(
         Eventos.id_actividad == estado.id_actividad
     ).all()
     total_eventos = len(todos_los_eventos)
 
-    # Obtener todos los estados de eventos completados para esta actividad y juego
     eventos_completados = db.query(EventoEstado).filter(
         EventoEstado.id_juego == estado.id_juego,
         EventoEstado.id_actividad == estado.id_actividad,
@@ -140,7 +147,6 @@ def completar_evento(estado_id: str, data: EventoEstadoCompletar, db: Session = 
                      total_eventos=total_eventos,
                      eventos_completados=eventos_completados_count)
 
-    # Si todos los eventos están completados, completar la actividad
     if eventos_completados_count == total_eventos:
         actividad_estado = db.query(ActividadEstado).filter(
             ActividadEstado.id_juego == estado.id_juego,
@@ -149,10 +155,8 @@ def completar_evento(estado_id: str, data: EventoEstadoCompletar, db: Session = 
         ).first()
 
         if actividad_estado:
-            # Calcular la puntuación total sumando todos los eventos
             puntuacion_total = sum(e.puntuacion for e in eventos_completados if e.puntuacion is not None)
 
-            # Actualizar la actividad
             actividad_estado.fecha_fin = datetime.now()
             actividad_estado.duracion = int((actividad_estado.fecha_fin - actividad_estado.fecha_inicio).total_seconds())
             actividad_estado.estado = "completado"
@@ -170,17 +174,19 @@ def completar_evento(estado_id: str, data: EventoEstadoCompletar, db: Session = 
     return estado
 
 @router.post("", response_model=EventoEstadoResponse, status_code=status.HTTP_201_CREATED)
-def crear_evento_estado(estado_data: EventoEstadoCreate, db: Session = Depends(get_db)):
-    """Crear un nuevo estado de evento."""
-    # Validar que el juego existe
-    juego = db.query(Partida).filter(Partida.id == estado_data.id_juego).first()
-    if not juego:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="La partida especificada no existe"
-        )
+def crear_evento_estado(
+    estado_data: EventoEstadoCreate,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
+):
+    """
+    Crear un nuevo estado de evento.
 
-    # Validar que la actividad existe
+    - Con API Key: Puede crear estados para cualquier partida
+    - Con Token: Solo puede crear estados para sus propias partidas
+    """
+    validate_partida_ownership(auth, estado_data.id_juego, db)
+
     actividad = db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
     if not actividad:
         raise HTTPException(
@@ -188,7 +194,6 @@ def crear_evento_estado(estado_data: EventoEstadoCreate, db: Session = Depends(g
             detail="La actividad especificada no existe"
         )
 
-    # Validar que el evento existe y pertenece a la actividad
     evento = db.query(Eventos).filter(
         Eventos.id == estado_data.id_evento,
         Eventos.id_actividad == estado_data.id_actividad
@@ -199,7 +204,6 @@ def crear_evento_estado(estado_data: EventoEstadoCreate, db: Session = Depends(g
             detail="El evento especificado no existe o no pertenece a esta actividad"
         )
 
-    # Crear estado de evento con UUID generado
     nuevo_estado = EventoEstado(
         id=str(uuid.uuid4()),
         id_juego=estado_data.id_juego,
@@ -216,26 +220,52 @@ def crear_evento_estado(estado_data: EventoEstadoCreate, db: Session = Depends(g
 
     return nuevo_estado
 
-@router.get("", response_model=List[EventoEstadoResponse])
+@router.get(
+    "",
+    response_model=List[EventoEstadoResponse],
+    dependencies=[Depends(require_api_key_only)]
+)
 def listar_evento_estados(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Obtener lista de estados de evento."""
+    """Obtener lista de estados de evento. Requiere API Key."""
     estados = db.query(EventoEstado).offset(skip).limit(limit).all()
     return estados
 
 @router.get("/{estado_id}", response_model=EventoEstadoResponse)
-def obtener_evento_estado(estado_id: str, db: Session = Depends(get_db)):
-    """Obtener un estado de evento por ID."""
+def obtener_evento_estado(
+    estado_id: str,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
+):
+    """
+    Obtener un estado de evento por ID.
+
+    - Con API Key: Puede ver cualquier estado
+    - Con Token: Solo puede ver estados de sus propias partidas
+    """
     estado = db.query(EventoEstado).filter(EventoEstado.id == estado_id).first()
     if not estado:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Estado de evento no encontrado"
         )
+
+    validate_partida_ownership(auth, estado.id_juego, db)
+
     return estado
 
 @router.put("/{estado_id}", response_model=EventoEstadoResponse)
-def actualizar_evento_estado(estado_id: str, estado_data: EventoEstadoUpdate, db: Session = Depends(get_db)):
-    """Actualizar un estado de evento existente."""
+def actualizar_evento_estado(
+    estado_id: str,
+    estado_data: EventoEstadoUpdate,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
+):
+    """
+    Actualizar un estado de evento existente.
+
+    - Con API Key: Puede actualizar cualquier estado
+    - Con Token: Solo puede actualizar estados de sus propias partidas
+    """
     estado = db.query(EventoEstado).filter(EventoEstado.id == estado_id).first()
     if not estado:
         raise HTTPException(
@@ -243,7 +273,8 @@ def actualizar_evento_estado(estado_id: str, estado_data: EventoEstadoUpdate, db
             detail="Estado de evento no encontrado"
         )
 
-    # Actualizar campos proporcionados
+    validate_partida_ownership(auth, estado.id_juego, db)
+
     update_data = estado_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(estado, field, value)
@@ -255,9 +286,13 @@ def actualizar_evento_estado(estado_id: str, estado_data: EventoEstadoUpdate, db
 
     return estado
 
-@router.delete("/{estado_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{estado_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_api_key_only)]
+)
 def eliminar_evento_estado(estado_id: str, db: Session = Depends(get_db)):
-    """Eliminar un estado de evento."""
+    """Eliminar un estado de evento. Requiere API Key."""
     estado = db.query(EventoEstado).filter(EventoEstado.id == estado_id).first()
     if not estado:
         raise HTTPException(

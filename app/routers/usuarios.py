@@ -1,14 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
-from sqlalchemy.orm import Session
-from typing import List
 import uuid
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
+from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.usuario import Usuario
+from app.logging import log_db_operation, log_info, log_warning
 from app.models.clase import Clase
-from app.schemas.usuario import UsuarioCreate, UsuarioUpdate, UsuarioResponse
+from app.models.usuario import Usuario
+from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioUpdate
+from app.utils.dependencies import (AuthResult, require_api_key_only,
+                                    require_auth, validate_user_ownership)
 from app.utils.security import hash_password
-from app.logging import log_info, log_warning, log_db_operation
 
 router = APIRouter(
     prefix="/usuarios",
@@ -24,13 +27,14 @@ router = APIRouter(
     response_model=UsuarioResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Crear usuario",
-    description="Crea un nuevo usuario en el sistema con su información básica y contraseña hasheada."
+    description="Crea un nuevo usuario en el sistema con su información básica y contraseña hasheada.",
+    dependencies=[Depends(require_api_key_only)]
 )
 def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
     """
     ## Crear Nuevo Usuario
 
-    Registra un nuevo usuario en el sistema.
+    Registra un nuevo usuario en el sistema. Requiere API Key.
 
     ### Validaciones
     - El username debe ser único
@@ -40,7 +44,6 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
     ### Retorna
     Los datos del usuario creado (sin la contraseña)
     """
-    # Validar que el username no exista
     existe = db.query(Usuario).filter(Usuario.username == usuario_data.username).first()
     if existe:
         log_warning("Intento de crear usuario con username duplicado", username=usuario_data.username)
@@ -49,7 +52,6 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
             detail="El username ya está en uso"
         )
 
-    # Validar que la clase existe si se proporciona
     if usuario_data.id_clase:
         clase = db.query(Clase).filter(Clase.id == usuario_data.id_clase).first()
         if not clase:
@@ -58,7 +60,6 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
                 detail="La clase especificada no existe"
             )
 
-    # Crear usuario con UUID generado
     nuevo_usuario = Usuario(
         id=str(uuid.uuid4()),
         username=usuario_data.username,
@@ -80,7 +81,8 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
     "",
     response_model=List[UsuarioResponse],
     summary="Listar usuarios",
-    description="Obtiene una lista paginada de todos los usuarios registrados."
+    description="Obtiene una lista paginada de todos los usuarios registrados.",
+    dependencies=[Depends(require_api_key_only)]
 )
 def listar_usuarios(
     skip: int = Query(0, ge=0, description="Número de registros a saltar (para paginación)"),
@@ -90,7 +92,7 @@ def listar_usuarios(
     """
     ## Listar Todos los Usuarios
 
-    Retorna una lista paginada de usuarios.
+    Retorna una lista paginada de usuarios. Requiere API Key.
 
     ### Paginación
     - **skip**: Número de registros a saltar (default: 0)
@@ -111,18 +113,23 @@ def listar_usuarios(
 )
 def obtener_usuario(
     usuario_id: str = Path(..., description="ID único del usuario (UUID)"),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
 ):
     """
     ## Obtener Usuario por ID
 
     Retorna los detalles completos de un usuario específico.
 
+    - Con API Key: Puede ver cualquier usuario
+    - Con Token: Solo puede ver su propio perfil
+
     ### Parámetros
     - **usuario_id**: ID único del usuario (UUID)
 
     ### Errores
     - **404**: Si el usuario no existe
+    - **403**: Si intenta acceder al perfil de otro usuario con Token
     """
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
@@ -130,11 +137,24 @@ def obtener_usuario(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Usuario no encontrado"
         )
+
+    validate_user_ownership(auth, usuario_id)
+
     return usuario
 
 @router.put("/{usuario_id}", response_model=UsuarioResponse)
-def actualizar_usuario(usuario_id: str, usuario_data: UsuarioUpdate, db: Session = Depends(get_db)):
-    """Actualizar un usuario existente."""
+def actualizar_usuario(
+    usuario_id: str,
+    usuario_data: UsuarioUpdate,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
+):
+    """
+    Actualizar un usuario existente.
+
+    - Con API Key: Puede actualizar cualquier usuario
+    - Con Token: Solo puede actualizar su propio perfil
+    """
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(
@@ -142,7 +162,8 @@ def actualizar_usuario(usuario_id: str, usuario_data: UsuarioUpdate, db: Session
             detail="Usuario no encontrado"
         )
 
-    # Validar username único si se está actualizando
+    validate_user_ownership(auth, usuario_id)
+
     if usuario_data.username and usuario_data.username != usuario.username:
         existe = db.query(Usuario).filter(Usuario.username == usuario_data.username).first()
         if existe:
@@ -151,7 +172,6 @@ def actualizar_usuario(usuario_id: str, usuario_data: UsuarioUpdate, db: Session
                 detail="El username ya está en uso"
             )
 
-    # Validar clase si se proporciona
     if usuario_data.id_clase:
         clase = db.query(Clase).filter(Clase.id == usuario_data.id_clase).first()
         if not clase:
@@ -160,7 +180,6 @@ def actualizar_usuario(usuario_id: str, usuario_data: UsuarioUpdate, db: Session
                 detail="La clase especificada no existe"
             )
 
-    # Actualizar campos proporcionados
     update_data = usuario_data.model_dump(exclude_unset=True)
     if "password" in update_data:
         update_data["password"] = hash_password(update_data["password"])
@@ -175,9 +194,13 @@ def actualizar_usuario(usuario_id: str, usuario_data: UsuarioUpdate, db: Session
 
     return usuario
 
-@router.delete("/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{usuario_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_api_key_only)]
+)
 def eliminar_usuario(usuario_id: str, db: Session = Depends(get_db)):
-    """Eliminar un usuario."""
+    """Eliminar un usuario. Requiere API Key."""
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(

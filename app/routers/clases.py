@@ -1,15 +1,21 @@
+import uuid
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
-import uuid
 
 from app.database import get_db
+from app.logging import log_with_context
 from app.models.clase import Clase
 from app.models.profesor import Profesor
-from app.schemas.clase import ClaseCreate, ClaseUpdate, ClaseResponse
-from app.logging import log_with_context
+from app.schemas.clase import ClaseCreate, ClaseResponse, ClaseUpdate
+from app.utils.dependencies import require_api_key_only
 
-router = APIRouter(prefix="/clases", tags=["🏫 Clases"])
+router = APIRouter(
+    prefix="/clases",
+    tags=["🏫 Clases"],
+    dependencies=[Depends(require_api_key_only)]
+)
 
 @router.post("", response_model=ClaseResponse, status_code=status.HTTP_201_CREATED)
 def crear_clase(clase_data: ClaseCreate, db: Session = Depends(get_db)):

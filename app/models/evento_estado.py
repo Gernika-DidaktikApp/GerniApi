@@ -1,6 +1,9 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Float
 from datetime import datetime
+
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String
+
 from app.database import Base
+
 
 class EventoEstado(Base):
     __tablename__ = "evento_estado"

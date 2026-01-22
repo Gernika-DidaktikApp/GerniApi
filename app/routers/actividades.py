@@ -1,19 +1,27 @@
+import uuid
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
-import uuid
 
 from app.database import get_db
-from app.models.actividad import Actividad
-from app.schemas.actividad import ActividadCreate, ActividadUpdate, ActividadResponse
 from app.logging import log_with_context
+from app.models.actividad import Actividad
+from app.schemas.actividad import (ActividadCreate, ActividadResponse,
+                                   ActividadUpdate)
+from app.utils.dependencies import (AuthResult, require_api_key_only,
+                                    require_auth)
 
 router = APIRouter(prefix="/actividades", tags=["📝 Actividades"])
 
-@router.post("", response_model=ActividadResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=ActividadResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_api_key_only)]
+)
 def crear_actividad(actividad_data: ActividadCreate, db: Session = Depends(get_db)):
-    """Crear una nueva actividad."""
-    # Crear actividad con UUID generado
+    """Crear una nueva actividad. Requiere API Key."""
     nueva_actividad = Actividad(
         id=str(uuid.uuid4()),
         nombre=actividad_data.nombre
@@ -28,14 +36,23 @@ def crear_actividad(actividad_data: ActividadCreate, db: Session = Depends(get_d
     return nueva_actividad
 
 @router.get("", response_model=List[ActividadResponse])
-def listar_actividades(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Obtener lista de actividades."""
+def listar_actividades(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
+):
+    """Obtener lista de actividades. Requiere API Key o Token de usuario."""
     actividades = db.query(Actividad).offset(skip).limit(limit).all()
     return actividades
 
 @router.get("/{actividad_id}", response_model=ActividadResponse)
-def obtener_actividad(actividad_id: str, db: Session = Depends(get_db)):
-    """Obtener una actividad por ID."""
+def obtener_actividad(
+    actividad_id: str,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
+):
+    """Obtener una actividad por ID. Requiere API Key o Token de usuario."""
     actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
     if not actividad:
         raise HTTPException(
@@ -44,9 +61,13 @@ def obtener_actividad(actividad_id: str, db: Session = Depends(get_db)):
         )
     return actividad
 
-@router.put("/{actividad_id}", response_model=ActividadResponse)
+@router.put(
+    "/{actividad_id}",
+    response_model=ActividadResponse,
+    dependencies=[Depends(require_api_key_only)]
+)
 def actualizar_actividad(actividad_id: str, actividad_data: ActividadUpdate, db: Session = Depends(get_db)):
-    """Actualizar una actividad existente."""
+    """Actualizar una actividad existente. Requiere API Key."""
     actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
     if not actividad:
         raise HTTPException(
@@ -54,7 +75,6 @@ def actualizar_actividad(actividad_id: str, actividad_data: ActividadUpdate, db:
             detail="Actividad no encontrada"
         )
 
-    # Actualizar campos proporcionados
     update_data = actividad_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(actividad, field, value)
@@ -66,9 +86,13 @@ def actualizar_actividad(actividad_id: str, actividad_data: ActividadUpdate, db:
 
     return actividad
 
-@router.delete("/{actividad_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{actividad_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_api_key_only)]
+)
 def eliminar_actividad(actividad_id: str, db: Session = Depends(get_db)):
-    """Eliminar una actividad."""
+    """Eliminar una actividad. Requiere API Key."""
     actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
     if not actividad:
         raise HTTPException(

@@ -1,6 +1,9 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from datetime import datetime
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+
 from app.database import Base
+
 
 class Partida(Base):
     __tablename__ = "juego"

@@ -1,16 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
-from sqlalchemy.orm import Session
 from datetime import timedelta
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from app.config import settings
 from app.database import get_db
+from app.logging import log_auth, log_debug, logger
+from app.models.profesor import Profesor
 # from app.models.alumno import Alumno  # Comentado - modelo no existe
 from app.models.usuario import Usuario
-from app.models.profesor import Profesor
 # from app.schemas.alumno import LoginRequest, Token, AlumnoResponse  # Comentado
 from app.schemas.usuario import LoginAppRequest, UsuarioResponse
 from app.utils.security import create_access_token, verify_password
-from app.config import settings
-from app.logging import logger, log_auth, log_debug
-from pydantic import BaseModel
+
 
 # Schema temporal para Token
 class Token(BaseModel):

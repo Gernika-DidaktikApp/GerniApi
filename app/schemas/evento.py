@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from pydantic import BaseModel, Field
+
 
 class EventoCreate(BaseModel):
     id_actividad: str = Field(..., min_length=36, max_length=36)

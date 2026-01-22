@@ -1,20 +1,27 @@
+import uuid
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
-import uuid
 
 from app.database import get_db
-from app.models.evento import Eventos
-from app.models.actividad import Actividad
-from app.schemas.evento import EventoCreate, EventoUpdate, EventoResponse
 from app.logging import log_with_context
+from app.models.actividad import Actividad
+from app.models.evento import Eventos
+from app.schemas.evento import EventoCreate, EventoResponse, EventoUpdate
+from app.utils.dependencies import (AuthResult, require_api_key_only,
+                                    require_auth)
 
 router = APIRouter(prefix="/eventos", tags=["📅 Eventos"])
 
-@router.post("", response_model=EventoResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=EventoResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_api_key_only)]
+)
 def crear_evento(evento_data: EventoCreate, db: Session = Depends(get_db)):
-    """Crear un nuevo evento."""
-    # Validar que la actividad existe
+    """Crear un nuevo evento. Requiere API Key."""
     actividad = db.query(Actividad).filter(Actividad.id == evento_data.id_actividad).first()
     if not actividad:
         raise HTTPException(
@@ -22,7 +29,6 @@ def crear_evento(evento_data: EventoCreate, db: Session = Depends(get_db)):
             detail="La actividad especificada no existe"
         )
 
-    # Crear evento con UUID generado
     nuevo_evento = Eventos(
         id=str(uuid.uuid4()),
         id_actividad=evento_data.id_actividad,
@@ -38,14 +44,23 @@ def crear_evento(evento_data: EventoCreate, db: Session = Depends(get_db)):
     return nuevo_evento
 
 @router.get("", response_model=List[EventoResponse])
-def listar_eventos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Obtener lista de eventos."""
+def listar_eventos(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
+):
+    """Obtener lista de eventos. Requiere API Key o Token de usuario."""
     eventos = db.query(Eventos).offset(skip).limit(limit).all()
     return eventos
 
 @router.get("/{evento_id}", response_model=EventoResponse)
-def obtener_evento(evento_id: str, db: Session = Depends(get_db)):
-    """Obtener un evento por ID."""
+def obtener_evento(
+    evento_id: str,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth)
+):
+    """Obtener un evento por ID. Requiere API Key o Token de usuario."""
     evento = db.query(Eventos).filter(Eventos.id == evento_id).first()
     if not evento:
         raise HTTPException(
@@ -54,9 +69,13 @@ def obtener_evento(evento_id: str, db: Session = Depends(get_db)):
         )
     return evento
 
-@router.put("/{evento_id}", response_model=EventoResponse)
+@router.put(
+    "/{evento_id}",
+    response_model=EventoResponse,
+    dependencies=[Depends(require_api_key_only)]
+)
 def actualizar_evento(evento_id: str, evento_data: EventoUpdate, db: Session = Depends(get_db)):
-    """Actualizar un evento existente."""
+    """Actualizar un evento existente. Requiere API Key."""
     evento = db.query(Eventos).filter(Eventos.id == evento_id).first()
     if not evento:
         raise HTTPException(
@@ -64,7 +83,6 @@ def actualizar_evento(evento_id: str, evento_data: EventoUpdate, db: Session = D
             detail="Evento no encontrado"
         )
 
-    # Validar actividad si se proporciona
     if evento_data.id_actividad:
         actividad = db.query(Actividad).filter(Actividad.id == evento_data.id_actividad).first()
         if not actividad:
@@ -73,7 +91,6 @@ def actualizar_evento(evento_id: str, evento_data: EventoUpdate, db: Session = D
                 detail="La actividad especificada no existe"
             )
 
-    # Actualizar campos proporcionados
     update_data = evento_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(evento, field, value)
@@ -85,9 +102,13 @@ def actualizar_evento(evento_id: str, evento_data: EventoUpdate, db: Session = D
 
     return evento
 
-@router.delete("/{evento_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{evento_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_api_key_only)]
+)
 def eliminar_evento(evento_id: str, db: Session = Depends(get_db)):
-    """Eliminar un evento."""
+    """Eliminar un evento. Requiere API Key."""
     evento = db.query(Eventos).filter(Eventos.id == evento_id).first()
     if not evento:
         raise HTTPException(

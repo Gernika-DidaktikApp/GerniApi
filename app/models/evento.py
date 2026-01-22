@@ -1,5 +1,7 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, ForeignKey, String
+
 from app.database import Base
+
 
 class Eventos(Base):
     __tablename__ = "evento"

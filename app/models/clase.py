@@ -1,5 +1,7 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, ForeignKey, String
+
 from app.database import Base
+
 
 class Clase(Base):
     __tablename__ = "clase"

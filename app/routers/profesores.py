@@ -1,15 +1,22 @@
+import uuid
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
-import uuid
 
 from app.database import get_db
-from app.models.profesor import Profesor
-from app.schemas.profesor import ProfesorCreate, ProfesorUpdate, ProfesorResponse
-from app.utils.security import hash_password
 from app.logging import log_with_context
+from app.models.profesor import Profesor
+from app.schemas.profesor import (ProfesorCreate, ProfesorResponse,
+                                  ProfesorUpdate)
+from app.utils.dependencies import require_api_key_only
+from app.utils.security import hash_password
 
-router = APIRouter(prefix="/profesores", tags=["👨‍🏫 Profesores"])
+router = APIRouter(
+    prefix="/profesores",
+    tags=["👨‍🏫 Profesores"],
+    dependencies=[Depends(require_api_key_only)]
+)
 
 @router.post("", response_model=ProfesorResponse, status_code=status.HTTP_201_CREATED)
 def crear_profesor(profesor_data: ProfesorCreate, db: Session = Depends(get_db)):

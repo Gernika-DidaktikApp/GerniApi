@@ -43,6 +43,7 @@ jobs:
         # Variables requeridas por app/config.py
         DATABASE_URL: "sqlite:///:memory:"
         SECRET_KEY: "test-secret-key-for-ci-only-not-for-production"
+        API_KEY: "test-api-key-for-ci-only-not-for-production"
         # Path de Python
         PYTHONPATH: ${{ github.workspace }}
 
@@ -54,6 +55,7 @@ jobs:
       env:
         DATABASE_URL: "sqlite:///:memory:"
         SECRET_KEY: "test-secret-key-for-ci-only-not-for-production"
+        API_KEY: "test-api-key-for-ci-only-not-for-production"
         PYTHONPATH: ${{ github.workspace }}
 
     - name: Upload coverage to artifacts

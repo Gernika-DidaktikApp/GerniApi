@@ -5,12 +5,16 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.logging import log_db_operation, log_info, log_warning
+from app.logging import log_db_operation, log_warning
 from app.models.clase import Clase
 from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioUpdate
-from app.utils.dependencies import (AuthResult, require_api_key_only,
-                                    require_auth, validate_user_ownership)
+from app.utils.dependencies import (
+    AuthResult,
+    require_api_key_only,
+    require_auth,
+    validate_user_ownership,
+)
 from app.utils.security import hash_password
 
 router = APIRouter(
@@ -18,9 +22,10 @@ router = APIRouter(
     tags=["👥 Usuarios"],
     responses={
         404: {"description": "Usuario no encontrado"},
-        422: {"description": "Error de validación"}
-    }
+        422: {"description": "Error de validación"},
+    },
 )
+
 
 @router.post(
     "",
@@ -28,7 +33,7 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     summary="Crear usuario",
     description="Crea un nuevo usuario en el sistema con su información básica y contraseña hasheada.",
-    dependencies=[Depends(require_api_key_only)]
+    dependencies=[Depends(require_api_key_only)],
 )
 def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
     """
@@ -46,10 +51,12 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
     """
     existe = db.query(Usuario).filter(Usuario.username == usuario_data.username).first()
     if existe:
-        log_warning("Intento de crear usuario con username duplicado", username=usuario_data.username)
+        log_warning(
+            "Intento de crear usuario con username duplicado",
+            username=usuario_data.username,
+        )
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El username ya está en uso"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="El username ya está en uso"
         )
 
     if usuario_data.id_clase:
@@ -57,7 +64,7 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
         if not clase:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="La clase especificada no existe"
+                detail="La clase especificada no existe",
             )
 
     nuevo_usuario = Usuario(
@@ -66,28 +73,35 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
         nombre=usuario_data.nombre,
         apellido=usuario_data.apellido,
         password=hash_password(usuario_data.password),
-        id_clase=usuario_data.id_clase
+        id_clase=usuario_data.id_clase,
     )
 
     db.add(nuevo_usuario)
     db.commit()
     db.refresh(nuevo_usuario)
 
-    log_db_operation("CREATE", "usuario", nuevo_usuario.id, username=nuevo_usuario.username)
+    log_db_operation(
+        "CREATE", "usuario", nuevo_usuario.id, username=nuevo_usuario.username
+    )
 
     return nuevo_usuario
+
 
 @router.get(
     "",
     response_model=List[UsuarioResponse],
     summary="Listar usuarios",
     description="Obtiene una lista paginada de todos los usuarios registrados.",
-    dependencies=[Depends(require_api_key_only)]
+    dependencies=[Depends(require_api_key_only)],
 )
 def listar_usuarios(
-    skip: int = Query(0, ge=0, description="Número de registros a saltar (para paginación)"),
-    limit: int = Query(100, ge=1, le=1000, description="Número máximo de registros a retornar"),
-    db: Session = Depends(get_db)
+    skip: int = Query(
+        0, ge=0, description="Número de registros a saltar (para paginación)"
+    ),
+    limit: int = Query(
+        100, ge=1, le=1000, description="Número máximo de registros a retornar"
+    ),
+    db: Session = Depends(get_db),
 ):
     """
     ## Listar Todos los Usuarios
@@ -105,16 +119,17 @@ def listar_usuarios(
     usuarios = db.query(Usuario).offset(skip).limit(limit).all()
     return usuarios
 
+
 @router.get(
     "/{usuario_id}",
     response_model=UsuarioResponse,
     summary="Obtener usuario",
-    description="Obtiene los detalles de un usuario específico por su ID."
+    description="Obtiene los detalles de un usuario específico por su ID.",
 )
 def obtener_usuario(
     usuario_id: str = Path(..., description="ID único del usuario (UUID)"),
     db: Session = Depends(get_db),
-    auth: AuthResult = Depends(require_auth)
+    auth: AuthResult = Depends(require_auth),
 ):
     """
     ## Obtener Usuario por ID
@@ -134,20 +149,20 @@ def obtener_usuario(
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
         )
 
     validate_user_ownership(auth, usuario_id)
 
     return usuario
 
+
 @router.put("/{usuario_id}", response_model=UsuarioResponse)
 def actualizar_usuario(
     usuario_id: str,
     usuario_data: UsuarioUpdate,
     db: Session = Depends(get_db),
-    auth: AuthResult = Depends(require_auth)
+    auth: AuthResult = Depends(require_auth),
 ):
     """
     Actualizar un usuario existente.
@@ -158,18 +173,19 @@ def actualizar_usuario(
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
         )
 
     validate_user_ownership(auth, usuario_id)
 
     if usuario_data.username and usuario_data.username != usuario.username:
-        existe = db.query(Usuario).filter(Usuario.username == usuario_data.username).first()
+        existe = (
+            db.query(Usuario).filter(Usuario.username == usuario_data.username).first()
+        )
         if existe:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El username ya está en uso"
+                detail="El username ya está en uso",
             )
 
     if usuario_data.id_clase:
@@ -177,7 +193,7 @@ def actualizar_usuario(
         if not clase:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="La clase especificada no existe"
+                detail="La clase especificada no existe",
             )
 
     update_data = usuario_data.model_dump(exclude_unset=True)
@@ -190,22 +206,24 @@ def actualizar_usuario(
     db.commit()
     db.refresh(usuario)
 
-    log_db_operation("UPDATE", "usuario", usuario.id, campos_actualizados=list(update_data.keys()))
+    log_db_operation(
+        "UPDATE", "usuario", usuario.id, campos_actualizados=list(update_data.keys())
+    )
 
     return usuario
+
 
 @router.delete(
     "/{usuario_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(require_api_key_only)]
+    dependencies=[Depends(require_api_key_only)],
 )
 def eliminar_usuario(usuario_id: str, db: Session = Depends(get_db)):
     """Eliminar un usuario. Requiere API Key."""
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
         )
 
     db.delete(usuario)

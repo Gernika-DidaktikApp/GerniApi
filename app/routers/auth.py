@@ -6,12 +6,14 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
-from app.logging import log_auth, log_debug, logger
+from app.logging import log_auth, log_debug
 from app.models.profesor import Profesor
+
 # from app.models.alumno import Alumno  # Comentado - modelo no existe
 from app.models.usuario import Usuario
+
 # from app.schemas.alumno import LoginRequest, Token, AlumnoResponse  # Comentado
-from app.schemas.usuario import LoginAppRequest, UsuarioResponse
+from app.schemas.usuario import LoginAppRequest
 from app.utils.security import create_access_token, verify_password
 
 
@@ -20,14 +22,16 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 router = APIRouter(
     prefix="/auth",
     tags=["🔐 Autenticación"],
     responses={
         401: {"description": "Credenciales inválidas"},
-        422: {"description": "Error de validación en los datos enviados"}
-    }
+        422: {"description": "Error de validación en los datos enviados"},
+    },
 )
+
 
 @router.post(
     "/login-app",
@@ -41,27 +45,23 @@ router = APIRouter(
                 "application/json": {
                     "example": {
                         "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                        "token_type": "bearer"
+                        "token_type": "bearer",
                     }
                 }
-            }
+            },
         },
         401: {
             "description": "Credenciales incorrectas",
             "content": {
                 "application/json": {
-                    "example": {
-                        "detail": "Username o contraseña incorrectos"
-                    }
+                    "example": {"detail": "Username o contraseña incorrectos"}
                 }
-            }
-        }
-    }
+            },
+        },
+    },
 )
 def login_app(
-    login_data: LoginAppRequest,
-    request: Request,
-    db: Session = Depends(get_db)
+    login_data: LoginAppRequest, request: Request, db: Session = Depends(get_db)
 ):
     """
     ## Autenticar Usuario
@@ -90,10 +90,12 @@ def login_app(
     client_ip = request.client.host if request.client else "unknown"
 
     # Log de intento de inicio de sesión
-    log_auth("login_attempt", username=login_data.username, success=True, client_ip=client_ip)
+    log_auth(
+        "login_attempt", username=login_data.username, success=True, client_ip=client_ip
+    )
 
     # Buscar usuario por username
-    log_debug(f"Buscando usuario en BD", username=login_data.username)
+    log_debug("Buscando usuario en BD", username=login_data.username)
     usuario = db.query(Usuario).filter(Usuario.username == login_data.username).first()
 
     # Verificar que existe y la contraseña coincide
@@ -104,7 +106,7 @@ def login_app(
             username=login_data.username,
             success=False,
             reason="Credenciales inválidas",
-            client_ip=client_ip
+            client_ip=client_ip,
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -116,8 +118,7 @@ def login_app(
     log_debug("Generando token de acceso", username=usuario.username)
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": usuario.username},
-        expires_delta=access_token_expires
+        data={"sub": usuario.username}, expires_delta=access_token_expires
     )
 
     # Log de autenticación exitosa
@@ -126,10 +127,11 @@ def login_app(
         username=usuario.username,
         success=True,
         usuario_id=usuario.id,
-        client_ip=client_ip
+        client_ip=client_ip,
     )
 
     return {"access_token": access_token, "token_type": "bearer"}
+
 
 # Comentado temporalmente - requiere modelo Alumno
 # @router.get("/me", response_model=AlumnoResponse)
@@ -148,27 +150,23 @@ def login_app(
                 "application/json": {
                     "example": {
                         "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                        "token_type": "bearer"
+                        "token_type": "bearer",
                     }
                 }
-            }
+            },
         },
         401: {
             "description": "Credenciales incorrectas",
             "content": {
                 "application/json": {
-                    "example": {
-                        "detail": "Username o contraseña incorrectos"
-                    }
+                    "example": {"detail": "Username o contraseña incorrectos"}
                 }
-            }
-        }
-    }
+            },
+        },
+    },
 )
 def login_profesor(
-    login_data: LoginAppRequest,
-    request: Request,
-    db: Session = Depends(get_db)
+    login_data: LoginAppRequest, request: Request, db: Session = Depends(get_db)
 ):
     """
     ## Autenticar Profesor
@@ -185,11 +183,18 @@ def login_profesor(
     """
     client_ip = request.client.host if request.client else "unknown"
 
-    log_auth("login_profesor_attempt", username=login_data.username, success=True, client_ip=client_ip)
+    log_auth(
+        "login_profesor_attempt",
+        username=login_data.username,
+        success=True,
+        client_ip=client_ip,
+    )
 
     # Buscar profesor por username
-    log_debug(f"Buscando profesor en BD", username=login_data.username)
-    profesor = db.query(Profesor).filter(Profesor.username == login_data.username).first()
+    log_debug("Buscando profesor en BD", username=login_data.username)
+    profesor = (
+        db.query(Profesor).filter(Profesor.username == login_data.username).first()
+    )
 
     # Verificar que existe y la contraseña coincide
     if not profesor or not verify_password(login_data.password, profesor.password):
@@ -198,7 +203,7 @@ def login_profesor(
             username=login_data.username,
             success=False,
             reason="Credenciales inválidas",
-            client_ip=client_ip
+            client_ip=client_ip,
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -211,7 +216,7 @@ def login_profesor(
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": profesor.username, "type": "profesor"},
-        expires_delta=access_token_expires
+        expires_delta=access_token_expires,
     )
 
     log_auth(
@@ -219,7 +224,7 @@ def login_profesor(
         username=profesor.username,
         success=True,
         profesor_id=profesor.id,
-        client_ip=client_ip
+        client_ip=client_ip,
     )
 
     return {"access_token": access_token, "token_type": "bearer"}

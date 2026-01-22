@@ -8,4 +8,3 @@ class Actividad(Base):
 
     id = Column(String(36), primary_key=True, nullable=False)
     nombre = Column(String(100), nullable=False)
-    

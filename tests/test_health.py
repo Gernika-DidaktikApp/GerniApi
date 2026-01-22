@@ -1,7 +1,6 @@
 """
 Tests para endpoints de salud y básicos
 """
-import pytest
 
 
 class TestHealth:

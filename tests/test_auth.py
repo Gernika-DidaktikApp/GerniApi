@@ -1,7 +1,6 @@
 """
 Tests para endpoints de autenticación
 """
-import pytest
 
 
 class TestAuth:
@@ -11,10 +10,7 @@ class TestAuth:
         """Test: Login con credenciales correctas debe devolver token"""
         response = client.post(
             "/api/v1/auth/login-app",
-            json={
-                "username": "testuser",
-                "password": "password123"
-            }
+            json={"username": "testuser", "password": "password123"},
         )
 
         assert response.status_code == 200
@@ -28,10 +24,7 @@ class TestAuth:
         """Test: Login con usuario inexistente debe fallar"""
         response = client.post(
             "/api/v1/auth/login-app",
-            json={
-                "username": "noexiste",
-                "password": "password123"
-            }
+            json={"username": "noexiste", "password": "password123"},
         )
 
         assert response.status_code == 401
@@ -43,10 +36,7 @@ class TestAuth:
         """Test: Login con password incorrecta debe fallar"""
         response = client.post(
             "/api/v1/auth/login-app",
-            json={
-                "username": "testuser",
-                "password": "incorrecta"
-            }
+            json={"username": "testuser", "password": "incorrecta"},
         )
 
         assert response.status_code == 401
@@ -56,21 +46,14 @@ class TestAuth:
 
     def test_login_datos_faltantes(self, client):
         """Test: Login sin datos requeridos debe fallar"""
-        response = client.post(
-            "/api/v1/auth/login-app",
-            json={"username": "testuser"}
-        )
+        response = client.post("/api/v1/auth/login-app", json={"username": "testuser"})
 
         assert response.status_code == 422
 
     def test_login_datos_vacios(self, client):
         """Test: Login con strings vacíos debe fallar"""
         response = client.post(
-            "/api/v1/auth/login-app",
-            json={
-                "username": "",
-                "password": ""
-            }
+            "/api/v1/auth/login-app", json={"username": "", "password": ""}
         )
 
         assert response.status_code == 401

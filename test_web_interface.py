@@ -47,9 +47,9 @@ if __name__ == "__main__":
     print("🌳 Gernibide Web Interface - Servidor de Prueba")
     print("=" * 60)
     print("\n📍 Páginas disponibles:")
-    print("   - Inicio: http://localhost:8000/")
-    print("   - Login: http://localhost:8000/login")
-    print("   - Dashboard Admin: http://localhost:8000/dashboard")
+    print("   - Inicio: http://localhost:8002/")
+    print("   - Login: http://localhost:8002/login")
+    print("   - Dashboard Admin: http://localhost:8002/dashboard")
     print("\n✨ Características:")
     print("   - Página de inicio con estadísticas animadas")
     print("   - Puntos de interés destacados")
@@ -65,6 +65,6 @@ if __name__ == "__main__":
     uvicorn.run(
         app,
         host="0.0.0.0",
-        port=8000,
+        port=8002,
         log_level="info"
     )

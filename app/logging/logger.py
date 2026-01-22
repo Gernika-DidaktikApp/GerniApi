@@ -5,9 +5,9 @@ Proporciona logging con rotación de archivos y diferentes niveles
 
 import logging
 import sys
-from pathlib import Path
-from logging.handlers import RotatingFileHandler
 from datetime import datetime, timezone
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 
 class StructuredFormatter(logging.Formatter):
@@ -18,7 +18,7 @@ class StructuredFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         # Formato base del log
-        timestamp = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+        timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         base = f"[{timestamp}] [{record.levelname:8}] [{record.module}:{record.lineno}] - {record.getMessage()}"
 
         # Añadir campos extra si existen
@@ -44,33 +44,35 @@ class SimpleFormatter(logging.Formatter):
 
     # Colores ANSI para diferentes niveles
     COLORS = {
-        'DEBUG': '\033[36m',      # Cyan
-        'INFO': '\033[32m',       # Green
-        'WARNING': '\033[33m',    # Yellow
-        'ERROR': '\033[31m',      # Red
-        'CRITICAL': '\033[35m',   # Magenta
+        "DEBUG": "\033[36m",  # Cyan
+        "INFO": "\033[32m",  # Green
+        "WARNING": "\033[33m",  # Yellow
+        "ERROR": "\033[31m",  # Red
+        "CRITICAL": "\033[35m",  # Magenta
     }
-    RESET = '\033[0m'
-    BOLD = '\033[1m'
-    DIM = '\033[2m'
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
 
     # Emojis para cada nivel
     ICONS = {
-        'DEBUG': '🔍',
-        'INFO': '✓',
-        'WARNING': '⚠️ ',
-        'ERROR': '✗',
-        'CRITICAL': '🔥',
+        "DEBUG": "🔍",
+        "INFO": "✓",
+        "WARNING": "⚠️ ",
+        "ERROR": "✗",
+        "CRITICAL": "🔥",
     }
 
     def format(self, record: logging.LogRecord) -> str:
         # Obtener emoji
-        icon = self.ICONS.get(record.levelname, '•')
+        icon = self.ICONS.get(record.levelname, "•")
 
         # Añadir color al nivel de log
         levelname = record.levelname
         if levelname in self.COLORS:
-            colored_level = f"{self.COLORS[levelname]}{self.BOLD}{levelname:8}{self.RESET}"
+            colored_level = (
+                f"{self.COLORS[levelname]}{self.BOLD}{levelname:8}{self.RESET}"
+            )
         else:
             colored_level = f"{levelname:8}"
 
@@ -114,7 +116,9 @@ def setup_logging(
     import os
 
     # Detectar si estamos en Railway o entorno de producción
-    is_production = os.getenv("RAILWAY_ENVIRONMENT") is not None or os.getenv("PORT") is not None
+    is_production = (
+        os.getenv("RAILWAY_ENVIRONMENT") is not None or os.getenv("PORT") is not None
+    )
 
     # Obtener o crear el logger principal
     logger = logging.getLogger(app_name)
@@ -147,7 +151,7 @@ def setup_logging(
                 app_log_file,
                 maxBytes=max_bytes,
                 backupCount=backup_count,
-                encoding="utf-8"
+                encoding="utf-8",
             )
             app_file_handler.setLevel(getattr(logging, file_level.upper()))
             app_file_handler.setFormatter(StructuredFormatter())
@@ -161,7 +165,7 @@ def setup_logging(
                 debug_log_file,
                 maxBytes=max_bytes,
                 backupCount=backup_count,
-                encoding="utf-8"
+                encoding="utf-8",
             )
             debug_file_handler.setLevel(getattr(logging, debug_level.upper()))
             debug_file_handler.setFormatter(StructuredFormatter())
@@ -175,23 +179,27 @@ def setup_logging(
                 error_log_file,
                 maxBytes=max_bytes,
                 backupCount=backup_count,
-                encoding="utf-8"
+                encoding="utf-8",
             )
             error_file_handler.setLevel(logging.ERROR)
             error_file_handler.setFormatter(StructuredFormatter())
             logger.addHandler(error_file_handler)
 
             logger.info(
-                f"Sistema de logging inicializado (desarrollo)",
-                extra={"extra_fields": {
-                    "log_dir": str(log_path),
-                    "max_file_size": f"{max_bytes / 1024 / 1024}MB",
-                    "backup_count": backup_count
-                }}
+                "Sistema de logging inicializado (desarrollo)",
+                extra={
+                    "extra_fields": {
+                        "log_dir": str(log_path),
+                        "max_file_size": f"{max_bytes / 1024 / 1024}MB",
+                        "backup_count": backup_count,
+                    }
+                },
             )
         except Exception as e:
             # Si falla la creación de archivos, solo usar consola
-            logger.warning(f"No se pudieron crear archivos de log: {e}. Usando solo consola.")
+            logger.warning(
+                f"No se pudieron crear archivos de log: {e}. Usando solo consola."
+            )
     else:
         # En producción (Railway), solo consola
         logger.info("Sistema de logging inicializado (producción - solo consola)")
@@ -252,7 +260,9 @@ def log_critical(message: str, exc_info: bool = True, **context):
 
 def log_request(method: str, path: str, status_code: int, duration_ms: float, **extra):
     """Log específico para peticiones HTTP"""
-    level = "error" if status_code >= 500 else "warning" if status_code >= 400 else "info"
+    level = (
+        "error" if status_code >= 500 else "warning" if status_code >= 400 else "info"
+    )
     log_with_context(
         level,
         f"{method} {path} - {status_code} ({duration_ms}ms)",
@@ -260,7 +270,7 @@ def log_request(method: str, path: str, status_code: int, duration_ms: float, **
         path=path,
         status_code=status_code,
         duration_ms=duration_ms,
-        **extra
+        **extra,
     )
 
 
@@ -272,7 +282,7 @@ def log_db_operation(operation: str, table: str, record_id: str = None, **extra)
         db_operation=operation,
         table=table,
         record_id=record_id,
-        **extra
+        **extra,
     )
 
 
@@ -285,5 +295,5 @@ def log_auth(event: str, username: str = None, success: bool = True, **extra):
         auth_event=event,
         username=username,
         success=success,
-        **extra
+        **extra,
     )

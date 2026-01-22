@@ -1,24 +1,26 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pathlib import Path
-from app.config import settings
-from app.routers import (
-    auth,
-    usuarios,
-    profesores,
-    clases,
-    actividades,
-    eventos,
-    partidas,
-    actividad_estados,
-    evento_estados,
-)
-from app.web import routes as web_routes
-from app.logging import logger, LoggingMiddleware, register_exception_handlers
-from app.database import Base, engine
+
 # Importar modelos para que SQLAlchemy los conozca
 import app.models  # noqa
+from app.config import settings
+from app.database import Base, engine
+from app.logging import LoggingMiddleware, logger, register_exception_handlers
+from app.routers import (
+    actividad_estados,
+    actividades,
+    auth,
+    clases,
+    evento_estados,
+    eventos,
+    partidas,
+    profesores,
+    usuarios,
+)
+from app.web import routes as web_routes
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -55,47 +57,26 @@ app = FastAPI(
     ¿Necesitas ayuda? Revisa los logs o contacta al equipo de desarrollo.
     """,
     version="1.0.0",
-    contact={
-        "name": "Equipo GerniBide",
-        "email": "soporte@GerniBide.com"
-    },
+    contact={"name": "Equipo GerniBide", "email": "soporte@GerniBide.com"},
     license_info={
         "name": "Uso privado",
     },
     openapi_tags=[
         {
             "name": "🔐 Autenticación",
-            "description": "Endpoints para login y gestión de tokens JWT"
+            "description": "Endpoints para login y gestión de tokens JWT",
         },
-        {
-            "name": "👥 Usuarios",
-            "description": "CRUD completo de usuarios del sistema"
-        },
-        {
-            "name": "👨‍🏫 Profesores",
-            "description": "Gestión de profesores"
-        },
-        {
-            "name": "🏫 Clases",
-            "description": "Gestión de clases y asignaciones"
-        },
-        {
-            "name": "🎮 Partidas",
-            "description": "Gestión de partidas de juego"
-        },
+        {"name": "👥 Usuarios", "description": "CRUD completo de usuarios del sistema"},
+        {"name": "👨‍🏫 Profesores", "description": "Gestión de profesores"},
+        {"name": "🏫 Clases", "description": "Gestión de clases y asignaciones"},
+        {"name": "🎮 Partidas", "description": "Gestión de partidas de juego"},
         {
             "name": "📝 Actividades",
-            "description": "Gestión de actividades dentro de partidas"
+            "description": "Gestión de actividades dentro de partidas",
         },
-        {
-            "name": "📅 Eventos",
-            "description": "Gestión de eventos de actividades"
-        },
-        {
-            "name": "📊 Estados",
-            "description": "Estados de actividades y eventos"
-        }
-    ]
+        {"name": "📅 Eventos", "description": "Gestión de eventos de actividades"},
+        {"name": "📊 Estados", "description": "Estados de actividades y eventos"},
+    ],
 )
 
 # Configurar logging al inicio de la aplicación

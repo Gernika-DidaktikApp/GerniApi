@@ -7,26 +7,27 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.logging import log_with_context
 from app.models.profesor import Profesor
-from app.schemas.profesor import (ProfesorCreate, ProfesorResponse,
-                                  ProfesorUpdate)
+from app.schemas.profesor import ProfesorCreate, ProfesorResponse, ProfesorUpdate
 from app.utils.dependencies import require_api_key_only
 from app.utils.security import hash_password
 
 router = APIRouter(
     prefix="/profesores",
     tags=["👨‍🏫 Profesores"],
-    dependencies=[Depends(require_api_key_only)]
+    dependencies=[Depends(require_api_key_only)],
 )
+
 
 @router.post("", response_model=ProfesorResponse, status_code=status.HTTP_201_CREATED)
 def crear_profesor(profesor_data: ProfesorCreate, db: Session = Depends(get_db)):
     """Crear un nuevo profesor."""
     # Validar que el username no exista
-    existe = db.query(Profesor).filter(Profesor.username == profesor_data.username).first()
+    existe = (
+        db.query(Profesor).filter(Profesor.username == profesor_data.username).first()
+    )
     if existe:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El username ya está en uso"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="El username ya está en uso"
         )
 
     # Crear profesor con UUID generado
@@ -35,16 +36,22 @@ def crear_profesor(profesor_data: ProfesorCreate, db: Session = Depends(get_db))
         username=profesor_data.username,
         nombre=profesor_data.nombre,
         apellido=profesor_data.apellido,
-        password=hash_password(profesor_data.password)
+        password=hash_password(profesor_data.password),
     )
 
     db.add(nuevo_profesor)
     db.commit()
     db.refresh(nuevo_profesor)
 
-    log_with_context("info", "Profesor creado", profesor_id=nuevo_profesor.id, username=nuevo_profesor.username)
+    log_with_context(
+        "info",
+        "Profesor creado",
+        profesor_id=nuevo_profesor.id,
+        username=nuevo_profesor.username,
+    )
 
     return nuevo_profesor
+
 
 @router.get("", response_model=List[ProfesorResponse])
 def listar_profesores(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -52,34 +59,40 @@ def listar_profesores(skip: int = 0, limit: int = 100, db: Session = Depends(get
     profesores = db.query(Profesor).offset(skip).limit(limit).all()
     return profesores
 
+
 @router.get("/{profesor_id}", response_model=ProfesorResponse)
 def obtener_profesor(profesor_id: str, db: Session = Depends(get_db)):
     """Obtener un profesor por ID."""
     profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
     if not profesor:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profesor no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado"
         )
     return profesor
 
+
 @router.put("/{profesor_id}", response_model=ProfesorResponse)
-def actualizar_profesor(profesor_id: str, profesor_data: ProfesorUpdate, db: Session = Depends(get_db)):
+def actualizar_profesor(
+    profesor_id: str, profesor_data: ProfesorUpdate, db: Session = Depends(get_db)
+):
     """Actualizar un profesor existente."""
     profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
     if not profesor:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profesor no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado"
         )
 
     # Validar username único si se está actualizando
     if profesor_data.username and profesor_data.username != profesor.username:
-        existe = db.query(Profesor).filter(Profesor.username == profesor_data.username).first()
+        existe = (
+            db.query(Profesor)
+            .filter(Profesor.username == profesor_data.username)
+            .first()
+        )
         if existe:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El username ya está en uso"
+                detail="El username ya está en uso",
             )
 
     # Actualizar campos proporcionados
@@ -97,14 +110,14 @@ def actualizar_profesor(profesor_id: str, profesor_data: ProfesorUpdate, db: Ses
 
     return profesor
 
+
 @router.delete("/{profesor_id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_profesor(profesor_id: str, db: Session = Depends(get_db)):
     """Eliminar un profesor."""
     profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
     if not profesor:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profesor no encontrado"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado"
         )
 
     db.delete(profesor)

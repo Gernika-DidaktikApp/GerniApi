@@ -8,11 +8,13 @@ class ActividadEstadoCreate(BaseModel):
     id_juego: str = Field(..., min_length=36, max_length=36)
     id_actividad: str = Field(..., min_length=36, max_length=36)
 
+
 class ActividadEstadoUpdate(BaseModel):
     duracion: Optional[int] = None
     fecha_fin: Optional[datetime] = None
     estado: Optional[str] = Field(None, max_length=20)
     puntuacion_total: Optional[float] = None
+
 
 class ActividadEstadoResponse(BaseModel):
     id: str

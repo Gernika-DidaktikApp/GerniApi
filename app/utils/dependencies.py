@@ -11,9 +11,7 @@ from app.models.juego import Partida
 from app.models.usuario import Usuario
 from app.utils.security import decode_access_token
 
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/v1/auth/login-app", auto_error=False
-)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login-app", auto_error=False)
 
 
 @dataclass
@@ -56,9 +54,7 @@ def get_current_user(
 def require_api_key_only(api_key: Optional[str] = Depends(verify_api_key)) -> str:
     """Requiere API Key válida. Rechaza cualquier otro tipo de autenticación."""
     if not api_key:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="API Key requerida"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="API Key requerida")
     return api_key
 
 
@@ -98,9 +94,7 @@ def validate_user_ownership(auth: AuthResult, resource_user_id: str) -> None:
         )
 
 
-def validate_partida_ownership(
-    auth: AuthResult, partida_id: str, db: Session
-) -> Partida:
+def validate_partida_ownership(auth: AuthResult, partida_id: str, db: Session) -> Partida:
     """
     Valida que el usuario autenticado es dueño de la partida.
     Retorna la partida si la validación es exitosa.

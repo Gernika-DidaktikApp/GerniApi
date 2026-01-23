@@ -22,9 +22,7 @@ router = APIRouter(
 def crear_profesor(profesor_data: ProfesorCreate, db: Session = Depends(get_db)):
     """Crear un nuevo profesor."""
     # Validar que el username no exista
-    existe = (
-        db.query(Profesor).filter(Profesor.username == profesor_data.username).first()
-    )
+    existe = db.query(Profesor).filter(Profesor.username == profesor_data.username).first()
     if existe:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="El username ya está en uso"
@@ -65,9 +63,7 @@ def obtener_profesor(profesor_id: str, db: Session = Depends(get_db)):
     """Obtener un profesor por ID."""
     profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
     if not profesor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado")
     return profesor
 
 
@@ -78,17 +74,11 @@ def actualizar_profesor(
     """Actualizar un profesor existente."""
     profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
     if not profesor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado")
 
     # Validar username único si se está actualizando
     if profesor_data.username and profesor_data.username != profesor.username:
-        existe = (
-            db.query(Profesor)
-            .filter(Profesor.username == profesor_data.username)
-            .first()
-        )
+        existe = db.query(Profesor).filter(Profesor.username == profesor_data.username).first()
         if existe:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -116,9 +106,7 @@ def eliminar_profesor(profesor_id: str, db: Session = Depends(get_db)):
     """Eliminar un profesor."""
     profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
     if not profesor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado")
 
     db.delete(profesor)
     db.commit()

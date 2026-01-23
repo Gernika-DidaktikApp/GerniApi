@@ -81,9 +81,7 @@ def obtener_partida(
     """
     partida = db.query(Partida).filter(Partida.id == partida_id).first()
     if not partida:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Partida no encontrada"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Partida no encontrada")
 
     validate_user_ownership(auth, partida.id_usuario)
 
@@ -105,9 +103,7 @@ def actualizar_partida(
     """
     partida = db.query(Partida).filter(Partida.id == partida_id).first()
     if not partida:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Partida no encontrada"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Partida no encontrada")
 
     validate_user_ownership(auth, partida.id_usuario)
 
@@ -132,9 +128,7 @@ def eliminar_partida(partida_id: str, db: Session = Depends(get_db)):
     """Eliminar una partida. Requiere API Key."""
     partida = db.query(Partida).filter(Partida.id == partida_id).first()
     if not partida:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Partida no encontrada"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Partida no encontrada")
 
     db.delete(partida)
     db.commit()

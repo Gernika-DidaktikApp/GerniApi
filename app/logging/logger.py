@@ -70,9 +70,7 @@ class SimpleFormatter(logging.Formatter):
         # Añadir color al nivel de log
         levelname = record.levelname
         if levelname in self.COLORS:
-            colored_level = (
-                f"{self.COLORS[levelname]}{self.BOLD}{levelname:8}{self.RESET}"
-            )
+            colored_level = f"{self.COLORS[levelname]}{self.BOLD}{levelname:8}{self.RESET}"
         else:
             colored_level = f"{levelname:8}"
 
@@ -116,9 +114,7 @@ def setup_logging(
     import os
 
     # Detectar si estamos en Railway o entorno de producción
-    is_production = (
-        os.getenv("RAILWAY_ENVIRONMENT") is not None or os.getenv("PORT") is not None
-    )
+    is_production = os.getenv("RAILWAY_ENVIRONMENT") is not None or os.getenv("PORT") is not None
 
     # Obtener o crear el logger principal
     logger = logging.getLogger(app_name)
@@ -197,9 +193,7 @@ def setup_logging(
             )
         except Exception as e:
             # Si falla la creación de archivos, solo usar consola
-            logger.warning(
-                f"No se pudieron crear archivos de log: {e}. Usando solo consola."
-            )
+            logger.warning(f"No se pudieron crear archivos de log: {e}. Usando solo consola.")
     else:
         # En producción (Railway), solo consola
         logger.info("Sistema de logging inicializado (producción - solo consola)")
@@ -260,9 +254,7 @@ def log_critical(message: str, exc_info: bool = True, **context):
 
 def log_request(method: str, path: str, status_code: int, duration_ms: float, **extra):
     """Log específico para peticiones HTTP"""
-    level = (
-        "error" if status_code >= 500 else "warning" if status_code >= 400 else "info"
-    )
+    level = "error" if status_code >= 500 else "warning" if status_code >= 400 else "info"
     log_with_context(
         level,
         f"{method} {path} - {status_code} ({duration_ms}ms)",

@@ -40,9 +40,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 if hasattr(request, "headers")
                 else "unknown"
             )
-            query_params = (
-                str(request.query_params) if hasattr(request, "query_params") else ""
-            )
+            query_params = str(request.query_params) if hasattr(request, "query_params") else ""
         except Exception as e:
             # Si falla la extracción de información, usar valores por defecto
             method = "UNKNOWN"

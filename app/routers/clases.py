@@ -38,9 +38,7 @@ def crear_clase(clase_data: ClaseCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(nueva_clase)
 
-    log_with_context(
-        "info", "Clase creada", clase_id=nueva_clase.id, nombre=nueva_clase.nombre
-    )
+    log_with_context("info", "Clase creada", clase_id=nueva_clase.id, nombre=nueva_clase.nombre)
 
     return nueva_clase
 
@@ -57,28 +55,20 @@ def obtener_clase(clase_id: str, db: Session = Depends(get_db)):
     """Obtener una clase por ID."""
     clase = db.query(Clase).filter(Clase.id == clase_id).first()
     if not clase:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Clase no encontrada"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Clase no encontrada")
     return clase
 
 
 @router.put("/{clase_id}", response_model=ClaseResponse)
-def actualizar_clase(
-    clase_id: str, clase_data: ClaseUpdate, db: Session = Depends(get_db)
-):
+def actualizar_clase(clase_id: str, clase_data: ClaseUpdate, db: Session = Depends(get_db)):
     """Actualizar una clase existente."""
     clase = db.query(Clase).filter(Clase.id == clase_id).first()
     if not clase:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Clase no encontrada"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Clase no encontrada")
 
     # Validar profesor si se proporciona
     if clase_data.id_profesor:
-        profesor = (
-            db.query(Profesor).filter(Profesor.id == clase_data.id_profesor).first()
-        )
+        profesor = db.query(Profesor).filter(Profesor.id == clase_data.id_profesor).first()
         if not profesor:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -103,9 +93,7 @@ def eliminar_clase(clase_id: str, db: Session = Depends(get_db)):
     """Eliminar una clase."""
     clase = db.query(Clase).filter(Clase.id == clase_id).first()
     if not clase:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Clase no encontrada"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Clase no encontrada")
 
     db.delete(clase)
     db.commit()

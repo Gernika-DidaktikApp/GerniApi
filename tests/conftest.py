@@ -121,9 +121,7 @@ def test_eventos(db_session, test_actividad):
     """Crea 3 eventos de prueba para una actividad"""
     eventos = []
     for i in range(1, 4):
-        evento = Eventos(
-            id=str(uuid.uuid4()), id_actividad=test_actividad.id, nombre=f"Evento {i}"
-        )
+        evento = Eventos(id=str(uuid.uuid4()), id_actividad=test_actividad.id, nombre=f"Evento {i}")
         db_session.add(evento)
         eventos.append(evento)
 
@@ -136,9 +134,7 @@ def test_eventos(db_session, test_actividad):
 @pytest.fixture
 def test_partida(db_session, test_usuario):
     """Crea una partida de prueba"""
-    partida = Partida(
-        id=str(uuid.uuid4()), id_usuario=test_usuario.id, estado="en_progreso"
-    )
+    partida = Partida(id=str(uuid.uuid4()), id_usuario=test_usuario.id, estado="en_progreso")
     db_session.add(partida)
     db_session.commit()
     db_session.refresh(partida)

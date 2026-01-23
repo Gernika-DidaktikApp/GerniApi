@@ -11,9 +11,7 @@ if is_sqlite:
     # SQLite: sin pool de conexiones (no soporta los parámetros de PostgreSQL)
     engine = create_engine(
         settings.DATABASE_URL,
-        connect_args={
-            "check_same_thread": False
-        },  # Permitir múltiples threads en SQLite
+        connect_args={"check_same_thread": False},  # Permitir múltiples threads en SQLite
         echo=False,
     )
 else:

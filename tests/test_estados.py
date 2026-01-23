@@ -6,9 +6,7 @@ Tests para sistema de gestión de estados de actividades y eventos
 class TestActividadEstados:
     """Tests para endpoints de estados de actividades"""
 
-    def test_iniciar_actividad_exitoso(
-        self, admin_client, test_partida, test_actividad
-    ):
+    def test_iniciar_actividad_exitoso(self, admin_client, test_partida, test_actividad):
         """Test: Iniciar actividad debe crear registro con estado en_progreso"""
         response = admin_client.post(
             "/api/v1/actividad-estados/iniciar",
@@ -25,9 +23,7 @@ class TestActividadEstados:
         assert data["fecha_fin"] is None
         assert "fecha_inicio" in data
 
-    def test_iniciar_actividad_duplicada(
-        self, admin_client, test_partida, test_actividad
-    ):
+    def test_iniciar_actividad_duplicada(self, admin_client, test_partida, test_actividad):
         """Test: Iniciar actividad duplicada debe fallar"""
         # Primera vez
         admin_client.post(
@@ -114,9 +110,7 @@ class TestActividadEstados:
 class TestEventoEstados:
     """Tests para endpoints de estados de eventos"""
 
-    def test_iniciar_evento_exitoso(
-        self, admin_client, test_partida, test_actividad, test_eventos
-    ):
+    def test_iniciar_evento_exitoso(self, admin_client, test_partida, test_actividad, test_eventos):
         """Test: Iniciar evento debe crear registro con estado en_progreso"""
         evento = test_eventos[0]
         response = admin_client.post(
@@ -260,9 +254,7 @@ class TestEventoEstados:
         )
         estado_id = init_response.json()["id"]
 
-        admin_client.put(
-            f"/api/v1/evento-estados/{estado_id}/completar", json={"puntuacion": 85.5}
-        )
+        admin_client.put(f"/api/v1/evento-estados/{estado_id}/completar", json={"puntuacion": 85.5})
 
         # Intentar completar de nuevo
         response = admin_client.put(

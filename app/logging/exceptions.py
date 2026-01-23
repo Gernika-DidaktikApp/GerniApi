@@ -14,9 +14,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from .logger import log_with_context, logger
 
 
-async def http_exception_handler(
-    request: Request, exc: StarletteHTTPException
-) -> JSONResponse:
+async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
     """
     Manejador para excepciones HTTP (404, 401, 403, etc.)
     """
@@ -69,9 +67,7 @@ async def validation_exception_handler(
         }
         # Añadir input si está disponible para debugging
         if "input" in error:
-            error_detail["input_received"] = str(error["input"])[
-                :100
-            ]  # Limitar longitud
+            error_detail["input_received"] = str(error["input"])[:100]  # Limitar longitud
         errors.append(error_detail)
 
     # Intentar obtener el body para logging
@@ -106,9 +102,7 @@ async def validation_exception_handler(
     )
 
 
-async def sqlalchemy_exception_handler(
-    request: Request, exc: SQLAlchemyError
-) -> JSONResponse:
+async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError) -> JSONResponse:
     """
     Manejador para errores de base de datos SQLAlchemy
     """
@@ -117,7 +111,9 @@ async def sqlalchemy_exception_handler(
     # Detectar tipo específico de error
     if isinstance(exc, IntegrityError):
         error_type = "integrity_error"
-        user_message = "Error de integridad en la base de datos. Posible duplicado o violación de restricción."
+        user_message = (
+            "Error de integridad en la base de datos. Posible duplicado o violación de restricción."
+        )
         status_code = status.HTTP_409_CONFLICT
     else:
         error_type = "database_error"

@@ -44,9 +44,7 @@ def iniciar_actividad(
     """
     validate_partida_ownership(auth, estado_data.id_juego, db)
 
-    actividad = (
-        db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
-    )
+    actividad = db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
     if not actividad:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -91,9 +89,7 @@ def iniciar_actividad(
     return nuevo_estado
 
 
-@router.post(
-    "", response_model=ActividadEstadoResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("", response_model=ActividadEstadoResponse, status_code=status.HTTP_201_CREATED)
 def crear_actividad_estado(
     estado_data: ActividadEstadoCreate,
     db: Session = Depends(get_db),
@@ -107,9 +103,7 @@ def crear_actividad_estado(
     """
     validate_partida_ownership(auth, estado_data.id_juego, db)
 
-    actividad = (
-        db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
-    )
+    actividad = db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
     if not actividad:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -136,9 +130,7 @@ def crear_actividad_estado(
     response_model=List[ActividadEstadoResponse],
     dependencies=[Depends(require_api_key_only)],
 )
-def listar_actividad_estados(
-    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
-):
+def listar_actividad_estados(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Obtener lista de estados de actividad. Requiere API Key."""
     estados = db.query(ActividadEstado).offset(skip).limit(limit).all()
     return estados

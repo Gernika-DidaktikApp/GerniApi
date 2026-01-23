@@ -8,14 +8,10 @@ class LoginAppRequest(BaseModel):
     """Credenciales para autenticación de usuario"""
 
     username: str = Field(..., description="Nombre de usuario", example="usuario123")
-    password: str = Field(
-        ..., description="Contraseña del usuario", example="password123"
-    )
+    password: str = Field(..., description="Contraseña del usuario", example="password123")
 
     model_config = {
-        "json_schema_extra": {
-            "examples": [{"username": "usuario123", "password": "password123"}]
-        }
+        "json_schema_extra": {"examples": [{"username": "usuario123", "password": "password123"}]}
     }
 
 
@@ -103,12 +99,34 @@ class UsuarioUpdate(BaseModel):
         description="Nueva clase asignada",
         example="550e8400-e29b-41d4-a716-446655440000",
     )
-    top_score: Optional[int] = Field(
-        None, description="Nueva puntuación máxima", example=1500
-    )
+    top_score: Optional[int] = Field(None, description="Nueva puntuación máxima", example=1500)
+
+    model_config = {"json_schema_extra": {"examples": [{"nombre": "Pedro", "apellido": "García"}]}}
+
+
+class LoginAppResponse(BaseModel):
+    """Respuesta de login con token y datos del usuario"""
+
+    access_token: str = Field(..., description="Token JWT para autenticación")
+    token_type: str = Field(default="bearer", description="Tipo de token")
+    user_id: str = Field(..., description="ID único del usuario (UUID)")
+    username: str = Field(..., description="Nombre de usuario")
+    nombre: str = Field(..., description="Nombre del usuario")
+    apellido: str = Field(..., description="Apellido del usuario")
 
     model_config = {
-        "json_schema_extra": {"examples": [{"nombre": "Pedro", "apellido": "García"}]}
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "token_type": "bearer",
+                    "user_id": "550e8400-e29b-41d4-a716-446655440000",
+                    "username": "usuario123",
+                    "nombre": "Juan",
+                    "apellido": "Pérez",
+                }
+            ]
+        }
     }
 
 

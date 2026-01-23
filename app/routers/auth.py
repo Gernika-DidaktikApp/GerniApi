@@ -13,7 +13,7 @@ from app.models.profesor import Profesor
 from app.models.usuario import Usuario
 
 # from app.schemas.alumno import LoginRequest, Token, AlumnoResponse  # Comentado
-from app.schemas.usuario import LoginAppRequest
+from app.schemas.usuario import LoginAppRequest, LoginAppResponse
 from app.utils.security import create_access_token, verify_password
 
 
@@ -35,9 +35,9 @@ router = APIRouter(
 
 @router.post(
     "/login-app",
-    response_model=Token,
+    response_model=LoginAppResponse,
     summary="Login de usuario",
-    description="Autenticar usuario con username y contraseña. Devuelve un token JWT válido por 30 minutos.",
+    description="Autenticar usuario con username y contraseña. Devuelve un token JWT válido por 30 minutos junto con los datos del usuario.",
     responses={
         200: {
             "description": "Login exitoso",
@@ -46,6 +46,10 @@ router = APIRouter(
                     "example": {
                         "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                         "token_type": "bearer",
+                        "user_id": "550e8400-e29b-41d4-a716-446655440000",
+                        "username": "usuario123",
+                        "nombre": "Juan",
+                        "apellido": "Pérez",
                     }
                 }
             },
@@ -53,16 +57,12 @@ router = APIRouter(
         401: {
             "description": "Credenciales incorrectas",
             "content": {
-                "application/json": {
-                    "example": {"detail": "Username o contraseña incorrectos"}
-                }
+                "application/json": {"example": {"detail": "Username o contraseña incorrectos"}}
             },
         },
     },
 )
-def login_app(
-    login_data: LoginAppRequest, request: Request, db: Session = Depends(get_db)
-):
+def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depends(get_db)):
     """
     ## Autenticar Usuario
 
@@ -90,9 +90,7 @@ def login_app(
     client_ip = request.client.host if request.client else "unknown"
 
     # Log de intento de inicio de sesión
-    log_auth(
-        "login_attempt", username=login_data.username, success=True, client_ip=client_ip
-    )
+    log_auth("login_attempt", username=login_data.username, success=True, client_ip=client_ip)
 
     # Buscar usuario por username
     log_debug("Buscando usuario en BD", username=login_data.username)
@@ -130,7 +128,14 @@ def login_app(
         client_ip=client_ip,
     )
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": usuario.id,
+        "username": usuario.username,
+        "nombre": usuario.nombre,
+        "apellido": usuario.apellido,
+    }
 
 
 # Comentado temporalmente - requiere modelo Alumno
@@ -158,16 +163,12 @@ def login_app(
         401: {
             "description": "Credenciales incorrectas",
             "content": {
-                "application/json": {
-                    "example": {"detail": "Username o contraseña incorrectos"}
-                }
+                "application/json": {"example": {"detail": "Username o contraseña incorrectos"}}
             },
         },
     },
 )
-def login_profesor(
-    login_data: LoginAppRequest, request: Request, db: Session = Depends(get_db)
-):
+def login_profesor(login_data: LoginAppRequest, request: Request, db: Session = Depends(get_db)):
     """
     ## Autenticar Profesor
 
@@ -192,9 +193,7 @@ def login_profesor(
 
     # Buscar profesor por username
     log_debug("Buscando profesor en BD", username=login_data.username)
-    profesor = (
-        db.query(Profesor).filter(Profesor.username == login_data.username).first()
-    )
+    profesor = db.query(Profesor).filter(Profesor.username == login_data.username).first()
 
     # Verificar que existe y la contraseña coincide
     if not profesor or not verify_password(login_data.password, profesor.password):

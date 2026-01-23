@@ -33,13 +33,19 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     summary="Crear usuario",
     description="Crea un nuevo usuario en el sistema con su información básica y contraseña hasheada.",
-    dependencies=[Depends(require_api_key_only)],
 )
-def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
+def crear_usuario(
+    usuario_data: UsuarioCreate,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth),
+):
     """
     ## Crear Nuevo Usuario
 
-    Registra un nuevo usuario en el sistema. Requiere API Key.
+    Registra un nuevo usuario en el sistema.
+
+    - Con API Key: Puede crear usuarios
+    - Con Token: Puede crear usuarios (para registro desde la app)
 
     ### Validaciones
     - El username debe ser único
@@ -80,9 +86,7 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(nuevo_usuario)
 
-    log_db_operation(
-        "CREATE", "usuario", nuevo_usuario.id, username=nuevo_usuario.username
-    )
+    log_db_operation("CREATE", "usuario", nuevo_usuario.id, username=nuevo_usuario.username)
 
     return nuevo_usuario
 
@@ -95,12 +99,8 @@ def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
     dependencies=[Depends(require_api_key_only)],
 )
 def listar_usuarios(
-    skip: int = Query(
-        0, ge=0, description="Número de registros a saltar (para paginación)"
-    ),
-    limit: int = Query(
-        100, ge=1, le=1000, description="Número máximo de registros a retornar"
-    ),
+    skip: int = Query(0, ge=0, description="Número de registros a saltar (para paginación)"),
+    limit: int = Query(100, ge=1, le=1000, description="Número máximo de registros a retornar"),
     db: Session = Depends(get_db),
 ):
     """
@@ -148,9 +148,7 @@ def obtener_usuario(
     """
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
 
     validate_user_ownership(auth, usuario_id)
 
@@ -172,16 +170,12 @@ def actualizar_usuario(
     """
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
 
     validate_user_ownership(auth, usuario_id)
 
     if usuario_data.username and usuario_data.username != usuario.username:
-        existe = (
-            db.query(Usuario).filter(Usuario.username == usuario_data.username).first()
-        )
+        existe = db.query(Usuario).filter(Usuario.username == usuario_data.username).first()
         if existe:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -206,9 +200,7 @@ def actualizar_usuario(
     db.commit()
     db.refresh(usuario)
 
-    log_db_operation(
-        "UPDATE", "usuario", usuario.id, campos_actualizados=list(update_data.keys())
-    )
+    log_db_operation("UPDATE", "usuario", usuario.id, campos_actualizados=list(update_data.keys()))
 
     return usuario
 
@@ -222,9 +214,7 @@ def eliminar_usuario(usuario_id: str, db: Session = Depends(get_db)):
     """Eliminar un usuario. Requiere API Key."""
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
 
     db.delete(usuario)
     db.commit()

@@ -27,9 +27,7 @@ from app.utils.dependencies import (
 router = APIRouter(prefix="/evento-estados", tags=["📊 Estados"])
 
 
-@router.post(
-    "/iniciar", response_model=EventoEstadoResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/iniciar", response_model=EventoEstadoResponse, status_code=status.HTTP_201_CREATED)
 def iniciar_evento(
     estado_data: EventoEstadoCreate,
     db: Session = Depends(get_db),
@@ -46,9 +44,7 @@ def iniciar_evento(
     """
     validate_partida_ownership(auth, estado_data.id_juego, db)
 
-    actividad = (
-        db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
-    )
+    actividad = db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
     if not actividad:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -158,9 +154,7 @@ def completar_evento(
         duracion=estado.duracion,
     )
 
-    todos_los_eventos = (
-        db.query(Eventos).filter(Eventos.id_actividad == estado.id_actividad).all()
-    )
+    todos_los_eventos = db.query(Eventos).filter(Eventos.id_actividad == estado.id_actividad).all()
     total_eventos = len(todos_los_eventos)
 
     eventos_completados = (
@@ -199,9 +193,7 @@ def completar_evento(
 
             actividad_estado.fecha_fin = datetime.now()
             actividad_estado.duracion = int(
-                (
-                    actividad_estado.fecha_fin - actividad_estado.fecha_inicio
-                ).total_seconds()
+                (actividad_estado.fecha_fin - actividad_estado.fecha_inicio).total_seconds()
             )
             actividad_estado.estado = "completado"
             actividad_estado.puntuacion_total = puntuacion_total
@@ -221,9 +213,7 @@ def completar_evento(
     return estado
 
 
-@router.post(
-    "", response_model=EventoEstadoResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("", response_model=EventoEstadoResponse, status_code=status.HTTP_201_CREATED)
 def crear_evento_estado(
     estado_data: EventoEstadoCreate,
     db: Session = Depends(get_db),
@@ -237,9 +227,7 @@ def crear_evento_estado(
     """
     validate_partida_ownership(auth, estado_data.id_juego, db)
 
-    actividad = (
-        db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
-    )
+    actividad = db.query(Actividad).filter(Actividad.id == estado_data.id_actividad).first()
     if not actividad:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -282,9 +270,7 @@ def crear_evento_estado(
     response_model=List[EventoEstadoResponse],
     dependencies=[Depends(require_api_key_only)],
 )
-def listar_evento_estados(
-    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
-):
+def listar_evento_estados(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Obtener lista de estados de evento. Requiere API Key."""
     estados = db.query(EventoEstado).offset(skip).limit(limit).all()
     return estados

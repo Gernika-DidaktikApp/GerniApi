@@ -22,9 +22,7 @@ router = APIRouter(prefix="/eventos", tags=["📅 Eventos"])
 )
 def crear_evento(evento_data: EventoCreate, db: Session = Depends(get_db)):
     """Crear un nuevo evento. Requiere API Key."""
-    actividad = (
-        db.query(Actividad).filter(Actividad.id == evento_data.id_actividad).first()
-    )
+    actividad = db.query(Actividad).filter(Actividad.id == evento_data.id_actividad).first()
     if not actividad:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -41,9 +39,7 @@ def crear_evento(evento_data: EventoCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(nuevo_evento)
 
-    log_with_context(
-        "info", "Evento creado", evento_id=nuevo_evento.id, nombre=nuevo_evento.nombre
-    )
+    log_with_context("info", "Evento creado", evento_id=nuevo_evento.id, nombre=nuevo_evento.nombre)
 
     return nuevo_evento
 
@@ -69,9 +65,7 @@ def obtener_evento(
     """Obtener un evento por ID. Requiere API Key o Token de usuario."""
     evento = db.query(Eventos).filter(Eventos.id == evento_id).first()
     if not evento:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado")
     return evento
 
 
@@ -80,20 +74,14 @@ def obtener_evento(
     response_model=EventoResponse,
     dependencies=[Depends(require_api_key_only)],
 )
-def actualizar_evento(
-    evento_id: str, evento_data: EventoUpdate, db: Session = Depends(get_db)
-):
+def actualizar_evento(evento_id: str, evento_data: EventoUpdate, db: Session = Depends(get_db)):
     """Actualizar un evento existente. Requiere API Key."""
     evento = db.query(Eventos).filter(Eventos.id == evento_id).first()
     if not evento:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado")
 
     if evento_data.id_actividad:
-        actividad = (
-            db.query(Actividad).filter(Actividad.id == evento_data.id_actividad).first()
-        )
+        actividad = db.query(Actividad).filter(Actividad.id == evento_data.id_actividad).first()
         if not actividad:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -121,9 +109,7 @@ def eliminar_evento(evento_id: str, db: Session = Depends(get_db)):
     """Eliminar un evento. Requiere API Key."""
     evento = db.query(Eventos).filter(Eventos.id == evento_id).first()
     if not evento:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado")
 
     db.delete(evento)
     db.commit()

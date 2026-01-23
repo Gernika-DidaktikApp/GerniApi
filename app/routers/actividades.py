@@ -58,9 +58,7 @@ def obtener_actividad(
     """Obtener una actividad por ID. Requiere API Key o Token de usuario."""
     actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
     if not actividad:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada")
     return actividad
 
 
@@ -75,9 +73,7 @@ def actualizar_actividad(
     """Actualizar una actividad existente. Requiere API Key."""
     actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
     if not actividad:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada")
 
     update_data = actividad_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
@@ -100,9 +96,7 @@ def eliminar_actividad(actividad_id: str, db: Session = Depends(get_db)):
     """Eliminar una actividad. Requiere API Key."""
     actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
     if not actividad:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada")
 
     db.delete(actividad)
     db.commit()

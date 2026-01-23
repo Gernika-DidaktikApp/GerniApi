@@ -2,12 +2,13 @@
 Script de prueba para visualizar la interfaz web sin necesidad de la API completa
 Ejecutar con: python test_web_interface.py
 """
+from pathlib import Path
+
+import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pathlib import Path
-import uvicorn
 
 # Crear aplicación FastAPI simple
 app = FastAPI(title="Gernibide Web Interface - Test")

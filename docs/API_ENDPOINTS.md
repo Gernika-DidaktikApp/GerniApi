@@ -44,7 +44,7 @@ La API utiliza un sistema de autenticación dual:
 ### Usuarios
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/v1/usuarios` | Crear usuario | 🔑 |
+| POST | `/api/v1/usuarios` | Registrar usuario | 🔓 |
 | GET | `/api/v1/usuarios` | Listar usuarios | 🔑 |
 | GET | `/api/v1/usuarios/{id}` | Obtener usuario | 🔑🎫 |
 | PUT | `/api/v1/usuarios/{id}` | Actualizar usuario | 🔑🎫 |
@@ -145,14 +145,34 @@ Content-Type: application/json
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "bearer"
+  "token_type": "bearer",
+  "user_id": "550e8400-e29b-41d4-a716-446655440000",
+  "username": "juan",
+  "nombre": "Juan",
+  "apellido": "García"
 }
 ```
 
-**Status: 401 Unauthorized**
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `access_token` | string | Token JWT para autenticación |
+| `token_type` | string | Tipo de token (siempre "bearer") |
+| `user_id` | string | UUID del usuario (usar para crear partidas) |
+| `username` | string | Nombre de usuario |
+| `nombre` | string | Nombre del usuario |
+| `apellido` | string | Apellido del usuario |
+
+**Status: 401 Unauthorized - Usuario no existe**
 ```json
 {
-  "detail": "Username o contraseña incorrectos"
+  "detail": "El usuario no existe"
+}
+```
+
+**Status: 401 Unauthorized - Contraseña incorrecta**
+```json
+{
+  "detail": "Contraseña incorrecta"
 }
 ```
 
@@ -195,7 +215,10 @@ const response = await fetch('https://tu-api.up.railway.app/api/v1/auth/login-ap
 });
 
 const data = await response.json();
-console.log(data.access_token);
+// Guardar token y user_id
+localStorage.setItem('token', data.access_token);
+localStorage.setItem('user_id', data.user_id);
+console.log('Bienvenido', data.nombre);
 ```
 
 **Kotlin/Android (Ktor):**
@@ -352,16 +375,15 @@ console.log(data.status); // "healthy"
 
 ## 👥 Usuarios
 
-### POST `/api/v1/usuarios`
+### POST `/api/v1/usuarios` (Registro)
 
-Crea un nuevo usuario en el sistema. **Requiere API Key.**
+Registra un nuevo usuario en el sistema. **Endpoint público** - no requiere autenticación.
 
 #### Request
 
 **Headers:**
 ```
 Content-Type: application/json
-X-API-Key: <tu_api_key>
 ```
 
 **Body:**
@@ -374,6 +396,14 @@ X-API-Key: <tu_api_key>
   "id_clase": "uuid (opcional)"
 }
 ```
+
+| Campo | Tipo | Requerido | Validación |
+|-------|------|-----------|------------|
+| `username` | string | sí | 3-45 caracteres, único |
+| `nombre` | string | sí | 1-45 caracteres |
+| `apellido` | string | sí | 1-45 caracteres |
+| `password` | string | sí | 4-100 caracteres |
+| `id_clase` | string | no | UUID de clase existente |
 
 #### Response
 
@@ -395,6 +425,66 @@ X-API-Key: <tu_api_key>
 {
   "detail": "El username ya está en uso"
 }
+```
+
+**Status: 422 Unprocessable Entity**
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "username"],
+      "msg": "String should have at least 3 characters",
+      "type": "string_too_short"
+    }
+  ]
+}
+```
+
+#### Ejemplos
+
+**curl:**
+```bash
+curl -X POST "https://tu-api.up.railway.app/api/v1/usuarios" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "nuevo_usuario",
+    "nombre": "Juan",
+    "apellido": "García",
+    "password": "password123"
+  }'
+```
+
+**JavaScript/Fetch:**
+```javascript
+const response = await fetch('https://tu-api.up.railway.app/api/v1/usuarios', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    username: 'nuevo_usuario',
+    nombre: 'Juan',
+    apellido: 'García',
+    password: 'password123'
+  })
+});
+
+if (response.status === 201) {
+  const usuario = await response.json();
+  console.log('Usuario creado:', usuario.id);
+}
+```
+
+**Kotlin/Android:**
+```kotlin
+val response = client.post("$baseUrl/api/v1/usuarios") {
+    contentType(ContentType.Application.Json)
+    setBody(mapOf(
+        "username" to "nuevo_usuario",
+        "nombre" to "Juan",
+        "apellido" to "García",
+        "password" to "password123"
+    ))
+}
+val usuario = response.body<UsuarioResponse>()
 ```
 
 ---
@@ -1066,10 +1156,17 @@ if (response.statusCode == 200) {
 ### Ejemplo de Flujo Completo
 
 ```javascript
-// 1. Iniciar partida
+// 0. Obtener user_id del login guardado
+const userId = localStorage.getItem('user_id');
+const token = localStorage.getItem('token');
+
+// 1. Iniciar partida (usando user_id del login)
 const partidaResponse = await fetch(`${API_BASE_URL}/api/v1/partidas`, {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
   body: JSON.stringify({ id_usuario: userId })
 });
 const { id: partidaId } = await partidaResponse.json();
@@ -1278,6 +1375,27 @@ try {
 
 ## 🔄 Flujo de Autenticación Completo
 
+### 0. Registro (si es nuevo usuario)
+
+```javascript
+async function register(username, nombre, apellido, password) {
+  const response = await fetch(`${API_BASE_URL}/api/v1/usuarios`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, nombre, apellido, password })
+  });
+
+  if (response.status === 201) {
+    const usuario = await response.json();
+    console.log('Usuario creado:', usuario.id);
+    return usuario;
+  }
+
+  const error = await response.json();
+  throw new Error(error.detail);
+}
+```
+
 ### 1. Login
 
 ```javascript
@@ -1289,15 +1407,19 @@ async function login(username, password) {
   });
 
   if (response.ok) {
-    const { access_token } = await response.json();
+    const data = await response.json();
 
-    // Guardar token
-    localStorage.setItem('token', access_token);
+    // Guardar token y datos del usuario
+    localStorage.setItem('token', data.access_token);
+    localStorage.setItem('user_id', data.user_id);
+    localStorage.setItem('username', data.username);
+    localStorage.setItem('nombre', data.nombre);
 
-    return access_token;
+    return data;
   }
 
-  throw new Error('Login failed');
+  const error = await response.json();
+  throw new Error(error.detail); // "El usuario no existe" o "Contraseña incorrecta"
 }
 ```
 

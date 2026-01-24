@@ -34,3 +34,19 @@ class EventoEstadoResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ActividadResumen(BaseModel):
+    """Resumen calculado de una actividad (desde evento_estado)"""
+
+    id_juego: str
+    id_actividad: str
+    nombre_actividad: Optional[str] = None
+    eventos_totales: int
+    eventos_completados: int
+    eventos_en_progreso: int
+    puntuacion_total: float
+    duracion_total: Optional[int] = None
+    fecha_inicio: Optional[datetime] = None
+    fecha_fin: Optional[datetime] = None
+    estado: str  # "no_iniciada", "en_progreso", "completada"

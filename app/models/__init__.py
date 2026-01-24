@@ -1,5 +1,4 @@
 from app.models.actividad import Actividad
-from app.models.actividad_estado import ActividadEstado
 from app.models.clase import Clase
 from app.models.evento import Eventos
 from app.models.evento_estado import EventoEstado
@@ -16,6 +15,5 @@ __all__ = [
     "Actividad",
     "Eventos",
     "Sesion",
-    "ActividadEstado",
     "EventoEstado",
 ]

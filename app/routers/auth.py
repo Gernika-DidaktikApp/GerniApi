@@ -96,19 +96,33 @@ def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depen
     log_debug("Buscando usuario en BD", username=login_data.username)
     usuario = db.query(Usuario).filter(Usuario.username == login_data.username).first()
 
-    # Verificar que existe y la contraseña coincide
-    if not usuario or not verify_password(login_data.password, usuario.password):
-        # Log de fallo de autenticación
+    # Verificar que el usuario existe
+    if not usuario:
         log_auth(
             "login_failed",
             username=login_data.username,
             success=False,
-            reason="Credenciales inválidas",
+            reason="Usuario no encontrado",
             client_ip=client_ip,
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Username o contraseña incorrectos",
+            detail="El usuario no existe",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Verificar que la contraseña es correcta
+    if not verify_password(login_data.password, usuario.password):
+        log_auth(
+            "login_failed",
+            username=login_data.username,
+            success=False,
+            reason="Contraseña incorrecta",
+            client_ip=client_ip,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Contraseña incorrecta",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

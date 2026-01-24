@@ -32,20 +32,16 @@ router = APIRouter(
     response_model=UsuarioResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Crear usuario",
-    description="Crea un nuevo usuario en el sistema con su información básica y contraseña hasheada.",
+    description="Crea un nuevo usuario en el sistema. Endpoint público para registro.",
 )
 def crear_usuario(
     usuario_data: UsuarioCreate,
     db: Session = Depends(get_db),
-    auth: AuthResult = Depends(require_auth),
 ):
     """
-    ## Crear Nuevo Usuario
+    ## Crear Nuevo Usuario (Registro)
 
-    Registra un nuevo usuario en el sistema.
-
-    - Con API Key: Puede crear usuarios
-    - Con Token: Puede crear usuarios (para registro desde la app)
+    Endpoint público para registrar nuevos usuarios en el sistema.
 
     ### Validaciones
     - El username debe ser único

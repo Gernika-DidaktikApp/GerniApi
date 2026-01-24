@@ -10,7 +10,6 @@ from app.config import settings
 from app.database import Base, engine
 from app.logging import LoggingMiddleware, logger, register_exception_handlers
 from app.routers import (
-    actividad_estados,
     actividades,
     auth,
     clases,
@@ -167,7 +166,6 @@ app.include_router(clases.router, prefix=settings.API_V1_PREFIX)
 app.include_router(actividades.router, prefix=settings.API_V1_PREFIX)
 app.include_router(eventos.router, prefix=settings.API_V1_PREFIX)
 app.include_router(partidas.router, prefix=settings.API_V1_PREFIX)
-app.include_router(actividad_estados.router, prefix=settings.API_V1_PREFIX)
 app.include_router(evento_estados.router, prefix=settings.API_V1_PREFIX)
 logger.info(f"Routers de API registrados en {settings.API_V1_PREFIX}")
 

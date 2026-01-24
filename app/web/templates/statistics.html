@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Estadísticas de usuarios y actividad de Gernibide">
+    <title>Estadísticas - Gernibide</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" type="image/x-icon">
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/navbar.css">
+    <link rel="stylesheet" href="/static/css/statistics.css">
+</head>
+
+<body class="has-navbar">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-logo">
+                <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
+                <span>Gernibide</span>
+            </a>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li class="navbar-menu-item">
+                    <a href="/" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3 12L5 10M5 10L10 5L15 10M5 10V18C5 18.5523 5.44772 19 6 19H9M15 10L17 12M15 10V18C15 18.5523 14.5523 19 14 19H11M9 19C9.55228 19 10 18.5523 10 18V15C10 14.4477 10.4477 14 11 14C11.5523 14 12 14.4477 12 15V18C12 18.5523 11.5523 19 11 19M9 19H11"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Inicio
+                    </a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="/statistics" class="navbar-menu-link active">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 3V17H17M6 13V15M10 9V15M14 5V15" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Estadísticas
+                    </a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="#" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.663 17H7C4.23858 17 2 14.7614 2 12V7C2 4.23858 4.23858 2 7 2H13C15.7614 2 18 4.23858 18 7V9.663M16 18L18 16M17 14C17 15.6569 15.6569 17 14 17C12.3431 17 11 15.6569 11 14C11 12.3431 12.3431 11 14 11C15.6569 11 17 12.3431 17 14Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Tecnología
+                    </a>
+                </li>
+            </ul>
+
+            <a href="/login" class="navbar-contact">Login</a>
+
+            <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
+                <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Statistics Submenu -->
+            <nav class="stats-submenu">
+                <a href="/statistics" class="submenu-item active">
+                    <span class="submenu-icon">🎓</span>
+                    <span class="submenu-text">Usuarios y Actividad</span>
+                </a>
+                <a href="/statistics/gameplay" class="submenu-item">
+                    <span class="submenu-icon">🎮</span>
+                    <span class="submenu-text">Uso del Juego</span>
+                </a>
+                <a href="/statistics/learning" class="submenu-item">
+                    <span class="submenu-icon">🧠</span>
+                    <span class="submenu-text">Rendimiento y Aprendizaje</span>
+                </a>
+            </nav>
+
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-header">
+                    <div class="hero-icon-wrapper">
+                        <span class="hero-emoji">🎓</span>
+                    </div>
+                    <div class="hero-text">
+                        <h1 class="hero-title">Usuarios y <span class="highlight">Actividad</span></h1>
+                        <p class="hero-description">
+                            Análisis detallado del comportamiento de usuarios, tendencias de registro y patrones de
+                            acceso a la plataforma educativa.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Time Filter -->
+                <div class="time-filter">
+                    <button class="filter-btn active" data-range="7d">7 días</button>
+                    <button class="filter-btn" data-range="30d">30 días</button>
+                    <button class="filter-btn" data-range="90d">90 días</button>
+                    <button class="filter-btn" data-range="1y">1 año</button>
+                </div>
+            </section>
+
+            <!-- Statistics Summary Cards -->
+            <section class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #6B8E3A, #8AB04A);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2" />
+                            <path
+                                d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Usuarios Activos (DAU)</span>
+                        <span class="summary-value" id="dauValue">1,247</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            +12.5%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #B8C74A, #D4E15A);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M4 21H20" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path
+                                d="M4 21V12C4 11.4696 4.21071 10.9609 4.58579 10.5858C4.96086 10.2107 5.46957 10 6 10H8"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M20 21V12C20 11.4696 19.7893 10.9609 19.4142 10.5858C19.0391 10.2107 18.5304 10 18 10H16"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Nuevos Usuarios Hoy</span>
+                        <span class="summary-value" id="newUsersValue">89</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            +8.3%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #8B6F47, #A67C52);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" />
+                            <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Ratio Activos/Totales</span>
+                        <span class="summary-value" id="ratioValue">32.4%</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            +2.1%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #4A5D23, #6B8E3A);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M12 12L12 3" stroke="white" stroke-width="2" stroke-linecap="round" />
+                            <path d="M9 6L12 3L15 6" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Logins Hoy</span>
+                        <span class="summary-value" id="loginsValue">2,156</span>
+                        <span class="summary-trend negative">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            -3.2%
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-section">
+                <h2 class="section-title">Análisis Detallado</h2>
+
+                <div class="charts-grid">
+                    <!-- Chart 1: Usuarios activos (DAU / WAU / MAU) - Línea -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Usuarios Activos (DAU / WAU / MAU)</h3>
+                                <span class="chart-type-tag">Línea</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #6B8E3A;"></span>DAU</span>
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #B8C74A;"></span>WAU</span>
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #4A5D23;"></span>MAU</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartActiveUsers"></div>
+                    </div>
+
+                    <!-- Chart 2: Nuevos usuarios por día - Barras -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Nuevos Usuarios por Día</h3>
+                                <span class="chart-type-tag">Barras</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartNewUsers"></div>
+                    </div>
+
+                    <!-- Chart 3: Ratio usuarios activos / totales - Área -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Ratio Usuarios Activos / Totales</h3>
+                                <span class="chart-type-tag">Área</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartRatio"></div>
+                    </div>
+
+                    <!-- Chart 4: Logins por día - Línea -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Logins por Día</h3>
+                                <span class="chart-type-tag">Línea + Marcadores</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartLogins"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Info Section -->
+            <section class="info-section">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h4>DAU (Daily Active Users)</h4>
+                        <p>Usuarios únicos que acceden diariamente a la plataforma</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h4>WAU (Weekly Active Users)</h4>
+                        <p>Usuarios únicos activos en los últimos 7 días</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h4>MAU (Monthly Active Users)</h4>
+                        <p>Usuarios únicos activos en los últimos 30 días</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">GERNIBIDE EDUCACIÓN © 2024</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/static/js/statistics.js" defer></script>
+</body>
+
+</html>

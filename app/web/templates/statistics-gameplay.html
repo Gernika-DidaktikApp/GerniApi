@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Estadísticas de uso del juego de Gernibide">
+    <title>Uso del Juego - Estadísticas - Gernibide</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" type="image/x-icon">
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/navbar.css">
+    <link rel="stylesheet" href="/static/css/statistics.css">
+</head>
+
+<body class="has-navbar">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-logo">
+                <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
+                <span>Gernibide</span>
+            </a>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li class="navbar-menu-item">
+                    <a href="/" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M3 12L5 10M5 10L10 5L15 10M5 10V18C5 18.5523 5.44772 19 6 19H9M15 10L17 12M15 10V18C15 18.5523 14.5523 19 14 19H11M9 19C9.55228 19 10 18.5523 10 18V15C10 14.4477 10.4477 14 11 14C11.5523 14 12 14.4477 12 15V18C12 18.5523 11.5523 19 11 19M9 19H11"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Inicio
+                    </a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="/statistics" class="navbar-menu-link active">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 3V17H17M6 13V15M10 9V15M14 5V15" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Estadísticas
+                    </a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="#" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9.663 17H7C4.23858 17 2 14.7614 2 12V7C2 4.23858 4.23858 2 7 2H13C15.7614 2 18 4.23858 18 7V9.663M16 18L18 16M17 14C17 15.6569 15.6569 17 14 17C12.3431 17 11 15.6569 11 14C11 12.3431 12.3431 11 14 11C15.6569 11 17 12.3431 17 14Z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Tecnología
+                    </a>
+                </li>
+            </ul>
+
+            <a href="/login" class="navbar-contact">Login</a>
+
+            <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
+                <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Statistics Submenu -->
+            <nav class="stats-submenu">
+                <a href="/statistics" class="submenu-item">
+                    <span class="submenu-icon">🎓</span>
+                    <span class="submenu-text">Usuarios y Actividad</span>
+                </a>
+                <a href="/statistics/gameplay" class="submenu-item active">
+                    <span class="submenu-icon">🎮</span>
+                    <span class="submenu-text">Uso del Juego</span>
+                </a>
+                <a href="/statistics/learning" class="submenu-item">
+                    <span class="submenu-icon">🧠</span>
+                    <span class="submenu-text">Rendimiento y Aprendizaje</span>
+                </a>
+            </nav>
+
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-header">
+                    <div class="hero-icon-wrapper">
+                        <span class="hero-emoji">🎮</span>
+                    </div>
+                    <div class="hero-text">
+                        <h1 class="hero-title">Uso del <span class="highlight">Juego</span></h1>
+                        <p class="hero-description">
+                            Métricas de gameplay: partidas, eventos y tasas de completación de las actividades
+                            educativas.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Time Filter -->
+                <div class="time-filter">
+                    <button class="filter-btn active" data-range="7d">7 días</button>
+                    <button class="filter-btn" data-range="30d">30 días</button>
+                    <button class="filter-btn" data-range="90d">90 días</button>
+                    <button class="filter-btn" data-range="1y">1 año</button>
+                </div>
+            </section>
+
+            <!-- Statistics Summary Cards -->
+            <section class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #6B8E3A, #8AB04A);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M14.7519 11.1679L11.5547 9.03647C10.8901 8.59343 10 9.06982 10 9.86852V14.1315C10 14.9302 10.8901 15.4066 11.5547 14.9635L14.7519 12.8321C15.3457 12.4362 15.3457 11.5638 14.7519 11.1679Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Partidas Activas</span>
+                        <span class="summary-value" id="partidasActivasValue">342</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            +18.2%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #B8C74A, #D4E15A);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Tasa de Completación</span>
+                        <span class="summary-value" id="completionRateValue">78.5%</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            +5.3%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #8B6F47, #A67C52);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Eventos Completados</span>
+                        <span class="summary-value" id="eventosCompletadosValue">1,892</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            +12.8%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #4A5D23, #6B8E3A);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Tiempo Promedio</span>
+                        <span class="summary-value" id="tiempoPromedioValue">24 min</span>
+                        <span class="summary-trend negative">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            -2.1 min
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-section">
+                <h2 class="section-title">Análisis de Gameplay</h2>
+
+                <div class="charts-grid">
+                    <!-- Chart 1: Partidas creadas por día - Barras -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Partidas Creadas por Día</h3>
+                                <span class="chart-type-tag">Barras</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartPartidasDia"></div>
+                    </div>
+
+                    <!-- Chart 2: Partidas completadas vs abandonadas - Donut -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Partidas Completadas vs Abandonadas</h3>
+                                <span class="chart-type-tag">Donut</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartPartidasDonut"></div>
+                    </div>
+
+                    <!-- Chart 3: Eventos iniciados vs completados - Barras apiladas -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Eventos Iniciados vs Completados</h3>
+                                <span class="chart-type-tag">Barras Apiladas</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #6B8E3A;"></span>Completados</span>
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #B8C74A;"></span>En Progreso</span>
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #E8C74A;"></span>Abandonados</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartEventosStack"></div>
+                    </div>
+
+                    <!-- Chart 4: Completion rate por actividad - Barras horizontales -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Completion Rate por Actividad</h3>
+                                <span class="chart-type-tag">Barras Horizontales</span>
+                            </div>
+                        </div>
+                        <div class="chart-container chart-container-tall" id="chartCompletionRate"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Info Section -->
+            <section class="info-section">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h4>Partidas</h4>
+                        <p>Sesiones de juego individuales iniciadas por usuarios</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h4>Eventos</h4>
+                        <p>Actividades o puntos de interés dentro de cada partida</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h4>Completion Rate</h4>
+                        <p>Porcentaje de actividades finalizadas correctamente</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">GERNIBIDE EDUCACIÓN © 2024</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/static/js/statistics-gameplay.js" defer></script>
+</body>
+
+</html>

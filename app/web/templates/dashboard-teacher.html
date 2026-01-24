@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Vista de profesor - Estadísticas de clase">
+    <title>Vista Profesor - Gernibide</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" type="image/x-icon">
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/navbar.css">
+    <link rel="stylesheet" href="/static/css/dashboard-teacher.css">
+</head>
+
+<body class="has-navbar">
+    <!-- Navbar -->
+    <nav class="navbar navbar-dashboard">
+        <div class="navbar-container">
+            <a href="/dashboard" class="navbar-logo">
+                <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
+                <span>Gernibide</span>
+            </a>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li class="navbar-menu-item">
+                    <a href="/dashboard" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 3V17H17M6 13V15M10 9V15M14 5V15" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="/dashboard/teacher" class="navbar-menu-link active">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none">
+                            <path d="M12 14L17 9L12 4M8 4L3 9L8 14" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Mi Clase
+                    </a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="/dashboard/students" class="navbar-menu-link">
+                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none">
+                            <path
+                                d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                        Alumnos
+                    </a>
+                </li>
+            </ul>
+
+            <div class="navbar-user">
+                <span class="navbar-user-name">Prof. García</span>
+                <a href="/login" class="navbar-logout">Salir</a>
+            </div>
+
+            <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
+                <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-header">
+                    <div class="hero-icon-wrapper">
+                        <span class="hero-emoji">👩‍🏫</span>
+                    </div>
+                    <div class="hero-text">
+                        <h1 class="hero-title">Vista <span class="highlight">Profesor</span></h1>
+                        <p class="hero-description">
+                            Seguimiento del progreso de tu clase: rendimiento por alumno, tiempo dedicado y evolución
+                            educativa.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters Section -->
+            <section class="filters-section">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                    stroke="currentColor" stroke-width="2" />
+                                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Clase
+                        </label>
+                        <select class="filter-select" id="filterClase">
+                            <option value="all">Todas las clases</option>
+                            <option value="4a" selected>4º A - Primaria</option>
+                            <option value="4b">4º B - Primaria</option>
+                            <option value="5a">5º A - Primaria</option>
+                            <option value="5b">5º B - Primaria</option>
+                            <option value="6a">6º A - Primaria</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor"
+                                    stroke-width="2" />
+                                <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Rango de Fechas
+                        </label>
+                        <select class="filter-select" id="filterFechas">
+                            <option value="7d" selected>Últimos 7 días</option>
+                            <option value="14d">Últimos 14 días</option>
+                            <option value="30d">Últimos 30 días</option>
+                            <option value="trimestre">Este trimestre</option>
+                            <option value="curso">Todo el curso</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <path
+                                    d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z"
+                                    stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Actividad
+                        </label>
+                        <select class="filter-select" id="filterActividad">
+                            <option value="all" selected>Todas las actividades</option>
+                            <option value="arbol">Árbol del Gernika</option>
+                            <option value="museo">Museo de la Paz</option>
+                            <option value="refugio">Refugio Antiaéreo</option>
+                            <option value="casa">Casa de Juntas</option>
+                            <option value="parque">Parque de los Pueblos</option>
+                        </select>
+                    </div>
+
+                    <button class="filter-apply-btn" id="applyFilters">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Aplicar
+                    </button>
+                </div>
+            </section>
+
+            <!-- Statistics Summary Cards -->
+            <section class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #6B8E3A, #8AB04A);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                stroke="white" stroke-width="2" />
+                            <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Alumnos en Clase</span>
+                        <span class="summary-value" id="alumnosValue">24</span>
+                        <span class="summary-trend neutral">4º A - Primaria</span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #B8C74A, #D4E15A);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.86"
+                                stroke="white" stroke-width="2" stroke-linecap="round" />
+                            <path d="M22 4L12 14.01L9 11.01" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Progreso Medio</span>
+                        <span class="summary-value" id="progresoValue">68%</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            +8%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #8B6F47, #A67C52);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" />
+                            <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Tiempo Promedio</span>
+                        <span class="summary-value" id="tiempoValue">32 min</span>
+                        <span class="summary-trend neutral">por sesión</span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: linear-gradient(135deg, #4A5D23, #6B8E3A);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Nota Media Clase</span>
+                        <span class="summary-value" id="notaValue">7.4</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            +0.6
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-section">
+                <h2 class="section-title">Análisis de la Clase</h2>
+
+                <div class="charts-grid">
+                    <!-- Chart 1: Progreso por alumno - Barras -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Progreso por Alumno</h3>
+                                <span class="chart-type-tag">Barras</span>
+                            </div>
+                            <div class="chart-actions">
+                                <button class="chart-action-btn" title="Ordenar">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M3 6H21M6 12H18M9 18H15" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container chart-container-tall" id="chartProgresoAlumno"></div>
+                    </div>
+
+                    <!-- Chart 2: Tiempo dedicado por alumno - Barras -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Tiempo Dedicado por Alumno</h3>
+                                <span class="chart-type-tag">Barras</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartTiempoAlumno"></div>
+                    </div>
+
+                    <!-- Chart 3: Actividades completadas por clase - Barras apiladas -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Actividades Completadas</h3>
+                                <span class="chart-type-tag">Barras Apiladas</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #6B8E3A;"></span>Completadas</span>
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #B8C74A;"></span>En Progreso</span>
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #E8C74A;"></span>Sin Empezar</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartActividadesClase"></div>
+                    </div>
+
+                    <!-- Chart 4: Evolución de la clase - Línea -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Evolución de la Clase</h3>
+                                <span class="chart-type-tag">Línea</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #6B8E3A;"></span>Progreso</span>
+                                <span class="legend-item"><span class="legend-color"
+                                        style="background: #B8C74A;"></span>Nota Media</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartEvolucionClase"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students Table Preview -->
+            <section class="students-section">
+                <div class="students-header">
+                    <h2 class="section-title">Alumnos que Necesitan Atención</h2>
+                    <a href="/dashboard/students" class="view-all-link">Ver todos →</a>
+                </div>
+
+                <div class="students-table-container">
+                    <table class="students-table">
+                        <thead>
+                            <tr>
+                                <th>Alumno</th>
+                                <th>Progreso</th>
+                                <th>Última Actividad</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr>
+                                <td class="student-name">
+                                    <div class="student-avatar">MG</div>
+                                    <span>María González</span>
+                                </td>
+                                <td>
+                                    <div class="progress-bar-mini">
+                                        <div class="progress-fill" style="width: 25%;"></div>
+                                    </div>
+                                    <span class="progress-text">25%</span>
+                                </td>
+                                <td class="date-cell">Hace 5 días</td>
+                                <td><span class="status-badge status-warning">Atención</span></td>
+                            </tr>
+                            <tr>
+                                <td class="student-name">
+                                    <div class="student-avatar">PL</div>
+                                    <span>Pablo López</span>
+                                </td>
+                                <td>
+                                    <div class="progress-bar-mini">
+                                        <div class="progress-fill" style="width: 35%;"></div>
+                                    </div>
+                                    <span class="progress-text">35%</span>
+                                </td>
+                                <td class="date-cell">Hace 3 días</td>
+                                <td><span class="status-badge status-warning">Atención</span></td>
+                            </tr>
+                            <tr>
+                                <td class="student-name">
+                                    <div class="student-avatar">AR</div>
+                                    <span>Ana Ruiz</span>
+                                </td>
+                                <td>
+                                    <div class="progress-bar-mini">
+                                        <div class="progress-fill" style="width: 42%;"></div>
+                                    </div>
+                                    <span class="progress-text">42%</span>
+                                </td>
+                                <td class="date-cell">Hace 2 días</td>
+                                <td><span class="status-badge status-info">En progreso</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">GERNIBIDE EDUCACIÓN © 2024 | Panel de Profesor</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/static/js/dashboard-teacher.js" defer></script>
+</body>
+
+</html>

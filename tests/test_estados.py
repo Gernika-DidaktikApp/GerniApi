@@ -271,9 +271,7 @@ class TestResumenActividad:
 class TestValidaciones:
     """Tests para validaciones de datos"""
 
-    def test_puntuacion_negativa(
-        self, admin_client, test_partida, test_actividad, test_eventos
-    ):
+    def test_puntuacion_negativa(self, admin_client, test_partida, test_actividad, test_eventos):
         """Test: Puntuación negativa - verificar comportamiento"""
         evento = test_eventos[0]
         init_response = admin_client.post(
@@ -307,9 +305,7 @@ class TestValidaciones:
 
         assert response.status_code == 422
 
-    def test_evento_sin_puntuacion(
-        self, admin_client, test_partida, test_actividad, test_eventos
-    ):
+    def test_evento_sin_puntuacion(self, admin_client, test_partida, test_actividad, test_eventos):
         """Test: Completar evento sin puntuación debe fallar"""
         evento = test_eventos[0]
         init_response = admin_client.post(
@@ -322,8 +318,6 @@ class TestValidaciones:
         )
         estado_id = init_response.json()["id"]
 
-        response = admin_client.put(
-            f"/api/v1/evento-estados/{estado_id}/completar", json={}
-        )
+        response = admin_client.put(f"/api/v1/evento-estados/{estado_id}/completar", json={})
 
         assert response.status_code == 422

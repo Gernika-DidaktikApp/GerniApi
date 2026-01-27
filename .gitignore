@@ -34,3 +34,11 @@ Thumbs.db
 
 # Local development
 deploy_local.sh
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Internal docs
+docs/claude_api.md

@@ -37,36 +37,10 @@
 
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
-                    <a href="/" class="navbar-menu-link">
-                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M3 12L5 10M5 10L10 5L15 10M5 10V18C5 18.5523 5.44772 19 6 19H9M15 10L17 12M15 10V18C15 18.5523 14.5523 19 14 19H11M9 19C9.55228 19 10 18.5523 10 18V15C10 14.4477 10.4477 14 11 14C11.5523 14 12 14.4477 12 15V18C12 18.5523 11.5523 19 11 19M9 19H11"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Inicio
-                    </a>
+                    <a href="/" class="navbar-menu-link">Inicio</a>
                 </li>
                 <li class="navbar-menu-item">
-                    <a href="/statistics" class="navbar-menu-link active">
-                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 3V17H17M6 13V15M10 9V15M14 5V15" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Estadísticas
-                    </a>
-                </li>
-                <li class="navbar-menu-item">
-                    <a href="#" class="navbar-menu-link">
-                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M9.663 17H7C4.23858 17 2 14.7614 2 12V7C2 4.23858 4.23858 2 7 2H13C15.7614 2 18 4.23858 18 7V9.663M16 18L18 16M17 14C17 15.6569 15.6569 17 14 17C12.3431 17 11 15.6569 11 14C11 12.3431 12.3431 11 14 11C15.6569 11 17 12.3431 17 14Z"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Tecnología
-                    </a>
+                    <a href="/statistics" class="navbar-menu-link active">Estadísticas</a>
                 </li>
             </ul>
 
@@ -127,7 +101,7 @@
             <!-- Statistics Summary Cards -->
             <section class="stats-summary">
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #6B8E3A, #8AB04A);">
+                    <div class="summary-icon gradient-green">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M14.7519 11.1679L11.5547 9.03647C10.8901 8.59343 10 9.06982 10 9.86852V14.1315C10 14.9302 10.8901 15.4066 11.5547 14.9635L14.7519 12.8321C15.3457 12.4362 15.3457 11.5638 14.7519 11.1679Z"
@@ -149,7 +123,7 @@
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #B8C74A, #D4E15A);">
+                    <div class="summary-icon gradient-lime">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
@@ -170,7 +144,7 @@
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #8B6F47, #A67C52);">
+                    <div class="summary-icon gradient-brown">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z"
@@ -191,7 +165,7 @@
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #4A5D23, #6B8E3A);">
+                    <div class="summary-icon gradient-dark-green">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
@@ -247,12 +221,9 @@
                                 <span class="chart-type-tag">Barras Apiladas</span>
                             </div>
                             <div class="chart-legend">
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #6B8E3A;"></span>Completados</span>
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #B8C74A;"></span>En Progreso</span>
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #E8C74A;"></span>Abandonados</span>
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>Completados</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>En Progreso</span>
+                                <span class="legend-item"><span class="legend-color legend-color-yellow"></span>Abandonados</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartEventosStack"></div>

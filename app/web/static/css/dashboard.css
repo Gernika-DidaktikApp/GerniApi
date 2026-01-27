@@ -432,3 +432,16 @@ body {
         flex-direction: column;
     }
 }
+
+/* Utility Classes for Gradients */
+.gradient-green {
+    background: linear-gradient(135deg, #6B8E6F 0%, #7FA083 100%);
+}
+
+.gradient-lime {
+    background: linear-gradient(135deg, #B8C74A 0%, #C5D35F 100%);
+}
+
+.gradient-brown {
+    background: linear-gradient(135deg, #8B6F47 0%, #9D7E56 100%);
+}

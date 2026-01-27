@@ -37,36 +37,10 @@
 
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
-                    <a href="/" class="navbar-menu-link">
-                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M3 12L5 10M5 10L10 5L15 10M5 10V18C5 18.5523 5.44772 19 6 19H9M15 10L17 12M15 10V18C15 18.5523 14.5523 19 14 19H11M9 19C9.55228 19 10 18.5523 10 18V15C10 14.4477 10.4477 14 11 14C11.5523 14 12 14.4477 12 15V18C12 18.5523 11.5523 19 11 19M9 19H11"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Inicio
-                    </a>
+                    <a href="/" class="navbar-menu-link">Inicio</a>
                 </li>
                 <li class="navbar-menu-item">
-                    <a href="/statistics" class="navbar-menu-link active">
-                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 3V17H17M6 13V15M10 9V15M14 5V15" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Estadísticas
-                    </a>
-                </li>
-                <li class="navbar-menu-item">
-                    <a href="#" class="navbar-menu-link">
-                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M9.663 17H7C4.23858 17 2 14.7614 2 12V7C2 4.23858 4.23858 2 7 2H13C15.7614 2 18 4.23858 18 7V9.663M16 18L18 16M17 14C17 15.6569 15.6569 17 14 17C12.3431 17 11 15.6569 11 14C11 12.3431 12.3431 11 14 11C15.6569 11 17 12.3431 17 14Z"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Tecnología
-                    </a>
+                    <a href="/statistics" class="navbar-menu-link active">Estadísticas</a>
                 </li>
             </ul>
 
@@ -127,7 +101,7 @@
             <!-- Statistics Summary Cards -->
             <section class="stats-summary">
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #6B8E3A, #8AB04A);">
+                    <div class="summary-icon gradient-green">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
@@ -155,7 +129,7 @@
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #B8C74A, #D4E15A);">
+                    <div class="summary-icon gradient-lime">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21"
@@ -184,7 +158,7 @@
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #8B6F47, #A67C52);">
+                    <div class="summary-icon gradient-brown">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" />
                             <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round" />
@@ -204,7 +178,7 @@
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #4A5D23, #6B8E3A);">
+                    <div class="summary-icon gradient-dark-green">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
@@ -241,12 +215,9 @@
                                 <span class="chart-type-tag">Línea</span>
                             </div>
                             <div class="chart-legend">
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #6B8E3A;"></span>DAU</span>
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #B8C74A;"></span>WAU</span>
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #4A5D23;"></span>MAU</span>
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>DAU</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>WAU</span>
+                                <span class="legend-item"><span class="legend-color legend-color-dark-green"></span>MAU</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartActiveUsers"></div>

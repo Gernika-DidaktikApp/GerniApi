@@ -326,3 +326,16 @@ body {
     outline: 2px solid var(--color-olive);
     outline-offset: 2px;
 }
+
+/* Utility Classes for Background Colors */
+.bg-green {
+    background-color: #6B8E6F;
+}
+
+.bg-lime {
+    background-color: #B8C74A;
+}
+
+.bg-brown {
+    background-color: #8B6F47;
+}

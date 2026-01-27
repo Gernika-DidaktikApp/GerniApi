@@ -28,11 +28,7 @@ body {
     min-height: 100vh;
 }
 
-/* Dashboard Navbar Override */
-.navbar-dashboard {
-    background: linear-gradient(135deg, var(--color-olive-dark) 0%, var(--color-olive) 100%);
-}
-
+/* Dashboard Navbar - Clean White Style (LYSET) */
 .navbar-user {
     display: flex;
     align-items: center;
@@ -40,23 +36,26 @@ body {
 }
 
 .navbar-user-name {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-primary);
     font-weight: 500;
     font-size: 0.9375rem;
 }
 
 .navbar-logout {
     padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
+    background: transparent;
+    color: var(--color-olive);
     text-decoration: none;
+    border: 2px solid var(--color-olive);
     border-radius: 0.5rem;
     font-size: 0.875rem;
+    font-weight: 500;
     transition: all 200ms ease;
 }
 
 .navbar-logout:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--color-olive);
+    color: white;
 }
 
 /* Main Content */
@@ -626,4 +625,51 @@ body {
     .summary-value {
         font-size: 1.5rem;
     }
+}
+
+/* Utility Classes for Gradients */
+.gradient-green {
+    background: linear-gradient(135deg, #6B8E3A, #8AB04A);
+}
+
+.gradient-lime {
+    background: linear-gradient(135deg, #B8C74A, #D4E15A);
+}
+
+.gradient-brown {
+    background: linear-gradient(135deg, #8B6F47, #A67C52);
+}
+
+.gradient-dark-green {
+    background: linear-gradient(135deg, #4A5D23, #6B8E3A);
+}
+
+/* Utility Classes for Legend Colors */
+.legend-color-green {
+    background: #6B8E3A;
+}
+
+.legend-color-lime {
+    background: #B8C74A;
+}
+
+.legend-color-yellow {
+    background: #E8C74A;
+}
+
+.legend-color-dark-green {
+    background: #4A5D23;
+}
+
+/* Utility Classes for Spacing */
+.ml-auto {
+    margin-left: auto;
+}
+
+.mr-auto {
+    margin-right: auto;
+}
+
+.ml-1 {
+    margin-left: 1rem;
 }

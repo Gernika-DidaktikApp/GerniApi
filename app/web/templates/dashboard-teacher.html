@@ -28,47 +28,28 @@
 
 <body class="has-navbar">
     <!-- Navbar -->
-    <nav class="navbar navbar-dashboard">
+    <nav class="navbar">
         <div class="navbar-container">
             <a href="/dashboard" class="navbar-logo">
                 <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
                 <span>Gernibide</span>
             </a>
 
+            <span class="navbar-user-name ml-1 mr-auto">Prof. García</span>
+
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
-                    <a href="/dashboard" class="navbar-menu-link">
-                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none">
-                            <path d="M3 3V17H17M6 13V15M10 9V15M14 5V15" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Dashboard
-                    </a>
+                    <a href="/dashboard" class="navbar-menu-link">Dashboard</a>
                 </li>
                 <li class="navbar-menu-item">
-                    <a href="/dashboard/teacher" class="navbar-menu-link active">
-                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none">
-                            <path d="M12 14L17 9L12 4M8 4L3 9L8 14" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        Mi Clase
-                    </a>
+                    <a href="/dashboard/teacher" class="navbar-menu-link active">Mi Clase</a>
                 </li>
                 <li class="navbar-menu-item">
-                    <a href="/dashboard/students" class="navbar-menu-link">
-                        <svg class="navbar-menu-icon" viewBox="0 0 20 20" fill="none">
-                            <path
-                                d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" />
-                        </svg>
-                        Alumnos
-                    </a>
+                    <a href="/statistics" class="navbar-menu-link">Estadísticas</a>
                 </li>
             </ul>
 
             <div class="navbar-user">
-                <span class="navbar-user-name">Prof. García</span>
                 <a href="/login" class="navbar-logout">Salir</a>
             </div>
 
@@ -177,7 +158,7 @@
             <!-- Statistics Summary Cards -->
             <section class="stats-summary">
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #6B8E3A, #8AB04A);">
+                    <div class="summary-icon gradient-green">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path
                                 d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
@@ -193,7 +174,7 @@
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #B8C74A, #D4E15A);">
+                    <div class="summary-icon gradient-lime">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path
                                 d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.86"
@@ -216,7 +197,7 @@
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #8B6F47, #A67C52);">
+                    <div class="summary-icon gradient-brown">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" />
                             <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round" />
@@ -230,7 +211,7 @@
                 </div>
 
                 <div class="summary-card">
-                    <div class="summary-icon" style="background: linear-gradient(135deg, #4A5D23, #6B8E3A);">
+                    <div class="summary-icon gradient-dark-green">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <path
                                 d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
@@ -294,12 +275,9 @@
                                 <span class="chart-type-tag">Barras Apiladas</span>
                             </div>
                             <div class="chart-legend">
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #6B8E3A;"></span>Completadas</span>
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #B8C74A;"></span>En Progreso</span>
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #E8C74A;"></span>Sin Empezar</span>
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>Completadas</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>En Progreso</span>
+                                <span class="legend-item"><span class="legend-color legend-color-yellow"></span>Sin Empezar</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartActividadesClase"></div>
@@ -313,10 +291,8 @@
                                 <span class="chart-type-tag">Línea</span>
                             </div>
                             <div class="chart-legend">
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #6B8E3A;"></span>Progreso</span>
-                                <span class="legend-item"><span class="legend-color"
-                                        style="background: #B8C74A;"></span>Nota Media</span>
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>Progreso</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>Nota Media</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartEvolucionClase"></div>
@@ -349,7 +325,7 @@
                                 </td>
                                 <td>
                                     <div class="progress-bar-mini">
-                                        <div class="progress-fill" style="width: 25%;"></div>
+                                        <div class="progress-fill" data-progress="25"></div>
                                     </div>
                                     <span class="progress-text">25%</span>
                                 </td>
@@ -363,7 +339,7 @@
                                 </td>
                                 <td>
                                     <div class="progress-bar-mini">
-                                        <div class="progress-fill" style="width: 35%;"></div>
+                                        <div class="progress-fill" data-progress="35"></div>
                                     </div>
                                     <span class="progress-text">35%</span>
                                 </td>
@@ -377,7 +353,7 @@
                                 </td>
                                 <td>
                                     <div class="progress-bar-mini">
-                                        <div class="progress-fill" style="width: 42%;"></div>
+                                        <div class="progress-fill" data-progress="42"></div>
                                     </div>
                                     <span class="progress-text">42%</span>
                                 </td>

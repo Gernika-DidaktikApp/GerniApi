@@ -442,6 +442,17 @@ function debounce(func, wait) {
 }
 
 // ============================================
+// Initialize Progress Bars
+// ============================================
+function initProgressBars() {
+    const progressBars = document.querySelectorAll('.progress-fill[data-progress]');
+    progressBars.forEach(bar => {
+        const progress = bar.getAttribute('data-progress');
+        bar.style.width = `${progress}%`;
+    });
+}
+
+// ============================================
 // Initialize
 // ============================================
 function init() {
@@ -457,6 +468,7 @@ function init() {
     }
 
     initFilters();
+    initProgressBars();
     animateSummaryCards();
     window.addEventListener('resize', debounce(handleResize, 250));
 }

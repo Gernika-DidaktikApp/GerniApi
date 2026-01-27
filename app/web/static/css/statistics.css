@@ -507,3 +507,37 @@ body {
         font-size: 0.8125rem;
     }
 }
+
+/* Utility Classes for Gradients */
+.gradient-green {
+    background: linear-gradient(135deg, #6B8E3A, #8AB04A);
+}
+
+.gradient-lime {
+    background: linear-gradient(135deg, #B8C74A, #D4E15A);
+}
+
+.gradient-brown {
+    background: linear-gradient(135deg, #8B6F47, #A67C52);
+}
+
+.gradient-dark-green {
+    background: linear-gradient(135deg, #4A5D23, #6B8E3A);
+}
+
+/* Utility Classes for Legend Colors */
+.legend-color-green {
+    background: #6B8E3A;
+}
+
+.legend-color-lime {
+    background: #B8C74A;
+}
+
+.legend-color-yellow {
+    background: #E8C74A;
+}
+
+.legend-color-dark-green {
+    background: #4A5D23;
+}

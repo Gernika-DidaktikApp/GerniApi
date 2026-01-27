@@ -1,6 +1,6 @@
 /**
  * Statistics Gameplay Page JavaScript
- * Handles Plotly charts for game usage metrics
+ * Handles Plotly charts for game usage metrics with real API data
  */
 
 // ============================================
@@ -17,6 +17,14 @@ const COLORS = {
     text: '#2D3B1C',
     textSecondary: '#6B7A5C'
 };
+
+// ============================================
+// API Configuration
+// ============================================
+const API_BASE = '/api/statistics/gameplay';
+
+// Current time range (days)
+let currentDays = 7;
 
 // ============================================
 // Navbar Mobile Menu Toggle
@@ -37,28 +45,122 @@ if (navbarToggle && navbarMenu) {
 }
 
 // ============================================
-// Sample Data Generation
+// Loading State Management
 // ============================================
 
-function generateDates(days) {
-    const dates = [];
-    const today = new Date();
-    for (let i = days - 1; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-        dates.push(date.toISOString().split('T')[0]);
+function showLoading(chartId) {
+    const container = document.getElementById(chartId);
+    if (container) {
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
+                <div style="text-align: center;">
+                    <div style="border: 4px solid #f3f3f3; border-top: 4px solid #6B8E3A; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                    <p style="color: #6B7A5C; margin-top: 1rem; font-size: 0.875rem;">Cargando datos...</p>
+                </div>
+            </div>
+        `;
     }
-    return dates;
 }
 
-function generateData(length, min, max, trend = 0) {
-    const data = [];
-    let value = Math.random() * (max - min) + min;
-    for (let i = 0; i < length; i++) {
-        value = Math.max(min, Math.min(max, value + (Math.random() - 0.5) * (max - min) * 0.2 + trend));
-        data.push(Math.round(value));
+function showError(chartId, message = 'Error al cargar datos') {
+    const container = document.getElementById(chartId);
+    if (container) {
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
+                <div style="text-align: center; color: #dc2626;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto;">
+                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                        <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"/>
+                    </svg>
+                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
+                    <button onclick="location.reload()" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #6B8E3A; color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+                        Reintentar
+                    </button>
+                </div>
+            </div>
+        `;
     }
-    return data;
+}
+
+// Add spinner animation
+if (!document.getElementById('spinner-style')) {
+    const style = document.createElement('style');
+    style.id = 'spinner-style';
+    style.textContent = `
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// ============================================
+// API Functions
+// ============================================
+
+async function fetchSummary() {
+    try {
+        const response = await fetch(`${API_BASE}/summary`);
+        if (!response.ok) throw new Error('Failed to fetch summary');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching summary:', error);
+        showErrorInSummaryCards();
+        return null;
+    }
+}
+
+function showErrorInSummaryCards() {
+    ['partidasActivasValue', 'completionRateValue', 'eventosCompletadosValue', 'tiempoPromedioValue'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '--';
+    });
+}
+
+async function fetchPartidasByDay(days = 30) {
+    try {
+        const response = await fetch(`${API_BASE}/partidas-by-day?days=${days}`);
+        if (!response.ok) throw new Error('Failed to fetch partidas by day');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching partidas by day:', error);
+        return null;
+    }
+}
+
+async function fetchPartidasByStatus() {
+    try {
+        const response = await fetch(`${API_BASE}/partidas-by-status`);
+        if (!response.ok) throw new Error('Failed to fetch partidas by status');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching partidas by status:', error);
+        return null;
+    }
+}
+
+async function fetchEventosByStatusTimeline(days = 30) {
+    try {
+        const response = await fetch(`${API_BASE}/eventos-by-status-timeline?days=${days}`);
+        if (!response.ok) throw new Error('Failed to fetch eventos timeline');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching eventos timeline:', error);
+        return null;
+    }
+}
+
+async function fetchCompletionRateByActivity() {
+    try {
+        const response = await fetch(`${API_BASE}/completion-rate-by-activity`);
+        if (!response.ok) throw new Error('Failed to fetch completion rate by activity');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching completion rate by activity:', error);
+        return null;
+    }
 }
 
 // ============================================
@@ -97,20 +199,27 @@ const commonConfig = {
 
 // ============================================
 // Chart 1: Partidas creadas por día - Barras
-// go.Bar
 // ============================================
-function initChartPartidasDia() {
-    const dates = generateDates(14);
-    const partidasData = generateData(14, 20, 60, 1);
+async function initChartPartidasDia() {
+    const chartId = 'chartPartidasDia';
+    showLoading(chartId);
+
+    const apiData = await fetchPartidasByDay(currentDays);
+    if (!apiData) {
+        showError(chartId, 'Error al cargar partidas');
+        return;
+    }
+
+    const { dates, counts } = apiData;
 
     const data = [{
         x: dates,
-        y: partidasData,
+        y: counts,
         type: 'bar',
         name: 'Partidas',
         marker: {
-            color: partidasData.map((val, i) => {
-                const ratio = i / partidasData.length;
+            color: counts.map((val, i) => {
+                const ratio = i / counts.length;
                 return `rgba(107, 142, 58, ${0.5 + ratio * 0.5})`;
             }),
             line: { width: 0 }
@@ -132,16 +241,30 @@ function initChartPartidasDia() {
         }
     };
 
-    Plotly.newPlot('chartPartidasDia', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
 // Chart 2: Partidas completadas vs abandonadas - Donut
-// go.Pie(hole=0.6)
 // ============================================
-function initChartPartidasDonut() {
+async function initChartPartidasDonut() {
+    const chartId = 'chartPartidasDonut';
+    showLoading(chartId);
+
+    const apiData = await fetchPartidasByStatus();
+    if (!apiData) {
+        showError(chartId, 'Error al cargar estados');
+        return;
+    }
+
+    const { completadas, abandonadas, en_progreso, total } = apiData;
+
     const data = [{
-        values: [68, 22, 10],
+        values: [completadas, abandonadas, en_progreso],
         labels: ['Completadas', 'Abandonadas', 'En Progreso'],
         type: 'pie',
         hole: 0.6,
@@ -173,7 +296,7 @@ function initChartPartidasDonut() {
             font: { size: 11 }
         },
         annotations: [{
-            text: '<b>342</b><br>Total',
+            text: `<b>${total}</b><br>Total`,
             font: { size: 16, color: COLORS.text },
             showarrow: false,
             x: 0.5,
@@ -181,18 +304,27 @@ function initChartPartidasDonut() {
         }]
     };
 
-    Plotly.newPlot('chartPartidasDonut', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
 // Chart 3: Eventos iniciados vs completados - Barras apiladas
-// go.Bar (stack)
 // ============================================
-function initChartEventosStack() {
-    const dates = generateDates(10);
-    const completados = generateData(10, 80, 150, 2);
-    const enProgreso = generateData(10, 20, 50, 0);
-    const abandonados = generateData(10, 10, 30, -0.5);
+async function initChartEventosStack() {
+    const chartId = 'chartEventosStack';
+    showLoading(chartId);
+
+    const apiData = await fetchEventosByStatusTimeline(currentDays);
+    if (!apiData) {
+        showError(chartId, 'Error al cargar eventos');
+        return;
+    }
+
+    const { dates, completados, en_progreso, abandonados } = apiData;
 
     const data = [
         {
@@ -205,7 +337,7 @@ function initChartEventosStack() {
         },
         {
             x: dates,
-            y: enProgreso,
+            y: en_progreso,
             type: 'bar',
             name: 'En Progreso',
             marker: { color: COLORS.lime },
@@ -235,64 +367,74 @@ function initChartEventosStack() {
         }
     };
 
-    Plotly.newPlot('chartEventosStack', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
-// Chart 4: Completion rate por actividad - Barras horizontales
-// go.Bar(orientation="h")
+// Chart 4: Completion Rate por Actividad - Barras Horizontales
 // ============================================
-function initChartCompletionRate() {
-    const actividades = [
-        'Árbol del Gernika',
-        'Museo de la Paz',
-        'Refugio Antiaéreo',
-        'Casa de Juntas',
-        'Parque de los Pueblos',
-        'Iglesia Santa María',
-        'Plaza de los Fueros',
-        'Mercado Municipal'
-    ];
+async function initChartCompletionRate() {
+    const chartId = 'chartCompletionRate';
+    showLoading(chartId);
 
-    const completionRates = [92, 87, 84, 81, 78, 75, 71, 68];
+    const apiData = await fetchCompletionRateByActivity();
+    if (!apiData) {
+        showError(chartId, 'Error al cargar completion rate');
+        return;
+    }
+
+    const { activities, rates } = apiData;
 
     const data = [{
-        y: actividades,
-        x: completionRates,
+        y: activities,
+        x: rates,
         type: 'bar',
         orientation: 'h',
+        name: 'Completion Rate',
         marker: {
-            color: completionRates.map(rate => {
-                if (rate >= 85) return COLORS.olive;
-                if (rate >= 75) return COLORS.lime;
-                return COLORS.yellow;
+            color: rates.map(rate => {
+                if (rate >= 80) return COLORS.olive;
+                if (rate >= 60) return COLORS.lime;
+                if (rate >= 40) return COLORS.yellow;
+                return COLORS.brown;
             }),
             line: { width: 0 }
         },
-        text: completionRates.map(r => `${r}%`),
+        text: rates.map(r => `${r.toFixed(1)}%`),
         textposition: 'outside',
-        textfont: { size: 11, color: COLORS.text },
-        hovertemplate: '<b>%{y}</b><br>Completion Rate: %{x}%<extra></extra>'
+        textfont: {
+            family: 'Inter, sans-serif',
+            size: 11,
+            color: COLORS.text
+        },
+        hovertemplate: '<b>%{y}</b><br>%{x:.1f}% completado<extra></extra>'
     }];
 
     const layout = {
         ...commonLayout,
-        margin: { t: 20, r: 60, b: 40, l: 140 },
         showlegend: false,
+        margin: { t: 20, r: 60, b: 50, l: 180 },
         xaxis: {
             ...commonLayout.xaxis,
             title: { text: 'Completion Rate (%)', font: { size: 12 } },
-            range: [0, 100],
-            ticksuffix: '%'
+            range: [0, 100]
         },
         yaxis: {
             ...commonLayout.yaxis,
-            automargin: true,
-            tickfont: { size: 11 }
-        }
+            automargin: true
+        },
+        height: 400
     };
 
-    Plotly.newPlot('chartCompletionRate', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
@@ -302,18 +444,26 @@ function initTimeFilter() {
     const filterBtns = document.querySelectorAll('.filter-btn');
 
     filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             filterBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
             const range = btn.dataset.range;
-            console.log(`Filter changed to: ${range}`);
+            const daysMap = {
+                '7d': 7,
+                '30d': 30,
+                '90d': 90,
+                '1y': 365
+            };
 
-            // Reinitialize charts with new data range
-            initChartPartidasDia();
-            initChartPartidasDonut();
-            initChartEventosStack();
-            initChartCompletionRate();
+            currentDays = daysMap[range] || 30;
+            console.log(`Filter changed to: ${currentDays} days`);
+
+            // Reinitialize time-based charts (not completion rate)
+            await Promise.all([
+                initChartPartidasDia(),
+                initChartEventosStack()
+            ]);
         });
     });
 }
@@ -321,27 +471,17 @@ function initTimeFilter() {
 // ============================================
 // Animate Summary Values
 // ============================================
-function animateValue(element, start, end, duration, suffix = '', isFloat = false) {
+function animateValue(element, start, end, duration, suffix = '') {
     const startTime = performance.now();
 
     function update(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
-
-        let current;
-        if (isFloat) {
-            current = (start + (end - start) * eased).toFixed(1);
-        } else {
-            current = Math.floor(start + (end - start) * eased);
-        }
+        const current = Math.floor(start + (end - start) * eased);
 
         if (element) {
-            if (typeof current === 'number' && current >= 1000) {
-                element.textContent = current.toLocaleString() + suffix;
-            } else {
-                element.textContent = current + suffix;
-            }
+            element.textContent = current.toLocaleString() + suffix;
         }
 
         if (progress < 1) {
@@ -352,18 +492,26 @@ function animateValue(element, start, end, duration, suffix = '', isFloat = fals
     requestAnimationFrame(update);
 }
 
-function animateSummaryCards() {
-    const partidasEl = document.getElementById('partidasActivasValue');
-    if (partidasEl) animateValue(partidasEl, 0, 342, 1500);
+async function updateSummaryCards() {
+    const summary = await fetchSummary();
+    if (!summary) return;
 
-    const completionEl = document.getElementById('completionRateValue');
-    if (completionEl) animateValue(completionEl, 0, 78.5, 1300, '%', true);
+    const partidasActivasEl = document.getElementById('partidasActivasValue');
+    if (partidasActivasEl) animateValue(partidasActivasEl, 0, summary.partidas_en_progreso, 1500);
+
+    const completionRateEl = document.getElementById('completionRateValue');
+    if (completionRateEl) {
+        const rate = summary.partidas_completadas && summary.total_partidas
+            ? (summary.partidas_completadas / summary.total_partidas * 100).toFixed(1)
+            : 0;
+        animateValue(completionRateEl, 0, parseFloat(rate), 1200, '%');
+    }
 
     const eventosEl = document.getElementById('eventosCompletadosValue');
-    if (eventosEl) animateValue(eventosEl, 0, 1892, 1400);
+    if (eventosEl) animateValue(eventosEl, 0, summary.eventos_completados || 0, 1300);
 
-    const tiempoEl = document.getElementById('tiempoPromedioValue');
-    if (tiempoEl) animateValue(tiempoEl, 0, 24, 1200, ' min');
+    const tiempoPromedioEl = document.getElementById('tiempoPromedioValue');
+    if (tiempoPromedioEl) animateValue(tiempoPromedioEl, 0, summary.duracion_promedio, 1400, ' min');
 }
 
 // ============================================
@@ -394,20 +542,22 @@ function debounce(func, wait) {
 // ============================================
 // Initialize
 // ============================================
-function init() {
-    console.log('Statistics Gameplay page initialized');
+async function init() {
+    console.log('Gameplay statistics page initialized');
 
     if (typeof Plotly !== 'undefined') {
-        initChartPartidasDia();
-        initChartPartidasDonut();
-        initChartEventosStack();
-        initChartCompletionRate();
+        await Promise.all([
+            initChartPartidasDia(),
+            initChartPartidasDonut(),
+            initChartEventosStack(),
+            initChartCompletionRate()
+        ]);
     } else {
         console.error('Plotly is not loaded');
     }
 
     initTimeFilter();
-    animateSummaryCards();
+    await updateSummaryCards();
     window.addEventListener('resize', debounce(handleResize, 250));
 }
 

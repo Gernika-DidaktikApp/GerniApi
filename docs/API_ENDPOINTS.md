@@ -95,21 +95,12 @@ La API utiliza un sistema de autenticación dual:
 | PUT | `/api/v1/partidas/{id}` | Actualizar partida | 🔑🎫 |
 | DELETE | `/api/v1/partidas/{id}` | Eliminar partida | 🔑 |
 
-### Estados de Actividades
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/v1/actividad-estados/iniciar` | Iniciar actividad | 🔑🎫 |
-| POST | `/api/v1/actividad-estados` | Crear estado | 🔑🎫 |
-| GET | `/api/v1/actividad-estados` | Listar estados | 🔑 |
-| GET | `/api/v1/actividad-estados/{id}` | Obtener estado | 🔑🎫 |
-| PUT | `/api/v1/actividad-estados/{id}` | Actualizar estado | 🔑🎫 |
-| DELETE | `/api/v1/actividad-estados/{id}` | Eliminar estado | 🔑 |
-
 ### Estados de Eventos
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
 | POST | `/api/v1/evento-estados/iniciar` | Iniciar evento | 🔑🎫 |
 | PUT | `/api/v1/evento-estados/{id}/completar` | Completar evento | 🔑🎫 |
+| GET | `/api/v1/evento-estados/actividad/{id_juego}/{id_actividad}/resumen` | Resumen de actividad (calculado) | 🔑🎫 |
 | POST | `/api/v1/evento-estados` | Crear estado | 🔑🎫 |
 | GET | `/api/v1/evento-estados` | Listar estados | 🔑 |
 | GET | `/api/v1/evento-estados/{id}` | Obtener estado | 🔑🎫 |
@@ -805,106 +796,17 @@ Elimina una partida. **Requiere API Key.** **Response: 204 No Content**
 
 ---
 
-## 📊 Estados de Actividades y Eventos
+## 📊 Estados de Eventos
 
-El sistema de gestión de estados permite rastrear el progreso de las actividades y eventos de los jugadores, calculando automáticamente tiempos y puntuaciones.
+El sistema de gestión de estados permite rastrear el progreso de los eventos de los jugadores, calculando automáticamente tiempos y puntuaciones.
 
-### Flujo de Trabajo
+### Flujo de Trabajo Simplificado
 
-1. **Jugador inicia actividad** → POST `/api/v1/actividad-estados/iniciar`
-2. **Jugador inicia evento** → POST `/api/v1/evento-estados/iniciar`
-3. **Jugador completa evento** → PUT `/api/v1/evento-estados/{id}/completar`
-4. **Si es el último evento** → La actividad se completa automáticamente
+1. **Jugador inicia evento** → POST `/api/v1/evento-estados/iniciar`
+2. **Jugador completa evento** → PUT `/api/v1/evento-estados/{id}/completar`
+3. **Consultar resumen de actividad** → GET `/api/v1/evento-estados/actividad/{id_juego}/{id_actividad}/resumen`
 
----
-
-### POST `/api/v1/actividad-estados/iniciar`
-
-Inicia una actividad para un jugador. Registra automáticamente la fecha de inicio.
-
-#### Request
-
-**Headers:**
-```
-Content-Type: application/json
-```
-
-**Body:**
-```json
-{
-  "id_juego": "uuid-de-la-partida",
-  "id_actividad": "uuid-de-la-actividad"
-}
-```
-
-#### Response
-
-**Status: 201 Created**
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "id_juego": "uuid-de-la-partida",
-  "id_actividad": "uuid-de-la-actividad",
-  "fecha_inicio": "2026-01-18T10:30:00",
-  "duracion": null,
-  "fecha_fin": null,
-  "estado": "en_progreso",
-  "puntuacion_total": 0.0
-}
-```
-
-**Status: 400 Bad Request**
-```json
-{
-  "detail": "Ya existe una actividad en progreso para este juego y actividad"
-}
-```
-
-**Status: 404 Not Found**
-```json
-{
-  "detail": "La actividad especificada no existe"
-}
-```
-
-#### Ejemplos
-
-**curl:**
-```bash
-curl -X POST "https://tu-api.up.railway.app/api/v1/actividad-estados/iniciar" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "id_juego": "uuid-partida",
-    "id_actividad": "uuid-actividad"
-  }'
-```
-
-**JavaScript:**
-```javascript
-const response = await fetch(`${API_BASE_URL}/api/v1/actividad-estados/iniciar`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    id_juego: partidaId,
-    id_actividad: actividadId
-  })
-});
-
-const actividadEstado = await response.json();
-console.log('Actividad iniciada:', actividadEstado.id);
-```
-
-**Kotlin:**
-```kotlin
-val response = client.post("$baseUrl/api/v1/actividad-estados/iniciar") {
-    contentType(ContentType.Application.Json)
-    setBody(mapOf(
-        "id_juego" to partidaId,
-        "id_actividad" to actividadId
-    ))
-}
-val actividadEstado = response.body<ActividadEstadoResponse>()
-```
+> **Nota:** El resumen de actividad (puntuación total, estado, duración) se calcula automáticamente desde los eventos.
 
 ---
 
@@ -1014,8 +916,7 @@ if (response.statusCode == 201) {
 
 Completa un evento y registra su puntuación. **Calcula automáticamente**:
 - Duración del evento (fecha_fin - fecha_inicio)
-- Verifica si es el último evento de la actividad
-- **Si es el último evento**: Completa la actividad automáticamente con la suma total de puntuaciones
+- Actualiza el estado a "completado"
 
 #### Request
 
@@ -1062,29 +963,6 @@ Content-Type: application/json
 ```json
 {
   "detail": "Estado de evento no encontrado"
-}
-```
-
-#### Comportamiento Automático
-
-Cuando se completa el **último evento** de una actividad:
-
-1. **Suma puntuaciones** de todos los eventos completados
-2. **Calcula duración total** de la actividad
-3. **Actualiza estado** a "completado"
-4. **Registra fecha de finalización**
-
-**Ejemplo de actividad completada automáticamente:**
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "id_juego": "uuid-de-la-partida",
-  "id_actividad": "uuid-de-la-actividad",
-  "fecha_inicio": "2026-01-18T10:30:00",
-  "fecha_fin": "2026-01-18T10:45:00",
-  "duracion": 900,
-  "estado": "completado",
-  "puntuacion_total": 256.5
 }
 ```
 
@@ -1153,6 +1031,62 @@ if (response.statusCode == 200) {
 
 ---
 
+### GET `/api/v1/evento-estados/actividad/{id_juego}/{id_actividad}/resumen`
+
+Obtiene el resumen calculado de una actividad basado en los eventos completados.
+
+#### URL Parameters
+- `id_juego`: UUID de la partida
+- `id_actividad`: UUID de la actividad
+
+#### Response
+
+**Status: 200 OK**
+```json
+{
+  "id_juego": "uuid-de-la-partida",
+  "id_actividad": "uuid-de-la-actividad",
+  "nombre_actividad": "Bunkers",
+  "eventos_totales": 5,
+  "eventos_completados": 3,
+  "eventos_en_progreso": 1,
+  "puntuacion_total": 256.5,
+  "duracion_total": 450,
+  "fecha_inicio": "2026-01-18T10:30:00",
+  "fecha_fin": null,
+  "estado": "en_progreso"
+}
+```
+
+| Campo | Descripción |
+|-------|-------------|
+| `eventos_totales` | Total de eventos en la actividad |
+| `eventos_completados` | Eventos ya completados |
+| `puntuacion_total` | Suma de puntuaciones de eventos completados |
+| `duracion_total` | Suma de duraciones en segundos |
+| `estado` | "no_iniciada", "en_progreso" o "completada" |
+
+#### Ejemplos
+
+**curl:**
+```bash
+curl -X GET "https://tu-api.up.railway.app/api/v1/evento-estados/actividad/{id_juego}/{id_actividad}/resumen" \
+  -H "Authorization: Bearer <token>"
+```
+
+**JavaScript:**
+```javascript
+const resumen = await fetch(
+  `${API_BASE_URL}/api/v1/evento-estados/actividad/${partidaId}/${actividadId}/resumen`,
+  { headers: { 'Authorization': `Bearer ${token}` } }
+).then(r => r.json());
+
+console.log('Estado:', resumen.estado);
+console.log('Puntuación:', resumen.puntuacion_total);
+```
+
+---
+
 ### Ejemplo de Flujo Completo
 
 ```javascript
@@ -1171,61 +1105,52 @@ const partidaResponse = await fetch(`${API_BASE_URL}/api/v1/partidas`, {
 });
 const { id: partidaId } = await partidaResponse.json();
 
-// 2. Iniciar actividad
-const actividadResponse = await fetch(
-  `${API_BASE_URL}/api/v1/actividad-estados/iniciar`,
-  {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id_juego: partidaId,
-      id_actividad: 'actividad-uuid'
-    })
-  }
-);
-const actividadEstado = await actividadResponse.json();
-
-// 3. Bucle para cada evento de la actividad
+// 2. Para cada evento de la actividad
 for (const eventoId of eventosIds) {
-  // 3a. Iniciar evento
+  // 2a. Iniciar evento
   const eventoInicioResponse = await fetch(
     `${API_BASE_URL}/api/v1/evento-estados/iniciar`,
     {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify({
         id_juego: partidaId,
-        id_actividad: 'actividad-uuid',
+        id_actividad: actividadId,
         id_evento: eventoId
       })
     }
   );
   const { id: eventoEstadoId } = await eventoInicioResponse.json();
 
-  // 3b. Jugador completa el evento
+  // 2b. Jugador completa el evento
   // ... lógica del juego ...
 
-  // 3c. Completar evento con puntuación
+  // 2c. Completar evento con puntuación
   await fetch(
     `${API_BASE_URL}/api/v1/evento-estados/${eventoEstadoId}/completar`,
     {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify({ puntuacion: score })
     }
   );
 }
 
-// 4. La actividad se completa automáticamente al completar el último evento
-// Obtener actividad completada
-const actividadFinalResponse = await fetch(
-  `${API_BASE_URL}/api/v1/actividad-estados/${actividadEstado.id}`
-);
-const actividadCompletada = await actividadFinalResponse.json();
+// 3. Obtener resumen de la actividad
+const resumen = await fetch(
+  `${API_BASE_URL}/api/v1/evento-estados/actividad/${partidaId}/${actividadId}/resumen`,
+  { headers: { 'Authorization': `Bearer ${token}` } }
+).then(r => r.json());
 
-console.log('Actividad completada!');
-console.log('Puntuación total:', actividadCompletada.puntuacion_total);
-console.log('Tiempo total:', actividadCompletada.duracion, 'segundos');
+console.log('Actividad:', resumen.estado);
+console.log('Puntuación total:', resumen.puntuacion_total);
+console.log('Tiempo total:', resumen.duracion_total, 'segundos');
 ```
 
 ---
@@ -1740,7 +1665,7 @@ Verifica que la API está corriendo: `GET /health`
 
 ---
 
-**Última actualización:** 23 de Enero 2026
+**Última actualización:** 24 de Enero 2026
 
 ---
 
@@ -1755,6 +1680,5 @@ Verifica que la API está corriendo: `GET /health`
 | Actividades | 5 |
 | Eventos | 5 |
 | Partidas | 5 |
-| Estados de Actividades | 6 |
-| Estados de Eventos | 7 |
-| **Total** | **45 endpoints**
+| Estados de Eventos | 8 |
+| **Total** | **40 endpoints**

@@ -1,7 +1,38 @@
 /**
  * Dashboard JavaScript
- * Handles navbar toggle and Plotly chart initialization
+ * Handles navbar toggle, authentication, and Plotly chart initialization
  */
+
+// ============================================
+// Authentication Check
+// ============================================
+function checkAuthentication() {
+    const authToken = localStorage.getItem('authToken');
+
+    if (!authToken) {
+        // No token found, redirect to login
+        console.log('No authentication token found, redirecting to login...');
+        window.location.href = '/login';
+        return false;
+    }
+
+    return true;
+}
+
+// ============================================
+// Logout Handler
+// ============================================
+function handleLogout() {
+    // Clear authentication data
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userUsername');
+
+    console.log('User logged out successfully');
+
+    // Redirect to login page
+    window.location.href = '/login';
+}
 
 // ============================================
 // Navbar Mobile Menu Toggle
@@ -175,7 +206,21 @@ function initChart5() {
 // ============================================
 
 function init() {
+    // Check authentication first
+    if (!checkAuthentication()) {
+        return; // Will redirect to login
+    }
+
     console.log('Dashboard initialized');
+
+    // Set up logout button
+    const logoutButton = document.querySelector('.navbar-contact');
+    if (logoutButton && logoutButton.textContent.includes('Cerrar Sesión')) {
+        logoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleLogout();
+        });
+    }
 
     // Uncomment to initialize example charts
     /*

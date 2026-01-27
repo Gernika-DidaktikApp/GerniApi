@@ -23,6 +23,16 @@ class Token(BaseModel):
     token_type: str
 
 
+# Schema para respuesta de login profesor
+class LoginProfesorResponse(BaseModel):
+    access_token: str
+    token_type: str
+    profesor_id: str
+    username: str
+    nombre: str
+    apellido: str
+
+
 router = APIRouter(
     prefix="/auth",
     tags=["🔐 Autenticación"],
@@ -159,9 +169,9 @@ def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depen
 
 @router.post(
     "/login-profesor",
-    response_model=Token,
+    response_model=LoginProfesorResponse,
     summary="Login de profesor",
-    description="Autenticar profesor con username y contraseña. Devuelve un token JWT válido por 30 minutos.",
+    description="Autenticar profesor con username y contraseña. Devuelve un token JWT válido por 30 minutos junto con datos del profesor.",
     responses={
         200: {
             "description": "Login exitoso",
@@ -170,6 +180,10 @@ def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depen
                     "example": {
                         "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                         "token_type": "bearer",
+                        "profesor_id": "550e8400-e29b-41d4-a716-446655440000",
+                        "username": "admin",
+                        "nombre": "Profesor",
+                        "apellido": "Admin"
                     }
                 }
             },
@@ -240,4 +254,11 @@ def login_profesor(login_data: LoginAppRequest, request: Request, db: Session = 
         client_ip=client_ip,
     )
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "profesor_id": profesor.id,
+        "username": profesor.username,
+        "nombre": profesor.nombre,
+        "apellido": profesor.apellido
+    }

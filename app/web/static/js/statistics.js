@@ -17,6 +17,14 @@ const COLORS = {
 };
 
 // ============================================
+// API Configuration
+// ============================================
+const API_BASE = '/api/statistics/users';
+
+// Current time range (days)
+let currentDays = 7;
+
+// ============================================
 // Navbar Mobile Menu Toggle
 // ============================================
 const navbarToggle = document.getElementById('navbarToggle');
@@ -36,34 +44,144 @@ if (navbarToggle && navbarMenu) {
 }
 
 // ============================================
-// Sample Data Generation
+// Loading State Management
 // ============================================
 
 /**
- * Generate dates for the last N days
+ * Show loading spinner on a chart container
  */
-function generateDates(days) {
-    const dates = [];
-    const today = new Date();
-    for (let i = days - 1; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-        dates.push(date.toISOString().split('T')[0]);
+function showLoading(chartId) {
+    const container = document.getElementById(chartId);
+    if (container) {
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
+                <div style="text-align: center;">
+                    <div style="border: 4px solid #f3f3f3; border-top: 4px solid #6B8E3A; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                    <p style="color: #6B7A5C; margin-top: 1rem; font-size: 0.875rem;">Cargando datos...</p>
+                </div>
+            </div>
+        `;
     }
-    return dates;
 }
 
 /**
- * Generate random data with optional trend
+ * Show error message on a chart container
  */
-function generateData(length, min, max, trend = 0) {
-    const data = [];
-    let value = Math.random() * (max - min) + min;
-    for (let i = 0; i < length; i++) {
-        value = Math.max(min, Math.min(max, value + (Math.random() - 0.5) * (max - min) * 0.2 + trend));
-        data.push(Math.round(value));
+function showError(chartId, message = 'Error al cargar datos') {
+    const container = document.getElementById(chartId);
+    if (container) {
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
+                <div style="text-align: center; color: #dc2626;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto;">
+                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                        <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"/>
+                    </svg>
+                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
+                    <button onclick="location.reload()" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #6B8E3A; color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
+                        Reintentar
+                    </button>
+                </div>
+            </div>
+        `;
     }
-    return data;
+}
+
+// Add spinner animation to the page
+if (!document.getElementById('spinner-style')) {
+    const style = document.createElement('style');
+    style.id = 'spinner-style';
+    style.textContent = `
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// ============================================
+// API Functions with Loading States
+// ============================================
+
+/**
+ * Fetch summary statistics from API
+ */
+async function fetchSummary() {
+    try {
+        const response = await fetch(`${API_BASE}/summary`);
+        if (!response.ok) throw new Error('Failed to fetch summary');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching summary:', error);
+        // Show error in summary cards
+        showErrorInSummaryCards();
+        return null;
+    }
+}
+
+function showErrorInSummaryCards() {
+    ['dauValue', 'newUsersValue', 'ratioValue', 'loginsValue'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = '--';
+    });
+}
+
+/**
+ * Fetch active users timeline (DAU/WAU/MAU)
+ */
+async function fetchActiveUsersTimeline(days = 30) {
+    try {
+        const response = await fetch(`${API_BASE}/active-timeline?days=${days}`);
+        if (!response.ok) throw new Error('Failed to fetch active users timeline');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching active users timeline:', error);
+        return null;
+    }
+}
+
+/**
+ * Fetch new users by day
+ */
+async function fetchNewUsersByDay(days = 30) {
+    try {
+        const response = await fetch(`${API_BASE}/new-by-day?days=${days}`);
+        if (!response.ok) throw new Error('Failed to fetch new users');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching new users:', error);
+        return null;
+    }
+}
+
+/**
+ * Fetch active ratio timeline
+ */
+async function fetchActiveRatioTimeline(days = 30) {
+    try {
+        const response = await fetch(`${API_BASE}/active-ratio-timeline?days=${days}`);
+        if (!response.ok) throw new Error('Failed to fetch ratio timeline');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching ratio timeline:', error);
+        return null;
+    }
+}
+
+/**
+ * Fetch logins by day
+ */
+async function fetchLoginsByDay(days = 30) {
+    try {
+        const response = await fetch(`${API_BASE}/logins-by-day?days=${days}`);
+        if (!response.ok) throw new Error('Failed to fetch logins');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching logins:', error);
+        return null;
+    }
 }
 
 // ============================================
@@ -102,22 +220,23 @@ const commonConfig = {
 
 // ============================================
 // Chart 1: Usuarios Activos (DAU / WAU / MAU) - Línea
-// go.Scatter(mode="lines")
 // ============================================
-function initChartActiveUsers() {
-    const dates = generateDates(30);
+async function initChartActiveUsers() {
+    const chartId = 'chartActiveUsers';
+    showLoading(chartId);
 
-    // DAU: ~800-1400
-    const dauData = generateData(30, 800, 1400, 5);
-    // WAU: ~3000-5000
-    const wauData = generateData(30, 3000, 5000, 10);
-    // MAU: ~8000-12000
-    const mauData = generateData(30, 8000, 12000, 15);
+    const apiData = await fetchActiveUsersTimeline(currentDays);
+    if (!apiData) {
+        showError(chartId, 'Error al cargar usuarios activos');
+        return;
+    }
+
+    const { dates, dau, wau, mau } = apiData;
 
     const data = [
         {
             x: dates,
-            y: dauData,
+            y: dau,
             type: 'scatter',
             mode: 'lines',
             name: 'DAU',
@@ -130,7 +249,7 @@ function initChartActiveUsers() {
         },
         {
             x: dates,
-            y: wauData,
+            y: wau,
             type: 'scatter',
             mode: 'lines',
             name: 'WAU',
@@ -143,7 +262,7 @@ function initChartActiveUsers() {
         },
         {
             x: dates,
-            y: mauData,
+            y: mau,
             type: 'scatter',
             mode: 'lines',
             name: 'MAU',
@@ -169,25 +288,36 @@ function initChartActiveUsers() {
         }
     };
 
-    Plotly.newPlot('chartActiveUsers', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
 // Chart 2: Nuevos Usuarios por Día - Barras
-// go.Bar
 // ============================================
-function initChartNewUsers() {
-    const dates = generateDates(14);
-    const newUsersData = generateData(14, 50, 150, 2);
+async function initChartNewUsers() {
+    const chartId = 'chartNewUsers';
+    showLoading(chartId);
+
+    const apiData = await fetchNewUsersByDay(currentDays);
+    if (!apiData) {
+        showError(chartId, 'Error al cargar nuevos usuarios');
+        return;
+    }
+
+    const { dates, counts } = apiData;
 
     const data = [{
         x: dates,
-        y: newUsersData,
+        y: counts,
         type: 'bar',
         name: 'Nuevos Usuarios',
         marker: {
-            color: newUsersData.map((_, i) => {
-                const ratio = i / newUsersData.length;
+            color: counts.map((_, i) => {
+                const ratio = i / counts.length;
                 return `rgba(107, 142, 58, ${0.6 + ratio * 0.4})`;
             }),
             line: {
@@ -212,21 +342,31 @@ function initChartNewUsers() {
         }
     };
 
-    Plotly.newPlot('chartNewUsers', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
 // Chart 3: Ratio Usuarios Activos / Totales - Área
-// go.Scatter(fill="tozeroy")
 // ============================================
-function initChartRatio() {
-    const dates = generateDates(30);
-    // Ratio between 20% - 45%
-    const ratioData = generateData(30, 20, 45, 0.3);
+async function initChartRatio() {
+    const chartId = 'chartRatio';
+    showLoading(chartId);
+
+    const apiData = await fetchActiveRatioTimeline(currentDays);
+    if (!apiData) {
+        showError(chartId, 'Error al cargar ratio de usuarios');
+        return;
+    }
+
+    const { dates, ratios } = apiData;
 
     const data = [{
         x: dates,
-        y: ratioData,
+        y: ratios,
         type: 'scatter',
         mode: 'lines',
         name: 'Ratio',
@@ -246,7 +386,6 @@ function initChartRatio() {
         yaxis: {
             ...commonLayout.yaxis,
             title: { text: 'Ratio (%)', font: { size: 12 } },
-            range: [0, 50],
             ticksuffix: '%'
         },
         xaxis: {
@@ -255,20 +394,31 @@ function initChartRatio() {
         }
     };
 
-    Plotly.newPlot('chartRatio', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
 // Chart 4: Logins por Día - Línea con Marcadores
-// go.Scatter(mode="lines+markers")
 // ============================================
-function initChartLogins() {
-    const dates = generateDates(30);
-    const loginsData = generateData(30, 1500, 3000, 8);
+async function initChartLogins() {
+    const chartId = 'chartLogins';
+    showLoading(chartId);
+
+    const apiData = await fetchLoginsByDay(currentDays);
+    if (!apiData) {
+        showError(chartId, 'Error al cargar logins');
+        return;
+    }
+
+    const { dates, counts } = apiData;
 
     const data = [{
         x: dates,
-        y: loginsData,
+        y: counts,
         type: 'scatter',
         mode: 'lines+markers',
         name: 'Logins',
@@ -301,7 +451,11 @@ function initChartLogins() {
         }
     };
 
-    Plotly.newPlot('chartLogins', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
@@ -311,22 +465,31 @@ function initTimeFilter() {
     const filterBtns = document.querySelectorAll('.filter-btn');
 
     filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             // Remove active class from all buttons
             filterBtns.forEach(b => b.classList.remove('active'));
             // Add active class to clicked button
             btn.classList.add('active');
 
-            // Get the selected range
+            // Get the selected range and convert to days
             const range = btn.dataset.range;
-            console.log(`Filter changed to: ${range}`);
+            const daysMap = {
+                '7d': 7,
+                '30d': 30,
+                '90d': 90,
+                '1y': 365
+            };
+
+            currentDays = daysMap[range] || 30;
+            console.log(`Filter changed to: ${currentDays} days`);
 
             // Reinitialize charts with new data range
-            // In a real application, this would fetch new data from the API
-            initChartActiveUsers();
-            initChartNewUsers();
-            initChartRatio();
-            initChartLogins();
+            await Promise.all([
+                initChartActiveUsers(),
+                initChartNewUsers(),
+                initChartRatio(),
+                initChartLogins()
+            ]);
         });
     });
 }
@@ -357,22 +520,25 @@ function animateValue(element, start, end, duration, suffix = '') {
     requestAnimationFrame(update);
 }
 
-function animateSummaryCards() {
+async function updateSummaryCards() {
+    const summary = await fetchSummary();
+    if (!summary) return;
+
     // Animate DAU value
     const dauEl = document.getElementById('dauValue');
-    if (dauEl) animateValue(dauEl, 0, 1247, 1500);
+    if (dauEl) animateValue(dauEl, 0, summary.dau, 1500);
 
     // Animate New Users value
     const newUsersEl = document.getElementById('newUsersValue');
-    if (newUsersEl) animateValue(newUsersEl, 0, 89, 1200);
+    if (newUsersEl) animateValue(newUsersEl, 0, summary.new_users_today, 1200);
 
     // Animate Ratio value
     const ratioEl = document.getElementById('ratioValue');
-    if (ratioEl) animateValue(ratioEl, 0, 32.4, 1300, '%');
+    if (ratioEl) animateValue(ratioEl, 0, summary.ratio_active_total, 1300, '%');
 
     // Animate Logins value
     const loginsEl = document.getElementById('loginsValue');
-    if (loginsEl) animateValue(loginsEl, 0, 2156, 1400);
+    if (loginsEl) animateValue(loginsEl, 0, summary.logins_today, 1400);
 }
 
 // ============================================
@@ -405,15 +571,17 @@ function debounce(func, wait) {
 // ============================================
 // Initialize
 // ============================================
-function init() {
+async function init() {
     console.log('Statistics page initialized');
 
     // Initialize all charts
     if (typeof Plotly !== 'undefined') {
-        initChartActiveUsers();
-        initChartNewUsers();
-        initChartRatio();
-        initChartLogins();
+        await Promise.all([
+            initChartActiveUsers(),
+            initChartNewUsers(),
+            initChartRatio(),
+            initChartLogins()
+        ]);
     } else {
         console.error('Plotly is not loaded');
     }
@@ -421,8 +589,8 @@ function init() {
     // Initialize time filter
     initTimeFilter();
 
-    // Animate summary cards on load
-    animateSummaryCards();
+    // Update summary cards with real data
+    await updateSummaryCards();
 
     // Add resize listener
     window.addEventListener('resize', debounce(handleResize, 250));

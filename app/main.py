@@ -15,8 +15,12 @@ from app.routers import (
     clases,
     evento_estados,
     eventos,
+    gameplay_statistics,
+    learning_statistics,
     partidas,
     profesores,
+    statistics,
+    teacher_dashboard,
     usuarios,
 )
 from app.web import routes as web_routes
@@ -167,6 +171,10 @@ app.include_router(actividades.router, prefix=settings.API_V1_PREFIX)
 app.include_router(eventos.router, prefix=settings.API_V1_PREFIX)
 app.include_router(partidas.router, prefix=settings.API_V1_PREFIX)
 app.include_router(evento_estados.router, prefix=settings.API_V1_PREFIX)
+app.include_router(statistics.router)  # Statistics doesn't use API_V1_PREFIX
+app.include_router(gameplay_statistics.router)  # Gameplay statistics doesn't use API_V1_PREFIX
+app.include_router(learning_statistics.router)  # Learning statistics doesn't use API_V1_PREFIX
+app.include_router(teacher_dashboard.router)  # Teacher dashboard doesn't use API_V1_PREFIX
 logger.info(f"Routers de API registrados en {settings.API_V1_PREFIX}")
 
 # Incluir router de interfaz web

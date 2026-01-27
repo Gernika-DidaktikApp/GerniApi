@@ -193,9 +193,17 @@ async function handleSubmit(event) {
             // Success - redirect to dashboard
             console.log('Login successful:', data);
 
-            // Store token if provided
+            // Store token and user info if provided
             if (data.access_token) {
                 localStorage.setItem('authToken', data.access_token);
+            }
+
+            // Store additional user info if available (for future use)
+            if (data.username) {
+                localStorage.setItem('userUsername', data.username);
+            }
+            if (data.nombre) {
+                localStorage.setItem('userName', data.nombre);
             }
 
             // Redirect after short delay for better UX

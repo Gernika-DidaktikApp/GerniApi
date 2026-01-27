@@ -1,7 +1,38 @@
 /**
  * Dashboard Teacher Page JavaScript
- * Handles Plotly charts for teacher/class view
+ * Handles Plotly charts for teacher/class view with authentication and real API data
  */
+
+// ============================================
+// Authentication Check
+// ============================================
+function checkAuthentication() {
+    const authToken = localStorage.getItem('authToken');
+
+    if (!authToken) {
+        // No token found, redirect to login
+        console.log('No authentication token found, redirecting to login...');
+        window.location.href = '/login';
+        return false;
+    }
+
+    return true;
+}
+
+// ============================================
+// Logout Handler
+// ============================================
+function handleLogout() {
+    // Clear authentication data
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userUsername');
+
+    console.log('User logged out successfully');
+
+    // Redirect to login page
+    window.location.href = '/login';
+}
 
 // ============================================
 // Color Palette (matching the organic/natural design)
@@ -19,53 +50,208 @@ const COLORS = {
 };
 
 // ============================================
-// Sample Student Data
+// API Configuration
 // ============================================
-const STUDENTS = [
-    { name: 'Aitor Etxebarria', progress: 92, time: 45 },
-    { name: 'Ane Ugarte', progress: 88, time: 52 },
-    { name: 'Mikel Aguirre', progress: 85, time: 38 },
-    { name: 'Leire Mendizabal', progress: 82, time: 41 },
-    { name: 'Unai Goikoetxea', progress: 78, time: 35 },
-    { name: 'Nerea Arrieta', progress: 75, time: 48 },
-    { name: 'Jon Zabala', progress: 72, time: 29 },
-    { name: 'Irati Elizondo', progress: 68, time: 33 },
-    { name: 'Eneko Arana', progress: 65, time: 42 },
-    { name: 'Maialen Berasategui', progress: 62, time: 36 },
-    { name: 'Gorka Uriarte', progress: 58, time: 28 },
-    { name: 'Nahia Olaizola', progress: 55, time: 44 },
-    { name: 'Andoni Larrea', progress: 52, time: 31 },
-    { name: 'Izaro Garitano', progress: 48, time: 26 },
-    { name: 'Asier Iturriaga', progress: 42, time: 22 },
-    { name: 'Miren Arteaga', progress: 38, time: 40 },
-    { name: 'Pablo López', progress: 35, time: 18 },
-    { name: 'María González', progress: 25, time: 15 }
-];
+const API_BASE = '/api/teacher/dashboard';
 
-const ACTIVITIES = [
-    'Árbol del Gernika',
-    'Museo de la Paz',
-    'Refugio Antiaéreo',
-    'Casa de Juntas',
-    'Parque de los Pueblos'
-];
+// Current filters
+let currentFilters = {
+    claseId: null,  // Will be set from dropdown
+    days: 7
+};
 
 // ============================================
-// Navbar Mobile Menu Toggle
+// API Helper Functions
 // ============================================
-const navbarToggle = document.getElementById('navbarToggle');
-const navbarMenu = document.getElementById('navbarMenu');
 
-if (navbarToggle && navbarMenu) {
-    navbarToggle.addEventListener('click', () => {
-        navbarMenu.classList.toggle('active');
-    });
+function getAuthHeaders() {
+    const token = localStorage.getItem('authToken');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
+}
 
-    document.addEventListener('click', (event) => {
-        if (!event.target.closest('.navbar')) {
-            navbarMenu.classList.remove('active');
+async function fetchClasses() {
+    try {
+        const response = await fetch(`${API_BASE}/classes`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Token expired or invalid
+                handleLogout();
+                throw new Error('Session expired');
+            }
+            throw new Error('Failed to fetch classes');
         }
-    });
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching classes:', error);
+        return [];
+    }
+}
+
+async function fetchSummary() {
+    try {
+        const params = new URLSearchParams({
+            days: currentFilters.days
+        });
+        if (currentFilters.claseId) {
+            params.append('clase_id', currentFilters.claseId);
+        }
+
+        const response = await fetch(`${API_BASE}/summary?${params}`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch summary');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching summary:', error);
+        return null;
+    }
+}
+
+async function fetchStudentProgress() {
+    try {
+        const params = new URLSearchParams();
+        if (currentFilters.claseId) {
+            params.append('clase_id', currentFilters.claseId);
+        }
+
+        const response = await fetch(`${API_BASE}/student-progress?${params}`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch student progress');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching student progress:', error);
+        return null;
+    }
+}
+
+async function fetchStudentTime() {
+    try {
+        const params = new URLSearchParams({
+            days: currentFilters.days
+        });
+        if (currentFilters.claseId) {
+            params.append('clase_id', currentFilters.claseId);
+        }
+
+        const response = await fetch(`${API_BASE}/student-time?${params}`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch student time');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching student time:', error);
+        return null;
+    }
+}
+
+async function fetchActivitiesByClass() {
+    try {
+        const params = new URLSearchParams();
+        if (currentFilters.claseId) {
+            params.append('clase_id', currentFilters.claseId);
+        }
+
+        const response = await fetch(`${API_BASE}/activities-by-class?${params}`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch activities');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching activities:', error);
+        return null;
+    }
+}
+
+async function fetchClassEvolution() {
+    try {
+        const params = new URLSearchParams({
+            days: 14  // Always 14 days for evolution chart
+        });
+        if (currentFilters.claseId) {
+            params.append('clase_id', currentFilters.claseId);
+        }
+
+        const response = await fetch(`${API_BASE}/class-evolution?${params}`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch class evolution');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching class evolution:', error);
+        return null;
+    }
+}
+
+// ============================================
+// Loading State Management
+// ============================================
+
+function showLoading(chartId) {
+    const container = document.getElementById(chartId);
+    if (container) {
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
+                <div style="text-align: center;">
+                    <div style="border: 4px solid #f3f3f3; border-top: 4px solid #6B8E3A; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                    <p style="color: #6B7A5C; margin-top: 1rem; font-size: 0.875rem;">Cargando datos...</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function showError(chartId, message = 'Error al cargar datos') {
+    const container = document.getElementById(chartId);
+    if (container) {
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
+                <div style="text-align: center; color: #dc2626;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto;">
+                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                        <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"/>
+                    </svg>
+                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function showEmpty(chartId, message = 'No hay datos disponibles') {
+    const container = document.getElementById(chartId);
+    if (container) {
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
+                <div style="text-align: center; color: #6B7A5C;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto; opacity: 0.5;">
+                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                        <line x1="8" y1="12" x2="16" y2="12" stroke-width="2"/>
+                    </svg>
+                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Add spinner animation
+if (!document.getElementById('spinner-style')) {
+    const style = document.createElement('style');
+    style.id = 'spinner-style';
+    style.textContent = `
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 // ============================================
@@ -104,20 +290,38 @@ const commonConfig = {
 
 // ============================================
 // Chart 1: Progreso por alumno - Barras horizontales
-// go.Bar
 // ============================================
-function initChartProgresoAlumno() {
-    const sortedStudents = [...STUDENTS].sort((a, b) => b.progress - a.progress);
-    const names = sortedStudents.map(s => s.name);
-    const progress = sortedStudents.map(s => s.progress);
+async function initChartProgresoAlumno() {
+    const chartId = 'chartProgresoAlumno';
+    showLoading(chartId);
+
+    const apiData = await fetchStudentProgress();
+    if (!apiData) {
+        showError(chartId, 'Error al cargar progreso de alumnos');
+        return;
+    }
+
+    const { students, progress } = apiData;
+
+    if (!students || students.length === 0) {
+        showEmpty(chartId, 'No hay alumnos en esta clase');
+        return;
+    }
+
+    // Sort by progress descending
+    const sorted = students.map((name, i) => ({ name, progress: progress[i] }))
+        .sort((a, b) => b.progress - a.progress);
+
+    const sortedNames = sorted.map(s => s.name);
+    const sortedProgress = sorted.map(s => s.progress);
 
     const data = [{
-        y: names,
-        x: progress,
+        y: sortedNames,
+        x: sortedProgress,
         type: 'bar',
         orientation: 'h',
         marker: {
-            color: progress.map(p => {
+            color: sortedProgress.map(p => {
                 if (p >= 75) return COLORS.olive;
                 if (p >= 50) return COLORS.lime;
                 if (p >= 30) return COLORS.yellow;
@@ -125,7 +329,7 @@ function initChartProgresoAlumno() {
             }),
             line: { width: 0 }
         },
-        text: progress.map(p => `${p}%`),
+        text: sortedProgress.map(p => `${p}%`),
         textposition: 'outside',
         textfont: { size: 10, color: COLORS.text },
         hovertemplate: '<b>%{y}</b><br>Progreso: %{x}%<extra></extra>'
@@ -147,25 +351,48 @@ function initChartProgresoAlumno() {
         }
     };
 
-    Plotly.newPlot('chartProgresoAlumno', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
 // Chart 2: Tiempo dedicado por alumno - Barras
-// go.Bar
 // ============================================
-function initChartTiempoAlumno() {
-    const sortedStudents = [...STUDENTS].sort((a, b) => b.time - a.time).slice(0, 10);
-    const names = sortedStudents.map(s => s.name.split(' ')[0]); // First name only
-    const time = sortedStudents.map(s => s.time);
+async function initChartTiempoAlumno() {
+    const chartId = 'chartTiempoAlumno';
+    showLoading(chartId);
+
+    const apiData = await fetchStudentTime();
+    if (!apiData) {
+        showError(chartId, 'Error al cargar tiempo de alumnos');
+        return;
+    }
+
+    const { students, time } = apiData;
+
+    if (!students || students.length === 0) {
+        showEmpty(chartId, 'No hay datos de tiempo disponibles');
+        return;
+    }
+
+    // Sort by time descending and take top 10
+    const sorted = students.map((name, i) => ({ name, time: time[i] }))
+        .sort((a, b) => b.time - a.time)
+        .slice(0, 10);
+
+    const names = sorted.map(s => s.name);
+    const timeValues = sorted.map(s => s.time);
 
     const data = [{
         x: names,
-        y: time,
+        y: timeValues,
         type: 'bar',
         marker: {
-            color: time.map((t, i) => {
-                const ratio = i / time.length;
+            color: timeValues.map((t, i) => {
+                const ratio = i / timeValues.length;
                 return `rgba(107, 142, 58, ${0.4 + (1 - ratio) * 0.6})`;
             }),
             line: { width: 0 }
@@ -187,21 +414,36 @@ function initChartTiempoAlumno() {
         }
     };
 
-    Plotly.newPlot('chartTiempoAlumno', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
 // Chart 3: Actividades completadas por clase - Barras apiladas
-// go.Bar (stack)
 // ============================================
-function initChartActividadesClase() {
-    const completed = [18, 15, 12, 10, 8];
-    const inProgress = [4, 6, 7, 8, 6];
-    const notStarted = [2, 3, 5, 6, 10];
+async function initChartActividadesClase() {
+    const chartId = 'chartActividadesClase';
+    showLoading(chartId);
+
+    const apiData = await fetchActivitiesByClass();
+    if (!apiData) {
+        showError(chartId, 'Error al cargar actividades');
+        return;
+    }
+
+    const { activities, completed, in_progress, not_started } = apiData;
+
+    if (!activities || activities.length === 0) {
+        showEmpty(chartId, 'No hay actividades disponibles');
+        return;
+    }
 
     const data = [
         {
-            x: ACTIVITIES,
+            x: activities,
             y: completed,
             type: 'bar',
             name: 'Completadas',
@@ -209,16 +451,16 @@ function initChartActividadesClase() {
             hovertemplate: '<b>%{x}</b><br>Completadas: %{y} alumnos<extra></extra>'
         },
         {
-            x: ACTIVITIES,
-            y: inProgress,
+            x: activities,
+            y: in_progress,
             type: 'bar',
             name: 'En Progreso',
             marker: { color: COLORS.lime },
             hovertemplate: '<b>%{x}</b><br>En Progreso: %{y} alumnos<extra></extra>'
         },
         {
-            x: ACTIVITIES,
-            y: notStarted,
+            x: activities,
+            y: not_started,
             type: 'bar',
             name: 'Sin Empezar',
             marker: { color: COLORS.yellow },
@@ -242,142 +484,111 @@ function initChartActividadesClase() {
         }
     };
 
-    Plotly.newPlot('chartActividadesClase', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
 // Chart 4: Evolución de la clase - Línea
-// go.Scatter(lines)
 // ============================================
-function initChartEvolucionClase() {
-    const dates = [];
-    const today = new Date();
-    for (let i = 13; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-        dates.push(date.toISOString().split('T')[0]);
+async function initChartEvolucionClase() {
+    const chartId = 'chartEvolucionClase';
+    showLoading(chartId);
+
+    const apiData = await fetchClassEvolution();
+    if (!apiData) {
+        showError(chartId, 'Error al cargar evolución de clase');
+        return;
     }
 
-    // Simulated progress evolution (trending upward)
-    const progressData = [42, 45, 48, 51, 53, 55, 58, 60, 62, 64, 65, 66, 67, 68];
-    // Simulated grade evolution
-    const gradeData = [6.2, 6.4, 6.5, 6.6, 6.8, 6.9, 7.0, 7.1, 7.0, 7.2, 7.3, 7.3, 7.4, 7.4];
-    // Normalize grade to percentage scale for dual axis
-    const gradeNormalized = gradeData.map(g => g * 10);
+    const { dates, progress, grades } = apiData;
+
+    if (!dates || dates.length === 0) {
+        showEmpty(chartId, 'No hay datos de evolución disponibles');
+        return;
+    }
+
+    // Normalize grades to percentage scale for dual axis
+    const gradesNormalized = grades.map(g => g * 10);
 
     const data = [
         {
             x: dates,
-            y: progressData,
+            y: progress,
             type: 'scatter',
-            mode: 'lines',
+            mode: 'lines+markers',
             name: 'Progreso (%)',
-            line: {
-                color: COLORS.olive,
-                width: 3,
-                shape: 'spline'
-            },
-            fill: 'tozeroy',
-            fillcolor: 'rgba(107, 142, 58, 0.1)',
-            hovertemplate: '<b>Progreso</b><br>%{x}<br>%{y}%<extra></extra>'
+            line: { color: COLORS.olive, width: 3 },
+            marker: { size: 6, color: COLORS.olive },
+            hovertemplate: '<b>Progreso</b><br>%{x}<br>%{y:.1f}%<extra></extra>'
         },
         {
             x: dates,
-            y: gradeNormalized,
+            y: gradesNormalized,
             type: 'scatter',
             mode: 'lines+markers',
-            name: 'Nota Media (×10)',
-            line: {
-                color: COLORS.lime,
-                width: 2,
-                dash: 'dot'
-            },
-            marker: {
-                size: 6,
-                color: COLORS.lime
-            },
+            name: 'Nota Media',
             yaxis: 'y2',
-            hovertemplate: '<b>Nota Media</b><br>%{x}<br>%{customdata:.1f}<extra></extra>',
-            customdata: gradeData
+            line: { color: COLORS.brown, width: 3, dash: 'dot' },
+            marker: { size: 6, color: COLORS.brown, symbol: 'square' },
+            hovertemplate: '<b>Nota Media</b><br>%{x}<br>' + grades.map(g => g.toFixed(1)).join(',') + '<extra></extra>',
+            customdata: grades,
+            hovertemplate: '<b>Nota Media</b><br>%{x}<br>%{customdata:.1f}/10<extra></extra>'
         }
     ];
 
     const layout = {
         ...commonLayout,
-        margin: { t: 20, r: 60, b: 50, l: 60 },
+        margin: { t: 20, r: 60, b: 60, l: 60 },
         showlegend: false,
-        xaxis: {
-            ...commonLayout.xaxis,
-            tickformat: '%d %b'
-        },
         yaxis: {
             ...commonLayout.yaxis,
-            title: { text: 'Progreso (%)', font: { size: 11, color: COLORS.olive } },
+            title: { text: 'Progreso (%)', font: { size: 12 }, standoff: 10 },
             range: [0, 100]
         },
         yaxis2: {
-            title: { text: 'Nota Media', font: { size: 11, color: COLORS.lime } },
+            title: { text: 'Nota (0-10)', font: { size: 12 }, standoff: 10 },
             overlaying: 'y',
             side: 'right',
             range: [0, 100],
+            showgrid: false,
             tickvals: [0, 25, 50, 75, 100],
-            ticktext: ['0', '2.5', '5', '7.5', '10'],
-            gridcolor: 'rgba(0,0,0,0)',
-            tickfont: { size: 11, color: COLORS.lime }
+            ticktext: ['0', '2.5', '5', '7.5', '10']
+        },
+        xaxis: {
+            ...commonLayout.xaxis,
+            tickangle: -45,
+            tickformat: '%d %b'
         }
     };
 
-    Plotly.newPlot('chartEvolucionClase', data, layout, commonConfig);
+    // Clear loading spinner before rendering
+    const container = document.getElementById(chartId);
+    if (container) container.innerHTML = '';
+
+    Plotly.newPlot(chartId, data, layout, commonConfig);
 }
 
 // ============================================
-// Filter Functionality
+// Update Summary Cards
 // ============================================
-function initFilters() {
-    const applyBtn = document.getElementById('applyFilters');
-    const filterClase = document.getElementById('filterClase');
-    const filterFechas = document.getElementById('filterFechas');
-    const filterActividad = document.getElementById('filterActividad');
-
-    if (applyBtn) {
-        applyBtn.addEventListener('click', () => {
-            console.log('Filters applied:', {
-                clase: filterClase?.value,
-                fechas: filterFechas?.value,
-                actividad: filterActividad?.value
-            });
-
-            // Reinitialize charts with new filter values
-            initChartProgresoAlumno();
-            initChartTiempoAlumno();
-            initChartActividadesClase();
-            initChartEvolucionClase();
-
-            // Show feedback
-            applyBtn.textContent = '✓ Aplicado';
-            setTimeout(() => {
-                applyBtn.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    Aplicar
-                `;
-            }, 1500);
-        });
-    }
-}
-
-// ============================================
-// Animate Summary Values
-// ============================================
-function animateValue(element, start, end, duration, suffix = '') {
+function animateValue(element, start, end, duration, suffix = '', isFloat = false) {
     const startTime = performance.now();
 
     function update(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
-        const current = Math.floor(start + (end - start) * eased);
+
+        let current;
+        if (isFloat) {
+            current = (start + (end - start) * eased).toFixed(1);
+        } else {
+            current = Math.floor(start + (end - start) * eased);
+        }
 
         if (element) {
             element.textContent = current + suffix;
@@ -391,28 +602,92 @@ function animateValue(element, start, end, duration, suffix = '') {
     requestAnimationFrame(update);
 }
 
-function animateSummaryCards() {
+async function updateSummaryCards() {
+    const summary = await fetchSummary();
+    if (!summary) return;
+
     const alumnosEl = document.getElementById('alumnosValue');
-    if (alumnosEl) animateValue(alumnosEl, 0, 24, 1000);
+    if (alumnosEl) animateValue(alumnosEl, 0, summary.total_alumnos, 1200);
 
     const progresoEl = document.getElementById('progresoValue');
-    if (progresoEl) animateValue(progresoEl, 0, 68, 1200, '%');
+    if (progresoEl) animateValue(progresoEl, 0, summary.progreso_medio, 1300, '%', true);
 
     const tiempoEl = document.getElementById('tiempoValue');
-    if (tiempoEl) animateValue(tiempoEl, 0, 32, 1100, ' min');
+    if (tiempoEl) animateValue(tiempoEl, 0, summary.tiempo_promedio, 1400, ' min');
 
     const notaEl = document.getElementById('notaValue');
-    if (notaEl) {
-        const startTime = performance.now();
-        function update(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / 1300, 1);
-            const eased = 1 - Math.pow(1 - progress, 3);
-            const current = (7.4 * eased).toFixed(1);
-            notaEl.textContent = current;
-            if (progress < 1) requestAnimationFrame(update);
+    if (notaEl) animateValue(notaEl, 0, summary.nota_media, 1500, '', true);
+
+    // Update class name in the summary
+    const trendEl = document.querySelector('#alumnosValue').parentElement.querySelector('.summary-trend');
+    if (trendEl) {
+        trendEl.textContent = summary.clase_nombre;
+        trendEl.classList.remove('positive', 'negative');
+        trendEl.classList.add('neutral');
+    }
+}
+
+// ============================================
+// Filter Functionality
+// ============================================
+async function initFilters() {
+    // Load classes for dropdown
+    const classes = await fetchClasses();
+    const claseSelect = document.getElementById('filterClase');
+
+    if (claseSelect && classes.length > 0) {
+        // Clear existing options
+        claseSelect.innerHTML = '<option value="">Todas las clases</option>';
+
+        // Add classes
+        classes.forEach(clase => {
+            const option = document.createElement('option');
+            option.value = clase.id;
+            option.textContent = clase.nombre;
+            claseSelect.appendChild(option);
+        });
+
+        // Set first class as default
+        if (classes.length > 0) {
+            claseSelect.value = classes[0].id;
+            currentFilters.claseId = classes[0].id;
         }
-        requestAnimationFrame(update);
+    }
+
+    // Apply filters button
+    const applyBtn = document.getElementById('applyFilters');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', async () => {
+            const claseSelect = document.getElementById('filterClase');
+            const fechasSelect = document.getElementById('filterFechas');
+
+            if (claseSelect) {
+                currentFilters.claseId = claseSelect.value || null;
+            }
+
+            if (fechasSelect) {
+                const value = fechasSelect.value;
+                const daysMap = {
+                    '7d': 7,
+                    '14d': 14,
+                    '30d': 30,
+                    'trimestre': 90,
+                    'curso': 365
+                };
+                currentFilters.days = daysMap[value] || 7;
+            }
+
+            console.log('Applying filters:', currentFilters);
+
+            // Reload all charts and summary
+            await Promise.all([
+                updateSummaryCards(),
+                initChartProgresoAlumno(),
+                initChartTiempoAlumno(),
+                initChartActividadesClase(),
+                initChartEvolucionClase()
+            ]);
+        });
     }
 }
 
@@ -442,34 +717,67 @@ function debounce(func, wait) {
 }
 
 // ============================================
-// Initialize Progress Bars
+// Navbar Mobile Menu Toggle
 // ============================================
-function initProgressBars() {
-    const progressBars = document.querySelectorAll('.progress-fill[data-progress]');
-    progressBars.forEach(bar => {
-        const progress = bar.getAttribute('data-progress');
-        bar.style.width = `${progress}%`;
+const navbarToggle = document.getElementById('navbarToggle');
+const navbarMenu = document.getElementById('navbarMenu');
+
+if (navbarToggle && navbarMenu) {
+    navbarToggle.addEventListener('click', () => {
+        navbarMenu.classList.toggle('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('.navbar')) {
+            navbarMenu.classList.remove('active');
+        }
     });
 }
 
 // ============================================
 // Initialize
 // ============================================
-function init() {
+async function init() {
+    // Check authentication first
+    if (!checkAuthentication()) {
+        return; // Will redirect to login
+    }
+
     console.log('Dashboard Teacher page initialized');
 
+    // Set up logout button
+    const logoutButton = document.querySelector('.navbar-logout');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            handleLogout();
+        });
+    }
+
+    // Display user name in navbar
+    const userName = localStorage.getItem('userName');
+    const userNameEl = document.querySelector('.navbar-user-name');
+    if (userNameEl && userName) {
+        userNameEl.textContent = `Prof. ${userName}`;
+    }
+
+    // Initialize filters first
+    await initFilters();
+
+    // Load all data
     if (typeof Plotly !== 'undefined') {
-        initChartProgresoAlumno();
-        initChartTiempoAlumno();
-        initChartActividadesClase();
-        initChartEvolucionClase();
+        await Promise.all([
+            updateSummaryCards(),
+            initChartProgresoAlumno(),
+            initChartTiempoAlumno(),
+            initChartActividadesClase(),
+            initChartEvolucionClase()
+        ]);
     } else {
         console.error('Plotly is not loaded');
     }
 
-    initFilters();
-    initProgressBars();
-    animateSummaryCards();
     window.addEventListener('resize', debounce(handleResize, 250));
 }
 

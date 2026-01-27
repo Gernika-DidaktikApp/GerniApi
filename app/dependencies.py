@@ -7,7 +7,8 @@ from typing import Dict
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
-from jose import JWTError, jwt
+import jwt
+from jwt.exceptions import InvalidTokenError
 
 from app.config import settings
 from app.database import get_db
@@ -77,5 +78,5 @@ def get_current_user_from_token(
             "type": "usuario"
         }
 
-    except JWTError:
+    except InvalidTokenError:
         raise credentials_exception

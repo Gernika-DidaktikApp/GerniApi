@@ -167,3 +167,47 @@ class UsuarioResponse(BaseModel):
             ]
         },
     }
+
+
+class UsuarioStatsResponse(BaseModel):
+    """Estadísticas detalladas del usuario para la app móvil"""
+
+    actividades_completadas: int = Field(
+        ...,
+        description="Número total de sub-actividades (eventos) completadas",
+        example=12,
+    )
+    racha_dias: int = Field(
+        ...,
+        description="Días consecutivos que el usuario ha jugado (desde hoy hacia atrás)",
+        example=5,
+    )
+    modulos_completados: list[str] = Field(
+        ...,
+        description="Lista de nombres de módulos/actividades que ha completado al menos una vez",
+        example=["Árbol del Gernika", "Museo de la Paz"],
+    )
+    ultima_partida: Optional[datetime] = Field(
+        None,
+        description="Fecha y hora de la última partida jugada",
+        example="2024-01-20T15:30:00",
+    )
+    total_puntos_acumulados: float = Field(
+        ...,
+        description="Suma total de todos los puntos obtenidos en actividades completadas",
+        example=1850.5,
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "actividades_completadas": 12,
+                    "racha_dias": 5,
+                    "modulos_completados": ["Árbol del Gernika", "Museo de la Paz", "Plaza"],
+                    "ultima_partida": "2024-01-20T15:30:00",
+                    "total_puntos_acumulados": 1850.5,
+                }
+            ]
+        }
+    }

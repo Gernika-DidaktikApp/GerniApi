@@ -1,14 +1,19 @@
 import uuid
 from typing import List
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
+from sqlalchemy import func, and_
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.logging import log_db_operation, log_warning
 from app.models.clase import Clase
 from app.models.usuario import Usuario
-from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioUpdate
+from app.models.juego import Partida
+from app.models.evento_estado import EventoEstado
+from app.models.actividad import Actividad
+from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioUpdate, UsuarioStatsResponse
 from app.utils.dependencies import (
     AuthResult,
     require_api_key_only,
@@ -216,3 +221,123 @@ def eliminar_usuario(usuario_id: str, db: Session = Depends(get_db)):
     db.commit()
 
     log_db_operation("DELETE", "usuario", usuario_id)
+
+
+@router.get(
+    "/{usuario_id}/estadisticas",
+    response_model=UsuarioStatsResponse,
+    summary="Obtener estadísticas del usuario",
+    description="Obtiene estadísticas detalladas para el perfil del usuario en la app móvil",
+)
+def obtener_estadisticas_usuario(
+    usuario_id: str = Path(..., description="ID único del usuario (UUID)"),
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth),
+):
+    """
+    ## Obtener Estadísticas del Usuario
+
+    Retorna estadísticas detalladas del usuario para mostrar en el perfil de la app móvil.
+
+    ### Información Incluida
+    - **actividades_completadas**: Número de sub-actividades (eventos) completadas
+    - **racha_dias**: Días consecutivos de juego (desde hoy hacia atrás)
+    - **modulos_completados**: Lista de módulos/actividades completadas
+    - **ultima_partida**: Fecha de la última partida jugada
+    - **total_puntos_acumulados**: Suma de todos los puntos obtenidos
+
+    ### Autenticación
+    - Con API Key: Puede ver estadísticas de cualquier usuario
+    - Con Token: Solo puede ver sus propias estadísticas
+
+    ### Errores
+    - **404**: Si el usuario no existe
+    - **403**: Si intenta acceder a estadísticas de otro usuario con Token
+    """
+    # Verificar que el usuario existe
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+
+    # Validar ownership
+    validate_user_ownership(auth, usuario_id)
+
+    # 1. Actividades completadas (contar eventos completados)
+    actividades_completadas = (
+        db.query(func.count(EventoEstado.id))
+        .join(Partida, EventoEstado.id_juego == Partida.id)
+        .filter(
+            and_(
+                Partida.id_usuario == usuario_id,
+                EventoEstado.estado == "completado"
+            )
+        )
+        .scalar() or 0
+    )
+
+    # 2. Racha de días consecutivos
+    # Obtener todas las fechas distintas donde el usuario jugó (ordenadas DESC)
+    fechas_juego = (
+        db.query(func.date(Partida.fecha_inicio))
+        .filter(Partida.id_usuario == usuario_id)
+        .distinct()
+        .order_by(func.date(Partida.fecha_inicio).desc())
+        .all()
+    )
+
+    racha_dias = 0
+    if fechas_juego:
+        hoy = datetime.now().date()
+        fechas_set = {fecha[0] for fecha in fechas_juego}
+
+        # Calcular racha desde hoy hacia atrás
+        fecha_actual = hoy
+        while fecha_actual in fechas_set:
+            racha_dias += 1
+            fecha_actual -= timedelta(days=1)
+
+    # 3. Módulos completados (actividades con al menos 1 evento completado)
+    modulos_completados_query = (
+        db.query(Actividad.nombre)
+        .join(EventoEstado, Actividad.id == EventoEstado.id_actividad)
+        .join(Partida, EventoEstado.id_juego == Partida.id)
+        .filter(
+            and_(
+                Partida.id_usuario == usuario_id,
+                EventoEstado.estado == "completado"
+            )
+        )
+        .distinct()
+        .all()
+    )
+    modulos_completados = [modulo[0] for modulo in modulos_completados_query]
+
+    # 4. Última partida
+    ultima_partida_obj = (
+        db.query(Partida.fecha_inicio)
+        .filter(Partida.id_usuario == usuario_id)
+        .order_by(Partida.fecha_inicio.desc())
+        .first()
+    )
+    ultima_partida = ultima_partida_obj[0] if ultima_partida_obj else None
+
+    # 5. Total puntos acumulados
+    total_puntos = (
+        db.query(func.sum(EventoEstado.puntuacion))
+        .join(Partida, EventoEstado.id_juego == Partida.id)
+        .filter(
+            and_(
+                Partida.id_usuario == usuario_id,
+                EventoEstado.puntuacion.isnot(None)
+            )
+        )
+        .scalar() or 0.0
+    )
+
+    return UsuarioStatsResponse(
+        actividades_completadas=actividades_completadas,
+        racha_dias=racha_dias,
+        modulos_completados=modulos_completados,
+        ultima_partida=ultima_partida,
+        total_puntos_acumulados=float(total_puntos)
+    )

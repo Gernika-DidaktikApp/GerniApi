@@ -47,6 +47,7 @@ La API utiliza un sistema de autenticación dual:
 | POST | `/api/v1/usuarios` | Registrar usuario | 🔓 |
 | GET | `/api/v1/usuarios` | Listar usuarios | 🔑 |
 | GET | `/api/v1/usuarios/{id}` | Obtener usuario | 🔑🎫 |
+| GET | `/api/v1/usuarios/{id}/estadisticas` | Obtener estadísticas del usuario | 🔑🎫 |
 | PUT | `/api/v1/usuarios/{id}` | Actualizar usuario | 🔑🎫 |
 | DELETE | `/api/v1/usuarios/{id}` | Eliminar usuario | 🔑 |
 
@@ -506,6 +507,97 @@ Obtiene un usuario por ID. **Requiere API Key o Token.**
 
 - Con API Key: Puede ver cualquier usuario
 - Con Token: Solo puede ver su propio perfil
+
+---
+
+### GET `/api/v1/usuarios/{usuario_id}/estadisticas`
+
+Obtiene estadísticas detalladas del usuario para mostrar en el perfil de la app móvil. **Requiere API Key o Token.**
+
+- Con API Key: Puede ver estadísticas de cualquier usuario
+- Con Token: Solo puede ver sus propias estadísticas
+
+#### Response
+
+**Status: 200 OK**
+```json
+{
+  "actividades_completadas": 12,
+  "racha_dias": 5,
+  "modulos_completados": [
+    "Árbol del Gernika",
+    "Museo de la Paz",
+    "Plaza"
+  ],
+  "ultima_partida": "2026-01-20T15:30:00",
+  "total_puntos_acumulados": 1850.5
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `actividades_completadas` | int | Número de sub-actividades (eventos) completadas |
+| `racha_dias` | int | Días consecutivos de juego (desde hoy hacia atrás) |
+| `modulos_completados` | string[] | Nombres de módulos/actividades completadas |
+| `ultima_partida` | datetime? | Fecha de la última partida jugada (null si no ha jugado) |
+| `total_puntos_acumulados` | float | Suma de todos los puntos obtenidos |
+
+#### Ejemplos
+
+**curl con API Key:**
+```bash
+curl -X GET "https://tu-api.up.railway.app/api/v1/usuarios/{usuario_id}/estadisticas" \
+  -H "X-API-Key: <tu_api_key>"
+```
+
+**curl con Token (usuario autenticado):**
+```bash
+curl -X GET "https://tu-api.up.railway.app/api/v1/usuarios/{usuario_id}/estadisticas" \
+  -H "Authorization: Bearer <token_jwt>"
+```
+
+**Kotlin/Android (con Token JWT):**
+```kotlin
+// En tu ApiService
+@GET("api/v1/usuarios/{usuario_id}/estadisticas")
+suspend fun obtenerEstadisticasUsuario(
+    @Path("usuario_id") usuarioId: String,
+    @Header("Authorization") token: String
+): UsuarioStatsResponse
+
+// Uso en ProfileActivity
+val stats = apiService.obtenerEstadisticasUsuario(
+    usuarioId = userId,
+    token = "Bearer $authToken"
+)
+
+// Actualizar UI
+tvActivitiesCompleted.text = stats.actividadesCompletadas.toString()
+tvStreak.text = stats.rachaDias.toString()
+
+// Desbloquear logros por módulo
+stats.modulosCompletados.forEach { modulo ->
+    when (modulo) {
+        "Árbol del Gernika" -> unlockAchievement(ivArbol)
+        "Museo de la Paz" -> unlockAchievement(ivBunkers)
+        "Plaza" -> unlockAchievement(ivPlaza)
+        // etc...
+    }
+}
+```
+
+**JavaScript/Fetch:**
+```javascript
+const response = await fetch(`${baseUrl}/api/v1/usuarios/${userId}/estadisticas`, {
+  headers: {
+    'Authorization': `Bearer ${authToken}`
+  }
+});
+
+const stats = await response.json();
+console.log('Actividades completadas:', stats.actividades_completadas);
+console.log('Racha de días:', stats.racha_dias);
+```
 
 ---
 

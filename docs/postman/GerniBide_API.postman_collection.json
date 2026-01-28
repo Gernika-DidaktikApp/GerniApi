@@ -1,0 +1,1743 @@
+{
+  "info": {
+    "name": "GerniBide API",
+    "description": "Colección completa de endpoints para la API GerniBide - Sistema de gestión de aprendizaje con FastAPI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Autenticación",
+      "item": [
+        {
+          "name": "Login Usuario (App)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"usuario_test\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login-app",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login-app"]
+            },
+            "description": "Autenticación de usuarios de la aplicación. Retorna token JWT válido por 30 minutos."
+          },
+          "response": []
+        },
+        {
+          "name": "Login Profesor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"profesor_test\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login-profesor",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "auth", "login-profesor"]
+            },
+            "description": "Autenticación de profesores. Retorna token JWT válido por 30 minutos."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Crear Usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nuevo_usuario\",\n  \"nombre\": \"Nombre\",\n  \"apellido\": \"Apellido\",\n  \"password\": \"password123\",\n  \"id_clase\": \"uuid-clase-opcional\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/usuarios",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "usuarios"]
+            },
+            "description": "Registro público de nuevos usuarios. id_clase es opcional."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "description": "Requiere API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/usuarios?skip=0&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "usuarios"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Listar todos los usuarios (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/usuarios/:usuario_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "usuarios", ":usuario_id"],
+              "variable": [
+                {
+                  "key": "usuario_id",
+                  "value": "uuid-del-usuario"
+                }
+              ]
+            },
+            "description": "Obtener usuario por ID. Con token solo puede acceder a su propio perfil."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nuevo_username\",\n  \"nombre\": \"Nuevo Nombre\",\n  \"apellido\": \"Nuevo Apellido\",\n  \"password\": \"nuevo_password\",\n  \"id_clase\": \"uuid-nueva-clase\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/usuarios/:usuario_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "usuarios", ":usuario_id"],
+              "variable": [
+                {
+                  "key": "usuario_id",
+                  "value": "uuid-del-usuario"
+                }
+              ]
+            },
+            "description": "Actualizar usuario. Con token solo puede actualizar su propio perfil. Todos los campos son opcionales."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}",
+                "description": "Requiere API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/usuarios/:usuario_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "usuarios", ":usuario_id"],
+              "variable": [
+                {
+                  "key": "usuario_id",
+                  "value": "uuid-del-usuario"
+                }
+              ]
+            },
+            "description": "Eliminar usuario (solo API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Estadísticas del Usuario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/usuarios/:usuario_id/estadisticas",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "usuarios", ":usuario_id", "estadisticas"],
+              "variable": [
+                {
+                  "key": "usuario_id",
+                  "value": "uuid-del-usuario"
+                }
+              ]
+            },
+            "description": "Obtener estadísticas del usuario: actividades completadas, racha, módulos, última partida, puntos."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profesores",
+      "item": [
+        {
+          "name": "Crear Profesor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nuevo_profesor\",\n  \"nombre\": \"Nombre\",\n  \"apellido\": \"Apellido\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/profesores",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "profesores"]
+            },
+            "description": "Crear nuevo profesor (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Profesores",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/profesores?skip=0&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "profesores"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Listar todos los profesores (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Profesor",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/profesores/:profesor_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "profesores", ":profesor_id"],
+              "variable": [
+                {
+                  "key": "profesor_id",
+                  "value": "uuid-del-profesor"
+                }
+              ]
+            },
+            "description": "Obtener profesor por ID (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Profesor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nuevo_username\",\n  \"nombre\": \"Nuevo Nombre\",\n  \"apellido\": \"Nuevo Apellido\",\n  \"password\": \"nuevo_password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/profesores/:profesor_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "profesores", ":profesor_id"],
+              "variable": [
+                {
+                  "key": "profesor_id",
+                  "value": "uuid-del-profesor"
+                }
+              ]
+            },
+            "description": "Actualizar profesor (requiere API Key). Todos los campos son opcionales."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Profesor",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/profesores/:profesor_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "profesores", ":profesor_id"],
+              "variable": [
+                {
+                  "key": "profesor_id",
+                  "value": "uuid-del-profesor"
+                }
+              ]
+            },
+            "description": "Eliminar profesor (requiere API Key)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Clases",
+      "item": [
+        {
+          "name": "Crear Clase",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Clase de Matemáticas\",\n  \"id_profesor\": \"uuid-del-profesor\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/clases",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "clases"]
+            },
+            "description": "Crear nueva clase (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Clases",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/clases?skip=0&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "clases"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Listar todas las clases (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Clase",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/clases/:clase_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "clases", ":clase_id"],
+              "variable": [
+                {
+                  "key": "clase_id",
+                  "value": "uuid-de-la-clase"
+                }
+              ]
+            },
+            "description": "Obtener clase por ID (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Clase",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nuevo Nombre de Clase\",\n  \"id_profesor\": \"uuid-nuevo-profesor\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/clases/:clase_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "clases", ":clase_id"],
+              "variable": [
+                {
+                  "key": "clase_id",
+                  "value": "uuid-de-la-clase"
+                }
+              ]
+            },
+            "description": "Actualizar clase (requiere API Key). Todos los campos son opcionales."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Clase",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/clases/:clase_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "clases", ":clase_id"],
+              "variable": [
+                {
+                  "key": "clase_id",
+                  "value": "uuid-de-la-clase"
+                }
+              ]
+            },
+            "description": "Eliminar clase (requiere API Key)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Actividades",
+      "item": [
+        {
+          "name": "Crear Actividad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Actividad de Álgebra\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/actividades",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "actividades"]
+            },
+            "description": "Crear nueva actividad (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Actividades",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/actividades?skip=0&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "actividades"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Listar todas las actividades (requiere autenticación)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Actividad",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/actividades/:actividad_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "actividades", ":actividad_id"],
+              "variable": [
+                {
+                  "key": "actividad_id",
+                  "value": "uuid-de-la-actividad"
+                }
+              ]
+            },
+            "description": "Obtener actividad por ID (requiere autenticación)."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Actividad",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nuevo Nombre de Actividad\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/actividades/:actividad_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "actividades", ":actividad_id"],
+              "variable": [
+                {
+                  "key": "actividad_id",
+                  "value": "uuid-de-la-actividad"
+                }
+              ]
+            },
+            "description": "Actualizar actividad (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Actividad",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/actividades/:actividad_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "actividades", ":actividad_id"],
+              "variable": [
+                {
+                  "key": "actividad_id",
+                  "value": "uuid-de-la-actividad"
+                }
+              ]
+            },
+            "description": "Eliminar actividad (requiere API Key)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Eventos",
+      "item": [
+        {
+          "name": "Crear Evento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Evento 1\",\n  \"id_actividad\": \"uuid-de-la-actividad\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/eventos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "eventos"]
+            },
+            "description": "Crear nuevo evento (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Eventos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/eventos?skip=0&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "eventos"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Listar todos los eventos (requiere autenticación)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Evento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/eventos/:evento_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "eventos", ":evento_id"],
+              "variable": [
+                {
+                  "key": "evento_id",
+                  "value": "uuid-del-evento"
+                }
+              ]
+            },
+            "description": "Obtener evento por ID (requiere autenticación)."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Evento",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nuevo Nombre del Evento\",\n  \"id_actividad\": \"uuid-nueva-actividad\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/eventos/:evento_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "eventos", ":evento_id"],
+              "variable": [
+                {
+                  "key": "evento_id",
+                  "value": "uuid-del-evento"
+                }
+              ]
+            },
+            "description": "Actualizar evento (requiere API Key). Todos los campos son opcionales."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Evento",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/eventos/:evento_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "eventos", ":evento_id"],
+              "variable": [
+                {
+                  "key": "evento_id",
+                  "value": "uuid-del-evento"
+                }
+              ]
+            },
+            "description": "Eliminar evento (requiere API Key)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Partidas",
+      "item": [
+        {
+          "name": "Crear Partida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": \"uuid-del-usuario\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/partidas",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "partidas"]
+            },
+            "description": "Crear nueva partida. Con token solo puede crear partidas para sí mismo."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Partidas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/partidas?skip=0&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "partidas"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Listar todas las partidas (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Partida",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/partidas/:partida_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "partidas", ":partida_id"],
+              "variable": [
+                {
+                  "key": "partida_id",
+                  "value": "uuid-de-la-partida"
+                }
+              ]
+            },
+            "description": "Obtener partida por ID. Con token solo puede acceder a sus propias partidas."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Partida",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_usuario\": \"uuid-del-usuario\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/partidas/:partida_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "partidas", ":partida_id"],
+              "variable": [
+                {
+                  "key": "partida_id",
+                  "value": "uuid-de-la-partida"
+                }
+              ]
+            },
+            "description": "Actualizar partida. Con token solo puede actualizar sus propias partidas."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Partida",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/partidas/:partida_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "partidas", ":partida_id"],
+              "variable": [
+                {
+                  "key": "partida_id",
+                  "value": "uuid-de-la-partida"
+                }
+              ]
+            },
+            "description": "Eliminar partida (requiere API Key)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Estados de Eventos",
+      "item": [
+        {
+          "name": "Iniciar Evento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_juego\": \"uuid-de-la-partida\",\n  \"id_actividad\": \"uuid-de-la-actividad\",\n  \"id_evento\": \"uuid-del-evento\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/evento-estados/iniciar",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "evento-estados", "iniciar"]
+            },
+            "description": "Iniciar un evento (marca estado como 'en_progreso'). Con token solo para sus propias partidas."
+          },
+          "response": []
+        },
+        {
+          "name": "Completar Evento",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"puntuacion\": 85.5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/evento-estados/:estado_id/completar",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "evento-estados", ":estado_id", "completar"],
+              "variable": [
+                {
+                  "key": "estado_id",
+                  "value": "uuid-del-estado"
+                }
+              ]
+            },
+            "description": "Completar evento y registrar puntuación. Calcula automáticamente la duración."
+          },
+          "response": []
+        },
+        {
+          "name": "Resumen de Actividad",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/evento-estados/actividad/:id_juego/:id_actividad/resumen",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "evento-estados", "actividad", ":id_juego", ":id_actividad", "resumen"],
+              "variable": [
+                {
+                  "key": "id_juego",
+                  "value": "uuid-de-la-partida"
+                },
+                {
+                  "key": "id_actividad",
+                  "value": "uuid-de-la-actividad"
+                }
+              ]
+            },
+            "description": "Obtener resumen calculado de una actividad: eventos totales, completados, en progreso, puntuación y duración."
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Estado de Evento",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_juego\": \"uuid-de-la-partida\",\n  \"id_actividad\": \"uuid-de-la-actividad\",\n  \"id_evento\": \"uuid-del-evento\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/evento-estados",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "evento-estados"]
+            },
+            "description": "Crear estado de evento manual. Con token solo para sus propias partidas."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Estados de Evento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/evento-estados?skip=0&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "evento-estados"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Listar todos los estados de evento (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Estado de Evento",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/evento-estados/:estado_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "evento-estados", ":estado_id"],
+              "variable": [
+                {
+                  "key": "estado_id",
+                  "value": "uuid-del-estado"
+                }
+              ]
+            },
+            "description": "Obtener estado de evento por ID. Con token solo para sus propias partidas."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Estado de Evento",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_juego\": \"uuid-de-la-partida\",\n  \"id_actividad\": \"uuid-de-la-actividad\",\n  \"id_evento\": \"uuid-del-evento\",\n  \"estado\": \"completado\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/evento-estados/:estado_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "evento-estados", ":estado_id"],
+              "variable": [
+                {
+                  "key": "estado_id",
+                  "value": "uuid-del-estado"
+                }
+              ]
+            },
+            "description": "Actualizar estado de evento. Con token solo para sus propias partidas."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Estado de Evento",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/evento-estados/:estado_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "evento-estados", ":estado_id"],
+              "variable": [
+                {
+                  "key": "estado_id",
+                  "value": "uuid-del-estado"
+                }
+              ]
+            },
+            "description": "Eliminar estado de evento (requiere API Key)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Estadísticas - Usuarios",
+      "item": [
+        {
+          "name": "Resumen de Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/users/summary",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "users", "summary"]
+            },
+            "description": "Resumen de estadísticas de usuarios: DAU, nuevos usuarios hoy, ratio activos/totales, logins hoy."
+          },
+          "response": []
+        },
+        {
+          "name": "Línea Temporal de Usuarios Activos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/users/active-timeline?days=30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "users", "active-timeline"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30",
+                  "description": "1-365 días"
+                }
+              ]
+            },
+            "description": "DAU, WAU y MAU por día en los últimos N días."
+          },
+          "response": []
+        },
+        {
+          "name": "Nuevos Usuarios por Día",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/users/new-by-day?days=30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "users", "new-by-day"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30",
+                  "description": "1-365 días"
+                }
+              ]
+            },
+            "description": "Cantidad de nuevos usuarios registrados cada día."
+          },
+          "response": []
+        },
+        {
+          "name": "Ratio de Usuarios Activos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/users/active-ratio-timeline?days=30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "users", "active-ratio-timeline"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30",
+                  "description": "1-365 días"
+                }
+              ]
+            },
+            "description": "Ratio de usuarios activos vs totales por día."
+          },
+          "response": []
+        },
+        {
+          "name": "Logins por Día",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/users/logins-by-day?days=30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "users", "logins-by-day"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30",
+                  "description": "1-365 días"
+                }
+              ]
+            },
+            "description": "Cantidad de logins realizados cada día."
+          },
+          "response": []
+        },
+        {
+          "name": "Limpiar Caché de Usuarios",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/cache/clear",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "cache", "clear"]
+            },
+            "description": "Limpiar caché de estadísticas de usuarios."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Estadísticas - Gameplay",
+      "item": [
+        {
+          "name": "Resumen de Gameplay",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/gameplay/summary",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "gameplay", "summary"]
+            },
+            "description": "Resumen de estadísticas de juego: total partidas, completadas, en progreso, duración promedio."
+          },
+          "response": []
+        },
+        {
+          "name": "Partidas por Día",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/gameplay/partidas-by-day?days=30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "gameplay", "partidas-by-day"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30",
+                  "description": "1-365 días"
+                }
+              ]
+            },
+            "description": "Cantidad de partidas creadas cada día."
+          },
+          "response": []
+        },
+        {
+          "name": "Partidas por Estado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/gameplay/partidas-by-status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "gameplay", "partidas-by-status"]
+            },
+            "description": "Cantidad de partidas por estado: completadas, abandonadas, en progreso."
+          },
+          "response": []
+        },
+        {
+          "name": "Eventos por Estado (Timeline)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/gameplay/eventos-by-status-timeline?days=30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "gameplay", "eventos-by-status-timeline"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30",
+                  "description": "1-365 días"
+                }
+              ]
+            },
+            "description": "Eventos completados, en progreso y abandonados por día."
+          },
+          "response": []
+        },
+        {
+          "name": "Tasa de Completación por Actividad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/gameplay/completion-rate-by-activity",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "gameplay", "completion-rate-by-activity"]
+            },
+            "description": "Porcentaje de completación de cada actividad."
+          },
+          "response": []
+        },
+        {
+          "name": "Limpiar Caché de Gameplay",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/gameplay/cache/clear",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "gameplay", "cache", "clear"]
+            },
+            "description": "Limpiar caché de estadísticas de gameplay."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Estadísticas - Learning",
+      "item": [
+        {
+          "name": "Resumen de Learning",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/learning/summary",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "learning", "summary"]
+            },
+            "description": "Resumen de estadísticas de aprendizaje: puntuación media, porcentaje aprobados, tiempo medio."
+          },
+          "response": []
+        },
+        {
+          "name": "Puntuación Media por Actividad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/learning/average-score-by-activity",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "learning", "average-score-by-activity"]
+            },
+            "description": "Puntuación promedio obtenida en cada actividad."
+          },
+          "response": []
+        },
+        {
+          "name": "Distribución de Puntuaciones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/learning/score-distribution",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "learning", "score-distribution"]
+            },
+            "description": "Distribución de todas las puntuaciones y media."
+          },
+          "response": []
+        },
+        {
+          "name": "Boxplot de Tiempo por Actividad",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/learning/time-boxplot-by-activity",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "learning", "time-boxplot-by-activity"]
+            },
+            "description": "Datos para boxplot de tiempo dedicado por actividad."
+          },
+          "response": []
+        },
+        {
+          "name": "Limpiar Caché de Learning",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/learning/cache/clear",
+              "host": ["{{base_url}}"],
+              "path": ["api", "statistics", "learning", "cache", "clear"]
+            },
+            "description": "Limpiar caché de estadísticas de learning."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Teacher Dashboard",
+      "item": [
+        {
+          "name": "Obtener Clases del Profesor",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_profesor}}",
+                "description": "Token JWT de profesor"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher/dashboard/classes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher", "dashboard", "classes"]
+            },
+            "description": "Obtener todas las clases asignadas al profesor autenticado."
+          },
+          "response": []
+        },
+        {
+          "name": "Resumen de Clase",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_profesor}}",
+                "description": "Token JWT de profesor"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher/dashboard/summary?clase_id=uuid-clase&days=7",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher", "dashboard", "summary"],
+              "query": [
+                {
+                  "key": "clase_id",
+                  "value": "uuid-clase",
+                  "description": "Opcional: UUID de clase específica"
+                },
+                {
+                  "key": "days",
+                  "value": "7",
+                  "description": "Días a considerar (default: 7)"
+                }
+              ]
+            },
+            "description": "Resumen de la clase: total alumnos, progreso medio, tiempo promedio, nota media."
+          },
+          "response": []
+        },
+        {
+          "name": "Progreso por Estudiante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_profesor}}",
+                "description": "Token JWT de profesor"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher/dashboard/student-progress?clase_id=uuid-clase",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher", "dashboard", "student-progress"],
+              "query": [
+                {
+                  "key": "clase_id",
+                  "value": "uuid-clase",
+                  "description": "Opcional: UUID de clase específica"
+                }
+              ]
+            },
+            "description": "Porcentaje de progreso de cada estudiante en la clase."
+          },
+          "response": []
+        },
+        {
+          "name": "Tiempo por Estudiante",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_profesor}}",
+                "description": "Token JWT de profesor"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher/dashboard/student-time?clase_id=uuid-clase&days=7",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher", "dashboard", "student-time"],
+              "query": [
+                {
+                  "key": "clase_id",
+                  "value": "uuid-clase",
+                  "description": "Opcional: UUID de clase específica"
+                },
+                {
+                  "key": "days",
+                  "value": "7",
+                  "description": "Días a considerar (default: 7)"
+                }
+              ]
+            },
+            "description": "Tiempo total dedicado por cada estudiante en minutos."
+          },
+          "response": []
+        },
+        {
+          "name": "Actividades por Clase",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_profesor}}",
+                "description": "Token JWT de profesor"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher/dashboard/activities-by-class?clase_id=uuid-clase",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher", "dashboard", "activities-by-class"],
+              "query": [
+                {
+                  "key": "clase_id",
+                  "value": "uuid-clase",
+                  "description": "Opcional: UUID de clase específica"
+                }
+              ]
+            },
+            "description": "Estado de actividades: completadas, en progreso, no iniciadas por cada actividad."
+          },
+          "response": []
+        },
+        {
+          "name": "Evolución de la Clase",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_profesor}}",
+                "description": "Token JWT de profesor"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher/dashboard/class-evolution?clase_id=uuid-clase&days=14",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher", "dashboard", "class-evolution"],
+              "query": [
+                {
+                  "key": "clase_id",
+                  "value": "uuid-clase",
+                  "description": "Opcional: UUID de clase específica"
+                },
+                {
+                  "key": "days",
+                  "value": "14",
+                  "description": "Días a considerar (default: 14)"
+                }
+              ]
+            },
+            "description": "Evolución temporal del progreso y notas promedio de la clase."
+          },
+          "response": []
+        },
+        {
+          "name": "Limpiar Caché del Dashboard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_profesor}}",
+                "description": "Token JWT de profesor"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/teacher/dashboard/cache/clear",
+              "host": ["{{base_url}}"],
+              "path": ["api", "teacher", "dashboard", "cache", "clear"]
+            },
+            "description": "Limpiar caché del dashboard del profesor."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health & Info",
+      "item": [
+        {
+          "name": "Root Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Endpoint raíz de la API."
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Verificar estado de salud de la API."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "tu-api-key-aqui",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Token JWT de usuario (obtener desde /api/v1/auth/login-app)"
+    },
+    {
+      "key": "token_profesor",
+      "value": "",
+      "type": "string",
+      "description": "Token JWT de profesor (obtener desde /api/v1/auth/login-profesor)"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 from app.models.actividad import Actividad
+from app.models.audit_log import AuditLog, AuditLogApp, AuditLogWeb
 from app.models.clase import Clase
 from app.models.evento import Eventos
 from app.models.evento_estado import EventoEstado
@@ -16,4 +17,7 @@ __all__ = [
     "Eventos",
     "Sesion",
     "EventoEstado",
+    "AuditLog",
+    "AuditLogWeb",
+    "AuditLogApp",
 ]

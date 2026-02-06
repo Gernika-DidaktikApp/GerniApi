@@ -11,6 +11,7 @@ from app.database import Base, engine
 from app.logging import LoggingMiddleware, logger, register_exception_handlers
 from app.routers import (
     actividades,
+    audit_logs,
     auth,
     clases,
     evento_estados,
@@ -136,6 +137,10 @@ API Key o Token 🎫
             "name": "📊 Estados",
             "description": "🔑🎫 **Mixto** - GET lista/DELETE requieren API Key. Resto permite Token (via su partida)",
         },
+        {
+            "name": "📋 Audit Logs",
+            "description": "🔑🎫 **Mixto** - POST requiere API Key. GET permite Token. Sistema de trazabilidad con herencia y polimorfismo (Web/App)",
+        },
     ],
 )
 
@@ -171,6 +176,7 @@ app.include_router(actividades.router, prefix=settings.API_V1_PREFIX)
 app.include_router(eventos.router, prefix=settings.API_V1_PREFIX)
 app.include_router(partidas.router, prefix=settings.API_V1_PREFIX)
 app.include_router(evento_estados.router, prefix=settings.API_V1_PREFIX)
+app.include_router(audit_logs.router, prefix=settings.API_V1_PREFIX)
 app.include_router(statistics.router)  # Statistics doesn't use API_V1_PREFIX
 app.include_router(gameplay_statistics.router)  # Gameplay statistics doesn't use API_V1_PREFIX
 app.include_router(learning_statistics.router)  # Learning statistics doesn't use API_V1_PREFIX

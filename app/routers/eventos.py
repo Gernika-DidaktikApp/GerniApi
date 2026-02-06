@@ -33,6 +33,7 @@ def crear_evento(evento_data: EventoCreate, db: Session = Depends(get_db)):
         id=str(uuid.uuid4()),
         id_actividad=evento_data.id_actividad,
         nombre=evento_data.nombre,
+        contenido=evento_data.contenido,
     )
 
     db.add(nuevo_evento)

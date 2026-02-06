@@ -392,6 +392,73 @@ def actualizar_evento_estado(
     return estado
 
 
+@router.post("/actividad/{id_juego}/{id_actividad}/reset", status_code=status.HTTP_200_OK)
+def resetear_actividad(
+    id_juego: str,
+    id_actividad: str,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth),
+):
+    """
+    Resetear una actividad para permitir repetirla.
+
+    Elimina todos los evento_estados de la actividad para la partida especificada,
+    permitiendo al usuario volver a iniciar y completar los eventos desde cero.
+
+    - Con API Key: Puede resetear actividades de cualquier partida
+    - Con Token: Solo puede resetear actividades de sus propias partidas
+    """
+    validate_partida_ownership(auth, id_juego, db)
+
+    # Verificar que la actividad existe
+    actividad = db.query(Actividad).filter(Actividad.id == id_actividad).first()
+    if not actividad:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Actividad no encontrada",
+        )
+
+    # Buscar todos los evento_estados de esta actividad para esta partida
+    estados = (
+        db.query(EventoEstado)
+        .filter(
+            EventoEstado.id_juego == id_juego,
+            EventoEstado.id_actividad == id_actividad,
+        )
+        .all()
+    )
+
+    if not estados:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No hay estados de eventos para esta actividad en esta partida",
+        )
+
+    # Contar eventos antes de eliminar
+    total_eliminados = len(estados)
+
+    # Eliminar todos los evento_estados
+    for estado in estados:
+        db.delete(estado)
+
+    db.commit()
+
+    log_with_context(
+        "info",
+        "Actividad reseteada",
+        id_juego=id_juego,
+        id_actividad=id_actividad,
+        estados_eliminados=total_eliminados,
+    )
+
+    return {
+        "mensaje": "Actividad reseteada exitosamente",
+        "id_juego": id_juego,
+        "id_actividad": id_actividad,
+        "eventos_reseteados": total_eliminados,
+    }
+
+
 @router.delete(
     "/{estado_id}",
     status_code=status.HTTP_204_NO_CONTENT,

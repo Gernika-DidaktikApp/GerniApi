@@ -57,6 +57,62 @@ def listar_eventos(
     return eventos
 
 
+@router.get("/imagenes", response_model=List[EventoResponse])
+def listar_eventos_con_imagenes(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth),
+):
+    """
+    Obtener lista de eventos que contienen imágenes (URLs).
+    Requiere API Key o Token de usuario.
+
+    Filtra eventos donde el campo 'contenido' es una URL (comienza con http:// o https://).
+    """
+    eventos = (
+        db.query(Eventos)
+        .filter(
+            Eventos.contenido.isnot(None),
+            Eventos.contenido.op("~")(r"^https?://"),  # Regex: empieza con http:// o https://
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    log_with_context("info", "Eventos con imágenes listados", total=len(eventos))
+    return eventos
+
+
+@router.get("/textos", response_model=List[EventoResponse])
+def listar_eventos_con_textos(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth),
+):
+    """
+    Obtener lista de eventos que contienen textos (no URLs).
+    Requiere API Key o Token de usuario.
+
+    Filtra eventos donde el campo 'contenido' tiene texto pero NO es una URL.
+    """
+    eventos = (
+        db.query(Eventos)
+        .filter(
+            Eventos.contenido.isnot(None),
+            ~Eventos.contenido.op("~")(r"^https?://"),  # Regex negado: NO empieza con http:// o https://
+        )
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    log_with_context("info", "Eventos con textos listados", total=len(eventos))
+    return eventos
+
+
 @router.get("/{evento_id}", response_model=EventoResponse)
 def obtener_evento(
     evento_id: str,

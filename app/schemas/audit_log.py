@@ -27,9 +27,13 @@ class AuditLogWebCreate(AuditLogBase):
 class AuditLogAppCreate(AuditLogBase):
     """Schema para crear un audit log desde la app móvil."""
 
-    device_type: Optional[str] = Field(None, max_length=50, description="Tipo de dispositivo (iOS, Android)")
+    device_type: Optional[str] = Field(
+        None, max_length=50, description="Tipo de dispositivo (iOS, Android)"
+    )
     app_version: Optional[str] = Field(None, max_length=20, description="Versión de la aplicación")
-    device_id: Optional[str] = Field(None, max_length=100, description="Identificador del dispositivo")
+    device_id: Optional[str] = Field(
+        None, max_length=100, description="Identificador del dispositivo"
+    )
 
 
 # Schema de respuesta

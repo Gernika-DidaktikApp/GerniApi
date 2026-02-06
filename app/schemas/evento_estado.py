@@ -19,6 +19,10 @@ class EventoEstadoUpdate(BaseModel):
 
 class EventoEstadoCompletar(BaseModel):
     puntuacion: float = Field(..., description="Puntuación obtenida en el evento")
+    device_type: Optional[str] = Field(
+        None, max_length=50, description="Tipo de dispositivo (iOS, Android)"
+    )
+    app_version: Optional[str] = Field(None, max_length=20, description="Versión de la aplicación")
 
 
 class EventoEstadoResponse(BaseModel):

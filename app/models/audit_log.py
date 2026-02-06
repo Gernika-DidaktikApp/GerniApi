@@ -39,7 +39,9 @@ class AuditLog(Base):
         Polimorfismo: Método base que puede ser sobrescrito por subclases.
         Retorna una descripción legible del evento.
         """
-        usuario = f"Usuario {self.usuario_id}" if self.usuario_id else f"Profesor {self.profesor_id}"
+        usuario = (
+            f"Usuario {self.usuario_id}" if self.usuario_id else f"Profesor {self.profesor_id}"
+        )
         return f"{self.accion} - {usuario} - {self.timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
 
 
@@ -56,7 +58,9 @@ class AuditLogWeb(AuditLog):
         Polimorfismo: Implementación específica para logs web.
         Incluye información del navegador y IP.
         """
-        usuario = f"Usuario {self.usuario_id}" if self.usuario_id else f"Profesor {self.profesor_id}"
+        usuario = (
+            f"Usuario {self.usuario_id}" if self.usuario_id else f"Profesor {self.profesor_id}"
+        )
         browser_info = f"desde {self.browser}" if self.browser else "desde web"
         ip_info = f" ({self.ip_address})" if self.ip_address else ""
         return f"🌐 {self.accion} - {usuario} {browser_info}{ip_info}"
@@ -75,7 +79,9 @@ class AuditLogApp(AuditLog):
         Polimorfismo: Implementación específica para logs de app móvil.
         Incluye información del dispositivo y versión de la app.
         """
-        usuario = f"Usuario {self.usuario_id}" if self.usuario_id else f"Profesor {self.profesor_id}"
+        usuario = (
+            f"Usuario {self.usuario_id}" if self.usuario_id else f"Profesor {self.profesor_id}"
+        )
         device_info = f"desde {self.device_type}" if self.device_type else "desde app"
         version_info = f" v{self.app_version}" if self.app_version else ""
         return f"📱 {self.accion} - {usuario} {device_info}{version_info}"

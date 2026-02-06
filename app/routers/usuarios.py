@@ -1,19 +1,19 @@
 import uuid
-from typing import List
 from datetime import datetime, timedelta
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
-from sqlalchemy import func, and_
+from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.logging import log_db_operation, log_warning
-from app.models.clase import Clase
-from app.models.usuario import Usuario
-from app.models.juego import Partida
-from app.models.evento_estado import EventoEstado
 from app.models.actividad import Actividad
-from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioUpdate, UsuarioStatsResponse
+from app.models.clase import Clase
+from app.models.evento_estado import EventoEstado
+from app.models.juego import Partida
+from app.models.usuario import Usuario
+from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioStatsResponse, UsuarioUpdate
 from app.utils.dependencies import (
     AuthResult,
     require_api_key_only,
@@ -266,13 +266,9 @@ def obtener_estadisticas_usuario(
     actividades_completadas = (
         db.query(func.count(EventoEstado.id))
         .join(Partida, EventoEstado.id_juego == Partida.id)
-        .filter(
-            and_(
-                Partida.id_usuario == usuario_id,
-                EventoEstado.estado == "completado"
-            )
-        )
-        .scalar() or 0
+        .filter(and_(Partida.id_usuario == usuario_id, EventoEstado.estado == "completado"))
+        .scalar()
+        or 0
     )
 
     # 2. Racha de días consecutivos
@@ -301,12 +297,7 @@ def obtener_estadisticas_usuario(
         db.query(Actividad.nombre)
         .join(EventoEstado, Actividad.id == EventoEstado.id_actividad)
         .join(Partida, EventoEstado.id_juego == Partida.id)
-        .filter(
-            and_(
-                Partida.id_usuario == usuario_id,
-                EventoEstado.estado == "completado"
-            )
-        )
+        .filter(and_(Partida.id_usuario == usuario_id, EventoEstado.estado == "completado"))
         .distinct()
         .all()
     )
@@ -325,13 +316,9 @@ def obtener_estadisticas_usuario(
     total_puntos = (
         db.query(func.sum(EventoEstado.puntuacion))
         .join(Partida, EventoEstado.id_juego == Partida.id)
-        .filter(
-            and_(
-                Partida.id_usuario == usuario_id,
-                EventoEstado.puntuacion.isnot(None)
-            )
-        )
-        .scalar() or 0.0
+        .filter(and_(Partida.id_usuario == usuario_id, EventoEstado.puntuacion.isnot(None)))
+        .scalar()
+        or 0.0
     )
 
     return UsuarioStatsResponse(
@@ -339,5 +326,5 @@ def obtener_estadisticas_usuario(
         racha_dias=racha_dias,
         modulos_completados=modulos_completados,
         ultima_partida=ultima_partida,
-        total_puntos_acumulados=float(total_puntos)
+        total_puntos_acumulados=float(total_puntos),
     )

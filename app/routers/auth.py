@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -7,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.database import get_db
 from app.logging import log_auth, log_debug
+from app.models.audit_log import AuditLogWeb
 from app.models.profesor import Profesor
 
 # from app.models.alumno import Alumno  # Comentado - modelo no existe
@@ -41,6 +43,26 @@ router = APIRouter(
         422: {"description": "Error de validación en los datos enviados"},
     },
 )
+
+
+def _extract_browser(user_agent: str | None) -> str | None:
+    """Extrae el nombre del navegador del user-agent"""
+    if not user_agent:
+        return None
+
+    user_agent = user_agent.lower()
+    if "edg" in user_agent:
+        return "Edge"
+    elif "chrome" in user_agent:
+        return "Chrome"
+    elif "safari" in user_agent and "chrome" not in user_agent:
+        return "Safari"
+    elif "firefox" in user_agent:
+        return "Firefox"
+    elif "opera" in user_agent or "opr" in user_agent:
+        return "Opera"
+    else:
+        return "Unknown"
 
 
 @router.post(
@@ -183,7 +205,7 @@ def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depen
                         "profesor_id": "550e8400-e29b-41d4-a716-446655440000",
                         "username": "admin",
                         "nombre": "Profesor",
-                        "apellido": "Admin"
+                        "apellido": "Admin",
                     }
                 }
             },
@@ -232,6 +254,20 @@ def login_profesor(login_data: LoginAppRequest, request: Request, db: Session = 
             reason="Credenciales inválidas",
             client_ip=client_ip,
         )
+
+        # Crear audit log de fallo de login (Web)
+        audit_log_fallo = AuditLogWeb(
+            id=str(uuid.uuid4()),
+            profesor_id=None,  # No sabemos el ID si falló el login
+            accion="login_fallo",
+            detalles=f"Intento de login fallido para usuario '{login_data.username}'",
+            ip_address=client_ip,
+            user_agent=request.headers.get("user-agent"),
+            browser=_extract_browser(request.headers.get("user-agent")),
+        )
+        db.add(audit_log_fallo)
+        db.commit()
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Username o contraseña incorrectos",
@@ -254,11 +290,24 @@ def login_profesor(login_data: LoginAppRequest, request: Request, db: Session = 
         client_ip=client_ip,
     )
 
+    # Crear audit log de login exitoso (Web)
+    audit_log_exito = AuditLogWeb(
+        id=str(uuid.uuid4()),
+        profesor_id=profesor.id,
+        accion="login_exitoso",
+        detalles=f"Login exitoso desde web para profesor '{profesor.username}'",
+        ip_address=client_ip,
+        user_agent=request.headers.get("user-agent"),
+        browser=_extract_browser(request.headers.get("user-agent")),
+    )
+    db.add(audit_log_exito)
+    db.commit()
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
         "profesor_id": profesor.id,
         "username": profesor.username,
         "nombre": profesor.nombre,
-        "apellido": profesor.apellido
+        "apellido": profesor.apellido,
     }

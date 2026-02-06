@@ -5,20 +5,21 @@ Provides data for teacher dashboard page
 
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Callable
+from typing import Any, Callable, Dict, List, Optional
 
-from sqlalchemy import func, and_, desc
+from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
-from app.models.usuario import Usuario
-from app.models.clase import Clase
-from app.models.juego import Partida
-from app.models.evento_estado import EventoEstado
 from app.models.actividad import Actividad
+from app.models.clase import Clase
+from app.models.evento_estado import EventoEstado
+from app.models.juego import Partida
+from app.models.usuario import Usuario
 
 
 class CacheEntry:
     """Cache entry with TTL"""
+
     def __init__(self, data: Any, ttl_seconds: int):
         self.data = data
         self.expires_at = time.time() + ttl_seconds
@@ -38,11 +39,7 @@ class TeacherDashboardService:
 
     @classmethod
     def _get_cached_or_fetch(
-        cls,
-        cache_key: str,
-        fetch_func: Callable,
-        *args,
-        ttl: Optional[int] = None
+        cls, cache_key: str, fetch_func: Callable, *args, ttl: Optional[int] = None
     ) -> Any:
         """Generic cache getter with TTL"""
         # Check cache
@@ -67,10 +64,7 @@ class TeacherDashboardService:
 
     @staticmethod
     def get_class_summary(
-        db: Session,
-        profesor_id: str,
-        clase_id: Optional[str] = None,
-        days: int = 7
+        db: Session, profesor_id: str, clase_id: Optional[str] = None, days: int = 7
     ) -> Dict[str, Any]:
         """
         Get summary statistics for a class
@@ -86,25 +80,19 @@ class TeacherDashboardService:
         """
         cache_key = f"class_summary_{profesor_id}_{clase_id}_{days}"
         return TeacherDashboardService._get_cached_or_fetch(
-            cache_key,
-            TeacherDashboardService._fetch_class_summary,
-            db,
-            profesor_id,
-            clase_id,
-            days
+            cache_key, TeacherDashboardService._fetch_class_summary, db, profesor_id, clase_id, days
         )
 
     @staticmethod
     def _fetch_class_summary(
-        db: Session,
-        profesor_id: str,
-        clase_id: Optional[str],
-        days: int
+        db: Session, profesor_id: str, clase_id: Optional[str], days: int
     ) -> Dict[str, Any]:
         """Internal method to fetch class summary from database"""
         # Build base query for students
-        students_query = db.query(Usuario).join(Clase, Usuario.id_clase == Clase.id).filter(
-            Clase.id_profesor == profesor_id
+        students_query = (
+            db.query(Usuario)
+            .join(Clase, Usuario.id_clase == Clase.id)
+            .filter(Clase.id_profesor == profesor_id)
         )
 
         if clase_id:
@@ -119,7 +107,7 @@ class TeacherDashboardService:
                 "progreso_medio": 0,
                 "tiempo_promedio": 0,
                 "nota_media": 0,
-                "clase_nombre": "Sin clase"
+                "clase_nombre": "Sin clase",
             }
 
         student_ids = [s.id for s in students]
@@ -130,47 +118,66 @@ class TeacherDashboardService:
 
         completed_events_per_student = []
         for student_id in student_ids:
-            completed = db.query(func.count(func.distinct(EventoEstado.id_evento))).filter(
-                and_(
-                    EventoEstado.id_juego.in_(
-                        db.query(Partida.id).filter(Partida.id_usuario == student_id)
-                    ),
-                    EventoEstado.estado == "completado"
+            completed = (
+                db.query(func.count(func.distinct(EventoEstado.id_evento)))
+                .filter(
+                    and_(
+                        EventoEstado.id_juego.in_(
+                            db.query(Partida.id).filter(Partida.id_usuario == student_id)
+                        ),
+                        EventoEstado.estado == "completado",
+                    )
                 )
-            ).scalar() or 0
+                .scalar()
+                or 0
+            )
             completed_events_per_student.append(completed)
 
-        avg_completed = sum(completed_events_per_student) / len(completed_events_per_student) if completed_events_per_student else 0
+        avg_completed = (
+            sum(completed_events_per_student) / len(completed_events_per_student)
+            if completed_events_per_student
+            else 0
+        )
         progreso_medio = min(100, (avg_completed / total_events) * 100)
 
         # Calculate average time (duration in minutes)
         fecha_limite = datetime.now() - timedelta(days=days)
 
-        avg_time = db.query(func.avg(Partida.duracion)).filter(
-            and_(
-                Partida.id_usuario.in_(student_ids),
-                Partida.duracion.isnot(None),
-                Partida.fecha_inicio >= fecha_limite
+        avg_time = (
+            db.query(func.avg(Partida.duracion))
+            .filter(
+                and_(
+                    Partida.id_usuario.in_(student_ids),
+                    Partida.duracion.isnot(None),
+                    Partida.fecha_inicio >= fecha_limite,
+                )
             )
-        ).scalar() or 0
+            .scalar()
+            or 0
+        )
 
         tiempo_promedio = round(avg_time / 60, 0) if avg_time else 0
 
         # Calculate average grade (from completed eventos with scores)
-        avg_grade = db.query(func.avg(EventoEstado.puntuacion)).filter(
-            and_(
-                EventoEstado.id_juego.in_(
-                    db.query(Partida.id).filter(
-                        and_(
-                            Partida.id_usuario.in_(student_ids),
-                            Partida.fecha_inicio >= fecha_limite
+        avg_grade = (
+            db.query(func.avg(EventoEstado.puntuacion))
+            .filter(
+                and_(
+                    EventoEstado.id_juego.in_(
+                        db.query(Partida.id).filter(
+                            and_(
+                                Partida.id_usuario.in_(student_ids),
+                                Partida.fecha_inicio >= fecha_limite,
+                            )
                         )
-                    )
-                ),
-                EventoEstado.puntuacion.isnot(None),
-                EventoEstado.estado == "completado"
+                    ),
+                    EventoEstado.puntuacion.isnot(None),
+                    EventoEstado.estado == "completado",
+                )
             )
-        ).scalar() or 0
+            .scalar()
+            or 0
+        )
 
         # Get class name
         if clase_id:
@@ -184,14 +191,12 @@ class TeacherDashboardService:
             "progreso_medio": round(progreso_medio, 1),
             "tiempo_promedio": int(tiempo_promedio),
             "nota_media": round(avg_grade, 1),
-            "clase_nombre": clase_nombre
+            "clase_nombre": clase_nombre,
         }
 
     @staticmethod
     def get_student_progress(
-        db: Session,
-        profesor_id: str,
-        clase_id: Optional[str] = None
+        db: Session, profesor_id: str, clase_id: Optional[str] = None
     ) -> Dict[str, List]:
         """
         Get progress for each student in the class
@@ -206,23 +211,19 @@ class TeacherDashboardService:
         """
         cache_key = f"student_progress_{profesor_id}_{clase_id}"
         return TeacherDashboardService._get_cached_or_fetch(
-            cache_key,
-            TeacherDashboardService._fetch_student_progress,
-            db,
-            profesor_id,
-            clase_id
+            cache_key, TeacherDashboardService._fetch_student_progress, db, profesor_id, clase_id
         )
 
     @staticmethod
     def _fetch_student_progress(
-        db: Session,
-        profesor_id: str,
-        clase_id: Optional[str]
+        db: Session, profesor_id: str, clase_id: Optional[str]
     ) -> Dict[str, List]:
         """Internal method to fetch student progress from database"""
         # Get students
-        students_query = db.query(Usuario).join(Clase, Usuario.id_clase == Clase.id).filter(
-            Clase.id_profesor == profesor_id
+        students_query = (
+            db.query(Usuario)
+            .join(Clase, Usuario.id_clase == Clase.id)
+            .filter(Clase.id_profesor == profesor_id)
         )
 
         if clase_id:
@@ -240,31 +241,30 @@ class TeacherDashboardService:
 
         for student in students:
             # Calculate progress for this student
-            completed = db.query(func.count(func.distinct(EventoEstado.id_evento))).filter(
-                and_(
-                    EventoEstado.id_juego.in_(
-                        db.query(Partida.id).filter(Partida.id_usuario == student.id)
-                    ),
-                    EventoEstado.estado == "completado"
+            completed = (
+                db.query(func.count(func.distinct(EventoEstado.id_evento)))
+                .filter(
+                    and_(
+                        EventoEstado.id_juego.in_(
+                            db.query(Partida.id).filter(Partida.id_usuario == student.id)
+                        ),
+                        EventoEstado.estado == "completado",
+                    )
                 )
-            ).scalar() or 0
+                .scalar()
+                or 0
+            )
 
             progress = min(100, (completed / total_events) * 100)
 
             student_names.append(f"{student.nombre} {student.apellido}")
             progress_values.append(round(progress, 1))
 
-        return {
-            "students": student_names,
-            "progress": progress_values
-        }
+        return {"students": student_names, "progress": progress_values}
 
     @staticmethod
     def get_student_time(
-        db: Session,
-        profesor_id: str,
-        clase_id: Optional[str] = None,
-        days: int = 7
+        db: Session, profesor_id: str, clase_id: Optional[str] = None, days: int = 7
     ) -> Dict[str, List]:
         """
         Get time spent for each student in the class
@@ -280,25 +280,19 @@ class TeacherDashboardService:
         """
         cache_key = f"student_time_{profesor_id}_{clase_id}_{days}"
         return TeacherDashboardService._get_cached_or_fetch(
-            cache_key,
-            TeacherDashboardService._fetch_student_time,
-            db,
-            profesor_id,
-            clase_id,
-            days
+            cache_key, TeacherDashboardService._fetch_student_time, db, profesor_id, clase_id, days
         )
 
     @staticmethod
     def _fetch_student_time(
-        db: Session,
-        profesor_id: str,
-        clase_id: Optional[str],
-        days: int
+        db: Session, profesor_id: str, clase_id: Optional[str], days: int
     ) -> Dict[str, List]:
         """Internal method to fetch student time from database"""
         # Get students
-        students_query = db.query(Usuario).join(Clase, Usuario.id_clase == Clase.id).filter(
-            Clase.id_profesor == profesor_id
+        students_query = (
+            db.query(Usuario)
+            .join(Clase, Usuario.id_clase == Clase.id)
+            .filter(Clase.id_profesor == profesor_id)
         )
 
         if clase_id:
@@ -316,13 +310,18 @@ class TeacherDashboardService:
 
         for student in students:
             # Calculate total time for this student
-            total_time = db.query(func.sum(Partida.duracion)).filter(
-                and_(
-                    Partida.id_usuario == student.id,
-                    Partida.duracion.isnot(None),
-                    Partida.fecha_inicio >= fecha_limite
+            total_time = (
+                db.query(func.sum(Partida.duracion))
+                .filter(
+                    and_(
+                        Partida.id_usuario == student.id,
+                        Partida.duracion.isnot(None),
+                        Partida.fecha_inicio >= fecha_limite,
+                    )
                 )
-            ).scalar() or 0
+                .scalar()
+                or 0
+            )
 
             time_minutes = round(total_time / 60, 0) if total_time else 0
 
@@ -331,16 +330,11 @@ class TeacherDashboardService:
                 student_names.append(student.nombre)  # First name only for chart
                 time_values.append(int(time_minutes))
 
-        return {
-            "students": student_names,
-            "time": time_values
-        }
+        return {"students": student_names, "time": time_values}
 
     @staticmethod
     def get_activities_by_class(
-        db: Session,
-        profesor_id: str,
-        clase_id: Optional[str] = None
+        db: Session, profesor_id: str, clase_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Get activity completion status by class
@@ -355,23 +349,19 @@ class TeacherDashboardService:
         """
         cache_key = f"activities_by_class_{profesor_id}_{clase_id}"
         return TeacherDashboardService._get_cached_or_fetch(
-            cache_key,
-            TeacherDashboardService._fetch_activities_by_class,
-            db,
-            profesor_id,
-            clase_id
+            cache_key, TeacherDashboardService._fetch_activities_by_class, db, profesor_id, clase_id
         )
 
     @staticmethod
     def _fetch_activities_by_class(
-        db: Session,
-        profesor_id: str,
-        clase_id: Optional[str]
+        db: Session, profesor_id: str, clase_id: Optional[str]
     ) -> Dict[str, Any]:
         """Internal method to fetch activities by class from database"""
         # Get students
-        students_query = db.query(Usuario).join(Clase, Usuario.id_clase == Clase.id).filter(
-            Clase.id_profesor == profesor_id
+        students_query = (
+            db.query(Usuario)
+            .join(Clase, Usuario.id_clase == Clase.id)
+            .filter(Clase.id_profesor == profesor_id)
         )
 
         if clase_id:
@@ -396,43 +386,53 @@ class TeacherDashboardService:
             activity_names.append(activity.nombre)
 
             # Count students who completed this activity
-            completed = db.query(func.count(func.distinct(Partida.id_usuario))).filter(
-                and_(
-                    Partida.id_usuario.in_(student_ids),
-                    Partida.id.in_(
-                        db.query(EventoEstado.id_juego).filter(
-                            and_(
-                                EventoEstado.id_actividad == activity.id,
-                                EventoEstado.estado == "completado"
+            completed = (
+                db.query(func.count(func.distinct(Partida.id_usuario)))
+                .filter(
+                    and_(
+                        Partida.id_usuario.in_(student_ids),
+                        Partida.id.in_(
+                            db.query(EventoEstado.id_juego).filter(
+                                and_(
+                                    EventoEstado.id_actividad == activity.id,
+                                    EventoEstado.estado == "completado",
+                                )
                             )
-                        )
+                        ),
                     )
                 )
-            ).scalar() or 0
+                .scalar()
+                or 0
+            )
 
             # Count students who have this activity in progress
-            in_progress = db.query(func.count(func.distinct(Partida.id_usuario))).filter(
-                and_(
-                    Partida.id_usuario.in_(student_ids),
-                    Partida.id.in_(
-                        db.query(EventoEstado.id_juego).filter(
-                            and_(
-                                EventoEstado.id_actividad == activity.id,
-                                EventoEstado.estado == "en_progreso"
+            in_progress = (
+                db.query(func.count(func.distinct(Partida.id_usuario)))
+                .filter(
+                    and_(
+                        Partida.id_usuario.in_(student_ids),
+                        Partida.id.in_(
+                            db.query(EventoEstado.id_juego).filter(
+                                and_(
+                                    EventoEstado.id_actividad == activity.id,
+                                    EventoEstado.estado == "en_progreso",
+                                )
                             )
-                        )
-                    ),
-                    # Exclude if already completed
-                    ~Partida.id.in_(
-                        db.query(EventoEstado.id_juego).filter(
-                            and_(
-                                EventoEstado.id_actividad == activity.id,
-                                EventoEstado.estado == "completado"
+                        ),
+                        # Exclude if already completed
+                        ~Partida.id.in_(
+                            db.query(EventoEstado.id_juego).filter(
+                                and_(
+                                    EventoEstado.id_actividad == activity.id,
+                                    EventoEstado.estado == "completado",
+                                )
                             )
-                        )
+                        ),
                     )
                 )
-            ).scalar() or 0
+                .scalar()
+                or 0
+            )
 
             # Not started = total - (completed + in_progress)
             not_started = max(0, total_students - completed - in_progress)
@@ -445,15 +445,12 @@ class TeacherDashboardService:
             "activities": activity_names,
             "completed": completed_counts,
             "in_progress": in_progress_counts,
-            "not_started": not_started_counts
+            "not_started": not_started_counts,
         }
 
     @staticmethod
     def get_class_evolution(
-        db: Session,
-        profesor_id: str,
-        clase_id: Optional[str] = None,
-        days: int = 14
+        db: Session, profesor_id: str, clase_id: Optional[str] = None, days: int = 14
     ) -> Dict[str, Any]:
         """
         Get class evolution over time (progress and grades)
@@ -474,20 +471,19 @@ class TeacherDashboardService:
             db,
             profesor_id,
             clase_id,
-            days
+            days,
         )
 
     @staticmethod
     def _fetch_class_evolution(
-        db: Session,
-        profesor_id: str,
-        clase_id: Optional[str],
-        days: int
+        db: Session, profesor_id: str, clase_id: Optional[str], days: int
     ) -> Dict[str, Any]:
         """Internal method to fetch class evolution from database"""
         # Get students
-        students_query = db.query(Usuario).join(Clase, Usuario.id_clase == Clase.id).filter(
-            Clase.id_profesor == profesor_id
+        students_query = (
+            db.query(Usuario)
+            .join(Clase, Usuario.id_clase == Clase.id)
+            .filter(Clase.id_profesor == profesor_id)
         )
 
         if clase_id:
@@ -515,51 +511,59 @@ class TeacherDashboardService:
             # Calculate average progress for this date
             completed_by_date = []
             for student_id in student_ids:
-                completed = db.query(func.count(func.distinct(EventoEstado.id_evento))).filter(
+                completed = (
+                    db.query(func.count(func.distinct(EventoEstado.id_evento)))
+                    .filter(
+                        and_(
+                            EventoEstado.id_juego.in_(
+                                db.query(Partida.id).filter(
+                                    and_(
+                                        Partida.id_usuario == student_id,
+                                        Partida.fecha_inicio < date_end,
+                                    )
+                                )
+                            ),
+                            EventoEstado.estado == "completado",
+                            EventoEstado.fecha_inicio < date_end,
+                        )
+                    )
+                    .scalar()
+                    or 0
+                )
+                completed_by_date.append(completed)
+
+            avg_completed = (
+                sum(completed_by_date) / len(completed_by_date) if completed_by_date else 0
+            )
+            progress = min(100, (avg_completed / total_events) * 100)
+
+            # Calculate average grade for this date
+            avg_grade = (
+                db.query(func.avg(EventoEstado.puntuacion))
+                .filter(
                     and_(
                         EventoEstado.id_juego.in_(
                             db.query(Partida.id).filter(
                                 and_(
-                                    Partida.id_usuario == student_id,
-                                    Partida.fecha_inicio < date_end
+                                    Partida.id_usuario.in_(student_ids),
+                                    Partida.fecha_inicio < date_end,
                                 )
                             )
                         ),
+                        EventoEstado.puntuacion.isnot(None),
                         EventoEstado.estado == "completado",
-                        EventoEstado.fecha_inicio < date_end
+                        EventoEstado.fecha_inicio < date_end,
                     )
-                ).scalar() or 0
-                completed_by_date.append(completed)
-
-            avg_completed = sum(completed_by_date) / len(completed_by_date) if completed_by_date else 0
-            progress = min(100, (avg_completed / total_events) * 100)
-
-            # Calculate average grade for this date
-            avg_grade = db.query(func.avg(EventoEstado.puntuacion)).filter(
-                and_(
-                    EventoEstado.id_juego.in_(
-                        db.query(Partida.id).filter(
-                            and_(
-                                Partida.id_usuario.in_(student_ids),
-                                Partida.fecha_inicio < date_end
-                            )
-                        )
-                    ),
-                    EventoEstado.puntuacion.isnot(None),
-                    EventoEstado.estado == "completado",
-                    EventoEstado.fecha_inicio < date_end
                 )
-            ).scalar() or 0
+                .scalar()
+                or 0
+            )
 
-            dates.append(date_start.strftime('%Y-%m-%d'))
+            dates.append(date_start.strftime("%Y-%m-%d"))
             progress_values.append(round(progress, 1))
             grade_values.append(round(avg_grade, 1) if avg_grade else 0)
 
-        return {
-            "dates": dates,
-            "progress": progress_values,
-            "grades": grade_values
-        }
+        return {"dates": dates, "progress": progress_values, "grades": grade_values}
 
     @staticmethod
     def get_profesor_classes(db: Session, profesor_id: str) -> List[Dict[str, str]]:
@@ -579,7 +583,7 @@ class TeacherDashboardService:
             TeacherDashboardService._fetch_profesor_classes,
             db,
             profesor_id,
-            ttl=600  # Cache for 10 minutes
+            ttl=600,  # Cache for 10 minutes
         )
 
     @staticmethod
@@ -587,10 +591,4 @@ class TeacherDashboardService:
         """Internal method to fetch profesor classes from database"""
         classes = db.query(Clase).filter(Clase.id_profesor == profesor_id).all()
 
-        return [
-            {
-                "id": clase.id,
-                "nombre": clase.nombre
-            }
-            for clase in classes
-        ]
+        return [{"id": clase.id, "nombre": clase.nombre} for clase in classes]

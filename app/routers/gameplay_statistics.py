@@ -3,7 +3,7 @@ Gameplay Statistics API endpoints
 Provides data for gameplay statistics dashboard (partidas, eventos)
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session

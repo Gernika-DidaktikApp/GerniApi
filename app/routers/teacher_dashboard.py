@@ -3,14 +3,14 @@ Teacher Dashboard API endpoints
 Provides data for teacher dashboard page (class-level statistics)
 """
 
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.services.teacher_dashboard_service import TeacherDashboardService
 from app.dependencies import get_current_user_from_token
+from app.services.teacher_dashboard_service import TeacherDashboardService
 
 router = APIRouter(
     prefix="/api/teacher/dashboard",
@@ -46,8 +46,7 @@ def get_profesor_classes(
     profesor_id = current_user.get("profesor_id")
     if not profesor_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
     return TeacherDashboardService.get_profesor_classes(db, profesor_id)
@@ -85,8 +84,7 @@ def get_class_summary(
     profesor_id = current_user.get("profesor_id")
     if not profesor_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
     return TeacherDashboardService.get_class_summary(db, profesor_id, clase_id, days)
@@ -119,8 +117,7 @@ def get_student_progress(
     profesor_id = current_user.get("profesor_id")
     if not profesor_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
     return TeacherDashboardService.get_student_progress(db, profesor_id, clase_id)
@@ -155,8 +152,7 @@ def get_student_time(
     profesor_id = current_user.get("profesor_id")
     if not profesor_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
     return TeacherDashboardService.get_student_time(db, profesor_id, clase_id, days)
@@ -191,8 +187,7 @@ def get_activities_by_class(
     profesor_id = current_user.get("profesor_id")
     if not profesor_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
     return TeacherDashboardService.get_activities_by_class(db, profesor_id, clase_id)
@@ -228,8 +223,7 @@ def get_class_evolution(
     profesor_id = current_user.get("profesor_id")
     if not profesor_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
     return TeacherDashboardService.get_class_evolution(db, profesor_id, clase_id, days)
@@ -257,8 +251,7 @@ def clear_teacher_dashboard_cache(
     profesor_id = current_user.get("profesor_id")
     if not profesor_id:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
     TeacherDashboardService.clear_cache()

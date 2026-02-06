@@ -5,18 +5,19 @@ Provides data for gameplay statistics dashboard
 
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Callable
+from typing import Any, Callable, Dict, List, Optional
 
-from sqlalchemy import func, and_, distinct
+from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
-from app.models.juego import Partida
-from app.models.evento_estado import EventoEstado
 from app.models.actividad import Actividad
+from app.models.evento_estado import EventoEstado
+from app.models.juego import Partida
 
 
 class CacheEntry:
     """Cache entry with TTL"""
+
     def __init__(self, data: Any, ttl_seconds: int):
         self.data = data
         self.expires_at = time.time() + ttl_seconds
@@ -36,11 +37,7 @@ class GameplayStatisticsService:
 
     @classmethod
     def _get_cached_or_fetch(
-        cls,
-        cache_key: str,
-        fetch_func: Callable,
-        *args,
-        ttl: Optional[int] = None
+        cls, cache_key: str, fetch_func: Callable, *args, ttl: Optional[int] = None
     ) -> Any:
         """Generic cache getter with TTL"""
         # Check cache
@@ -73,9 +70,7 @@ class GameplayStatisticsService:
         """
         cache_key = "gameplay_summary"
         return GameplayStatisticsService._get_cached_or_fetch(
-            cache_key,
-            GameplayStatisticsService._fetch_gameplay_summary,
-            db
+            cache_key, GameplayStatisticsService._fetch_gameplay_summary, db
         )
 
     @staticmethod
@@ -88,31 +83,29 @@ class GameplayStatisticsService:
         total_partidas = db.query(Partida).count()
 
         # Partidas completadas
-        completadas = db.query(Partida).filter(
-            Partida.estado == "completada"
-        ).count()
+        completadas = db.query(Partida).filter(Partida.estado == "completada").count()
 
         # Partidas en progreso
-        en_progreso = db.query(Partida).filter(
-            Partida.estado == "en_progreso"
-        ).count()
+        en_progreso = db.query(Partida).filter(Partida.estado == "en_progreso").count()
 
         # Duración promedio de partidas completadas (en minutos)
-        avg_duration = db.query(func.avg(Partida.duracion)).filter(
-            Partida.duracion.isnot(None)
-        ).scalar() or 0
+        avg_duration = (
+            db.query(func.avg(Partida.duracion)).filter(Partida.duracion.isnot(None)).scalar() or 0
+        )
 
         # Eventos completados
-        eventos_completados = db.query(EventoEstado).filter(
-            EventoEstado.estado == "completado"
-        ).count()
+        eventos_completados = (
+            db.query(EventoEstado).filter(EventoEstado.estado == "completado").count()
+        )
 
         return {
             "total_partidas": total_partidas,
             "partidas_completadas": completadas,
             "partidas_en_progreso": en_progreso,
-            "duracion_promedio": round(avg_duration / 60, 1) if avg_duration else 0,  # Convertir a minutos
-            "eventos_completados": eventos_completados
+            "duracion_promedio": (
+                round(avg_duration / 60, 1) if avg_duration else 0
+            ),  # Convertir a minutos
+            "eventos_completados": eventos_completados,
         }
 
     @staticmethod
@@ -129,10 +122,7 @@ class GameplayStatisticsService:
         """
         cache_key = f"partidas_by_day_{days}"
         return GameplayStatisticsService._get_cached_or_fetch(
-            cache_key,
-            GameplayStatisticsService._fetch_partidas_by_day,
-            db,
-            days
+            cache_key, GameplayStatisticsService._fetch_partidas_by_day, db, days
         )
 
     @staticmethod
@@ -147,20 +137,16 @@ class GameplayStatisticsService:
             date_start = datetime(date.year, date.month, date.day)
             date_end = date_start + timedelta(days=1)
 
-            count = db.query(Partida).filter(
-                and_(
-                    Partida.fecha_inicio >= date_start,
-                    Partida.fecha_inicio < date_end
-                )
-            ).count()
+            count = (
+                db.query(Partida)
+                .filter(and_(Partida.fecha_inicio >= date_start, Partida.fecha_inicio < date_end))
+                .count()
+            )
 
-            dates.append(date_start.strftime('%Y-%m-%d'))
+            dates.append(date_start.strftime("%Y-%m-%d"))
             counts.append(count)
 
-        return {
-            "dates": dates,
-            "counts": counts
-        }
+        return {"dates": dates, "counts": counts}
 
     @staticmethod
     def get_partidas_by_status(db: Session) -> Dict[str, Any]:
@@ -172,25 +158,17 @@ class GameplayStatisticsService:
         """
         cache_key = "partidas_by_status"
         return GameplayStatisticsService._get_cached_or_fetch(
-            cache_key,
-            GameplayStatisticsService._fetch_partidas_by_status,
-            db
+            cache_key, GameplayStatisticsService._fetch_partidas_by_status, db
         )
 
     @staticmethod
     def _fetch_partidas_by_status(db: Session) -> Dict[str, Any]:
         """Internal method to fetch partidas by status from database"""
-        completadas = db.query(Partida).filter(
-            Partida.estado == "completada"
-        ).count()
+        completadas = db.query(Partida).filter(Partida.estado == "completada").count()
 
-        abandonadas = db.query(Partida).filter(
-            Partida.estado == "abandonada"
-        ).count()
+        abandonadas = db.query(Partida).filter(Partida.estado == "abandonada").count()
 
-        en_progreso = db.query(Partida).filter(
-            Partida.estado == "en_progreso"
-        ).count()
+        en_progreso = db.query(Partida).filter(Partida.estado == "en_progreso").count()
 
         total = completadas + abandonadas + en_progreso
 
@@ -198,7 +176,7 @@ class GameplayStatisticsService:
             "completadas": completadas,
             "abandonadas": abandonadas,
             "en_progreso": en_progreso,
-            "total": total
+            "total": total,
         }
 
     @staticmethod
@@ -215,10 +193,7 @@ class GameplayStatisticsService:
         """
         cache_key = f"eventos_by_status_timeline_{days}"
         return GameplayStatisticsService._get_cached_or_fetch(
-            cache_key,
-            GameplayStatisticsService._fetch_eventos_by_status_timeline,
-            db,
-            days
+            cache_key, GameplayStatisticsService._fetch_eventos_by_status_timeline, db, days
         )
 
     @staticmethod
@@ -236,31 +211,43 @@ class GameplayStatisticsService:
             date_end = date_start + timedelta(days=1)
 
             # Count eventos by status for this day
-            comp = db.query(EventoEstado).filter(
-                and_(
-                    EventoEstado.fecha_inicio >= date_start,
-                    EventoEstado.fecha_inicio < date_end,
-                    EventoEstado.estado == "completado"
+            comp = (
+                db.query(EventoEstado)
+                .filter(
+                    and_(
+                        EventoEstado.fecha_inicio >= date_start,
+                        EventoEstado.fecha_inicio < date_end,
+                        EventoEstado.estado == "completado",
+                    )
                 )
-            ).count()
+                .count()
+            )
 
-            prog = db.query(EventoEstado).filter(
-                and_(
-                    EventoEstado.fecha_inicio >= date_start,
-                    EventoEstado.fecha_inicio < date_end,
-                    EventoEstado.estado == "en_progreso"
+            prog = (
+                db.query(EventoEstado)
+                .filter(
+                    and_(
+                        EventoEstado.fecha_inicio >= date_start,
+                        EventoEstado.fecha_inicio < date_end,
+                        EventoEstado.estado == "en_progreso",
+                    )
                 )
-            ).count()
+                .count()
+            )
 
-            aban = db.query(EventoEstado).filter(
-                and_(
-                    EventoEstado.fecha_inicio >= date_start,
-                    EventoEstado.fecha_inicio < date_end,
-                    EventoEstado.estado == "abandonado"
+            aban = (
+                db.query(EventoEstado)
+                .filter(
+                    and_(
+                        EventoEstado.fecha_inicio >= date_start,
+                        EventoEstado.fecha_inicio < date_end,
+                        EventoEstado.estado == "abandonado",
+                    )
                 )
-            ).count()
+                .count()
+            )
 
-            dates.append(date_start.strftime('%Y-%m-%d'))
+            dates.append(date_start.strftime("%Y-%m-%d"))
             completados.append(comp)
             en_progreso.append(prog)
             abandonados.append(aban)
@@ -269,7 +256,7 @@ class GameplayStatisticsService:
             "dates": dates,
             "completados": completados,
             "en_progreso": en_progreso,
-            "abandonados": abandonados
+            "abandonados": abandonados,
         }
 
     @staticmethod
@@ -286,10 +273,7 @@ class GameplayStatisticsService:
         """
         cache_key = f"duracion_promedio_timeline_{days}"
         return GameplayStatisticsService._get_cached_or_fetch(
-            cache_key,
-            GameplayStatisticsService._fetch_duracion_promedio_timeline,
-            db,
-            days
+            cache_key, GameplayStatisticsService._fetch_duracion_promedio_timeline, db, days
         )
 
     @staticmethod
@@ -305,21 +289,23 @@ class GameplayStatisticsService:
             date_end = date_start + timedelta(days=1)
 
             # Average duration for this day (in seconds)
-            avg_dur = db.query(func.avg(Partida.duracion)).filter(
-                and_(
-                    Partida.fecha_inicio >= date_start,
-                    Partida.fecha_inicio < date_end,
-                    Partida.duracion.isnot(None)
+            avg_dur = (
+                db.query(func.avg(Partida.duracion))
+                .filter(
+                    and_(
+                        Partida.fecha_inicio >= date_start,
+                        Partida.fecha_inicio < date_end,
+                        Partida.duracion.isnot(None),
+                    )
                 )
-            ).scalar() or 0
+                .scalar()
+                or 0
+            )
 
-            dates.append(date_start.strftime('%Y-%m-%d'))
+            dates.append(date_start.strftime("%Y-%m-%d"))
             durations.append(round(avg_dur / 60, 1) if avg_dur else 0)  # Convert to minutes
 
-        return {
-            "dates": dates,
-            "durations": durations
-        }
+        return {"dates": dates, "durations": durations}
 
     @staticmethod
     def get_completion_rate_by_activity(db: Session) -> Dict[str, List]:
@@ -331,9 +317,7 @@ class GameplayStatisticsService:
         """
         cache_key = "completion_rate_by_activity"
         return GameplayStatisticsService._get_cached_or_fetch(
-            cache_key,
-            GameplayStatisticsService._fetch_completion_rate_by_activity,
-            db
+            cache_key, GameplayStatisticsService._fetch_completion_rate_by_activity, db
         )
 
     @staticmethod
@@ -347,17 +331,21 @@ class GameplayStatisticsService:
 
         for activity in activities:
             # Count total eventos for this activity
-            total_eventos = db.query(EventoEstado).filter(
-                EventoEstado.id_actividad == activity.id
-            ).count()
+            total_eventos = (
+                db.query(EventoEstado).filter(EventoEstado.id_actividad == activity.id).count()
+            )
 
             # Count completed eventos for this activity
-            completed_eventos = db.query(EventoEstado).filter(
-                and_(
-                    EventoEstado.id_actividad == activity.id,
-                    EventoEstado.estado == "completado"
+            completed_eventos = (
+                db.query(EventoEstado)
+                .filter(
+                    and_(
+                        EventoEstado.id_actividad == activity.id,
+                        EventoEstado.estado == "completado",
+                    )
                 )
-            ).count()
+                .count()
+            )
 
             # Calculate completion rate
             if total_eventos > 0:
@@ -365,7 +353,4 @@ class GameplayStatisticsService:
                 activity_names.append(activity.nombre)
                 completion_rates.append(round(rate, 1))
 
-        return {
-            "activities": activity_names,
-            "rates": completion_rates
-        }
+        return {"activities": activity_names, "rates": completion_rates}

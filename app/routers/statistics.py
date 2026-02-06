@@ -3,7 +3,7 @@ Statistics API endpoints
 Provides data for statistics dashboards and charts
 """
 
-from typing import Dict, Any, Optional
+from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session

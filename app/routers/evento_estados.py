@@ -8,8 +8,10 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.logging import log_with_context
 from app.models.actividad import Actividad
+from app.models.audit_log import AuditLogApp
 from app.models.evento import Eventos
 from app.models.evento_estado import EventoEstado
+from app.models.juego import Partida
 from app.schemas.evento_estado import (
     ActividadResumen,
     EventoEstadoCompletar,
@@ -151,6 +153,44 @@ def completar_evento(
         puntuacion=data.puntuacion,
         duracion=estado.duracion,
     )
+
+    # Verificar si se completaron TODOS los eventos de la actividad
+    eventos_totales = db.query(Eventos).filter(Eventos.id_actividad == estado.id_actividad).count()
+    eventos_completados = (
+        db.query(EventoEstado)
+        .filter(
+            EventoEstado.id_juego == estado.id_juego,
+            EventoEstado.id_actividad == estado.id_actividad,
+            EventoEstado.estado == "completado",
+        )
+        .count()
+    )
+
+    # Si se completaron todos los eventos, registrar audit log (SOLO para app móvil)
+    if eventos_completados == eventos_totales:
+        partida = db.query(Partida).filter(Partida.id == estado.id_juego).first()
+        actividad = db.query(Actividad).filter(Actividad.id == estado.id_actividad).first()
+
+        if partida and actividad:
+            # Crear audit log de tipo App
+            audit_log = AuditLogApp(
+                id=str(uuid.uuid4()),
+                usuario_id=partida.id_usuario,
+                accion="completar_actividad",
+                detalles=f"Actividad '{actividad.nombre}' completada con {eventos_totales} eventos. Puntuación total: {data.puntuacion}",
+                device_type=data.device_type if hasattr(data, "device_type") else None,
+                app_version=data.app_version if hasattr(data, "app_version") else None,
+            )
+            db.add(audit_log)
+            db.commit()
+
+            log_with_context(
+                "info",
+                "Actividad completada - Audit log creado",
+                actividad_id=estado.id_actividad,
+                usuario_id=partida.id_usuario,
+                eventos_completados=eventos_totales,
+            )
 
     return estado
 

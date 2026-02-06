@@ -3,7 +3,7 @@ Learning Statistics API endpoints
 Provides data for learning/performance statistics dashboard (scores, tiempo)
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session

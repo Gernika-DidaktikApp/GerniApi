@@ -4,11 +4,12 @@ Handles authentication and authorization
 """
 
 from typing import Dict
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from sqlalchemy.orm import Session
+
 import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.exceptions import InvalidTokenError
+from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
@@ -18,8 +19,7 @@ security = HTTPBearer()
 
 
 def get_current_user_from_token(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
+    credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)
 ) -> Dict:
     """
     Validates JWT token and returns current user data.
@@ -46,11 +46,7 @@ def get_current_user_from_token(
     try:
         token = credentials.credentials
         # Decode JWT token
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=[settings.ALGORITHM]
-        )
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
 
         username: str = payload.get("sub")
         user_type: str = payload.get("type")  # "profesor" or None for usuario
@@ -69,14 +65,11 @@ def get_current_user_from_token(
                 "type": "profesor",
                 "profesor_id": profesor.id,
                 "nombre": profesor.nombre,
-                "apellido": profesor.apellido
+                "apellido": profesor.apellido,
             }
 
         # For regular usuarios (not yet implemented, but structure ready)
-        return {
-            "username": username,
-            "type": "usuario"
-        }
+        return {"username": username, "type": "usuario"}
 
     except InvalidTokenError:
         raise credentials_exception

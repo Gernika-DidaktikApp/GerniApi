@@ -5,18 +5,18 @@ Provides data for statistics dashboards and charts
 
 import time
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Callable
+from typing import Any, Callable, Dict, List, Optional
 
-from sqlalchemy import func, and_, distinct
+from sqlalchemy import and_, distinct, func
 from sqlalchemy.orm import Session
 
-from app.models.usuario import Usuario
 from app.models.juego import Partida
-from app.models.sesion import Sesion
+from app.models.usuario import Usuario
 
 
 class CacheEntry:
     """Cache entry with TTL"""
+
     def __init__(self, data: Any, ttl_seconds: int):
         self.data = data
         self.expires_at = time.time() + ttl_seconds
@@ -36,11 +36,7 @@ class StatisticsService:
 
     @classmethod
     def _get_cached_or_fetch(
-        cls,
-        cache_key: str,
-        fetch_func: Callable,
-        *args,
-        ttl: Optional[int] = None
+        cls, cache_key: str, fetch_func: Callable, *args, ttl: Optional[int] = None
     ) -> Any:
         """
         Generic cache getter with TTL
@@ -84,9 +80,7 @@ class StatisticsService:
         """
         cache_key = "users_summary"
         return StatisticsService._get_cached_or_fetch(
-            cache_key,
-            StatisticsService._fetch_users_summary,
-            db
+            cache_key, StatisticsService._fetch_users_summary, db
         )
 
     @staticmethod
@@ -100,24 +94,26 @@ class StatisticsService:
         total_users = db.query(Usuario).count()
 
         # New users today
-        new_users_today = db.query(Usuario).filter(
-            Usuario.creation >= today_start
-        ).count()
+        new_users_today = db.query(Usuario).filter(Usuario.creation >= today_start).count()
 
         # Daily Active Users (users who started a game today)
-        dau = db.query(func.count(distinct(Partida.id_usuario))).filter(
-            Partida.fecha_inicio >= today_start
-        ).scalar() or 0
+        dau = (
+            db.query(func.count(distinct(Partida.id_usuario)))
+            .filter(Partida.fecha_inicio >= today_start)
+            .scalar()
+            or 0
+        )
 
         # Logins today (number of games started today as proxy for logins)
-        logins_today = db.query(Partida).filter(
-            Partida.fecha_inicio >= today_start
-        ).count()
+        logins_today = db.query(Partida).filter(Partida.fecha_inicio >= today_start).count()
 
         # Active users in last 7 days
-        active_7d = db.query(func.count(distinct(Partida.id_usuario))).filter(
-            Partida.fecha_inicio >= week_ago
-        ).scalar() or 0
+        active_7d = (
+            db.query(func.count(distinct(Partida.id_usuario)))
+            .filter(Partida.fecha_inicio >= week_ago)
+            .scalar()
+            or 0
+        )
 
         # Calculate ratio
         ratio = (active_7d / total_users * 100) if total_users > 0 else 0
@@ -127,7 +123,7 @@ class StatisticsService:
             "new_users_today": new_users_today,
             "ratio_active_total": round(ratio, 1),
             "logins_today": logins_today,
-            "total_users": total_users
+            "total_users": total_users,
         }
 
     @staticmethod
@@ -144,10 +140,7 @@ class StatisticsService:
         """
         cache_key = f"active_users_timeline_{days}"
         return StatisticsService._get_cached_or_fetch(
-            cache_key,
-            StatisticsService._fetch_active_users_timeline,
-            db,
-            days
+            cache_key, StatisticsService._fetch_active_users_timeline, db, days
         )
 
     @staticmethod
@@ -165,42 +158,37 @@ class StatisticsService:
             date_end = date_start + timedelta(days=1)
 
             # DAU: unique users who played on this day
-            dau = db.query(func.count(distinct(Partida.id_usuario))).filter(
-                and_(
-                    Partida.fecha_inicio >= date_start,
-                    Partida.fecha_inicio < date_end
-                )
-            ).scalar() or 0
+            dau = (
+                db.query(func.count(distinct(Partida.id_usuario)))
+                .filter(and_(Partida.fecha_inicio >= date_start, Partida.fecha_inicio < date_end))
+                .scalar()
+                or 0
+            )
 
             # WAU: unique users in the 7 days ending on this date
             week_start = date_start - timedelta(days=6)
-            wau = db.query(func.count(distinct(Partida.id_usuario))).filter(
-                and_(
-                    Partida.fecha_inicio >= week_start,
-                    Partida.fecha_inicio < date_end
-                )
-            ).scalar() or 0
+            wau = (
+                db.query(func.count(distinct(Partida.id_usuario)))
+                .filter(and_(Partida.fecha_inicio >= week_start, Partida.fecha_inicio < date_end))
+                .scalar()
+                or 0
+            )
 
             # MAU: unique users in the 30 days ending on this date
             month_start = date_start - timedelta(days=29)
-            mau = db.query(func.count(distinct(Partida.id_usuario))).filter(
-                and_(
-                    Partida.fecha_inicio >= month_start,
-                    Partida.fecha_inicio < date_end
-                )
-            ).scalar() or 0
+            mau = (
+                db.query(func.count(distinct(Partida.id_usuario)))
+                .filter(and_(Partida.fecha_inicio >= month_start, Partida.fecha_inicio < date_end))
+                .scalar()
+                or 0
+            )
 
-            dates.append(date_start.strftime('%Y-%m-%d'))
+            dates.append(date_start.strftime("%Y-%m-%d"))
             dau_data.append(dau)
             wau_data.append(wau)
             mau_data.append(mau)
 
-        return {
-            "dates": dates,
-            "dau": dau_data,
-            "wau": wau_data,
-            "mau": mau_data
-        }
+        return {"dates": dates, "dau": dau_data, "wau": wau_data, "mau": mau_data}
 
     @staticmethod
     def get_new_users_by_day(db: Session, days: int = 30) -> Dict[str, List]:
@@ -216,10 +204,7 @@ class StatisticsService:
         """
         cache_key = f"new_users_by_day_{days}"
         return StatisticsService._get_cached_or_fetch(
-            cache_key,
-            StatisticsService._fetch_new_users_by_day,
-            db,
-            days
+            cache_key, StatisticsService._fetch_new_users_by_day, db, days
         )
 
     @staticmethod
@@ -234,20 +219,16 @@ class StatisticsService:
             date_start = datetime(date.year, date.month, date.day)
             date_end = date_start + timedelta(days=1)
 
-            count = db.query(Usuario).filter(
-                and_(
-                    Usuario.creation >= date_start,
-                    Usuario.creation < date_end
-                )
-            ).count()
+            count = (
+                db.query(Usuario)
+                .filter(and_(Usuario.creation >= date_start, Usuario.creation < date_end))
+                .count()
+            )
 
-            dates.append(date_start.strftime('%Y-%m-%d'))
+            dates.append(date_start.strftime("%Y-%m-%d"))
             counts.append(count)
 
-        return {
-            "dates": dates,
-            "counts": counts
-        }
+        return {"dates": dates, "counts": counts}
 
     @staticmethod
     def get_active_ratio_timeline(db: Session, days: int = 30) -> Dict[str, List]:
@@ -263,10 +244,7 @@ class StatisticsService:
         """
         cache_key = f"active_ratio_timeline_{days}"
         return StatisticsService._get_cached_or_fetch(
-            cache_key,
-            StatisticsService._fetch_active_ratio_timeline,
-            db,
-            days
+            cache_key, StatisticsService._fetch_active_ratio_timeline, db, days
         )
 
     @staticmethod
@@ -281,29 +259,26 @@ class StatisticsService:
             date_start = datetime(date.year, date.month, date.day)
 
             # Total users registered up to this date
-            total_users = db.query(Usuario).filter(
-                Usuario.creation <= date_start + timedelta(days=1)
-            ).count()
+            total_users = (
+                db.query(Usuario).filter(Usuario.creation <= date_start + timedelta(days=1)).count()
+            )
 
             # Active users in the 7 days before this date
             week_start = date_start - timedelta(days=6)
             week_end = date_start + timedelta(days=1)
-            active_users = db.query(func.count(distinct(Partida.id_usuario))).filter(
-                and_(
-                    Partida.fecha_inicio >= week_start,
-                    Partida.fecha_inicio < week_end
-                )
-            ).scalar() or 0
+            active_users = (
+                db.query(func.count(distinct(Partida.id_usuario)))
+                .filter(and_(Partida.fecha_inicio >= week_start, Partida.fecha_inicio < week_end))
+                .scalar()
+                or 0
+            )
 
             ratio = (active_users / total_users * 100) if total_users > 0 else 0
 
-            dates.append(date_start.strftime('%Y-%m-%d'))
+            dates.append(date_start.strftime("%Y-%m-%d"))
             ratios.append(round(ratio, 1))
 
-        return {
-            "dates": dates,
-            "ratios": ratios
-        }
+        return {"dates": dates, "ratios": ratios}
 
     @staticmethod
     def get_logins_by_day(db: Session, days: int = 30) -> Dict[str, List]:
@@ -319,10 +294,7 @@ class StatisticsService:
         """
         cache_key = f"logins_by_day_{days}"
         return StatisticsService._get_cached_or_fetch(
-            cache_key,
-            StatisticsService._fetch_logins_by_day,
-            db,
-            days
+            cache_key, StatisticsService._fetch_logins_by_day, db, days
         )
 
     @staticmethod
@@ -337,17 +309,13 @@ class StatisticsService:
             date_start = datetime(date.year, date.month, date.day)
             date_end = date_start + timedelta(days=1)
 
-            count = db.query(Partida).filter(
-                and_(
-                    Partida.fecha_inicio >= date_start,
-                    Partida.fecha_inicio < date_end
-                )
-            ).count()
+            count = (
+                db.query(Partida)
+                .filter(and_(Partida.fecha_inicio >= date_start, Partida.fecha_inicio < date_end))
+                .count()
+            )
 
-            dates.append(date_start.strftime('%Y-%m-%d'))
+            dates.append(date_start.strftime("%Y-%m-%d"))
             counts.append(count)
 
-        return {
-            "dates": dates,
-            "counts": counts
-        }
+        return {"dates": dates, "counts": counts}

@@ -141,24 +141,24 @@ async function fetchPartidasByStatus() {
     }
 }
 
-async function fetchEventosByStatusTimeline(days = 30) {
+async function fetchActividadesByStatusTimeline(days = 30) {
     try {
-        const response = await fetch(`${API_BASE}/eventos-by-status-timeline?days=${days}`);
-        if (!response.ok) throw new Error('Failed to fetch eventos timeline');
+        const response = await fetch(`${API_BASE}/actividades-by-status-timeline?days=${days}`);
+        if (!response.ok) throw new Error('Failed to fetch actividades timeline');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching eventos timeline:', error);
+        console.error('Error fetching actividades timeline:', error);
         return null;
     }
 }
 
-async function fetchCompletionRateByActivity() {
+async function fetchCompletionRateByPunto() {
     try {
-        const response = await fetch(`${API_BASE}/completion-rate-by-activity`);
-        if (!response.ok) throw new Error('Failed to fetch completion rate by activity');
+        const response = await fetch(`${API_BASE}/completion-rate-by-punto`);
+        if (!response.ok) throw new Error('Failed to fetch completion rate by punto');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching completion rate by activity:', error);
+        console.error('Error fetching completion rate by punto:', error);
         return null;
     }
 }
@@ -312,15 +312,15 @@ async function initChartPartidasDonut() {
 }
 
 // ============================================
-// Chart 3: Eventos iniciados vs completados - Barras apiladas
+// Chart 3: Actividades iniciadas vs completadas - Barras apiladas
 // ============================================
 async function initChartEventosStack() {
     const chartId = 'chartEventosStack';
     showLoading(chartId);
 
-    const apiData = await fetchEventosByStatusTimeline(currentDays);
+    const apiData = await fetchActividadesByStatusTimeline(currentDays);
     if (!apiData) {
-        showError(chartId, 'Error al cargar eventos');
+        showError(chartId, 'Error al cargar actividades');
         return;
     }
 
@@ -333,7 +333,7 @@ async function initChartEventosStack() {
             type: 'bar',
             name: 'Completados',
             marker: { color: COLORS.olive },
-            hovertemplate: '<b>Completados</b><br>%{x}<br>%{y} eventos<extra></extra>'
+            hovertemplate: '<b>Completados</b><br>%{x}<br>%{y} actividades<extra></extra>'
         },
         {
             x: dates,
@@ -341,7 +341,7 @@ async function initChartEventosStack() {
             type: 'bar',
             name: 'En Progreso',
             marker: { color: COLORS.lime },
-            hovertemplate: '<b>En Progreso</b><br>%{x}<br>%{y} eventos<extra></extra>'
+            hovertemplate: '<b>En Progreso</b><br>%{x}<br>%{y} actividades<extra></extra>'
         },
         {
             x: dates,
@@ -349,7 +349,7 @@ async function initChartEventosStack() {
             type: 'bar',
             name: 'Abandonados',
             marker: { color: COLORS.yellow },
-            hovertemplate: '<b>Abandonados</b><br>%{x}<br>%{y} eventos<extra></extra>'
+            hovertemplate: '<b>Abandonados</b><br>%{x}<br>%{y} actividades<extra></extra>'
         }
     ];
 
@@ -359,7 +359,7 @@ async function initChartEventosStack() {
         showlegend: false,
         yaxis: {
             ...commonLayout.yaxis,
-            title: { text: 'Eventos', font: { size: 12 } }
+            title: { text: 'Actividades', font: { size: 12 } }
         },
         xaxis: {
             ...commonLayout.xaxis,
@@ -375,22 +375,22 @@ async function initChartEventosStack() {
 }
 
 // ============================================
-// Chart 4: Completion Rate por Actividad - Barras Horizontales
+// Chart 4: Completion Rate por Punto - Barras Horizontales
 // ============================================
 async function initChartCompletionRate() {
     const chartId = 'chartCompletionRate';
     showLoading(chartId);
 
-    const apiData = await fetchCompletionRateByActivity();
+    const apiData = await fetchCompletionRateByPunto();
     if (!apiData) {
         showError(chartId, 'Error al cargar completion rate');
         return;
     }
 
-    const { activities, rates } = apiData;
+    const { puntos, rates } = apiData;
 
     const data = [{
-        y: activities,
+        y: puntos,
         x: rates,
         type: 'bar',
         orientation: 'h',

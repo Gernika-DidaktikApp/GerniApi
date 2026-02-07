@@ -116,13 +116,13 @@ function showErrorInSummaryCards() {
     });
 }
 
-async function fetchAverageScoreByActivity() {
+async function fetchAverageScoreByPunto() {
     try {
-        const response = await fetch(`${API_BASE}/average-score-by-activity`);
-        if (!response.ok) throw new Error('Failed to fetch average score by activity');
+        const response = await fetch(`${API_BASE}/average-score-by-punto`);
+        if (!response.ok) throw new Error('Failed to fetch average score by punto');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching average score by activity:', error);
+        console.error('Error fetching average score by punto:', error);
         return null;
     }
 }
@@ -138,9 +138,9 @@ async function fetchScoreDistribution() {
     }
 }
 
-async function fetchTimeBoxplotByActivity() {
+async function fetchTimeBoxplotByPunto() {
     try {
-        const response = await fetch(`${API_BASE}/time-boxplot-by-activity`);
+        const response = await fetch(`${API_BASE}/time-boxplot-by-punto`);
         if (!response.ok) throw new Error('Failed to fetch time boxplot');
         return await response.json();
     } catch (error) {
@@ -184,27 +184,27 @@ const commonConfig = {
 };
 
 // ============================================
-// Chart 1: Puntuación media por actividad - Barras
+// Chart 1: Puntuación media por punto - Barras
 // ============================================
 async function initChartPuntuacionMedia() {
     const chartId = 'chartPuntuacionMedia';
     showLoading(chartId);
 
-    const apiData = await fetchAverageScoreByActivity();
+    const apiData = await fetchAverageScoreByPunto();
     if (!apiData) {
         showError(chartId, 'Error al cargar puntuaciones');
         return;
     }
 
-    const { activities, scores } = apiData;
+    const { puntos, scores } = apiData;
 
-    if (!activities || activities.length === 0) {
+    if (!puntos || puntos.length === 0) {
         showError(chartId, 'No hay datos de puntuaciones disponibles');
         return;
     }
 
     const data = [{
-        y: activities,
+        y: puntos,
         x: scores,
         type: 'bar',
         orientation: 'h',
@@ -336,21 +336,21 @@ async function initChartDistribucion() {
 }
 
 // ============================================
-// Chart 3: Tiempo por actividad - Boxplot
+// Chart 3: Tiempo por punto - Boxplot
 // ============================================
 async function initChartTiempoBoxplot() {
     const chartId = 'chartTiempoBoxplot';
     showLoading(chartId);
 
-    const apiData = await fetchTimeBoxplotByActivity();
+    const apiData = await fetchTimeBoxplotByPunto();
     if (!apiData) {
         showError(chartId, 'Error al cargar tiempos');
         return;
     }
 
-    const { activities, times } = apiData;
+    const { puntos, times } = apiData;
 
-    if (!activities || activities.length === 0) {
+    if (!puntos || puntos.length === 0) {
         showError(chartId, 'No hay datos de tiempo disponibles');
         return;
     }
@@ -358,10 +358,10 @@ async function initChartTiempoBoxplot() {
     // Create color palette for boxplots
     const colorPalette = [COLORS.olive, COLORS.lime, COLORS.brown, COLORS.oliveDark, COLORS.yellow];
 
-    const data = activities.map((activity, index) => ({
+    const data = puntos.map((punto, index) => ({
         y: times[index],
         type: 'box',
-        name: activity,
+        name: punto,
         marker: { color: colorPalette[index % colorPalette.length] },
         boxpoints: 'outliers',
         jitter: 0.3,

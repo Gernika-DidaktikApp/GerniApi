@@ -28,35 +28,7 @@ body {
     min-height: 100vh;
 }
 
-/* Dashboard Navbar - Clean White Style (LYSET) */
-.navbar-user {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.navbar-user-name {
-    color: var(--color-text-primary);
-    font-weight: 500;
-    font-size: 0.9375rem;
-}
-
-.navbar-logout {
-    padding: 0.5rem 1rem;
-    background: transparent;
-    color: var(--color-olive);
-    text-decoration: none;
-    border: 2px solid var(--color-olive);
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 200ms ease;
-}
-
-.navbar-logout:hover {
-    background: var(--color-olive);
-    color: white;
-}
+/* Dashboard Navbar - Uses global navbar.css styles */
 
 /* Main Content */
 .main-content {

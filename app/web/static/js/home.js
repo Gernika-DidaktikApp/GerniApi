@@ -1,6 +1,6 @@
 /**
  * Home Page JavaScript
- * Handles counter animations and basic interactions
+ * Handles counter animations and fetches real statistics
  */
 
 // ============================================
@@ -12,6 +12,49 @@ const statCards = document.querySelectorAll('.stat-card');
 // State Management
 // ============================================
 let hasAnimatedStats = false;
+let statsData = {
+    totalUsers: 0,
+    minutesPlayed: 0,
+    eventsCompleted: 0
+};
+
+// ============================================
+// API Functions
+// ============================================
+
+/**
+ * Fetches real statistics from the API
+ */
+async function fetchRealStats() {
+    try {
+        // Fetch user statistics
+        const userStatsResponse = await fetch('/api/statistics/summary');
+        const userStats = await userStatsResponse.json();
+
+        // Fetch gameplay statistics
+        const gameplayStatsResponse = await fetch('/api/statistics/gameplay/summary');
+        const gameplayStats = await gameplayStatsResponse.json();
+
+        // Calculate total minutes from actividades progreso
+        const minutesResponse = await fetch('/api/teacher/dashboard/summary?days=36500'); // All time
+        const minutesData = await minutesResponse.json();
+
+        // Update stats data
+        statsData.totalUsers = userStats.total_users || 0;
+        statsData.minutesPlayed = Math.round((minutesData.tiempo_total_minutos || 0));
+        statsData.eventsCompleted = gameplayStats.actividades_completadas || 0;
+
+        console.log('Real stats loaded:', statsData);
+        return true;
+    } catch (error) {
+        console.error('Error fetching stats:', error);
+        // Use fallback values if API fails
+        statsData.totalUsers = 0;
+        statsData.minutesPlayed = 0;
+        statsData.eventsCompleted = 0;
+        return false;
+    }
+}
 
 // ============================================
 // Utility Functions
@@ -51,7 +94,7 @@ function animateCounter(element, target, duration = 2000) {
         // Format based on size
         if (target >= 1000) {
             const formatted = formatNumber(Math.floor(current));
-            element.textContent = target >= 100000 ? formatted + 'k+' : '+' + formatted;
+            element.textContent = '+' + formatted;
         } else {
             element.textContent = formatNumber(Math.floor(current));
         }
@@ -79,12 +122,18 @@ function isPartiallyInViewport(element, offset = 100) {
 // ============================================
 
 /**
- * Animates all stat counters
+ * Animates all stat counters with real data
  */
 function animateStats() {
+    const stats = [
+        statsData.totalUsers,
+        statsData.minutesPlayed,
+        statsData.eventsCompleted
+    ];
+
     statCards.forEach((card, index) => {
         const numberElement = card.querySelector('.stat-number');
-        const target = parseInt(numberElement.getAttribute('data-target'));
+        const target = stats[index];
 
         // Stagger animation
         setTimeout(() => {
@@ -120,8 +169,11 @@ window.addEventListener('scroll', checkStatsAnimation);
 /**
  * Initializes the home page
  */
-function init() {
+async function init() {
     console.log('Home page initialized');
+
+    // Fetch real statistics first
+    await fetchRealStats();
 
     // Check if stats are already in viewport
     checkStatsAnimation();

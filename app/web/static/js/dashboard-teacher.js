@@ -43,7 +43,8 @@ const API_BASE = '/api/teacher/dashboard';
 // Current filters
 let currentFilters = {
     claseId: null,  // Will be set from dropdown
-    days: 7
+    days: 7,
+    actividadId: null  // Will be set from dropdown
 };
 
 // ============================================
@@ -86,6 +87,9 @@ async function fetchSummary() {
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
         }
+        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
+            params.append('actividad_nombre', currentFilters.actividadId);
+        }
 
         const response = await fetch(`${API_BASE}/summary?${params}`, {
             headers: getAuthHeaders()
@@ -103,6 +107,9 @@ async function fetchStudentProgress() {
         const params = new URLSearchParams();
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
+        }
+        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
+            params.append('actividad_nombre', currentFilters.actividadId);
         }
 
         const response = await fetch(`${API_BASE}/student-progress?${params}`, {
@@ -124,6 +131,9 @@ async function fetchStudentTime() {
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
         }
+        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
+            params.append('actividad_nombre', currentFilters.actividadId);
+        }
 
         const response = await fetch(`${API_BASE}/student-time?${params}`, {
             headers: getAuthHeaders()
@@ -141,6 +151,9 @@ async function fetchActivitiesByClass() {
         const params = new URLSearchParams();
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
+        }
+        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
+            params.append('actividad_nombre', currentFilters.actividadId);
         }
 
         const response = await fetch(`${API_BASE}/activities-by-class?${params}`, {
@@ -161,6 +174,9 @@ async function fetchClassEvolution() {
         });
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
+        }
+        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
+            params.append('actividad_nombre', currentFilters.actividadId);
         }
 
         const response = await fetch(`${API_BASE}/class-evolution?${params}`, {
@@ -657,6 +673,7 @@ async function initFilters() {
 
             const claseSelect = document.getElementById('filterClase');
             const fechasSelect = document.getElementById('filterFechas');
+            const actividadSelect = document.getElementById('filterActividad');
 
             if (claseSelect) {
                 currentFilters.claseId = claseSelect.value || null;
@@ -672,6 +689,10 @@ async function initFilters() {
                     'curso': 365
                 };
                 currentFilters.days = daysMap[value] || 7;
+            }
+
+            if (actividadSelect) {
+                currentFilters.actividadId = actividadSelect.value || null;
             }
 
             console.log('Applying filters:', currentFilters);
@@ -745,6 +766,9 @@ async function fetchStudentsList() {
         const params = new URLSearchParams();
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
+        }
+        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
+            params.append('actividad_nombre', currentFilters.actividadId);
         }
 
         const response = await fetch(`${API_BASE}/students-list?${params}`, {

@@ -8,7 +8,7 @@ from app.database import get_db
 from app.logging import log_with_context
 from app.models.punto import Punto
 from app.schemas.punto import PuntoCreate, PuntoResponse, PuntoUpdate
-from app.utils.dependencies import AuthResult, require_api_key_only, require_auth
+from app.utils.dependencies import require_api_key_only
 
 router = APIRouter(prefix="/puntos", tags=["📍 Puntos"])
 
@@ -37,25 +37,31 @@ def crear_punto(punto_data: PuntoCreate, db: Session = Depends(get_db)):
     return nuevo_punto
 
 
-@router.get("", response_model=List[PuntoResponse])
+@router.get(
+    "",
+    response_model=List[PuntoResponse],
+    dependencies=[Depends(require_api_key_only)],
+)
 def listar_puntos(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    auth: AuthResult = Depends(require_auth),
 ):
-    """Obtener lista de puntos. Requiere API Key o Token de usuario."""
+    """Obtener lista de puntos. Requiere API Key."""
     puntos = db.query(Punto).offset(skip).limit(limit).all()
     return puntos
 
 
-@router.get("/{punto_id}", response_model=PuntoResponse)
+@router.get(
+    "/{punto_id}",
+    response_model=PuntoResponse,
+    dependencies=[Depends(require_api_key_only)],
+)
 def obtener_punto(
     punto_id: str,
     db: Session = Depends(get_db),
-    auth: AuthResult = Depends(require_auth),
 ):
-    """Obtener un punto por ID. Requiere API Key o Token de usuario."""
+    """Obtener un punto por ID. Requiere API Key."""
     punto = db.query(Punto).filter(Punto.id == punto_id).first()
     if not punto:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Punto no encontrado")

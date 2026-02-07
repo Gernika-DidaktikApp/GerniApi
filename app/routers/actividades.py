@@ -9,7 +9,7 @@ from app.logging import log_with_context
 from app.models.actividad import Actividad
 from app.models.punto import Punto
 from app.schemas.actividad import ActividadCreate, ActividadResponse, ActividadUpdate
-from app.utils.dependencies import AuthResult, require_api_key_only, require_auth
+from app.utils.dependencies import require_api_key_only
 
 router = APIRouter(prefix="/actividades", tags=["📝 Actividades"])
 
@@ -46,44 +46,48 @@ def crear_actividad(actividad_data: ActividadCreate, db: Session = Depends(get_d
     return nueva_actividad
 
 
-@router.get("", response_model=List[ActividadResponse])
+@router.get(
+    "",
+    response_model=List[ActividadResponse],
+    dependencies=[Depends(require_api_key_only)],
+)
 def listar_actividades(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    auth: AuthResult = Depends(require_auth),
 ):
-    """Obtener lista de actividades. Requiere API Key o Token de usuario."""
+    """Obtener lista de actividades. Requiere API Key."""
     actividades = db.query(Actividad).offset(skip).limit(limit).all()
     return actividades
 
 
-@router.get("/{actividad_id}", response_model=ActividadResponse)
+@router.get(
+    "/{actividad_id}",
+    response_model=ActividadResponse,
+    dependencies=[Depends(require_api_key_only)],
+)
 def obtener_actividad(
     actividad_id: str,
     db: Session = Depends(get_db),
-    auth: AuthResult = Depends(require_auth),
 ):
-    """Obtener una actividad por ID. Requiere API Key o Token de usuario."""
+    """Obtener una actividad por ID. Requiere API Key."""
     actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
     if not actividad:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada")
     return actividad
 
 
-@router.put("/{actividad_id}", response_model=ActividadResponse)
+@router.put(
+    "/{actividad_id}",
+    response_model=ActividadResponse,
+    dependencies=[Depends(require_api_key_only)],
+)
 def actualizar_actividad(
     actividad_id: str,
     actividad_data: ActividadUpdate,
     db: Session = Depends(get_db),
-    auth: AuthResult = Depends(require_auth),
 ):
-    """
-    Actualizar una actividad existente. Requiere API Key o Token de usuario.
-
-    - Con API Key: Puede actualizar cualquier campo de la actividad
-    - Con Token: Puede actualizar la actividad
-    """
+    """Actualizar una actividad existente. Requiere API Key."""
     actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
     if not actividad:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada")

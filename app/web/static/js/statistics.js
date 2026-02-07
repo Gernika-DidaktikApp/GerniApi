@@ -88,6 +88,27 @@ function showError(chartId, message = 'Error al cargar datos') {
     }
 }
 
+/**
+ * Show empty state message on a chart container
+ */
+function showEmpty(chartId, message = 'No hay datos disponibles') {
+    const container = document.getElementById(chartId);
+    if (container) {
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
+                <div style="text-align: center; color: #6B7A5C;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto; opacity: 0.5;">
+                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                        <path d="M12 8V12M12 16H12.01" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.7;">Genera datos de prueba para ver estadísticas</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
 // Add spinner animation to the page
 if (!document.getElementById('spinner-style')) {
     const style = document.createElement('style');
@@ -233,6 +254,11 @@ async function initChartActiveUsers() {
 
     const { dates, dau, wau, mau } = apiData;
 
+    if (!dates || dates.length === 0) {
+        showEmpty(chartId, 'No hay datos de usuarios activos');
+        return;
+    }
+
     const data = [
         {
             x: dates,
@@ -310,6 +336,11 @@ async function initChartNewUsers() {
 
     const { dates, counts } = apiData;
 
+    if (!dates || dates.length === 0) {
+        showEmpty(chartId, 'No hay datos de nuevos usuarios');
+        return;
+    }
+
     const data = [{
         x: dates,
         y: counts,
@@ -364,6 +395,11 @@ async function initChartRatio() {
 
     const { dates, ratios } = apiData;
 
+    if (!dates || dates.length === 0) {
+        showEmpty(chartId, 'No hay datos de ratio de usuarios');
+        return;
+    }
+
     const data = [{
         x: dates,
         y: ratios,
@@ -415,6 +451,11 @@ async function initChartLogins() {
     }
 
     const { dates, counts } = apiData;
+
+    if (!dates || dates.length === 0) {
+        showEmpty(chartId, 'No hay datos de logins');
+        return;
+    }
 
     const data = [{
         x: dates,

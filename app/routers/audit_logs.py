@@ -74,5 +74,3 @@ def obtener_audit_log(
     )
 
     return audit_log
-
-

@@ -10,16 +10,16 @@ from app.config import settings
 from app.database import Base, engine
 from app.logging import LoggingMiddleware, logger, register_exception_handlers
 from app.routers import (
+    actividad_progreso,
     actividades,
     audit_logs,
     auth,
     clases,
-    evento_estados,
-    eventos,
     gameplay_statistics,
     learning_statistics,
     partidas,
     profesores,
+    puntos,
     statistics,
     teacher_dashboard,
     usuarios,
@@ -126,15 +126,15 @@ API Key o Token 🎫
             "description": "🔑🎫 **Mixto** - GET lista/DELETE requieren API Key. POST/GET/{id}/PUT/{id} permiten Token (solo sus partidas)",
         },
         {
+            "name": "📍 Puntos",
+            "description": "🔑🎫 **Mixto** - POST/PUT/DELETE requieren API Key. GET permite Token (lectura pública)",
+        },
+        {
             "name": "📝 Actividades",
             "description": "🔑🎫 **Mixto** - POST/PUT/DELETE requieren API Key. GET permite Token (lectura pública)",
         },
         {
-            "name": "📅 Eventos",
-            "description": "🔑🎫 **Mixto** - POST/PUT/DELETE requieren API Key. GET permite Token (lectura pública)",
-        },
-        {
-            "name": "📊 Estados",
+            "name": "📊 Progreso",
             "description": "🔑🎫 **Mixto** - GET lista/DELETE requieren API Key. Resto permite Token (via su partida)",
         },
         {
@@ -172,10 +172,10 @@ app.include_router(auth.router, prefix=settings.API_V1_PREFIX)
 app.include_router(usuarios.router, prefix=settings.API_V1_PREFIX)
 app.include_router(profesores.router, prefix=settings.API_V1_PREFIX)
 app.include_router(clases.router, prefix=settings.API_V1_PREFIX)
+app.include_router(puntos.router, prefix=settings.API_V1_PREFIX)
 app.include_router(actividades.router, prefix=settings.API_V1_PREFIX)
-app.include_router(eventos.router, prefix=settings.API_V1_PREFIX)
 app.include_router(partidas.router, prefix=settings.API_V1_PREFIX)
-app.include_router(evento_estados.router, prefix=settings.API_V1_PREFIX)
+app.include_router(actividad_progreso.router, prefix=settings.API_V1_PREFIX)
 app.include_router(audit_logs.router, prefix=settings.API_V1_PREFIX)
 app.include_router(statistics.router)  # Statistics doesn't use API_V1_PREFIX
 app.include_router(gameplay_statistics.router)  # Gameplay statistics doesn't use API_V1_PREFIX

@@ -9,8 +9,8 @@ from typing import Any, Callable, Dict, List, Optional
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
-from app.models.actividad import Actividad
-from app.models.evento_estado import EventoEstado
+from app.models.punto import Punto
+from app.models.actividad_progreso import ActividadProgreso
 
 
 class CacheEntry:
@@ -76,29 +76,29 @@ class LearningStatisticsService:
         """Internal method to fetch learning summary from database"""
         # Average score (puntuacion) of completed eventos
         avg_score = (
-            db.query(func.avg(EventoEstado.puntuacion))
-            .filter(and_(EventoEstado.puntuacion.isnot(None), EventoEstado.estado == "completado"))
+            db.query(func.avg(ActividadProgreso.puntuacion))
+            .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
             .scalar()
             or 0
         )
 
         # Count of evaluated activities (completed eventos with score)
         evaluated_count = (
-            db.query(EventoEstado)
-            .filter(and_(EventoEstado.puntuacion.isnot(None), EventoEstado.estado == "completado"))
+            db.query(ActividadProgreso)
+            .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
             .count()
         )
 
         # Pass rate (puntuacion >= 5)
         total_with_score = (
-            db.query(EventoEstado)
-            .filter(and_(EventoEstado.puntuacion.isnot(None), EventoEstado.estado == "completado"))
+            db.query(ActividadProgreso)
+            .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
             .count()
         )
 
         passed_count = (
-            db.query(EventoEstado)
-            .filter(and_(EventoEstado.puntuacion >= 5, EventoEstado.estado == "completado"))
+            db.query(ActividadProgreso)
+            .filter(and_(ActividadProgreso.puntuacion >= 5, ActividadProgreso.estado == "completado"))
             .count()
         )
 
@@ -106,8 +106,8 @@ class LearningStatisticsService:
 
         # Average time (duracion) in minutes
         avg_time = (
-            db.query(func.avg(EventoEstado.duracion))
-            .filter(and_(EventoEstado.duracion.isnot(None), EventoEstado.estado == "completado"))
+            db.query(func.avg(ActividadProgreso.duracion))
+            .filter(and_(ActividadProgreso.duracion.isnot(None), ActividadProgreso.estado == "completado"))
             .scalar()
             or 0
         )
@@ -137,11 +137,11 @@ class LearningStatisticsService:
         """Internal method to fetch average score by activity from database"""
         # Query activities with their average scores
         results = (
-            db.query(Actividad.nombre, func.avg(EventoEstado.puntuacion).label("avg_score"))
-            .join(EventoEstado, EventoEstado.id_actividad == Actividad.id)
-            .filter(and_(EventoEstado.puntuacion.isnot(None), EventoEstado.estado == "completado"))
-            .group_by(Actividad.id, Actividad.nombre)
-            .order_by(func.avg(EventoEstado.puntuacion).desc())
+            db.query(Punto.nombre, func.avg(ActividadProgreso.puntuacion).label("avg_score"))
+            .join(ActividadProgreso, ActividadProgreso.id_actividad == Punto.id)
+            .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
+            .group_by(Punto.id, Punto.nombre)
+            .order_by(func.avg(ActividadProgreso.puntuacion).desc())
             .all()
         )
 
@@ -172,8 +172,8 @@ class LearningStatisticsService:
         """Internal method to fetch score distribution from database"""
         # Get all scores from completed eventos
         scores_query = (
-            db.query(EventoEstado.puntuacion)
-            .filter(and_(EventoEstado.puntuacion.isnot(None), EventoEstado.estado == "completado"))
+            db.query(ActividadProgreso.puntuacion)
+            .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
             .all()
         )
 
@@ -201,7 +201,7 @@ class LearningStatisticsService:
     def _fetch_time_boxplot_by_activity(db: Session) -> Dict[str, Any]:
         """Internal method to fetch time boxplot data from database"""
         # Get activities
-        activities = db.query(Actividad).all()
+        activities = db.query(Punto).all()
 
         activity_names = []
         activity_times = []
@@ -209,12 +209,12 @@ class LearningStatisticsService:
         for activity in activities:
             # Get all durations for this activity (in minutes)
             times_query = (
-                db.query(EventoEstado.duracion)
+                db.query(ActividadProgreso.duracion)
                 .filter(
                     and_(
-                        EventoEstado.id_actividad == activity.id,
-                        EventoEstado.duracion.isnot(None),
-                        EventoEstado.estado == "completado",
+                        ActividadProgreso.id_actividad == activity.id,
+                        ActividadProgreso.duracion.isnot(None),
+                        ActividadProgreso.estado == "completado",
                     )
                 )
                 .all()

@@ -10,9 +10,9 @@ from typing import Any, Callable, Dict, List, Optional
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
-from app.models.actividad import Actividad
+from app.models.punto import Punto
 from app.models.clase import Clase
-from app.models.evento_estado import EventoEstado
+from app.models.actividad_progreso import ActividadProgreso
 from app.models.juego import Partida
 from app.models.usuario import Usuario
 
@@ -114,18 +114,18 @@ class TeacherDashboardService:
 
         # Calculate average progress (based on completed events)
         # Progress = (completed events / total unique events per student) * 100
-        total_events = db.query(func.count(func.distinct(Actividad.id))).scalar() or 1
+        total_events = db.query(func.count(func.distinct(Punto.id))).scalar() or 1
 
         completed_events_per_student = []
         for student_id in student_ids:
             completed = (
-                db.query(func.count(func.distinct(EventoEstado.id_evento)))
+                db.query(func.count(func.distinct(ActividadProgreso.id_evento)))
                 .filter(
                     and_(
-                        EventoEstado.id_juego.in_(
+                        ActividadProgreso.id_juego.in_(
                             db.query(Partida.id).filter(Partida.id_usuario == student_id)
                         ),
-                        EventoEstado.estado == "completado",
+                        ActividadProgreso.estado == "completado",
                     )
                 )
                 .scalar()
@@ -160,10 +160,10 @@ class TeacherDashboardService:
 
         # Calculate average grade (from completed eventos with scores)
         avg_grade = (
-            db.query(func.avg(EventoEstado.puntuacion))
+            db.query(func.avg(ActividadProgreso.puntuacion))
             .filter(
                 and_(
-                    EventoEstado.id_juego.in_(
+                    ActividadProgreso.id_juego.in_(
                         db.query(Partida.id).filter(
                             and_(
                                 Partida.id_usuario.in_(student_ids),
@@ -171,8 +171,8 @@ class TeacherDashboardService:
                             )
                         )
                     ),
-                    EventoEstado.puntuacion.isnot(None),
-                    EventoEstado.estado == "completado",
+                    ActividadProgreso.puntuacion.isnot(None),
+                    ActividadProgreso.estado == "completado",
                 )
             )
             .scalar()
@@ -234,7 +234,7 @@ class TeacherDashboardService:
         if not students:
             return {"students": [], "progress": []}
 
-        total_events = db.query(func.count(func.distinct(Actividad.id))).scalar() or 1
+        total_events = db.query(func.count(func.distinct(Punto.id))).scalar() or 1
 
         student_names = []
         progress_values = []
@@ -242,13 +242,13 @@ class TeacherDashboardService:
         for student in students:
             # Calculate progress for this student
             completed = (
-                db.query(func.count(func.distinct(EventoEstado.id_evento)))
+                db.query(func.count(func.distinct(ActividadProgreso.id_evento)))
                 .filter(
                     and_(
-                        EventoEstado.id_juego.in_(
+                        ActividadProgreso.id_juego.in_(
                             db.query(Partida.id).filter(Partida.id_usuario == student.id)
                         ),
-                        EventoEstado.estado == "completado",
+                        ActividadProgreso.estado == "completado",
                     )
                 )
                 .scalar()
@@ -375,7 +375,7 @@ class TeacherDashboardService:
             return {"activities": [], "completed": [], "in_progress": [], "not_started": []}
 
         # Get all activities
-        activities = db.query(Actividad).all()
+        activities = db.query(Punto).all()
 
         activity_names = []
         completed_counts = []
@@ -392,10 +392,10 @@ class TeacherDashboardService:
                     and_(
                         Partida.id_usuario.in_(student_ids),
                         Partida.id.in_(
-                            db.query(EventoEstado.id_juego).filter(
+                            db.query(ActividadProgreso.id_juego).filter(
                                 and_(
-                                    EventoEstado.id_actividad == activity.id,
-                                    EventoEstado.estado == "completado",
+                                    ActividadProgreso.id_actividad == activity.id,
+                                    ActividadProgreso.estado == "completado",
                                 )
                             )
                         ),
@@ -412,19 +412,19 @@ class TeacherDashboardService:
                     and_(
                         Partida.id_usuario.in_(student_ids),
                         Partida.id.in_(
-                            db.query(EventoEstado.id_juego).filter(
+                            db.query(ActividadProgreso.id_juego).filter(
                                 and_(
-                                    EventoEstado.id_actividad == activity.id,
-                                    EventoEstado.estado == "en_progreso",
+                                    ActividadProgreso.id_actividad == activity.id,
+                                    ActividadProgreso.estado == "en_progreso",
                                 )
                             )
                         ),
                         # Exclude if already completed
                         ~Partida.id.in_(
-                            db.query(EventoEstado.id_juego).filter(
+                            db.query(ActividadProgreso.id_juego).filter(
                                 and_(
-                                    EventoEstado.id_actividad == activity.id,
-                                    EventoEstado.estado == "completado",
+                                    ActividadProgreso.id_actividad == activity.id,
+                                    ActividadProgreso.estado == "completado",
                                 )
                             )
                         ),
@@ -495,7 +495,7 @@ class TeacherDashboardService:
         if not student_ids:
             return {"dates": [], "progress": [], "grades": []}
 
-        total_events = db.query(func.count(func.distinct(Actividad.id))).scalar() or 1
+        total_events = db.query(func.count(func.distinct(Punto.id))).scalar() or 1
 
         dates = []
         progress_values = []
@@ -512,10 +512,10 @@ class TeacherDashboardService:
             completed_by_date = []
             for student_id in student_ids:
                 completed = (
-                    db.query(func.count(func.distinct(EventoEstado.id_evento)))
+                    db.query(func.count(func.distinct(ActividadProgreso.id_evento)))
                     .filter(
                         and_(
-                            EventoEstado.id_juego.in_(
+                            ActividadProgreso.id_juego.in_(
                                 db.query(Partida.id).filter(
                                     and_(
                                         Partida.id_usuario == student_id,
@@ -523,8 +523,8 @@ class TeacherDashboardService:
                                     )
                                 )
                             ),
-                            EventoEstado.estado == "completado",
-                            EventoEstado.fecha_inicio < date_end,
+                            ActividadProgreso.estado == "completado",
+                            ActividadProgreso.fecha_inicio < date_end,
                         )
                     )
                     .scalar()
@@ -539,10 +539,10 @@ class TeacherDashboardService:
 
             # Calculate average grade for this date
             avg_grade = (
-                db.query(func.avg(EventoEstado.puntuacion))
+                db.query(func.avg(ActividadProgreso.puntuacion))
                 .filter(
                     and_(
-                        EventoEstado.id_juego.in_(
+                        ActividadProgreso.id_juego.in_(
                             db.query(Partida.id).filter(
                                 and_(
                                     Partida.id_usuario.in_(student_ids),
@@ -550,9 +550,9 @@ class TeacherDashboardService:
                                 )
                             )
                         ),
-                        EventoEstado.puntuacion.isnot(None),
-                        EventoEstado.estado == "completado",
-                        EventoEstado.fecha_inicio < date_end,
+                        ActividadProgreso.puntuacion.isnot(None),
+                        ActividadProgreso.estado == "completado",
+                        ActividadProgreso.fecha_inicio < date_end,
                     )
                 )
                 .scalar()

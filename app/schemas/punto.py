@@ -3,19 +3,16 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-class ActividadCreate(BaseModel):
-    id_punto: str = Field(..., min_length=36, max_length=36)
+class PuntoCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=100)
 
 
-class ActividadUpdate(BaseModel):
-    id_punto: Optional[str] = Field(None, min_length=36, max_length=36)
+class PuntoUpdate(BaseModel):
     nombre: Optional[str] = Field(None, min_length=1, max_length=100)
 
 
-class ActividadResponse(BaseModel):
+class PuntoResponse(BaseModel):
     id: str
-    id_punto: str
     nombre: str
 
     class Config:

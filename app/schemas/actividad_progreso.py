@@ -4,51 +4,53 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-class EventoEstadoCreate(BaseModel):
+class ActividadProgresoCreate(BaseModel):
     id_juego: str = Field(..., min_length=36, max_length=36)
+    id_punto: str = Field(..., min_length=36, max_length=36)
     id_actividad: str = Field(..., min_length=36, max_length=36)
-    id_evento: str = Field(..., min_length=36, max_length=36)
 
 
-class EventoEstadoUpdate(BaseModel):
+class ActividadProgresoUpdate(BaseModel):
     duracion: Optional[int] = None
     fecha_fin: Optional[datetime] = None
     estado: Optional[str] = Field(None, max_length=20)
     puntuacion: Optional[float] = None
+    respuesta_contenido: Optional[str] = Field(None, description="Texto largo o URL de imagen del usuario")
 
 
-class EventoEstadoCompletar(BaseModel):
-    puntuacion: float = Field(..., description="Puntuación obtenida en el evento")
+class ActividadProgresoCompletar(BaseModel):
+    puntuacion: float = Field(..., description="Puntuación obtenida en la actividad")
     device_type: Optional[str] = Field(
         None, max_length=50, description="Tipo de dispositivo (iOS, Android)"
     )
     app_version: Optional[str] = Field(None, max_length=20, description="Versión de la aplicación")
 
 
-class EventoEstadoResponse(BaseModel):
+class ActividadProgresoResponse(BaseModel):
     id: str
     id_juego: str
+    id_punto: str
     id_actividad: str
-    id_evento: str
     fecha_inicio: datetime
     duracion: Optional[int] = None
     fecha_fin: Optional[datetime] = None
     estado: str
     puntuacion: Optional[float] = None
+    respuesta_contenido: Optional[str] = None
 
     class Config:
         from_attributes = True
 
 
-class ActividadResumen(BaseModel):
-    """Resumen calculado de una actividad (desde evento_estado)"""
+class PuntoResumen(BaseModel):
+    """Resumen calculado de un punto (desde actividad_progreso)"""
 
     id_juego: str
-    id_actividad: str
-    nombre_actividad: Optional[str] = None
-    eventos_totales: int
-    eventos_completados: int
-    eventos_en_progreso: int
+    id_punto: str
+    nombre_punto: Optional[str] = None
+    actividades_totales: int
+    actividades_completadas: int
+    actividades_en_progreso: int
     puntuacion_total: float
     duracion_total: Optional[int] = None
     fecha_inicio: Optional[datetime] = None

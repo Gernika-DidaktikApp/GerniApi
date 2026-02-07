@@ -11,11 +11,11 @@ from app.database import Base
 # Importar todos los modelos para que Alembic los detecte
 from app.models import (  # noqa: F401
     Actividad,
+    ActividadProgreso,
     Clase,
-    EventoEstado,
-    Eventos,
     Partida,
     Profesor,
+    Punto,
     Sesion,
     Usuario,
 )

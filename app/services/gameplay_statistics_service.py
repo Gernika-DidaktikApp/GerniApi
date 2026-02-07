@@ -10,8 +10,8 @@ from typing import Any, Callable, Dict, List, Optional
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
-from app.models.actividad import Actividad
-from app.models.evento_estado import EventoEstado
+from app.models.punto import Punto
+from app.models.actividad_progreso import ActividadProgreso
 from app.models.juego import Partida
 
 
@@ -93,9 +93,9 @@ class GameplayStatisticsService:
             db.query(func.avg(Partida.duracion)).filter(Partida.duracion.isnot(None)).scalar() or 0
         )
 
-        # Eventos completados
+        # ActividadModel completados
         eventos_completados = (
-            db.query(EventoEstado).filter(EventoEstado.estado == "completado").count()
+            db.query(ActividadProgreso).filter(ActividadProgreso.estado == "completado").count()
         )
 
         return {
@@ -212,36 +212,36 @@ class GameplayStatisticsService:
 
             # Count eventos by status for this day
             comp = (
-                db.query(EventoEstado)
+                db.query(ActividadProgreso)
                 .filter(
                     and_(
-                        EventoEstado.fecha_inicio >= date_start,
-                        EventoEstado.fecha_inicio < date_end,
-                        EventoEstado.estado == "completado",
+                        ActividadProgreso.fecha_inicio >= date_start,
+                        ActividadProgreso.fecha_inicio < date_end,
+                        ActividadProgreso.estado == "completado",
                     )
                 )
                 .count()
             )
 
             prog = (
-                db.query(EventoEstado)
+                db.query(ActividadProgreso)
                 .filter(
                     and_(
-                        EventoEstado.fecha_inicio >= date_start,
-                        EventoEstado.fecha_inicio < date_end,
-                        EventoEstado.estado == "en_progreso",
+                        ActividadProgreso.fecha_inicio >= date_start,
+                        ActividadProgreso.fecha_inicio < date_end,
+                        ActividadProgreso.estado == "en_progreso",
                     )
                 )
                 .count()
             )
 
             aban = (
-                db.query(EventoEstado)
+                db.query(ActividadProgreso)
                 .filter(
                     and_(
-                        EventoEstado.fecha_inicio >= date_start,
-                        EventoEstado.fecha_inicio < date_end,
-                        EventoEstado.estado == "abandonado",
+                        ActividadProgreso.fecha_inicio >= date_start,
+                        ActividadProgreso.fecha_inicio < date_end,
+                        ActividadProgreso.estado == "abandonado",
                     )
                 )
                 .count()
@@ -324,7 +324,7 @@ class GameplayStatisticsService:
     def _fetch_completion_rate_by_activity(db: Session) -> Dict[str, List]:
         """Internal method to fetch completion rate by activity from database"""
         # Get all activities
-        activities = db.query(Actividad).all()
+        activities = db.query(Punto).all()
 
         activity_names = []
         completion_rates = []
@@ -332,16 +332,16 @@ class GameplayStatisticsService:
         for activity in activities:
             # Count total eventos for this activity
             total_eventos = (
-                db.query(EventoEstado).filter(EventoEstado.id_actividad == activity.id).count()
+                db.query(ActividadProgreso).filter(ActividadProgreso.id_actividad == activity.id).count()
             )
 
             # Count completed eventos for this activity
             completed_eventos = (
-                db.query(EventoEstado)
+                db.query(ActividadProgreso)
                 .filter(
                     and_(
-                        EventoEstado.id_actividad == activity.id,
-                        EventoEstado.estado == "completado",
+                        ActividadProgreso.id_actividad == activity.id,
+                        ActividadProgreso.estado == "completado",
                     )
                 )
                 .count()

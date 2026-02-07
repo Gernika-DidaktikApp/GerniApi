@@ -8,9 +8,9 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.logging import log_db_operation, log_warning
-from app.models.actividad import Actividad
+from app.models.punto import Punto
 from app.models.clase import Clase
-from app.models.evento_estado import EventoEstado
+from app.models.actividad_progreso import ActividadProgreso
 from app.models.juego import Partida
 from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioStatsResponse, UsuarioUpdate
@@ -264,9 +264,9 @@ def obtener_estadisticas_usuario(
 
     # 1. Actividades completadas (contar eventos completados)
     actividades_completadas = (
-        db.query(func.count(EventoEstado.id))
-        .join(Partida, EventoEstado.id_juego == Partida.id)
-        .filter(and_(Partida.id_usuario == usuario_id, EventoEstado.estado == "completado"))
+        db.query(func.count(ActividadProgreso.id))
+        .join(Partida, ActividadProgreso.id_juego == Partida.id)
+        .filter(and_(Partida.id_usuario == usuario_id, ActividadProgreso.estado == "completado"))
         .scalar()
         or 0
     )
@@ -294,10 +294,10 @@ def obtener_estadisticas_usuario(
 
     # 3. Módulos completados (actividades con al menos 1 evento completado)
     modulos_completados_query = (
-        db.query(Actividad.nombre)
-        .join(EventoEstado, Actividad.id == EventoEstado.id_actividad)
-        .join(Partida, EventoEstado.id_juego == Partida.id)
-        .filter(and_(Partida.id_usuario == usuario_id, EventoEstado.estado == "completado"))
+        db.query(Punto.nombre)
+        .join(ActividadProgreso, Punto.id == ActividadProgreso.id_actividad)
+        .join(Partida, ActividadProgreso.id_juego == Partida.id)
+        .filter(and_(Partida.id_usuario == usuario_id, ActividadProgreso.estado == "completado"))
         .distinct()
         .all()
     )
@@ -314,9 +314,9 @@ def obtener_estadisticas_usuario(
 
     # 5. Total puntos acumulados
     total_puntos = (
-        db.query(func.sum(EventoEstado.puntuacion))
-        .join(Partida, EventoEstado.id_juego == Partida.id)
-        .filter(and_(Partida.id_usuario == usuario_id, EventoEstado.puntuacion.isnot(None)))
+        db.query(func.sum(ActividadProgreso.puntuacion))
+        .join(Partida, ActividadProgreso.id_juego == Partida.id)
+        .filter(and_(Partida.id_usuario == usuario_id, ActividadProgreso.puntuacion.isnot(None)))
         .scalar()
         or 0.0
     )

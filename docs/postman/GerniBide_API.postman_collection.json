@@ -515,6 +515,152 @@
       ]
     },
     {
+      "name": "Puntos",
+      "item": [
+        {
+          "name": "Crear Punto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Punto de Control 1\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/puntos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "puntos"]
+            },
+            "description": "Crear nuevo punto (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Puntos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/puntos?skip=0&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "puntos"],
+              "query": [
+                {
+                  "key": "skip",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Listar todos los puntos (requiere autenticación)."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Punto",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/puntos/:punto_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "puntos", ":punto_id"],
+              "variable": [
+                {
+                  "key": "punto_id",
+                  "value": "uuid-del-punto"
+                }
+              ]
+            },
+            "description": "Obtener punto por ID (requiere autenticación)."
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Punto",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Nuevo Nombre del Punto\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/puntos/:punto_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "puntos", ":punto_id"],
+              "variable": [
+                {
+                  "key": "punto_id",
+                  "value": "uuid-del-punto"
+                }
+              ]
+            },
+            "description": "Actualizar punto (requiere API Key)."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Punto",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/puntos/:punto_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "puntos", ":punto_id"],
+              "variable": [
+                {
+                  "key": "punto_id",
+                  "value": "uuid-del-punto"
+                }
+              ]
+            },
+            "description": "Eliminar punto (requiere API Key)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Actividades",
       "item": [
         {
@@ -533,14 +679,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Actividad de Álgebra\"\n}"
+              "raw": "{\n  \"id_punto\": \"uuid-del-punto\",\n  \"enunciado\": \"¿Cuál es el resultado de 2+2?\",\n  \"tipo\": \"multiple_choice\",\n  \"opciones\": [\"2\", \"3\", \"4\", \"5\"],\n  \"respuesta_correcta\": \"4\",\n  \"puntos\": 10,\n  \"imagen_url\": \"https://ejemplo.com/imagen.jpg\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/actividades",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "actividades"]
             },
-            "description": "Crear nueva actividad (requiere API Key)."
+            "description": "Crear nueva actividad dentro de un punto (requiere API Key). Campos opcionales: opciones, respuesta_correcta, puntos, imagen_url."
           },
           "response": []
         },
@@ -616,7 +762,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Nuevo Nombre de Actividad\"\n}"
+              "raw": "{\n  \"enunciado\": \"¿Cuál es el resultado de 3+3?\",\n  \"tipo\": \"multiple_choice\",\n  \"opciones\": [\"4\", \"5\", \"6\", \"7\"],\n  \"respuesta_correcta\": \"6\",\n  \"puntos\": 15,\n  \"imagen_url\": \"https://ejemplo.com/nueva-imagen.jpg\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/actividades/:actividad_id",
@@ -629,7 +775,7 @@
                 }
               ]
             },
-            "description": "Actualizar actividad (requiere API Key)."
+            "description": "Actualizar actividad (requiere API Key). Todos los campos son opcionales."
           },
           "response": []
         },
@@ -661,154 +807,60 @@
       ]
     },
     {
-      "name": "Eventos",
+      "name": "Partidas",
       "item": [
         {
-          "name": "Crear Evento",
+          "name": "Obtener Partida Activa",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/partidas/activa/usuario/:usuario_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "partidas", "activa", "usuario", ":usuario_id"],
+              "variable": [
+                {
+                  "key": "usuario_id",
+                  "value": "{{user_id}}"
+                }
+              ]
+            },
+            "description": "Obtiene la partida activa del usuario. Retorna 404 si no hay partida activa."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener o Crear Partida Activa (RECOMENDADO)",
           "request": {
             "method": "POST",
             "header": [
               {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "X-API-Key",
-                "value": "{{api_key}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Evento 1\",\n  \"id_actividad\": \"uuid-de-la-actividad\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/eventos",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "eventos"]
-            },
-            "description": "Crear nuevo evento (requiere API Key)."
-          },
-          "response": []
-        },
-        {
-          "name": "Listar Eventos",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
                 "key": "Authorization",
                 "value": "Bearer {{token}}",
                 "description": "Token JWT o API Key"
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/v1/eventos?skip=0&limit=100",
+              "raw": "{{base_url}}/api/v1/partidas/activa/usuario/:usuario_id/obtener-o-crear",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "eventos"],
-              "query": [
+              "path": ["api", "v1", "partidas", "activa", "usuario", ":usuario_id", "obtener-o-crear"],
+              "variable": [
                 {
-                  "key": "skip",
-                  "value": "0"
-                },
-                {
-                  "key": "limit",
-                  "value": "100"
+                  "key": "usuario_id",
+                  "value": "{{user_id}}"
                 }
               ]
             },
-            "description": "Listar todos los eventos (requiere autenticación)."
+            "description": "RECOMENDADO: Obtiene la partida activa si existe, o crea una nueva automáticamente. Simplifica la lógica del cliente."
           },
           "response": []
         },
-        {
-          "name": "Obtener Evento",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}",
-                "description": "Token JWT o API Key"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/eventos/:evento_id",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "eventos", ":evento_id"],
-              "variable": [
-                {
-                  "key": "evento_id",
-                  "value": "uuid-del-evento"
-                }
-              ]
-            },
-            "description": "Obtener evento por ID (requiere autenticación)."
-          },
-          "response": []
-        },
-        {
-          "name": "Actualizar Evento",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "X-API-Key",
-                "value": "{{api_key}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre\": \"Nuevo Nombre del Evento\",\n  \"id_actividad\": \"uuid-nueva-actividad\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/eventos/:evento_id",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "eventos", ":evento_id"],
-              "variable": [
-                {
-                  "key": "evento_id",
-                  "value": "uuid-del-evento"
-                }
-              ]
-            },
-            "description": "Actualizar evento (requiere API Key). Todos los campos son opcionales."
-          },
-          "response": []
-        },
-        {
-          "name": "Eliminar Evento",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "X-API-Key",
-                "value": "{{api_key}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/eventos/:evento_id",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "eventos", ":evento_id"],
-              "variable": [
-                {
-                  "key": "evento_id",
-                  "value": "uuid-del-evento"
-                }
-              ]
-            },
-            "description": "Eliminar evento (requiere API Key)."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Partidas",
-      "item": [
         {
           "name": "Crear Partida",
           "request": {
@@ -826,14 +878,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_usuario\": \"uuid-del-usuario\"\n}"
+              "raw": "{\n  \"id_usuario\": \"{{user_id}}\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/partidas",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "partidas"]
             },
-            "description": "Crear nueva partida. Con token solo puede crear partidas para sí mismo."
+            "description": "Crear nueva partida. RESTRICCIÓN: Un usuario solo puede tener UNA partida activa. Usar 'Obtener o Crear' en su lugar."
           },
           "response": []
         },
@@ -954,10 +1006,10 @@
       ]
     },
     {
-      "name": "Estados de Eventos",
+      "name": "Actividad Progreso",
       "item": [
         {
-          "name": "Iniciar Evento",
+          "name": "Iniciar Actividad",
           "request": {
             "method": "POST",
             "header": [
@@ -973,19 +1025,19 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_juego\": \"uuid-de-la-partida\",\n  \"id_actividad\": \"uuid-de-la-actividad\",\n  \"id_evento\": \"uuid-del-evento\"\n}"
+              "raw": "{\n  \"id_juego\": \"uuid-de-partida\",\n  \"id_punto\": \"uuid-de-punto\",\n  \"id_actividad\": \"uuid-de-actividad\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/evento-estados/iniciar",
+              "raw": "{{base_url}}/api/v1/actividad-progreso/iniciar",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "evento-estados", "iniciar"]
+              "path": ["api", "v1", "actividad-progreso", "iniciar"]
             },
-            "description": "Iniciar un evento (marca estado como 'en_progreso'). Con token solo para sus propias partidas."
+            "description": "Inicia una actividad dentro de un punto. Registra automáticamente la fecha de inicio."
           },
           "response": []
         },
         {
-          "name": "Completar Evento",
+          "name": "Completar Actividad",
           "request": {
             "method": "PUT",
             "header": [
@@ -1001,57 +1053,27 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"puntuacion\": 85.5\n}"
+              "raw": "{\n  \"puntuacion\": 85.5,\n  \"respuesta_contenido\": \"https://url-de-imagen.jpg\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/evento-estados/:estado_id/completar",
+              "raw": "{{base_url}}/api/v1/actividad-progreso/:progreso_id/completar",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "evento-estados", ":estado_id", "completar"],
+              "path": ["api", "v1", "actividad-progreso", ":progreso_id", "completar"],
               "variable": [
                 {
-                  "key": "estado_id",
-                  "value": "uuid-del-estado"
+                  "key": "progreso_id",
+                  "value": "uuid-del-progreso"
                 }
               ]
             },
-            "description": "Completar evento y registrar puntuación. Calcula automáticamente la duración."
+            "description": "Completa una actividad y registra su puntuación. Calcula automáticamente la duración. Se puede incluir respuesta_contenido (texto o URL de imagen)."
           },
           "response": []
         },
         {
-          "name": "Resumen de Actividad",
+          "name": "Actualizar Actividad Progreso",
           "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}",
-                "description": "Token JWT o API Key"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/evento-estados/actividad/:id_juego/:id_actividad/resumen",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "evento-estados", "actividad", ":id_juego", ":id_actividad", "resumen"],
-              "variable": [
-                {
-                  "key": "id_juego",
-                  "value": "uuid-de-la-partida"
-                },
-                {
-                  "key": "id_actividad",
-                  "value": "uuid-de-la-actividad"
-                }
-              ]
-            },
-            "description": "Obtener resumen calculado de una actividad: eventos totales, completados, en progreso, puntuación y duración."
-          },
-          "response": []
-        },
-        {
-          "name": "Crear Estado de Evento",
-          "request": {
-            "method": "POST",
+            "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
@@ -1065,19 +1087,111 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_juego\": \"uuid-de-la-partida\",\n  \"id_actividad\": \"uuid-de-la-actividad\",\n  \"id_evento\": \"uuid-del-evento\"\n}"
+              "raw": "{\n  \"respuesta_contenido\": \"https://url-de-imagen-actualizada.jpg\",\n  \"puntuacion\": 90.0\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/v1/evento-estados",
+              "raw": "{{base_url}}/api/v1/actividad-progreso/:progreso_id",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "evento-estados"]
+              "path": ["api", "v1", "actividad-progreso", ":progreso_id"],
+              "variable": [
+                {
+                  "key": "progreso_id",
+                  "value": "uuid-del-progreso"
+                }
+              ]
             },
-            "description": "Crear estado de evento manual. Con token solo para sus propias partidas."
+            "description": "Actualiza un progreso de actividad. IMPORTANTE: respuesta_contenido solo se puede actualizar si el estado es 'completado'."
           },
           "response": []
         },
         {
-          "name": "Listar Estados de Evento",
+          "name": "Obtener Actividad Progreso",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/actividad-progreso/:progreso_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "actividad-progreso", ":progreso_id"],
+              "variable": [
+                {
+                  "key": "progreso_id",
+                  "value": "uuid-del-progreso"
+                }
+              ]
+            },
+            "description": "Obtiene un progreso de actividad por ID. Con token solo puede ver progresos de sus propias partidas."
+          },
+          "response": []
+        },
+        {
+          "name": "Resumen de Punto",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/actividad-progreso/punto/:id_juego/:id_punto/resumen",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "actividad-progreso", "punto", ":id_juego", ":id_punto", "resumen"],
+              "variable": [
+                {
+                  "key": "id_juego",
+                  "value": "uuid-de-partida"
+                },
+                {
+                  "key": "id_punto",
+                  "value": "uuid-de-punto"
+                }
+              ]
+            },
+            "description": "Obtiene el resumen calculado de un punto: actividades totales, completadas, puntuación total, duración, estado."
+          },
+          "response": []
+        },
+        {
+          "name": "Resetear Punto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "Token JWT o API Key"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/actividad-progreso/punto/:id_juego/:id_punto/reset",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "actividad-progreso", "punto", ":id_juego", ":id_punto", "reset"],
+              "variable": [
+                {
+                  "key": "id_juego",
+                  "value": "uuid-de-partida"
+                },
+                {
+                  "key": "id_punto",
+                  "value": "uuid-de-punto"
+                }
+              ]
+            },
+            "description": "Resetea un punto eliminando todos los progresos de actividades para esa partida, permitiendo volver a jugar."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Actividad Progresos",
           "request": {
             "method": "GET",
             "header": [
@@ -1087,9 +1201,9 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/v1/evento-estados?skip=0&limit=100",
+              "raw": "{{base_url}}/api/v1/actividad-progreso?skip=0&limit=100",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "evento-estados"],
+              "path": ["api", "v1", "actividad-progreso"],
               "query": [
                 {
                   "key": "skip",
@@ -1101,72 +1215,12 @@
                 }
               ]
             },
-            "description": "Listar todos los estados de evento (requiere API Key)."
+            "description": "Listar todos los progresos de actividades (requiere API Key)."
           },
           "response": []
         },
         {
-          "name": "Obtener Estado de Evento",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}",
-                "description": "Token JWT o API Key"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/evento-estados/:estado_id",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "evento-estados", ":estado_id"],
-              "variable": [
-                {
-                  "key": "estado_id",
-                  "value": "uuid-del-estado"
-                }
-              ]
-            },
-            "description": "Obtener estado de evento por ID. Con token solo para sus propias partidas."
-          },
-          "response": []
-        },
-        {
-          "name": "Actualizar Estado de Evento",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}",
-                "description": "Token JWT o API Key"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id_juego\": \"uuid-de-la-partida\",\n  \"id_actividad\": \"uuid-de-la-actividad\",\n  \"id_evento\": \"uuid-del-evento\",\n  \"estado\": \"completado\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/evento-estados/:estado_id",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "evento-estados", ":estado_id"],
-              "variable": [
-                {
-                  "key": "estado_id",
-                  "value": "uuid-del-estado"
-                }
-              ]
-            },
-            "description": "Actualizar estado de evento. Con token solo para sus propias partidas."
-          },
-          "response": []
-        },
-        {
-          "name": "Eliminar Estado de Evento",
+          "name": "Eliminar Actividad Progreso",
           "request": {
             "method": "DELETE",
             "header": [
@@ -1176,17 +1230,17 @@
               }
             ],
             "url": {
-              "raw": "{{base_url}}/api/v1/evento-estados/:estado_id",
+              "raw": "{{base_url}}/api/v1/actividad-progreso/:progreso_id",
               "host": ["{{base_url}}"],
-              "path": ["api", "v1", "evento-estados", ":estado_id"],
+              "path": ["api", "v1", "actividad-progreso", ":progreso_id"],
               "variable": [
                 {
-                  "key": "estado_id",
-                  "value": "uuid-del-estado"
+                  "key": "progreso_id",
+                  "value": "uuid-del-progreso"
                 }
               ]
             },
-            "description": "Eliminar estado de evento (requiere API Key)."
+            "description": "Eliminar un progreso de actividad (requiere API Key)."
           },
           "response": []
         }
@@ -1719,12 +1773,12 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:8000",
+      "value": "https://gernibide.up.railway.app",
       "type": "string"
     },
     {
       "key": "api_key",
-      "value": "tu-api-key-aqui",
+      "value": "dev_api_key_12345",
       "type": "string"
     },
     {
@@ -1738,6 +1792,12 @@
       "value": "",
       "type": "string",
       "description": "Token JWT de profesor (obtener desde /api/v1/auth/login-profesor)"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string",
+      "description": "UUID del usuario autenticado (obtener desde login)"
     }
   ]
 }

@@ -76,9 +76,6 @@ class GameplayStatisticsService:
     @staticmethod
     def _fetch_gameplay_summary(db: Session) -> Dict[str, Any]:
         """Internal method to fetch gameplay summary from database"""
-        now = datetime.now()
-        today_start = datetime(now.year, now.month, now.day)
-
         # Total partidas
         total_partidas = db.query(Partida).count()
 

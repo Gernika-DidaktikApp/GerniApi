@@ -19,6 +19,107 @@ from app.utils.dependencies import (
 router = APIRouter(prefix="/partidas", tags=["🎮 Partidas"])
 
 
+@router.get("/activa/usuario/{usuario_id}", response_model=PartidaResponse)
+def obtener_partida_activa(
+    usuario_id: str,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth),
+):
+    """
+    Obtener la partida activa del usuario.
+
+    - Con API Key: Puede ver la partida activa de cualquier usuario
+    - Con Token: Solo puede ver su propia partida activa
+
+    Retorna la partida con estado 'en_progreso', o 404 si no existe.
+    """
+    validate_user_ownership(auth, usuario_id)
+
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El usuario especificado no existe",
+        )
+
+    partida_activa = (
+        db.query(Partida)
+        .filter(
+            Partida.id_usuario == usuario_id,
+            Partida.estado == "en_progreso",
+        )
+        .first()
+    )
+
+    if not partida_activa:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El usuario no tiene una partida activa",
+        )
+
+    return partida_activa
+
+
+@router.post("/activa/usuario/{usuario_id}/obtener-o-crear", response_model=PartidaResponse)
+def obtener_o_crear_partida_activa(
+    usuario_id: str,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth),
+):
+    """
+    Obtener la partida activa del usuario, o crear una nueva si no existe.
+
+    - Con API Key: Puede gestionar partidas de cualquier usuario
+    - Con Token: Solo puede gestionar su propia partida
+
+    Si el usuario tiene una partida activa, la retorna.
+    Si no, crea una nueva partida automáticamente.
+    """
+    validate_user_ownership(auth, usuario_id)
+
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El usuario especificado no existe",
+        )
+
+    # Buscar partida activa
+    partida_activa = (
+        db.query(Partida)
+        .filter(
+            Partida.id_usuario == usuario_id,
+            Partida.estado == "en_progreso",
+        )
+        .first()
+    )
+
+    if partida_activa:
+        log_with_context(
+            "info",
+            "Partida activa encontrada",
+            partida_id=partida_activa.id,
+            usuario_id=usuario_id,
+        )
+        return partida_activa
+
+    # Si no existe, crear nueva partida
+    nueva_partida = Partida(id=str(uuid.uuid4()), id_usuario=usuario_id)
+
+    db.add(nueva_partida)
+    db.commit()
+    db.refresh(nueva_partida)
+
+    log_with_context(
+        "info",
+        "Nueva partida activa creada",
+        partida_id=nueva_partida.id,
+        usuario_id=usuario_id,
+    )
+
+    return nueva_partida
+
+
 @router.post("", response_model=PartidaResponse, status_code=status.HTTP_201_CREATED)
 def crear_partida(
     partida_data: PartidaCreate,
@@ -30,6 +131,8 @@ def crear_partida(
 
     - Con API Key: Puede crear partidas para cualquier usuario
     - Con Token: Solo puede crear partidas para sí mismo
+
+    Restricción: Un usuario solo puede tener una partida activa a la vez.
     """
     usuario = db.query(Usuario).filter(Usuario.id == partida_data.id_usuario).first()
     if not usuario:
@@ -39,6 +142,22 @@ def crear_partida(
         )
 
     validate_user_ownership(auth, partida_data.id_usuario)
+
+    # Verificar si el usuario ya tiene una partida activa
+    partida_activa = (
+        db.query(Partida)
+        .filter(
+            Partida.id_usuario == partida_data.id_usuario,
+            Partida.estado == "en_progreso",
+        )
+        .first()
+    )
+
+    if partida_activa:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"El usuario ya tiene una partida activa (ID: {partida_activa.id}). Debe finalizarla antes de crear una nueva.",
+        )
 
     nueva_partida = Partida(id=str(uuid.uuid4()), id_usuario=partida_data.id_usuario)
 

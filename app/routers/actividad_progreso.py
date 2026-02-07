@@ -143,6 +143,8 @@ def completar_actividad(
     estado.duracion = int((estado.fecha_fin - estado.fecha_inicio).total_seconds())
     estado.estado = "completado"
     estado.puntuacion = data.puntuacion
+    if data.respuesta_contenido is not None:
+        estado.respuesta_contenido = data.respuesta_contenido
 
     db.commit()
     db.refresh(estado)
@@ -378,6 +380,8 @@ def actualizar_actividad_progreso(
 
     - Con API Key: Puede actualizar cualquier progreso
     - Con Token: Solo puede actualizar progresos de sus propias partidas
+
+    Restricción: Solo se puede actualizar respuesta_contenido si la actividad está completada.
     """
     estado = db.query(ActividadProgreso).filter(ActividadProgreso.id == estado_id).first()
     if not estado:
@@ -389,6 +393,14 @@ def actualizar_actividad_progreso(
     validate_partida_ownership(auth, estado.id_juego, db)
 
     update_data = estado_data.model_dump(exclude_unset=True)
+
+    # Validar que respuesta_contenido solo se actualice si está completada
+    if "respuesta_contenido" in update_data and estado.estado != "completado":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Solo se puede actualizar respuesta_contenido cuando la actividad está completada",
+        )
+
     for field, value in update_data.items():
         setattr(estado, field, value)
 

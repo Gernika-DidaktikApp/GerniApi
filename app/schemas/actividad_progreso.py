@@ -22,6 +22,9 @@ class ActividadProgresoUpdate(BaseModel):
 
 class ActividadProgresoCompletar(BaseModel):
     puntuacion: float = Field(..., description="Puntuación obtenida en la actividad")
+    respuesta_contenido: Optional[str] = Field(
+        None, description="Respuesta del usuario (texto o URL de imagen)"
+    )
     device_type: Optional[str] = Field(
         None, max_length=50, description="Tipo de dispositivo (iOS, Android)"
     )

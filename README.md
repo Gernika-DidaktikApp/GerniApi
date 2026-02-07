@@ -1,6 +1,6 @@
 # GerniBide API
 
-API REST con FastAPI para la aplicación móvil Gernibide. Gestiona autenticación de usuarios, juegos, actividades y sesiones.
+API REST con FastAPI para la aplicación móvil Gernibide. Gestiona autenticación de usuarios, juegos, puntos y actividades.
 
 ## 🚀 Quick Start
 
@@ -124,16 +124,16 @@ curl -X POST "http://localhost:8000/api/v1/auth/login-app" \
   -d '{"username":"test_user","password":"test_password"}'
 ```
 
-### Estados de Actividades y Eventos
+### Estados de Puntos y Actividades
 
-#### POST `/api/v1/actividad-estados/iniciar`
+#### POST `/api/v1/actividad-progreso/iniciar`
 Inicia una actividad para un jugador. Registra automáticamente fecha de inicio y establece estado "en_progreso".
 
-#### POST `/api/v1/evento-estados/iniciar`
-Inicia un evento dentro de una actividad. Registra automáticamente fecha de inicio.
+#### POST `/api/v1/punto-progreso/iniciar`
+Inicia un punto. (Nota: Esto podría necesitar revisión si el endpoint cambió).
 
-#### PUT `/api/v1/evento-estados/{id}/completar`
-Completa un evento con su puntuación. **Calcula automáticamente la duración** y si es el último evento, **completa la actividad automáticamente** sumando todas las puntuaciones.
+#### PUT `/api/v1/actividad-progreso/{id}/completar`
+Completa una actividad con su puntuación. **Calcula automáticamente la duración** y si es la última actividad, **completa el punto automáticamente** sumando todas las puntuaciones.
 
 **Ver [API_ENDPOINTS.md](docs/API_ENDPOINTS.md) para documentación completa de estos endpoints.**
 
@@ -184,30 +184,30 @@ Verifica que la API está corriendo.
 - `duracion`
 - `estado` (en_progreso/finalizada)
 
+### Punto
+- `id` (UUID)
+- `nombre`
+
 ### Actividad
 - `id` (UUID)
+- `id_punto` (FK a Punto)
 - `nombre`
 
-### Eventos
-- `id` (UUID)
-- `id_actividad` (FK a Actividad)
-- `nombre`
-
-### ActividadEstado
+### PuntoResumen (antes ActividadEstado)
 - `id` (UUID)
 - `id_juego` (FK a Partida)
-- `id_actividad` (FK a Actividad)
+- `id_punto` (FK a Punto)
 - `fecha_inicio` (timestamp)
 - `fecha_fin` (timestamp, opcional)
 - `duracion` (segundos, calculado automáticamente)
 - `estado` (en_progreso/completado)
-- `puntuacion_total` (float, suma de puntuaciones de eventos)
+- `puntuacion_total` (float, suma de puntuaciones de actividades)
 
-### EventoEstado
+### ActividadProgreso (antes EventoEstado)
 - `id` (UUID)
 - `id_juego` (FK a Partida)
+- `id_punto` (FK a Punto)
 - `id_actividad` (FK a Actividad)
-- `id_evento` (FK a Evento)
 - `fecha_inicio` (timestamp)
 - `fecha_fin` (timestamp, opcional)
 - `duracion` (segundos, calculado automáticamente)
@@ -229,8 +229,8 @@ GerniApi/
 │   │   ├── clase.py
 │   │   ├── profesor.py
 │   │   ├── juego.py
+│   │   ├── punto.py
 │   │   ├── actividad.py
-│   │   ├── eventos.py
 │   │   └── sesion.py
 │   ├── schemas/         # Esquemas Pydantic (validación)
 │   │   ├── usuario.py
@@ -261,29 +261,24 @@ GerniApi/
 
 ---
 
-## 🎮 Sistema de Gestión de Estados
+## 🎮 Sistema de Gestión de Progreso
 
-El sistema permite rastrear el progreso de actividades y eventos de los jugadores con **cálculos automáticos** de tiempos y puntuaciones.
+El sistema permite rastrear el progreso de puntos y actividades de los jugadores con **cálculos automáticos** de tiempos y puntuaciones.
 
 ### Flujo de Juego
 
-1. **Iniciar Actividad**: `POST /api/v1/actividad-estados/iniciar`
-   - Registra automáticamente la fecha de inicio
-   - Establece el estado como "en_progreso"
-   - Inicializa puntuación_total en 0
-
-2. **Iniciar Evento**: `POST /api/v1/evento-estados/iniciar`
-   - Registra automáticamente la fecha de inicio del evento
+1. **Iniciar Actividad**: `POST /api/v1/actividad-progreso/iniciar`
+   - Registra automáticamente la fecha de inicio de la actividad
    - Establece el estado como "en_progreso"
 
-3. **Completar Evento**: `PUT /api/v1/evento-estados/{id}/completar`
+2. **Completar Actividad**: `PUT /api/v1/actividad-progreso/{id}/completar`
    - Recibe la puntuación obtenida por el jugador
    - **Calcula automáticamente** la duración (fecha_fin - fecha_inicio)
    - Actualiza el estado a "completado"
-   - **Si es el último evento** de la actividad:
-     - Completa automáticamente la actividad
-     - **Suma todas las puntuaciones** de los eventos
-     - Calcula la duración total de la actividad
+   - **Si es la última actividad** del punto:
+     - Completa automáticamente el punto
+     - **Suma todas las puntuaciones** de las actividades
+     - Calcula la duración total del punto
 
 ### Ejemplo de Uso
 
@@ -291,29 +286,29 @@ El sistema permite rastrear el progreso de actividades y eventos de los jugadore
 // 1. Iniciar actividad
 const actividad = await iniciarActividad(partidaId, actividadId);
 
-// 2. Para cada evento de la actividad
-for (const evento of eventos) {
-  // Iniciar evento
-  const eventoEstado = await iniciarEvento(partidaId, actividadId, evento.id);
+// 2. Para cada actividad del punto
+for (const actividad of actividades) {
+  // Iniciar actividad
+  const actividadProgreso = await iniciarActividad(partidaId, puntoId, actividad.id);
 
-  // Jugador completa el evento
-  const puntuacion = await jugarEvento(evento);
+  // Jugador completa la actividad
+  const puntuacion = await jugarActividad(actividad);
 
-  // Completar evento (la API calcula duración automáticamente)
-  await completarEvento(eventoEstado.id, puntuacion);
+  // Completar actividad (la API calcula duración automáticamente)
+  await completarActividad(actividadProgreso.id, puntuacion);
 }
 
-// 3. Al completar el último evento, la actividad se completa automáticamente
+// 3. Al completar la última actividad, el punto se completa automáticamente
 // con la suma total de puntuaciones y duración calculada
 ```
 
 ### Características Automáticas
 
 - ✅ **Cálculo de duraciones**: Se calcula automáticamente en segundos
-- ✅ **Suma de puntuaciones**: La actividad acumula puntos de todos los eventos
-- ✅ **Auto-completado**: La actividad se marca como completada automáticamente
-- ✅ **Validaciones**: No se pueden duplicar eventos en progreso
-- ✅ **Relaciones verificadas**: Se valida que los eventos pertenezcan a la actividad
+- ✅ **Suma de puntuaciones**: El punto acumula puntos de todas las actividades
+- ✅ **Auto-completado**: El punto se marca como completado automáticamente
+- ✅ **Validaciones**: No se pueden duplicar actividades en progreso
+- ✅ **Relaciones verificadas**: Se valida que las actividades pertenezcan al punto
 
 ---
 
@@ -426,9 +421,9 @@ pytest --cov=app --cov-report=html
 Los tests cubren:
 - ✅ Autenticación (login, tokens, errores)
 - ✅ Health checks y endpoints básicos
-- ✅ Sistema de estados de actividades
-- ✅ Sistema de estados de eventos
-- ✅ Auto-completado de actividades
+- ✅ Sistema de progreso de puntos
+- ✅ Sistema de progreso de actividades
+- ✅ Auto-completado de puntos
 - ✅ Cálculo automático de duraciones
 - ✅ Suma de puntuaciones
 - ✅ Validaciones de datos
@@ -594,9 +589,9 @@ Este proyecto está bajo licencia MIT.
 - ✅ **Manejo robusto de errores** con mensajes descriptivos
 - ✅ **Colección de Postman** lista para importar
 - ✅ **Validación automática** con Pydantic schemas
-- ✅ **Sistema de estados de actividades y eventos** con cálculos automáticos
+- ✅ **Sistema de progreso de puntos y actividades** con cálculos automáticos
 - ✅ **Tracking de progreso** con puntuaciones y tiempos
-- ✅ **Auto-completado de actividades** cuando se completan todos los eventos
+- ✅ **Auto-completado de puntos** cuando se completan todas las actividades
 
 ---
 

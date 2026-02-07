@@ -10,9 +10,9 @@ from typing import Any, Callable, Dict, List, Optional
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
-from app.models.punto import Punto
 from app.models.actividad_progreso import ActividadProgreso
 from app.models.juego import Partida
+from app.models.punto import Punto
 
 
 class CacheEntry:

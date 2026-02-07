@@ -39,7 +39,9 @@ def crear_actividad(actividad_data: ActividadCreate, db: Session = Depends(get_d
     db.commit()
     db.refresh(nueva_actividad)
 
-    log_with_context("info", "Actividad creada", actividad_id=nueva_actividad.id, nombre=nueva_actividad.nombre)
+    log_with_context(
+        "info", "Actividad creada", actividad_id=nueva_actividad.id, nombre=nueva_actividad.nombre
+    )
 
     return nueva_actividad
 

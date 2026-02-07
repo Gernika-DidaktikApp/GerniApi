@@ -15,7 +15,9 @@ class ActividadProgresoUpdate(BaseModel):
     fecha_fin: Optional[datetime] = None
     estado: Optional[str] = Field(None, max_length=20)
     puntuacion: Optional[float] = None
-    respuesta_contenido: Optional[str] = Field(None, description="Texto largo o URL de imagen del usuario")
+    respuesta_contenido: Optional[str] = Field(
+        None, description="Texto largo o URL de imagen del usuario"
+    )
 
 
 class ActividadProgresoCompletar(BaseModel):

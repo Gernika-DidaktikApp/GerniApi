@@ -150,7 +150,9 @@ class TestActividadProgreso:
         )
         estado_id = init_response.json()["id"]
 
-        admin_client.put(f"/api/v1/actividad-progreso/{estado_id}/completar", json={"puntuacion": 85.5})
+        admin_client.put(
+            f"/api/v1/actividad-progreso/{estado_id}/completar", json={"puntuacion": 85.5}
+        )
 
         # Intentar completar de nuevo
         response = admin_client.put(

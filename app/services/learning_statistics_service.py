@@ -9,8 +9,8 @@ from typing import Any, Callable, Dict, List, Optional
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
-from app.models.punto import Punto
 from app.models.actividad_progreso import ActividadProgreso
+from app.models.punto import Punto
 
 
 class CacheEntry:
@@ -77,7 +77,12 @@ class LearningStatisticsService:
         # Average score (puntuacion) of completed activities
         avg_score = (
             db.query(func.avg(ActividadProgreso.puntuacion))
-            .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
+            .filter(
+                and_(
+                    ActividadProgreso.puntuacion.isnot(None),
+                    ActividadProgreso.estado == "completado",
+                )
+            )
             .scalar()
             or 0
         )
@@ -85,20 +90,32 @@ class LearningStatisticsService:
         # Count of evaluated activities (completed activities with score)
         evaluated_count = (
             db.query(ActividadProgreso)
-            .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
+            .filter(
+                and_(
+                    ActividadProgreso.puntuacion.isnot(None),
+                    ActividadProgreso.estado == "completado",
+                )
+            )
             .count()
         )
 
         # Pass rate (puntuacion >= 5)
         total_with_score = (
             db.query(ActividadProgreso)
-            .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
+            .filter(
+                and_(
+                    ActividadProgreso.puntuacion.isnot(None),
+                    ActividadProgreso.estado == "completado",
+                )
+            )
             .count()
         )
 
         passed_count = (
             db.query(ActividadProgreso)
-            .filter(and_(ActividadProgreso.puntuacion >= 5, ActividadProgreso.estado == "completado"))
+            .filter(
+                and_(ActividadProgreso.puntuacion >= 5, ActividadProgreso.estado == "completado")
+            )
             .count()
         )
 
@@ -107,7 +124,11 @@ class LearningStatisticsService:
         # Average time (duracion) in minutes
         avg_time = (
             db.query(func.avg(ActividadProgreso.duracion))
-            .filter(and_(ActividadProgreso.duracion.isnot(None), ActividadProgreso.estado == "completado"))
+            .filter(
+                and_(
+                    ActividadProgreso.duracion.isnot(None), ActividadProgreso.estado == "completado"
+                )
+            )
             .scalar()
             or 0
         )
@@ -139,7 +160,12 @@ class LearningStatisticsService:
         results = (
             db.query(Punto.nombre, func.avg(ActividadProgreso.puntuacion).label("avg_score"))
             .join(ActividadProgreso, ActividadProgreso.id_punto == Punto.id)
-            .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
+            .filter(
+                and_(
+                    ActividadProgreso.puntuacion.isnot(None),
+                    ActividadProgreso.estado == "completado",
+                )
+            )
             .group_by(Punto.id, Punto.nombre)
             .order_by(func.avg(ActividadProgreso.puntuacion).desc())
             .all()
@@ -173,7 +199,12 @@ class LearningStatisticsService:
         # Get all scores from completed activities
         scores_query = (
             db.query(ActividadProgreso.puntuacion)
-            .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
+            .filter(
+                and_(
+                    ActividadProgreso.puntuacion.isnot(None),
+                    ActividadProgreso.estado == "completado",
+                )
+            )
             .all()
         )
 

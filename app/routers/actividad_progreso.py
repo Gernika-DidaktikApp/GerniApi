@@ -7,17 +7,17 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.logging import log_with_context
-from app.models.punto import Punto
-from app.models.audit_log import AuditLogApp
 from app.models.actividad import Actividad as ActividadModel
 from app.models.actividad_progreso import ActividadProgreso
+from app.models.audit_log import AuditLogApp
 from app.models.juego import Partida
+from app.models.punto import Punto
 from app.schemas.actividad_progreso import (
-    PuntoResumen,
     ActividadProgresoCompletar,
     ActividadProgresoCreate,
     ActividadProgresoResponse,
     ActividadProgresoUpdate,
+    PuntoResumen,
 )
 from app.utils.dependencies import (
     AuthResult,
@@ -29,7 +29,9 @@ from app.utils.dependencies import (
 router = APIRouter(prefix="/actividad-progreso", tags=["📊 Progreso"])
 
 
-@router.post("/iniciar", response_model=ActividadProgresoResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/iniciar", response_model=ActividadProgresoResponse, status_code=status.HTTP_201_CREATED
+)
 def iniciar_actividad(
     estado_data: ActividadProgresoCreate,
     db: Session = Depends(get_db),
@@ -155,7 +157,9 @@ def completar_actividad(
     )
 
     # Verificar si se completaron TODOS los actividades del punto
-    actividades_totales = db.query(ActividadModel).filter(ActividadModel.id_punto == estado.id_punto).count()
+    actividades_totales = (
+        db.query(ActividadModel).filter(ActividadModel.id_punto == estado.id_punto).count()
+    )
     actividades_completadas = (
         db.query(ActividadProgreso)
         .filter(
@@ -222,7 +226,9 @@ def obtener_resumen_punto(
         )
 
     # Contar actividades totales de este punto
-    actividades_totales = db.query(ActividadModel).filter(ActividadModel.id_punto == id_punto).count()
+    actividades_totales = (
+        db.query(ActividadModel).filter(ActividadModel.id_punto == id_punto).count()
+    )
 
     # Obtener estados de actividades para esta partida y punto
     estados = (
@@ -246,7 +252,9 @@ def obtener_resumen_punto(
     # Determinar fechas
     fecha_inicio = min((e.fecha_inicio for e in estados), default=None) if estados else None
     fechas_fin = [e.fecha_fin for e in estados if e.fecha_fin is not None]
-    fecha_fin = max(fechas_fin) if fechas_fin and actividades_completadas == actividades_totales else None
+    fecha_fin = (
+        max(fechas_fin) if fechas_fin and actividades_completadas == actividades_totales else None
+    )
 
     # Determinar estado del punto
     if not estados:

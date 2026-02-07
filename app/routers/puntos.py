@@ -67,9 +67,7 @@ def obtener_punto(
     response_model=PuntoResponse,
     dependencies=[Depends(require_api_key_only)],
 )
-def actualizar_punto(
-    punto_id: str, punto_data: PuntoUpdate, db: Session = Depends(get_db)
-):
+def actualizar_punto(punto_id: str, punto_data: PuntoUpdate, db: Session = Depends(get_db)):
     """Actualizar un punto existente. Requiere API Key."""
     punto = db.query(Punto).filter(Punto.id == punto_id).first()
     if not punto:

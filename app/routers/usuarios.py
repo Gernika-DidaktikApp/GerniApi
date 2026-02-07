@@ -8,10 +8,10 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.logging import log_db_operation, log_warning
-from app.models.punto import Punto
-from app.models.clase import Clase
 from app.models.actividad_progreso import ActividadProgreso
+from app.models.clase import Clase
 from app.models.juego import Partida
+from app.models.punto import Punto
 from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioStatsResponse, UsuarioUpdate
 from app.utils.dependencies import (

@@ -193,22 +193,28 @@ async function handleSubmit(event) {
             // Success - redirect to dashboard
             console.log('Login successful:', data);
 
-            // Store token and user info if provided
-            if (data.access_token) {
-                localStorage.setItem('authToken', data.access_token);
-            }
-
-            // Store additional user info if available (for future use)
-            if (data.username) {
-                localStorage.setItem('userUsername', data.username);
-            }
-            if (data.nombre) {
-                localStorage.setItem('userName', data.nombre);
+            // Use AuthManager to set authentication
+            if (window.authManager) {
+                window.authManager.setAuth(data);
+            } else {
+                // Fallback if auth manager not loaded
+                if (data.access_token) {
+                    localStorage.setItem('authToken', data.access_token);
+                }
+                if (data.username) {
+                    localStorage.setItem('userUsername', data.username);
+                }
+                if (data.nombre) {
+                    localStorage.setItem('userName', data.nombre);
+                }
+                if (data.user_id) {
+                    localStorage.setItem('userId', data.user_id);
+                }
             }
 
             // Redirect after short delay for better UX
             setTimeout(() => {
-                window.location.href = '/dashboard';
+                window.location.href = '/dashboard/teacher';
             }, 500);
         } else {
             // Handle error response

@@ -32,6 +32,8 @@
                 <span>Gernibide</span>
             </a>
 
+            <span class="navbar-user-name ml-1 mr-auto" style="display: none;"></span>
+
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
                     <a href="/" class="navbar-menu-link">Inicio</a>
@@ -42,6 +44,10 @@
             </ul>
 
             <a href="/login" class="navbar-contact">Login</a>
+
+            <div class="navbar-user" style="display: none;">
+                <a href="#" class="navbar-logout" id="logoutBtn">Salir</a>
+            </div>
 
             <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
                 <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -140,6 +146,7 @@
     </footer>
 
     <!-- JavaScript -->
+    <script src="/static/js/auth.js"></script>
     <script src="/static/js/login.js" defer></script>
 </body>
 

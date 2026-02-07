@@ -35,6 +35,8 @@
                 <span>Gernibide</span>
             </a>
 
+            <span class="navbar-user-name ml-1 mr-auto"></span>
+
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
                     <a href="/dashboard" class="navbar-menu-link active">Dashboard</a>
@@ -43,11 +45,15 @@
                     <a href="/statistics" class="navbar-menu-link">Estadísticas</a>
                 </li>
                 <li class="navbar-menu-item">
-                    <a href="/dashboard/teacher" class="navbar-menu-link">Mi Clase</a>
+                    <a href="/dashboard/teacher" class="navbar-menu-link">Mis Clases</a>
                 </li>
             </ul>
 
-            <a href="/login" class="navbar-contact">Cerrar Sesión</a>
+            <a href="/login" class="navbar-contact" style="display: none;">Login</a>
+
+            <div class="navbar-user">
+                <a href="#" class="navbar-logout" id="logoutBtn">Salir</a>
+            </div>
 
             <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
                 <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -302,6 +308,13 @@
     </div>
 
     <!-- JavaScript -->
+    <script src="/static/js/auth.js"></script>
+    <script>
+        // Protect this page - require authentication
+        if (window.authManager) {
+            window.authManager.protectPage();
+        }
+    </script>
     <script src="/static/js/dashboard.js" defer></script>
 </body>
 

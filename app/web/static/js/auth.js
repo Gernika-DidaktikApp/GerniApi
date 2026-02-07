@@ -122,16 +122,36 @@ class AuthManager {
      */
     updateNavbar() {
         const navbarMenu = document.getElementById('navbarMenu');
-        const navbarUserSection = document.querySelector('.navbar-user');
         const navbarContact = document.querySelector('.navbar-contact');
+        const navbarLogout = document.querySelector('.navbar-logout');
         const navbarUserName = document.querySelector('.navbar-user-name');
+
+        // Debug logging
+        console.log('🔄 Updating navbar. Auth state:', this.isAuthenticated);
+        console.log('   Elements found:', {
+            menu: !!navbarMenu,
+            contact: !!navbarContact,
+            logout: !!navbarLogout,
+            userName: !!navbarUserName
+        });
 
         if (!navbarMenu) return;
 
         if (this.isAuthenticated) {
-            // Remove login button
+            console.log('   ✓ User is authenticated - showing logout, hiding login');
+
+            // Hide login button, show logout button
             if (navbarContact) {
-                navbarContact.style.display = 'none';
+                navbarContact.classList.add('hidden');
+            }
+            if (navbarLogout) {
+                navbarLogout.classList.remove('hidden');
+
+                // Ensure logout button has event listener
+                navbarLogout.onclick = (e) => {
+                    e.preventDefault();
+                    this.logout();
+                };
             }
 
             // Add "Mis Clases" link if it doesn't exist
@@ -152,54 +172,23 @@ class AuthManager {
 
             // Update user name display
             if (navbarUserName && this.user) {
-                navbarUserName.textContent = `Prof. ${this.user.nombre || this.user.username}`;
-                navbarUserName.style.display = 'inline-block';
-            }
-
-            // Show/create logout button
-            if (!navbarUserSection) {
-                // Create user section if it doesn't exist
-                const userSection = document.createElement('div');
-                userSection.className = 'navbar-user';
-                userSection.innerHTML = `
-                    <a href="#" class="navbar-logout" id="logoutBtn">Salir</a>
-                `;
-
-                const navbarContainer = document.querySelector('.navbar-container');
-                const navbarToggle = document.querySelector('.navbar-toggle');
-                navbarContainer.insertBefore(userSection, navbarToggle);
-
-                // Add logout event listener
-                document.getElementById('logoutBtn').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.logout();
-                });
-            } else {
-                navbarUserSection.style.display = 'flex';
-
-                // Ensure logout button has event listener
-                const logoutBtn = navbarUserSection.querySelector('.navbar-logout');
-                if (logoutBtn) {
-                    logoutBtn.onclick = (e) => {
-                        e.preventDefault();
-                        this.logout();
-                    };
-                }
+                navbarUserName.textContent = this.user.nombre || this.user.username;
+                navbarUserName.classList.remove('hidden');
             }
         } else {
-            // Show login button
-            if (navbarContact) {
-                navbarContact.style.display = 'inline-block';
-            }
+            console.log('   ✗ User is NOT authenticated - showing login, hiding logout');
 
-            // Hide user section
-            if (navbarUserSection) {
-                navbarUserSection.style.display = 'none';
+            // Show login button, hide logout button
+            if (navbarContact) {
+                navbarContact.classList.remove('hidden');
+            }
+            if (navbarLogout) {
+                navbarLogout.classList.add('hidden');
             }
 
             // Hide user name
             if (navbarUserName) {
-                navbarUserName.style.display = 'none';
+                navbarUserName.classList.add('hidden');
             }
 
             // Remove "Mis Clases" link
@@ -283,9 +272,12 @@ window.authManager = authManager;
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('📱 DOM ready - initializing auth UI');
         authManager.updateUI();
     });
 } else {
+    // DOM already loaded
+    console.log('📱 DOM already ready - initializing auth UI');
     authManager.updateUI();
 }
 

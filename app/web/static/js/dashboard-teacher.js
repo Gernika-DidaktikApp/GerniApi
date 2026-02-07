@@ -644,6 +644,17 @@ async function initFilters() {
     const applyBtn = document.getElementById('applyFilters');
     if (applyBtn) {
         applyBtn.addEventListener('click', async () => {
+            // Show loading state
+            applyBtn.disabled = true;
+            const originalText = applyBtn.innerHTML;
+            applyBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="animation: spin 1s linear infinite;">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.3"/>
+                    <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Aplicando...
+            `;
+
             const claseSelect = document.getElementById('filterClase');
             const fechasSelect = document.getElementById('filterFechas');
 
@@ -665,17 +676,35 @@ async function initFilters() {
 
             console.log('Applying filters:', currentFilters);
 
-            // Reload all charts, summary, and students list
-            const studentsList = await fetchStudentsList();
-            renderStudentsTable(studentsList);
+            try {
+                // Reload all charts, summary, and students list
+                const studentsList = await fetchStudentsList();
+                renderStudentsTable(studentsList);
 
-            await Promise.all([
-                updateSummaryCards(),
-                initChartProgresoAlumno(),
-                initChartTiempoAlumno(),
-                initChartActividadesClase(),
-                initChartEvolucionClase()
-            ]);
+                await Promise.all([
+                    updateSummaryCards(),
+                    initChartProgresoAlumno(),
+                    initChartTiempoAlumno(),
+                    initChartActividadesClase(),
+                    initChartEvolucionClase()
+                ]);
+
+                // Show success feedback
+                applyBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Aplicado
+                `;
+                setTimeout(() => {
+                    applyBtn.innerHTML = originalText;
+                    applyBtn.disabled = false;
+                }, 1500);
+            } catch (error) {
+                console.error('Error applying filters:', error);
+                applyBtn.innerHTML = originalText;
+                applyBtn.disabled = false;
+            }
         });
     }
 }
@@ -892,7 +921,7 @@ async function init() {
     const userName = localStorage.getItem('userName');
     const userNameEl = document.querySelector('.navbar-user-name');
     if (userNameEl && userName) {
-        userNameEl.textContent = `Prof. ${userName}`;
+        userNameEl.textContent = `¡Hola ${userName}!`;
     }
 
     // Initialize filters first

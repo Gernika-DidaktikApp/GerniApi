@@ -29,18 +29,18 @@ from app.web import routes as web_routes
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="""
-## 
-🎯 API REST para GerniBide
+##
+API REST para GerniBide
 
 API completa para la gestión de usuarios, clases, profesores, partidas y actividades.
 
 ---
 
-🔐 Sistema de Autenticación
+[AUTH] Sistema de Autenticación
 
 Esta API utiliza **dos mecanismos de autenticación**:
 
-🔑 API Key (Acceso Administrativo)
+[API-KEY] API Key (Acceso Administrativo)
 Para backends y operaciones administrativas:
 ```
 X-API-Key: tu-api-key
@@ -48,7 +48,7 @@ X-API-Key: tu-api-key
 - Acceso completo a todos los endpoints
 - Requerida para: crear usuarios, gestionar profesores/clases, eliminar recursos
 
-🎫 Token JWT (Acceso de Usuario)
+[JWT] Token JWT (Acceso de Usuario)
 Para la aplicación móvil:
 Authorization: Bearer <token>
 1. Obtén un token en `POST /api/v1/auth/login-app`
@@ -57,21 +57,21 @@ Authorization: Bearer <token>
 
 ---
 
-📋 Niveles de Acceso por Endpoint
+Niveles de Acceso por Endpoint
 
 | Icono | Significado |
 |-------|-------------|
-| 🔓 | **Público** - Sin autenticación |
-| 🔑 | **Solo API Key** - Acceso administrativo |
-| 🎫 | **API Key o Token** - Acceso mixto |
+| [PUBLIC] | **Público** - Sin autenticación |
+| [API-KEY] | **Solo API Key** - Acceso administrativo |
+| [MIXED] | **API Key o Token** - Acceso mixto |
 
-Endpoints Públicos 🔓
+Endpoints Públicos [PUBLIC]
 - `GET /` - Root
 - `GET /health` - Health check
 - `POST /api/v1/auth/login-app` - Login usuario
 - `POST /api/v1/auth/login-profesor` - Login profesor
 
-Solo API Key 🔑
+Solo API Key [API-KEY]
 - Profesores: Todo el CRUD
 - Clases: Todo el CRUD
 - Usuarios: POST, GET lista, DELETE
@@ -80,7 +80,7 @@ Solo API Key 🔑
 80: - Partidas: GET lista, DELETE
 81: - Estados: GET lista, DELETE
 82: 
-83: API Key o Token 🎫
+83: API Key o Token [MIXED]
 84: - Usuarios: GET/{id}, PUT/{id} *(solo su perfil)*
 85: - Partidas: POST, GET/{id}, PUT/{id} *(solo sus partidas)*
 86: - Actividades: GET, GET/{id} *(lectura)*
@@ -89,15 +89,15 @@ Solo API Key 🔑
 
 ---
 
-📚 Características
+Características
 
-- ✅ Autenticación dual (API Key + JWT)
-- ✅ Control de acceso por recurso
-- ✅ Hash de contraseñas con bcrypt
-- ✅ Validación automática de datos
-- ✅ Paginación en listados
-- ✅ Logging estructurado
-- ✅ Base de datos PostgreSQL
+- Autenticación dual (API Key + JWT)
+- Control de acceso por recurso
+- Hash de contraseñas con bcrypt
+- Validación automática de datos
+- Paginación en listados
+- Logging estructurado
+- Base de datos PostgreSQL
     """,
     version="1.1.0",
     contact={"name": "Equipo GerniBide"},
@@ -106,40 +106,40 @@ Solo API Key 🔑
     },
     openapi_tags=[
         {
-            "name": "🔐 Autenticación",
-            "description": "🔓 **Público** - Endpoints para login y gestión de tokens JWT",
+            "name": "Autenticación",
+            "description": "[PUBLIC] Endpoints para login y gestión de tokens JWT",
         },
         {
-            "name": "👥 Usuarios",
-            "description": "🔑🎫 **Mixto** - POST/GET lista/DELETE requieren API Key. GET/{id}/PUT/{id} permiten Token (solo perfil propio)",
+            "name": "Usuarios",
+            "description": "[MIXED] POST/GET lista/DELETE requieren API Key. GET/{id}/PUT/{id} permiten Token (solo perfil propio)",
         },
         {
-            "name": "👨‍🏫 Profesores",
-            "description": "🔑 **Solo API Key** - Gestión completa de profesores",
+            "name": "Profesores",
+            "description": "[API-KEY] Gestión completa de profesores",
         },
         {
-            "name": "🏫 Clases",
-            "description": "🔑 **Solo API Key** - Gestión de clases y asignaciones",
+            "name": "Clases",
+            "description": "[API-KEY] Gestión de clases y asignaciones",
         },
         {
-            "name": "🎮 Partidas",
-            "description": "🔑🎫 **Mixto** - GET lista/DELETE requieren API Key. POST/GET/{id}/PUT/{id} permiten Token (solo sus partidas)",
+            "name": "Partidas",
+            "description": "[MIXED] GET lista/DELETE requieren API Key. POST/GET/{id}/PUT/{id} permiten Token (solo sus partidas)",
         },
         {
-            "name": "📍 Puntos",
-            "description": "🔑🎫 **Mixto** - POST/PUT/DELETE requieren API Key. GET permite Token (lectura pública)",
+            "name": "Puntos",
+            "description": "[MIXED] POST/PUT/DELETE requieren API Key. GET permite Token (lectura pública)",
         },
         {
-            "name": "📝 Actividades",
-            "description": "🔑🎫 **Mixto** - POST/PUT/DELETE requieren API Key. GET permite Token (lectura pública)",
+            "name": "Actividades",
+            "description": "[MIXED] POST/PUT/DELETE requieren API Key. GET permite Token (lectura pública)",
         },
         {
-            "name": "📊 Progreso",
-            "description": "🔑🎫 **Mixto** - GET lista/DELETE requieren API Key. Resto permite Token (via su partida)",
+            "name": "Progreso",
+            "description": "[MIXED] GET lista/DELETE requieren API Key. Resto permite Token (via su partida)",
         },
         {
-            "name": "📋 Audit Logs",
-            "description": "🔑🎫 **Mixto** - POST requiere API Key. GET permite Token. Sistema de trazabilidad con herencia y polimorfismo (Web/App)",
+            "name": "Audit Logs",
+            "description": "[MIXED] POST requiere API Key. GET permite Token. Sistema de trazabilidad con herencia y polimorfismo (Web/App)",
         },
     ],
 )

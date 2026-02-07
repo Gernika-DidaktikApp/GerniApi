@@ -22,7 +22,7 @@
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="/static/css/navbar.css">
+    <link rel="stylesheet" href="/static/css/navbar.css?v=5">
     <link rel="stylesheet" href="/static/css/dashboard.css">
 </head>
 
@@ -34,8 +34,6 @@
                 <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
                 <span>Gernibide</span>
             </a>
-
-            <span class="navbar-user-name ml-1 mr-auto"></span>
 
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
@@ -49,10 +47,10 @@
                 </li>
             </ul>
 
-            <a href="/login" class="navbar-contact hidden">Login</a>
-
-            <div class="navbar-user">
-                <a href="#" class="navbar-logout" id="logoutBtn">Salir</a>
+            <div class="navbar-auth">
+                <span class="navbar-user-name hidden"></span>
+                <a href="/login" class="navbar-contact">Login</a>
+                <a href="#" class="navbar-logout hidden" id="logoutBtn">Salir</a>
             </div>
 
             <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
@@ -308,7 +306,7 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/auth.js?v=5"></script>
     <script src="/static/js/dashboard.js" defer></script>
 </body>
 

@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="/static/css/navbar.css">
+    <link rel="stylesheet" href="/static/css/navbar.css?v=5">
     <link rel="stylesheet" href="/static/css/home.css">
 </head>
 
@@ -33,8 +33,6 @@
                 <span>Gernibide</span>
             </a>
 
-            <span class="navbar-user-name ml-1 mr-auto hidden"></span>
-
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
                     <a href="/" class="navbar-menu-link active">Inicio</a>
@@ -44,10 +42,10 @@
                 </li>
             </ul>
 
-            <a href="/login" class="navbar-contact">Login</a>
-
-            <div class="navbar-user hidden">
-                <a href="#" class="navbar-logout" id="logoutBtn">Salir</a>
+            <div class="navbar-auth">
+                <span class="navbar-user-name hidden"></span>
+                <a href="/login" class="navbar-contact">Login</a>
+                <a href="#" class="navbar-logout hidden" id="logoutBtn">Salir</a>
             </div>
 
             <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
@@ -173,7 +171,7 @@
     </footer>
 
     <!-- JavaScript -->
-    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/auth.js?v=5"></script>
     <script src="/static/js/home.js" defer></script>
 </body>
 

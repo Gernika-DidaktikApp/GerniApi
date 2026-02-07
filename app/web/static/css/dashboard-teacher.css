@@ -97,6 +97,13 @@ body {
 .hero-emoji {
     font-size: 2.5rem;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-emoji svg {
+    color: var(--color-olive);
 }
 
 .hero-text {
@@ -187,20 +194,22 @@ body {
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, var(--color-olive-dark) 0%, var(--color-olive) 100%);
+    background: #6B8E3A;
     color: white;
     border: none;
-    border-radius: 0.625rem;
+    border-radius: 0.5rem;
     font-family: 'Inter', sans-serif;
     font-size: 0.9375rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 200ms ease;
+    box-shadow: 0 2px 4px rgba(107, 142, 58, 0.2);
 }
 
 .filter-apply-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(74, 93, 35, 0.3);
+    box-shadow: 0 4px 12px rgba(107, 142, 58, 0.3);
+    background: #5A7A2F;
 }
 
 /* Statistics Summary Cards */
@@ -439,35 +448,7 @@ body {
     overflow-x: auto;
 }
 
-.students-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.students-table th {
-    text-align: left;
-    padding: 1rem 1.25rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-secondary);
-    border-bottom: 1px solid rgba(107, 142, 58, 0.1);
-}
-
-.students-table td {
-    padding: 1rem 1.25rem;
-    font-size: 0.9375rem;
-    border-bottom: 1px solid rgba(107, 142, 58, 0.06);
-}
-
-.students-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.students-table tbody tr:hover {
-    background: rgba(107, 142, 58, 0.03);
-}
+/* Removed duplicate .students-table styles - main styles defined below at line ~755 */
 
 .student-name {
     display: flex;
@@ -644,6 +625,16 @@ body {
     background: linear-gradient(135deg, #4A5D23, #6B8E3A);
 }
 
+/* Loading Animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* Utility Classes for Legend Colors */
 .legend-color-green {
     background: #6B8E3A;
@@ -710,7 +701,7 @@ body {
     align-items: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    background: linear-gradient(135deg, #6B8E3A 0%, #8BA855 100%);
+    background: #6B8E3A;
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -724,7 +715,7 @@ body {
 .export-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(107, 142, 58, 0.3);
-    background: linear-gradient(135deg, #5A7A2F 0%, #7A9F45 100%);
+    background: #5A7A2F;
 }
 
 .export-btn:active {
@@ -761,6 +752,7 @@ body {
     font-size: 0.8125rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    color: white;
 }
 
 .students-table tbody tr {

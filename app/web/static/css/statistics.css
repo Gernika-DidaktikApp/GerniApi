@@ -85,6 +85,18 @@ body {
 .submenu-icon {
     font-size: 1.25rem;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.submenu-icon svg {
+    color: var(--color-olive);
+    transition: color var(--transition);
+}
+
+.submenu-item.active .submenu-icon svg {
+    color: var(--color-olive-dark);
 }
 
 .submenu-text {
@@ -106,7 +118,7 @@ body {
 .hero-icon-wrapper {
     width: 72px;
     height: 72px;
-    background: white;
+    background: #6B8E3A;
     border-radius: 1.25rem;
     display: flex;
     align-items: center;
@@ -118,6 +130,13 @@ body {
 .hero-emoji {
     font-size: 2.5rem;
     line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-emoji svg {
+    color: var(--color-olive);
 }
 
 .hero-text {

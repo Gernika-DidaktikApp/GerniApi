@@ -22,7 +22,7 @@
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="/static/css/navbar.css">
+    <link rel="stylesheet" href="/static/css/navbar.css?v=5">
     <link rel="stylesheet" href="/static/css/statistics.css">
 </head>
 
@@ -35,8 +35,6 @@
                 <span>Gernibide</span>
             </a>
 
-            <span class="navbar-user-name ml-1 mr-auto hidden"></span>
-
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
                     <a href="/" class="navbar-menu-link">Inicio</a>
@@ -46,10 +44,10 @@
                 </li>
             </ul>
 
-            <a href="/login" class="navbar-contact">Login</a>
-
-            <div class="navbar-user hidden">
-                <a href="#" class="navbar-logout" id="logoutBtn">Salir</a>
+            <div class="navbar-auth">
+                <span class="navbar-user-name hidden"></span>
+                <a href="/login" class="navbar-contact">Login</a>
+                <a href="#" class="navbar-logout hidden" id="logoutBtn">Salir</a>
             </div>
 
             <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
@@ -67,15 +65,21 @@
             <!-- Statistics Submenu -->
             <nav class="stats-submenu">
                 <a href="/statistics" class="submenu-item">
-                    <span class="submenu-icon">🎓</span>
+                    <span class="submenu-icon">
+                        <img src="/static/images/usuariosyactividad-green.svg" alt="" width="20" height="20">
+                    </span>
                     <span class="submenu-text">Usuarios y Actividad</span>
                 </a>
                 <a href="/statistics/gameplay" class="submenu-item">
-                    <span class="submenu-icon">🎮</span>
+                    <span class="submenu-icon">
+                        <img src="/static/images/Usodeljuego-green.svg" alt="" width="20" height="20">
+                    </span>
                     <span class="submenu-text">Uso del Juego</span>
                 </a>
                 <a href="/statistics/learning" class="submenu-item active">
-                    <span class="submenu-icon">🧠</span>
+                    <span class="submenu-icon">
+                        <img src="/static/images/RendimientoAprendizaje-green.svg" alt="" width="20" height="20">
+                    </span>
                     <span class="submenu-text">Rendimiento y Aprendizaje</span>
                 </a>
             </nav>
@@ -84,7 +88,9 @@
             <section class="hero-section">
                 <div class="hero-header">
                     <div class="hero-icon-wrapper">
-                        <span class="hero-emoji">🧠</span>
+                        <span class="hero-emoji">
+                            <img src="/static/images/RendimientoAprendizaje.svg" alt="Rendimiento y Aprendizaje" width="48" height="48">
+                        </span>
                     </div>
                     <div class="hero-text">
                         <h1 class="hero-title">Rendimiento y <span class="highlight">Aprendizaje</span></h1>
@@ -290,7 +296,7 @@
     </footer>
 
     <!-- JavaScript -->
-    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/auth.js?v=5"></script>
     <script src="/static/js/statistics-learning.js?v=2" defer></script>
 </body>
 

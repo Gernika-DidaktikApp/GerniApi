@@ -54,13 +54,13 @@ class SimpleFormatter(logging.Formatter):
     BOLD = "\033[1m"
     DIM = "\033[2m"
 
-    # Emojis para cada nivel
+    # Icons para cada nivel
     ICONS = {
-        "DEBUG": "🔍",
-        "INFO": "✓",
-        "WARNING": "⚠️ ",
-        "ERROR": "✗",
-        "CRITICAL": "🔥",
+        "DEBUG": "[D]",
+        "INFO": "[i]",
+        "WARNING": "[!]",
+        "ERROR": "[X]",
+        "CRITICAL": "[!!]",
     }
 
     def format(self, record: logging.LogRecord) -> str:
@@ -83,7 +83,7 @@ class SimpleFormatter(logging.Formatter):
         # Mensaje
         message = record.getMessage()
 
-        # Formato final bonito: 🔍 14:23:45 INFO     auth:42 → Usuario autenticado
+        # Formato final bonito: [D] 14:23:45 INFO     auth:42 → Usuario autenticado
         return f"{icon} {self.DIM}{timestamp}{self.RESET} {colored_level} {location} → {message}"
 
 

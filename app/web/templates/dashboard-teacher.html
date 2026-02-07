@@ -22,7 +22,7 @@
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="/static/css/navbar.css?v=3">
+    <link rel="stylesheet" href="/static/css/navbar.css?v=5">
     <link rel="stylesheet" href="/static/css/dashboard-teacher.css?v=3">
 </head>
 
@@ -34,8 +34,6 @@
                 <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
                 <span>Gernibide</span>
             </a>
-
-            <span class="navbar-user-name ml-1 mr-auto">Prof. García</span>
 
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
@@ -49,8 +47,10 @@
                 </li>
             </ul>
 
-            <div class="navbar-user">
-                <a href="/login" class="navbar-logout">Salir</a>
+            <div class="navbar-auth">
+                <span class="navbar-user-name hidden"></span>
+                <a href="/login" class="navbar-contact">Login</a>
+                <a href="#" class="navbar-logout hidden" id="logoutBtn">Salir</a>
             </div>
 
             <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
@@ -69,7 +69,12 @@
             <section class="hero-section">
                 <div class="hero-header">
                     <div class="hero-icon-wrapper">
-                        <span class="hero-emoji">👩‍🏫</span>
+                        <span class="hero-emoji">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 14L12.7071 13.2929L12 12.5858L11.2929 13.2929L12 14ZM11 21C11 21.5523 11.4477 22 12 22C12.5523 22 13 21.5523 13 21L11 21ZM16.7071 17.2929L12.7071 13.2929L11.2929 14.7071L15.2929 18.7071L16.7071 17.2929ZM11.2929 13.2929L7.29289 17.2929L8.70711 18.7071L12.7071 14.7071L11.2929 13.2929ZM11 14L11 21L13 21L13 14L11 14Z" fill="currentColor"/>
+                                <path d="M9.00001 6C9.00001 6.93879 8.69616 7.84829 8.13932 8.59187C7.58249 9.33546 6.80291 9.87104 5.91584 10.1183C5.02876 10.3656 4.08547 10.3115 3.23178 9.96401C2.37809 9.61655 1.66254 9.00035 1.19636 8.21061C0.730174 7.42086 0.538056 6.50136 0.649686 5.59193C0.761316 4.68251 1.17028 3.83453 1.81442 3.17783C2.45856 2.52113 3.29987 2.09469 4.20854 1.96482C5.1172 1.83495 6.04005 2.00869 6.84001 2.46L6.84036 2.46018C7.33015 2.73832 7.75905 3.11438 8.09958 3.56549C8.44011 4.01661 8.68519 4.53338 8.8207 5.08224C8.95621 5.6311 8.97935 6.20151 8.88894 6.75905C8.79853 7.31658 8.59619 7.85013 8.29448 8.32885C7.99277 8.80756 7.59782 9.22162 7.13268 9.54687C6.66754 9.87211 6.14159 10.1019 5.58755 10.2224C5.03351 10.343 4.46184 10.352 3.90391 10.2488C3.34597 10.1456 2.81272 9.93249 2.33668 9.62L7.16001 6L6.84001 2.46ZM6.84001 2.46C7.64052 2.93208 8.26952 3.64986 8.62637 4.50511C8.98322 5.36035 9.0502 6.30379 8.81647 7.19971C8.58273 8.09563 8.06078 8.89426 7.32688 9.47434C6.59298 10.0544 5.68721 10.3838 4.74805 10.4143C3.80889 10.4447 2.88426 10.1743 2.11395 9.64505C1.34365 9.11576 0.771219 8.35617 0.480558 7.48068C0.189898 6.60519 0.196383 5.66164 0.49922 4.79012C0.802057 3.9186 1.38405 3.16683 2.15968 2.64782" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
                     </div>
                     <div class="hero-text">
                         <h1 class="hero-title">Vista <span class="highlight">Profesor</span></h1>
@@ -358,7 +363,7 @@
     </footer>
 
     <!-- JavaScript -->
-    <script src="/static/js/auth.js?v=3"></script>
+    <script src="/static/js/auth.js?v=5"></script>
     <script src="/static/js/dashboard-teacher.js?v=3" defer></script>
 </body>
 

@@ -240,7 +240,7 @@ def obtener_estadisticas_usuario(
     Retorna estadísticas detalladas del usuario para mostrar en el perfil de la app móvil.
 
     ### Información Incluida
-    - **actividades_completadas**: Número de sub-actividades (eventos) completadas
+    - **actividades_completadas**: Número de actividades completadas
     - **racha_dias**: Días consecutivos de juego (desde hoy hacia atrás)
     - **modulos_completados**: Lista de módulos/actividades completadas
     - **ultima_partida**: Fecha de la última partida jugada
@@ -262,7 +262,7 @@ def obtener_estadisticas_usuario(
     # Validar ownership
     validate_user_ownership(auth, usuario_id)
 
-    # 1. Actividades completadas (contar eventos completados)
+    # 1. Actividades completadas
     actividades_completadas = (
         db.query(func.count(ActividadProgreso.id))
         .join(Partida, ActividadProgreso.id_juego == Partida.id)

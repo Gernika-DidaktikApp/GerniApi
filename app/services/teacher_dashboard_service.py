@@ -10,10 +10,11 @@ from typing import Any, Callable, Dict, List, Optional
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
-from app.models.punto import Punto
-from app.models.clase import Clase
+from app.models.actividad import Actividad
 from app.models.actividad_progreso import ActividadProgreso
+from app.models.clase import Clase
 from app.models.juego import Partida
+from app.models.punto import Punto
 from app.models.usuario import Usuario
 
 
@@ -112,9 +113,9 @@ class TeacherDashboardService:
 
         student_ids = [s.id for s in students]
 
-        # Calculate average progress (based on completed events)
+        # Calculate average progress (based on completed activities)
         # Progress = (completed events / total unique events per student) * 100
-        total_events = db.query(func.count(func.distinct(Punto.id))).scalar() or 1
+        total_events = db.query(func.count(func.distinct(Actividad.id))).scalar() or 1
 
         completed_events_per_student = []
         for student_id in student_ids:
@@ -158,7 +159,7 @@ class TeacherDashboardService:
 
         tiempo_promedio = round(avg_time / 60, 0) if avg_time else 0
 
-        # Calculate average grade (from completed eventos with scores)
+        # Calculate average grade (from completed activities with scores)
         avg_grade = (
             db.query(func.avg(ActividadProgreso.puntuacion))
             .filter(
@@ -234,7 +235,7 @@ class TeacherDashboardService:
         if not students:
             return {"students": [], "progress": []}
 
-        total_events = db.query(func.count(func.distinct(Punto.id))).scalar() or 1
+        total_events = db.query(func.count(func.distinct(Actividad.id))).scalar() or 1
 
         student_names = []
         progress_values = []
@@ -495,7 +496,7 @@ class TeacherDashboardService:
         if not student_ids:
             return {"dates": [], "progress": [], "grades": []}
 
-        total_events = db.query(func.count(func.distinct(Punto.id))).scalar() or 1
+        total_events = db.query(func.count(func.distinct(Actividad.id))).scalar() or 1
 
         dates = []
         progress_values = []

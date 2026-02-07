@@ -174,7 +174,7 @@ class UsuarioStatsResponse(BaseModel):
 
     actividades_completadas: int = Field(
         ...,
-        description="Número total de sub-actividades (eventos) completadas",
+        description="Número total de actividades completadas",
         example=12,
     )
     racha_dias: int = Field(

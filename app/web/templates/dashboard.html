@@ -49,7 +49,7 @@
                 </li>
             </ul>
 
-            <a href="/login" class="navbar-contact" style="display: none;">Login</a>
+            <a href="/login" class="navbar-contact hidden">Login</a>
 
             <div class="navbar-user">
                 <a href="#" class="navbar-logout" id="logoutBtn">Salir</a>
@@ -309,12 +309,6 @@
 
     <!-- JavaScript -->
     <script src="/static/js/auth.js"></script>
-    <script>
-        // Protect this page - require authentication
-        if (window.authManager) {
-            window.authManager.protectPage();
-        }
-    </script>
     <script src="/static/js/dashboard.js" defer></script>
 </body>
 

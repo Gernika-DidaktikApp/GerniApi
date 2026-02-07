@@ -3,21 +3,7 @@
  * Handles navbar toggle, authentication, and Plotly chart initialization
  */
 
-// ============================================
-// Authentication Check
-// ============================================
-function checkAuthentication() {
-    const authToken = localStorage.getItem('authToken');
-
-    if (!authToken) {
-        // No token found, redirect to login
-        console.log('No authentication token found, redirecting to login...');
-        window.location.href = '/login';
-        return false;
-    }
-
-    return true;
-}
+// Note: Authentication is handled by authManager.protectPage() loaded from auth.js
 
 // ============================================
 // Logout Handler
@@ -207,8 +193,8 @@ function initChart5() {
 
 function init() {
     // Check authentication first
-    if (!checkAuthentication()) {
-        return; // Will redirect to login
+    if (window.authManager) {
+        window.authManager.protectPage();
     }
 
     console.log('Dashboard initialized');

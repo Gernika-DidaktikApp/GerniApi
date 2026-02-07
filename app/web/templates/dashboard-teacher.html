@@ -22,8 +22,8 @@
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="/static/css/navbar.css">
-    <link rel="stylesheet" href="/static/css/dashboard-teacher.css">
+    <link rel="stylesheet" href="/static/css/navbar.css?v=3">
+    <link rel="stylesheet" href="/static/css/dashboard-teacher.css?v=3">
 </head>
 
 <body class="has-navbar">
@@ -300,70 +300,53 @@
                 </div>
             </section>
 
-            <!-- Students Table Preview -->
-            <section class="students-section">
-                <div class="students-header">
-                    <h2 class="section-title">Alumnos que Necesitan Atención</h2>
-                    <a href="/dashboard/students" class="view-all-link">Ver todos →</a>
+            <!-- Students List Section -->
+            <section class="students-list-section">
+                <div class="section-header">
+                    <h2 class="section-title">Lista de Alumnos</h2>
+                    <div class="export-buttons">
+                        <button class="export-btn" id="exportCSV" title="Descargar como CSV">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            CSV
+                        </button>
+                        <button class="export-btn" id="exportExcel" title="Descargar como Excel">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Excel
+                        </button>
+                    </div>
                 </div>
-
-                <div class="students-table-container">
-                    <table class="students-table">
+                <div class="table-container">
+                    <table class="students-table" id="studentsTable">
                         <thead>
                             <tr>
-                                <th>Alumno</th>
+                                <th>Nombre</th>
+                                <th>Usuario</th>
                                 <th>Progreso</th>
+                                <th>Actividades</th>
+                                <th>Tiempo Total</th>
+                                <th>Nota Media</th>
                                 <th>Última Actividad</th>
-                                <th>Estado</th>
                             </tr>
                         </thead>
                         <tbody id="studentsTableBody">
                             <tr>
-                                <td class="student-name">
-                                    <div class="student-avatar">MG</div>
-                                    <span>María González</span>
+                                <td colspan="7" class="loading-message">
+                                    Cargando datos...
                                 </td>
-                                <td>
-                                    <div class="progress-bar-mini">
-                                        <div class="progress-fill" data-progress="25"></div>
-                                    </div>
-                                    <span class="progress-text">25%</span>
-                                </td>
-                                <td class="date-cell">Hace 5 días</td>
-                                <td><span class="status-badge status-warning">Atención</span></td>
-                            </tr>
-                            <tr>
-                                <td class="student-name">
-                                    <div class="student-avatar">PL</div>
-                                    <span>Pablo López</span>
-                                </td>
-                                <td>
-                                    <div class="progress-bar-mini">
-                                        <div class="progress-fill" data-progress="35"></div>
-                                    </div>
-                                    <span class="progress-text">35%</span>
-                                </td>
-                                <td class="date-cell">Hace 3 días</td>
-                                <td><span class="status-badge status-warning">Atención</span></td>
-                            </tr>
-                            <tr>
-                                <td class="student-name">
-                                    <div class="student-avatar">AR</div>
-                                    <span>Ana Ruiz</span>
-                                </td>
-                                <td>
-                                    <div class="progress-bar-mini">
-                                        <div class="progress-fill" data-progress="42"></div>
-                                    </div>
-                                    <span class="progress-text">42%</span>
-                                </td>
-                                <td class="date-cell">Hace 2 días</td>
-                                <td><span class="status-badge status-info">En progreso</span></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </section>
+
         </div>
     </main>
 
@@ -375,14 +358,8 @@
     </footer>
 
     <!-- JavaScript -->
-    <script src="/static/js/auth.js"></script>
-    <script>
-        // Protect this page - require authentication
-        if (window.authManager) {
-            window.authManager.protectPage();
-        }
-    </script>
-    <script src="/static/js/dashboard-teacher.js?v=2" defer></script>
+    <script src="/static/js/auth.js?v=3"></script>
+    <script src="/static/js/dashboard-teacher.js?v=3" defer></script>
 </body>
 
 </html>

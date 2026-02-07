@@ -3,9 +3,11 @@ Teacher Dashboard API endpoints
 Provides data for teacher dashboard page (class-level statistics)
 """
 
+import io
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -227,6 +229,124 @@ def get_class_evolution(
         )
 
     return TeacherDashboardService.get_class_evolution(db, profesor_id, clase_id, days)
+
+
+@router.get(
+    "/students-list",
+    response_model=List[Dict[str, Any]],
+    summary="Get detailed students list",
+    description="Returns detailed list of students with progress, time, and grades",
+)
+def get_students_list(
+    clase_id: str = Query(None, description="Optional class ID"),
+    db: Session = Depends(get_db),
+    current_user: Dict = Depends(get_current_user_from_token),
+) -> List[Dict[str, Any]]:
+    """
+    ## Get Students List
+
+    Returns detailed information for each student:
+    - **nombre**: Student full name
+    - **username**: Student username
+    - **progreso**: Progress percentage (0-100)
+    - **tiempo_total**: Total time spent in minutes
+    - **nota_media**: Average grade (0-10)
+    - **actividades_completadas**: Number of completed activities
+    - **ultima_actividad**: Date of last activity
+
+    ### Parameters
+    - **clase_id**: Optional specific class ID (default: all classes)
+
+    ### Authentication
+    Requires valid JWT token from profesor login.
+    """
+    profesor_id = current_user.get("profesor_id")
+    if not profesor_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+        )
+
+    return TeacherDashboardService.get_students_list(db, profesor_id, clase_id)
+
+
+@router.get(
+    "/export-students-csv",
+    summary="Export students list to CSV",
+    description="Downloads students list as CSV file",
+)
+def export_students_csv(
+    clase_id: str = Query(None, description="Optional class ID"),
+    db: Session = Depends(get_db),
+    current_user: Dict = Depends(get_current_user_from_token),
+):
+    """
+    ## Export Students List to CSV
+
+    Downloads a CSV file with detailed student information.
+
+    ### Parameters
+    - **clase_id**: Optional specific class ID (default: all classes)
+
+    ### Authentication
+    Requires valid JWT token from profesor login.
+    """
+    profesor_id = current_user.get("profesor_id")
+    if not profesor_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+        )
+
+    csv_content = TeacherDashboardService.export_students_csv(db, profesor_id, clase_id)
+
+    # Create filename with current date
+    from datetime import datetime
+    filename = f"alumnos_{datetime.now().strftime('%Y%m%d')}.csv"
+
+    return StreamingResponse(
+        io.BytesIO(csv_content.encode('utf-8-sig')),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
+
+
+@router.get(
+    "/export-students-excel",
+    summary="Export students list to Excel",
+    description="Downloads students list as Excel file",
+)
+def export_students_excel(
+    clase_id: str = Query(None, description="Optional class ID"),
+    db: Session = Depends(get_db),
+    current_user: Dict = Depends(get_current_user_from_token),
+):
+    """
+    ## Export Students List to Excel
+
+    Downloads an Excel file with detailed student information.
+
+    ### Parameters
+    - **clase_id**: Optional specific class ID (default: all classes)
+
+    ### Authentication
+    Requires valid JWT token from profesor login.
+    """
+    profesor_id = current_user.get("profesor_id")
+    if not profesor_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+        )
+
+    excel_bytes = TeacherDashboardService.export_students_excel(db, profesor_id, clase_id)
+
+    # Create filename with current date
+    from datetime import datetime
+    filename = f"alumnos_{datetime.now().strftime('%Y%m%d')}.xlsx"
+
+    return StreamingResponse(
+        io.BytesIO(excel_bytes),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 
 @router.post(

@@ -273,3 +273,8 @@ body.has-navbar {
 .navbar-logout:active {
     transform: translateY(0);
 }
+
+/* Utility class for hiding elements */
+.hidden {
+    display: none !important;
+}

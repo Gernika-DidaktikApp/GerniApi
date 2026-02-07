@@ -3,10 +3,14 @@ Service for calculating teacher dashboard statistics (class-level)
 Provides data for teacher dashboard page
 """
 
+import csv
+import io
 import time
 from datetime import datetime, timedelta
 from typing import Any, Callable, Dict, List, Optional
 
+from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
@@ -593,3 +597,239 @@ class TeacherDashboardService:
         classes = db.query(Clase).filter(Clase.id_profesor == profesor_id).all()
 
         return [{"id": clase.id, "nombre": clase.nombre} for clase in classes]
+
+    @staticmethod
+    def get_students_list(
+        db: Session, profesor_id: str, clase_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Get detailed list of students with progress and performance data
+
+        Args:
+            db: Database session
+            profesor_id: ID of the profesor
+            clase_id: Optional specific class ID
+
+        Returns:
+            List of student dictionaries with detailed info
+        """
+        cache_key = f"students_list_{profesor_id}_{clase_id}"
+        return TeacherDashboardService._get_cached_or_fetch(
+            cache_key,
+            TeacherDashboardService._fetch_students_list,
+            db,
+            profesor_id,
+            clase_id,
+            ttl=60,  # Cache for 1 minute
+        )
+
+    @staticmethod
+    def _fetch_students_list(
+        db: Session, profesor_id: str, clase_id: Optional[str]
+    ) -> List[Dict[str, Any]]:
+        """Internal method to fetch students list from database"""
+        # Get students
+        students_query = (
+            db.query(Usuario)
+            .join(Clase, Usuario.id_clase == Clase.id)
+            .filter(Clase.id_profesor == profesor_id)
+        )
+
+        if clase_id:
+            students_query = students_query.filter(Usuario.id_clase == clase_id)
+
+        students = students_query.all()
+
+        if not students:
+            return []
+
+        total_activities = db.query(func.count(func.distinct(Actividad.id))).scalar() or 1
+
+        students_data = []
+
+        for student in students:
+            # Calculate completed activities
+            completed_activities = (
+                db.query(func.count(func.distinct(ActividadProgreso.id_actividad)))
+                .filter(
+                    and_(
+                        ActividadProgreso.id_juego.in_(
+                            db.query(Partida.id).filter(Partida.id_usuario == student.id)
+                        ),
+                        ActividadProgreso.estado == "completado",
+                    )
+                )
+                .scalar()
+                or 0
+            )
+
+            # Calculate progress percentage
+            progreso = min(100, (completed_activities / total_activities) * 100)
+
+            # Calculate total time
+            total_time = (
+                db.query(func.sum(Partida.duracion))
+                .filter(
+                    and_(
+                        Partida.id_usuario == student.id,
+                        Partida.duracion.isnot(None),
+                    )
+                )
+                .scalar()
+                or 0
+            )
+
+            tiempo_minutos = round(total_time / 60, 0) if total_time else 0
+
+            # Calculate average grade
+            avg_grade = (
+                db.query(func.avg(ActividadProgreso.puntuacion))
+                .filter(
+                    and_(
+                        ActividadProgreso.id_juego.in_(
+                            db.query(Partida.id).filter(Partida.id_usuario == student.id)
+                        ),
+                        ActividadProgreso.puntuacion.isnot(None),
+                        ActividadProgreso.estado == "completado",
+                    )
+                )
+                .scalar()
+                or 0
+            )
+
+            # Get last activity date
+            last_activity = (
+                db.query(func.max(Partida.fecha_inicio))
+                .filter(Partida.id_usuario == student.id)
+                .scalar()
+            )
+
+            students_data.append(
+                {
+                    "nombre": f"{student.nombre} {student.apellido}",
+                    "username": student.username,
+                    "progreso": round(progreso, 1),
+                    "tiempo_total": int(tiempo_minutos),
+                    "nota_media": round(avg_grade, 1) if avg_grade else 0,
+                    "actividades_completadas": completed_activities,
+                    "ultima_actividad": last_activity.strftime("%Y-%m-%d") if last_activity else "Nunca",
+                }
+            )
+
+        # Sort by progress descending
+        students_data.sort(key=lambda x: x["progreso"], reverse=True)
+
+        return students_data
+
+    @staticmethod
+    def export_students_csv(
+        db: Session, profesor_id: str, clase_id: Optional[str] = None
+    ) -> str:
+        """
+        Export students list to CSV format
+
+        Args:
+            db: Database session
+            profesor_id: ID of the profesor
+            clase_id: Optional specific class ID
+
+        Returns:
+            CSV content as string
+        """
+        students_data = TeacherDashboardService.get_students_list(db, profesor_id, clase_id)
+
+        # Create CSV in memory
+        output = io.StringIO()
+        writer = csv.writer(output)
+
+        # Write header
+        writer.writerow([
+            "Nombre",
+            "Usuario",
+            "Progreso (%)",
+            "Actividades Completadas",
+            "Tiempo Total (min)",
+            "Nota Media",
+            "Última Actividad",
+        ])
+
+        # Write data rows
+        for student in students_data:
+            writer.writerow([
+                student["nombre"],
+                student["username"],
+                student["progreso"],
+                student["actividades_completadas"],
+                student["tiempo_total"],
+                student["nota_media"],
+                student["ultima_actividad"],
+            ])
+
+        return output.getvalue()
+
+    @staticmethod
+    def export_students_excel(
+        db: Session, profesor_id: str, clase_id: Optional[str] = None
+    ) -> bytes:
+        """
+        Export students list to Excel format
+
+        Args:
+            db: Database session
+            profesor_id: ID of the profesor
+            clase_id: Optional specific class ID
+
+        Returns:
+            Excel file as bytes
+        """
+        students_data = TeacherDashboardService.get_students_list(db, profesor_id, clase_id)
+
+        # Create workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Alumnos"
+
+        # Define styles
+        header_fill = PatternFill(start_color="6B8E3A", end_color="6B8E3A", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF", size=12)
+        header_alignment = Alignment(horizontal="center", vertical="center")
+
+        # Write header
+        headers = [
+            "Nombre",
+            "Usuario",
+            "Progreso (%)",
+            "Actividades Completadas",
+            "Tiempo Total (min)",
+            "Nota Media",
+            "Última Actividad",
+        ]
+
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num)
+            cell.value = header
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = header_alignment
+
+        # Write data rows
+        for row_num, student in enumerate(students_data, 2):
+            ws.cell(row=row_num, column=1, value=student["nombre"])
+            ws.cell(row=row_num, column=2, value=student["username"])
+            ws.cell(row=row_num, column=3, value=student["progreso"])
+            ws.cell(row=row_num, column=4, value=student["actividades_completadas"])
+            ws.cell(row=row_num, column=5, value=student["tiempo_total"])
+            ws.cell(row=row_num, column=6, value=student["nota_media"])
+            ws.cell(row=row_num, column=7, value=student["ultima_actividad"])
+
+        # Adjust column widths
+        column_widths = [30, 20, 15, 25, 20, 15, 20]
+        for col_num, width in enumerate(column_widths, 1):
+            ws.column_dimensions[chr(64 + col_num)].width = width
+
+        # Save to bytes
+        excel_buffer = io.BytesIO()
+        wb.save(excel_buffer)
+        excel_buffer.seek(0)
+
+        return excel_buffer.getvalue()

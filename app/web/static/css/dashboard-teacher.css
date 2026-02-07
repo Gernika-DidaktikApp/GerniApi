@@ -673,3 +673,239 @@ body {
 .ml-1 {
     margin-left: 1rem;
 }
+
+/* ======================================
+   Students List Section
+   ====================================== */
+
+.students-list-section {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-top: 2rem;
+}
+
+.students-list-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.students-list-section .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2D3B1C;
+    margin: 0;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: linear-gradient(135deg, #6B8E3A 0%, #8BA855 100%);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(107, 142, 58, 0.2);
+}
+
+.export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(107, 142, 58, 0.3);
+    background: linear-gradient(135deg, #5A7A2F 0%, #7A9F45 100%);
+}
+
+.export-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(107, 142, 58, 0.2);
+}
+
+.export-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    border: 1px solid #E5E5E5;
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.students-table thead {
+    background: linear-gradient(135deg, #6B8E3A 0%, #8BA855 100%);
+    color: white;
+}
+
+.students-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.students-table tbody tr {
+    border-bottom: 1px solid #F0F0F0;
+    transition: background-color 0.15s ease;
+}
+
+.students-table tbody tr:hover {
+    background-color: #F9FAFB;
+}
+
+.students-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.students-table td {
+    padding: 1rem;
+    color: #2D3B1C;
+}
+
+.students-table td:first-child {
+    font-weight: 600;
+}
+
+.students-table .loading-message {
+    text-align: center;
+    padding: 2rem;
+    color: #6B7A5C;
+}
+
+/* Progress bar styles */
+.progress-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.progress-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.progress-bar-fill.progress-excellent {
+    background: #6B8E3A;
+}
+
+.progress-bar-fill.progress-good {
+    background: #B8C74A;
+}
+
+.progress-bar-fill.progress-fair {
+    background: #E8C74A;
+}
+
+.progress-bar-fill.progress-low {
+    background: #8B6F47;
+}
+
+.progress-text {
+    min-width: 45px;
+    font-weight: 600;
+}
+
+.progress-text.progress-excellent {
+    color: #6B8E3A;
+}
+
+.progress-text.progress-good {
+    color: #B8C74A;
+}
+
+.progress-text.progress-fair {
+    color: #E8C74A;
+}
+
+.progress-text.progress-low {
+    color: #8B6F47;
+}
+
+/* Grade cell styles */
+.grade-cell {
+    font-weight: 600;
+}
+
+.grade-cell.grade-excellent {
+    color: #6B8E3A;
+}
+
+.grade-cell.grade-good {
+    color: #B8C74A;
+}
+
+.grade-cell.grade-low {
+    color: #DC6B4A;
+}
+
+/* Text utility classes */
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: #6B7A5C;
+}
+
+.text-small {
+    font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .students-list-section .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .export-buttons {
+        width: 100%;
+    }
+
+    .export-btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .students-table {
+        font-size: 0.8125rem;
+    }
+
+    .students-table th,
+    .students-table td {
+        padding: 0.75rem 0.5rem;
+    }
+}

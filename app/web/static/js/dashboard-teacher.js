@@ -3,21 +3,7 @@
  * Handles Plotly charts for teacher/class view with authentication and real API data
  */
 
-// ============================================
-// Authentication Check
-// ============================================
-function checkAuthentication() {
-    const authToken = localStorage.getItem('authToken');
-
-    if (!authToken) {
-        // No token found, redirect to login
-        console.log('No authentication token found, redirecting to login...');
-        window.location.href = '/login';
-        return false;
-    }
-
-    return true;
-}
+// Note: Authentication is handled by authManager.protectPage() loaded from auth.js
 
 // ============================================
 // Logout Handler
@@ -679,7 +665,10 @@ async function initFilters() {
 
             console.log('Applying filters:', currentFilters);
 
-            // Reload all charts and summary
+            // Reload all charts, summary, and students list
+            const studentsList = await fetchStudentsList();
+            renderStudentsTable(studentsList);
+
             await Promise.all([
                 updateSummaryCards(),
                 initChartProgresoAlumno(),
@@ -717,6 +706,150 @@ function debounce(func, wait) {
 }
 
 // ============================================
+// Students List Management
+// ============================================
+
+let currentStudentsData = [];
+
+async function fetchStudentsList() {
+    try {
+        const params = new URLSearchParams();
+        if (currentFilters.claseId) {
+            params.append('clase_id', currentFilters.claseId);
+        }
+
+        const response = await fetch(`${API_BASE}/students-list?${params}`, {
+            headers: getAuthHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch students list');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching students list:', error);
+        return [];
+    }
+}
+
+function renderStudentsTable(students) {
+    currentStudentsData = students;
+    const tbody = document.getElementById('studentsTableBody');
+
+    if (!students || students.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="loading-message">
+                    No hay alumnos en esta clase
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = students.map(student => {
+        const progressClass = student.progreso >= 75 ? 'progress-excellent' :
+                             student.progreso >= 50 ? 'progress-good' :
+                             student.progreso >= 25 ? 'progress-fair' : 'progress-low';
+
+        const gradeClass = student.nota_media >= 7 ? 'grade-excellent' :
+                          student.nota_media >= 5 ? 'grade-good' : 'grade-low';
+
+        return `
+            <tr>
+                <td><strong>${student.nombre}</strong></td>
+                <td>${student.username}</td>
+                <td>
+                    <div class="progress-wrapper">
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill ${progressClass}" style="width: ${student.progreso}%;"></div>
+                        </div>
+                        <span class="progress-text ${progressClass}">${student.progreso}%</span>
+                    </div>
+                </td>
+                <td class="text-center">${student.actividades_completadas}</td>
+                <td class="text-center">${student.tiempo_total} min</td>
+                <td class="text-center grade-cell ${gradeClass}">
+                    ${student.nota_media > 0 ? student.nota_media.toFixed(1) : '-'}
+                </td>
+                <td class="text-center text-muted text-small">
+                    ${student.ultima_actividad}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function exportToCSV() {
+    try {
+        const params = new URLSearchParams();
+        if (currentFilters.claseId) {
+            params.append('clase_id', currentFilters.claseId);
+        }
+
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE}/export-students-csv?${params}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to export CSV');
+        }
+
+        // Get the blob from response
+        const blob = await response.blob();
+
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `alumnos_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error exporting CSV:', error);
+        alert('Error al exportar CSV. Por favor, inténtalo de nuevo.');
+    }
+}
+
+async function exportToExcel() {
+    try {
+        const params = new URLSearchParams();
+        if (currentFilters.claseId) {
+            params.append('clase_id', currentFilters.claseId);
+        }
+
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE}/export-students-excel?${params}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to export Excel');
+        }
+
+        // Get the blob from response
+        const blob = await response.blob();
+
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `alumnos_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error exporting Excel:', error);
+        alert('Error al exportar Excel. Por favor, inténtalo de nuevo.');
+    }
+}
+
+// ============================================
 // Navbar Mobile Menu Toggle
 // ============================================
 const navbarToggle = document.getElementById('navbarToggle');
@@ -740,8 +873,8 @@ if (navbarToggle && navbarMenu) {
 // ============================================
 async function init() {
     // Check authentication first
-    if (!checkAuthentication()) {
-        return; // Will redirect to login
+    if (window.authManager) {
+        window.authManager.protectPage();
     }
 
     console.log('Dashboard Teacher page initialized');
@@ -764,6 +897,21 @@ async function init() {
 
     // Initialize filters first
     await initFilters();
+
+    // Set up export buttons
+    const exportCSVBtn = document.getElementById('exportCSV');
+    if (exportCSVBtn) {
+        exportCSVBtn.addEventListener('click', exportToCSV);
+    }
+
+    const exportExcelBtn = document.getElementById('exportExcel');
+    if (exportExcelBtn) {
+        exportExcelBtn.addEventListener('click', exportToExcel);
+    }
+
+    // Load students list
+    const studentsList = await fetchStudentsList();
+    renderStudentsTable(studentsList);
 
     // Load all data
     if (typeof Plotly !== 'undefined') {

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -9,8 +7,8 @@ class ClaseCreate(BaseModel):
 
 
 class ClaseUpdate(BaseModel):
-    id_profesor: Optional[str] = Field(None, min_length=36, max_length=36)
-    nombre: Optional[str] = Field(None, min_length=1, max_length=100)
+    id_profesor: str | None = Field(None, min_length=36, max_length=36)
+    nombre: str | None = Field(None, min_length=1, max_length=100)
 
 
 class ClaseResponse(BaseModel):

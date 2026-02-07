@@ -1,7 +1,7 @@
 # Makefile para GerniApi
 # Comandos útiles para desarrollo
 
-.PHONY: dev install test clean
+.PHONY: dev install install-dev test lint format clean
 
 # Servidor de desarrollo con hot-reload
 dev:
@@ -20,15 +20,41 @@ dev:
 	@echo ""
 	.venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-# Instalar dependencias
+# Instalar dependencias de producción
 install:
-	@echo "📦 Instalando dependencias..."
+	@echo "📦 Instalando dependencias de producción..."
 	pip install -r requirements.txt
+
+# Instalar dependencias de desarrollo (incluye linters)
+install-dev:
+	@echo "📦 Instalando dependencias de desarrollo..."
+	pip install -r requirements.txt
+	pip install -r requirements-dev.txt
 
 # Ejecutar tests
 test:
 	@echo "🧪 Ejecutando tests..."
-	.venv/bin/pytest
+	pytest
+
+# Ejecutar linters (verificación)
+lint:
+	@echo "🔍 Ejecutando linters..."
+	@echo "  → Black (verificando formato)..."
+	black --check --diff app tests
+	@echo "\n  → isort (verificando imports)..."
+	isort --check-only --diff app tests
+	@echo "\n  → Ruff (verificando código)..."
+	ruff check app tests
+	@echo "\n✅ Todos los linters pasaron correctamente!"
+
+# Formatear código automáticamente
+format:
+	@echo "✨ Formateando código..."
+	@echo "  → Black (formateando archivos)..."
+	black app tests
+	@echo "  → isort (ordenando imports)..."
+	isort app tests
+	@echo "\n✅ Código formateado correctamente!"
 
 # Limpiar archivos temporales
 clean:
@@ -36,3 +62,5 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete 2>/dev/null || true
 	find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name ".ruff_cache" -exec rm -rf {} + 2>/dev/null || true
+	rm -rf htmlcov coverage.xml .coverage

@@ -4,8 +4,9 @@ Provides data for statistics dashboards and charts
 """
 
 import time
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from sqlalchemy import and_, distinct, func
 from sqlalchemy.orm import Session
@@ -29,14 +30,14 @@ class StatisticsService:
     """Service for calculating user and activity statistics with caching"""
 
     # Cache storage
-    _cache: Dict[str, CacheEntry] = {}
+    _cache: dict[str, CacheEntry] = {}
 
     # Cache TTL in seconds (5 minutes by default)
     CACHE_TTL = 300
 
     @classmethod
     def _get_cached_or_fetch(
-        cls, cache_key: str, fetch_func: Callable, *args, ttl: Optional[int] = None
+        cls, cache_key: str, fetch_func: Callable, *args, ttl: int | None = None
     ) -> Any:
         """
         Generic cache getter with TTL
@@ -71,7 +72,7 @@ class StatisticsService:
         cls._cache.clear()
 
     @staticmethod
-    def get_users_summary(db: Session) -> Dict[str, Any]:
+    def get_users_summary(db: Session) -> dict[str, Any]:
         """
         Get summary statistics for users (with caching)
 
@@ -84,7 +85,7 @@ class StatisticsService:
         )
 
     @staticmethod
-    def _fetch_users_summary(db: Session) -> Dict[str, Any]:
+    def _fetch_users_summary(db: Session) -> dict[str, Any]:
         """Internal method to fetch users summary from database"""
         now = datetime.now()
         today_start = datetime(now.year, now.month, now.day)
@@ -127,7 +128,7 @@ class StatisticsService:
         }
 
     @staticmethod
-    def get_active_users_timeline(db: Session, days: int = 30) -> Dict[str, List]:
+    def get_active_users_timeline(db: Session, days: int = 30) -> dict[str, list]:
         """
         Get timeline of DAU, WAU, MAU for the last N days (with caching)
 
@@ -144,7 +145,7 @@ class StatisticsService:
         )
 
     @staticmethod
-    def _fetch_active_users_timeline(db: Session, days: int = 30) -> Dict[str, List]:
+    def _fetch_active_users_timeline(db: Session, days: int = 30) -> dict[str, list]:
         """Internal method to fetch active users timeline from database"""
         now = datetime.now()
         dates = []
@@ -191,7 +192,7 @@ class StatisticsService:
         return {"dates": dates, "dau": dau_data, "wau": wau_data, "mau": mau_data}
 
     @staticmethod
-    def get_new_users_by_day(db: Session, days: int = 30) -> Dict[str, List]:
+    def get_new_users_by_day(db: Session, days: int = 30) -> dict[str, list]:
         """
         Get count of new users registered per day (with caching)
 
@@ -208,7 +209,7 @@ class StatisticsService:
         )
 
     @staticmethod
-    def _fetch_new_users_by_day(db: Session, days: int = 30) -> Dict[str, List]:
+    def _fetch_new_users_by_day(db: Session, days: int = 30) -> dict[str, list]:
         """Internal method to fetch new users by day from database"""
         now = datetime.now()
         dates = []
@@ -231,7 +232,7 @@ class StatisticsService:
         return {"dates": dates, "counts": counts}
 
     @staticmethod
-    def get_active_ratio_timeline(db: Session, days: int = 30) -> Dict[str, List]:
+    def get_active_ratio_timeline(db: Session, days: int = 30) -> dict[str, list]:
         """
         Get ratio of active users to total users over time (with caching)
 
@@ -248,7 +249,7 @@ class StatisticsService:
         )
 
     @staticmethod
-    def _fetch_active_ratio_timeline(db: Session, days: int = 30) -> Dict[str, List]:
+    def _fetch_active_ratio_timeline(db: Session, days: int = 30) -> dict[str, list]:
         """Internal method to fetch active ratio timeline from database"""
         now = datetime.now()
         dates = []
@@ -281,7 +282,7 @@ class StatisticsService:
         return {"dates": dates, "ratios": ratios}
 
     @staticmethod
-    def get_logins_by_day(db: Session, days: int = 30) -> Dict[str, List]:
+    def get_logins_by_day(db: Session, days: int = 30) -> dict[str, list]:
         """
         Get number of game sessions (logins) started per day (with caching)
 
@@ -298,7 +299,7 @@ class StatisticsService:
         )
 
     @staticmethod
-    def _fetch_logins_by_day(db: Session, days: int = 30) -> Dict[str, List]:
+    def _fetch_logins_by_day(db: Session, days: int = 30) -> dict[str, list]:
         """Internal method to fetch logins by day from database"""
         now = datetime.now()
         dates = []

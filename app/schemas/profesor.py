@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -12,10 +11,10 @@ class ProfesorCreate(BaseModel):
 
 
 class ProfesorUpdate(BaseModel):
-    username: Optional[str] = Field(None, min_length=3, max_length=45)
-    nombre: Optional[str] = Field(None, min_length=1, max_length=45)
-    apellido: Optional[str] = Field(None, min_length=1, max_length=45)
-    password: Optional[str] = Field(None, min_length=4, max_length=100)
+    username: str | None = Field(None, min_length=3, max_length=45)
+    nombre: str | None = Field(None, min_length=1, max_length=45)
+    apellido: str | None = Field(None, min_length=1, max_length=45)
+    password: str | None = Field(None, min_length=4, max_length=100)
 
 
 class ProfesorResponse(BaseModel):

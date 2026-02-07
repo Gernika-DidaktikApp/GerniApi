@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime, timedelta
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from sqlalchemy import and_, func
@@ -94,7 +93,7 @@ def crear_usuario(
 
 @router.get(
     "",
-    response_model=List[UsuarioResponse],
+    response_model=list[UsuarioResponse],
     summary="Listar usuarios",
     description="Obtiene una lista paginada de todos los usuarios registrados.",
     dependencies=[Depends(require_api_key_only)],

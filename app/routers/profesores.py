@@ -1,5 +1,4 @@
 import uuid
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -51,7 +50,7 @@ def crear_profesor(profesor_data: ProfesorCreate, db: Session = Depends(get_db))
     return nuevo_profesor
 
 
-@router.get("", response_model=List[ProfesorResponse])
+@router.get("", response_model=list[ProfesorResponse])
 def listar_profesores(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Obtener lista de profesores."""
     profesores = db.query(Profesor).offset(skip).limit(limit).all()

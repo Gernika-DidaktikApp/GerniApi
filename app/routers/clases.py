@@ -1,5 +1,4 @@
 import uuid
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -43,7 +42,7 @@ def crear_clase(clase_data: ClaseCreate, db: Session = Depends(get_db)):
     return nueva_clase
 
 
-@router.get("", response_model=List[ClaseResponse])
+@router.get("", response_model=list[ClaseResponse])
 def listar_clases(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Obtener lista de clases."""
     clases = db.query(Clase).offset(skip).limit(limit).all()

@@ -5,7 +5,7 @@ Proporciona logging con rotación de archivos y diferentes niveles
 
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -18,7 +18,7 @@ class StructuredFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         # Formato base del log
-        timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+        timestamp = datetime.now(UTC).isoformat().replace("+00:00", "Z")
         base = f"[{timestamp}] [{record.levelname:8}] [{record.module}:{record.lineno}] - {record.getMessage()}"
 
         # Añadir campos extra si existen

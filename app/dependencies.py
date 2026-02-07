@@ -3,8 +3,6 @@ Dependency functions for FastAPI endpoints
 Handles authentication and authorization
 """
 
-from typing import Dict
-
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -20,7 +18,7 @@ security = HTTPBearer()
 
 def get_current_user_from_token(
     credentials: HTTPAuthorizationCredentials = Depends(security), db: Session = Depends(get_db)
-) -> Dict:
+) -> dict:
     """
     Validates JWT token and returns current user data.
 

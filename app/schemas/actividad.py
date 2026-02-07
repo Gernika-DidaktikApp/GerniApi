@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -9,8 +7,8 @@ class ActividadCreate(BaseModel):
 
 
 class ActividadUpdate(BaseModel):
-    id_punto: Optional[str] = Field(None, min_length=36, max_length=36)
-    nombre: Optional[str] = Field(None, min_length=1, max_length=100)
+    id_punto: str | None = Field(None, min_length=36, max_length=36)
+    nombre: str | None = Field(None, min_length=1, max_length=100)
 
 
 class ActividadResponse(BaseModel):

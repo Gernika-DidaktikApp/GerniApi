@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -46,7 +45,7 @@ class UsuarioCreate(BaseModel):
         description="Contraseña (será hasheada con bcrypt)",
         example="password123",
     )
-    id_clase: Optional[str] = Field(
+    id_clase: str | None = Field(
         None,
         description="ID de la clase asignada (opcional)",
         example="550e8400-e29b-41d4-a716-446655440000",
@@ -70,36 +69,36 @@ class UsuarioCreate(BaseModel):
 class UsuarioUpdate(BaseModel):
     """Datos para actualizar un usuario existente (todos los campos son opcionales)"""
 
-    username: Optional[str] = Field(
+    username: str | None = Field(
         None,
         min_length=3,
         max_length=45,
         description="Nuevo username",
         example="usuario_nuevo",
     )
-    nombre: Optional[str] = Field(
+    nombre: str | None = Field(
         None, min_length=1, max_length=45, description="Nuevo nombre", example="Pedro"
     )
-    apellido: Optional[str] = Field(
+    apellido: str | None = Field(
         None,
         min_length=1,
         max_length=45,
         description="Nuevo apellido",
         example="García",
     )
-    password: Optional[str] = Field(
+    password: str | None = Field(
         None,
         min_length=4,
         max_length=100,
         description="Nueva contraseña",
         example="newpassword123",
     )
-    id_clase: Optional[str] = Field(
+    id_clase: str | None = Field(
         None,
         description="Nueva clase asignada",
         example="550e8400-e29b-41d4-a716-446655440000",
     )
-    top_score: Optional[int] = Field(None, description="Nueva puntuación máxima", example=1500)
+    top_score: int | None = Field(None, description="Nueva puntuación máxima", example=1500)
 
     model_config = {"json_schema_extra": {"examples": [{"nombre": "Pedro", "apellido": "García"}]}}
 
@@ -141,7 +140,7 @@ class UsuarioResponse(BaseModel):
     username: str = Field(..., description="Nombre de usuario", example="usuario123")
     nombre: str = Field(..., description="Nombre", example="Juan")
     apellido: str = Field(..., description="Apellido", example="Pérez")
-    id_clase: Optional[str] = Field(
+    id_clase: str | None = Field(
         None,
         description="ID de la clase asignada",
         example="550e8400-e29b-41d4-a716-446655440000",
@@ -187,7 +186,7 @@ class UsuarioStatsResponse(BaseModel):
         description="Lista de nombres de módulos/actividades que ha completado al menos una vez",
         example=["Árbol del Gernika", "Museo de la Paz"],
     )
-    ultima_partida: Optional[datetime] = Field(
+    ultima_partida: datetime | None = Field(
         None,
         description="Fecha y hora de la última partida jugada",
         example="2024-01-20T15:30:00",

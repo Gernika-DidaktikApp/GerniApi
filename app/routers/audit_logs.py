@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
@@ -15,7 +13,7 @@ router = APIRouter(prefix="/audit-logs", tags=["📋 Audit Logs"])
 # Solo se pueden leer, no crear ni eliminar manualmente
 
 
-@router.get("", response_model=List[AuditLogResponse])
+@router.get("", response_model=list[AuditLogResponse])
 def listar_audit_logs(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),

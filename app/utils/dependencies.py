@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -19,13 +18,13 @@ class AuthResult:
     """Resultado de autenticación que indica el tipo de auth y el usuario si aplica."""
 
     is_api_key: bool
-    user: Optional[Usuario] = None
-    user_id: Optional[str] = None
+    user: Usuario | None = None
+    user_id: str | None = None
 
 
 def verify_api_key(
-    api_key: Optional[str] = Header(None, alias="X-API-Key"),
-) -> Optional[str]:
+    api_key: str | None = Header(None, alias="X-API-Key"),
+) -> str | None:
     """Verifica si el API Key proporcionado es válido."""
     if api_key and api_key == settings.API_KEY:
         return api_key
@@ -33,8 +32,8 @@ def verify_api_key(
 
 
 def get_current_user(
-    token: Optional[str] = Depends(oauth2_scheme), db: Session = Depends(get_db)
-) -> Optional[Usuario]:
+    token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)
+) -> Usuario | None:
     """Obtiene el usuario actual del token JWT."""
     if not token:
         return None
@@ -51,7 +50,7 @@ def get_current_user(
     return usuario
 
 
-def require_api_key_only(api_key: Optional[str] = Depends(verify_api_key)) -> str:
+def require_api_key_only(api_key: str | None = Depends(verify_api_key)) -> str:
     """Requiere API Key válida. Rechaza cualquier otro tipo de autenticación."""
     if not api_key:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="API Key requerida")
@@ -59,8 +58,8 @@ def require_api_key_only(api_key: Optional[str] = Depends(verify_api_key)) -> st
 
 
 def require_auth(
-    api_key: Optional[str] = Depends(verify_api_key),
-    user: Optional[Usuario] = Depends(get_current_user),
+    api_key: str | None = Depends(verify_api_key),
+    user: Usuario | None = Depends(get_current_user),
 ) -> AuthResult:
     """
     Requiere autenticación válida (API Key O Token de usuario).

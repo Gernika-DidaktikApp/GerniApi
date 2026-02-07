@@ -4,8 +4,9 @@ Provides data for gameplay statistics dashboard
 """
 
 import time
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
@@ -30,14 +31,14 @@ class GameplayStatisticsService:
     """Service for calculating gameplay statistics with caching"""
 
     # Cache storage
-    _cache: Dict[str, CacheEntry] = {}
+    _cache: dict[str, CacheEntry] = {}
 
     # Cache TTL in seconds (5 minutes by default)
     CACHE_TTL = 300
 
     @classmethod
     def _get_cached_or_fetch(
-        cls, cache_key: str, fetch_func: Callable, *args, ttl: Optional[int] = None
+        cls, cache_key: str, fetch_func: Callable, *args, ttl: int | None = None
     ) -> Any:
         """Generic cache getter with TTL"""
         # Check cache
@@ -61,7 +62,7 @@ class GameplayStatisticsService:
         cls._cache.clear()
 
     @staticmethod
-    def get_gameplay_summary(db: Session) -> Dict[str, Any]:
+    def get_gameplay_summary(db: Session) -> dict[str, Any]:
         """
         Get summary statistics for gameplay (with caching)
 
@@ -74,7 +75,7 @@ class GameplayStatisticsService:
         )
 
     @staticmethod
-    def _fetch_gameplay_summary(db: Session) -> Dict[str, Any]:
+    def _fetch_gameplay_summary(db: Session) -> dict[str, Any]:
         """Internal method to fetch gameplay summary from database"""
         # Total partidas
         total_partidas = db.query(Partida).count()
@@ -106,7 +107,7 @@ class GameplayStatisticsService:
         }
 
     @staticmethod
-    def get_partidas_by_day(db: Session, days: int = 30) -> Dict[str, List]:
+    def get_partidas_by_day(db: Session, days: int = 30) -> dict[str, list]:
         """
         Get count of partidas created per day (with caching)
 
@@ -123,7 +124,7 @@ class GameplayStatisticsService:
         )
 
     @staticmethod
-    def _fetch_partidas_by_day(db: Session, days: int = 30) -> Dict[str, List]:
+    def _fetch_partidas_by_day(db: Session, days: int = 30) -> dict[str, list]:
         """Internal method to fetch partidas by day from database"""
         now = datetime.now()
         dates = []
@@ -146,7 +147,7 @@ class GameplayStatisticsService:
         return {"dates": dates, "counts": counts}
 
     @staticmethod
-    def get_partidas_by_status(db: Session) -> Dict[str, Any]:
+    def get_partidas_by_status(db: Session) -> dict[str, Any]:
         """
         Get count of partidas by status (with caching)
 
@@ -159,7 +160,7 @@ class GameplayStatisticsService:
         )
 
     @staticmethod
-    def _fetch_partidas_by_status(db: Session) -> Dict[str, Any]:
+    def _fetch_partidas_by_status(db: Session) -> dict[str, Any]:
         """Internal method to fetch partidas by status from database"""
         completadas = db.query(Partida).filter(Partida.estado == "completada").count()
 
@@ -177,7 +178,7 @@ class GameplayStatisticsService:
         }
 
     @staticmethod
-    def get_actividades_by_status_timeline(db: Session, days: int = 30) -> Dict[str, List]:
+    def get_actividades_by_status_timeline(db: Session, days: int = 30) -> dict[str, list]:
         """
         Get timeline of activities by status (with caching)
 
@@ -195,7 +196,7 @@ class GameplayStatisticsService:
         )
 
     @staticmethod
-    def _fetch_actividades_by_status_timeline(db: Session, days: int = 30) -> Dict[str, List]:
+    def _fetch_actividades_by_status_timeline(db: Session, days: int = 30) -> dict[str, list]:
         """Internal method to fetch activities by status timeline from database"""
 
         now = datetime.now()
@@ -259,7 +260,7 @@ class GameplayStatisticsService:
         }
 
     @staticmethod
-    def get_duracion_promedio_timeline(db: Session, days: int = 30) -> Dict[str, List]:
+    def get_duracion_promedio_timeline(db: Session, days: int = 30) -> dict[str, list]:
         """
         Get average duration of completed partidas over time (with caching)
 
@@ -276,7 +277,7 @@ class GameplayStatisticsService:
         )
 
     @staticmethod
-    def _fetch_duracion_promedio_timeline(db: Session, days: int = 30) -> Dict[str, List]:
+    def _fetch_duracion_promedio_timeline(db: Session, days: int = 30) -> dict[str, list]:
         """Internal method to fetch duracion promedio timeline from database"""
         now = datetime.now()
         dates = []
@@ -307,7 +308,7 @@ class GameplayStatisticsService:
         return {"dates": dates, "durations": durations}
 
     @staticmethod
-    def get_completion_rate_by_punto(db: Session) -> Dict[str, List]:
+    def get_completion_rate_by_punto(db: Session) -> dict[str, list]:
         """
         Get completion rate by punto (with caching)
 
@@ -320,7 +321,7 @@ class GameplayStatisticsService:
         )
 
     @staticmethod
-    def _fetch_completion_rate_by_punto(db: Session) -> Dict[str, List]:
+    def _fetch_completion_rate_by_punto(db: Session) -> dict[str, list]:
         """Internal method to fetch completion rate by punto from database"""
         # Get all puntos
         puntos = db.query(Punto).all()

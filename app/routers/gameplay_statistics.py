@@ -3,7 +3,7 @@ Gameplay Statistics API endpoints
 Provides data for gameplay statistics dashboard (partidas, actividades)
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
@@ -22,11 +22,11 @@ router = APIRouter(
 
 @router.get(
     "/summary",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get gameplay statistics summary",
     description="Returns summary metrics: total partidas, completadas, en progreso, duración promedio",
 )
-def get_gameplay_summary(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_gameplay_summary(db: Session = Depends(get_db)) -> dict[str, Any]:
     """
     ## Get Gameplay Statistics Summary
 
@@ -43,14 +43,14 @@ def get_gameplay_summary(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 @router.get(
     "/partidas-by-day",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get partidas created by day",
     description="Returns count of game sessions created per day",
 )
 def get_partidas_by_day(
     days: int = Query(30, ge=1, le=365, description="Number of days to retrieve"),
     db: Session = Depends(get_db),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     ## Get Partidas by Day
 
@@ -66,11 +66,11 @@ def get_partidas_by_day(
 
 @router.get(
     "/partidas-by-status",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get partidas by status",
     description="Returns count of partidas by status (completada, abandonada, en_progreso)",
 )
-def get_partidas_by_status(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_partidas_by_status(db: Session = Depends(get_db)) -> dict[str, Any]:
     """
     ## Get Partidas by Status
 
@@ -87,14 +87,14 @@ def get_partidas_by_status(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 @router.get(
     "/actividades-by-status-timeline",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get activities by status timeline",
     description="Returns timeline of activities by status (completados, en progreso, abandonados)",
 )
 def get_actividades_by_status_timeline(
     days: int = Query(30, ge=1, le=365, description="Number of days to retrieve"),
     db: Session = Depends(get_db),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     ## Get Actividades by Status Timeline
 
@@ -112,11 +112,11 @@ def get_actividades_by_status_timeline(
 
 @router.get(
     "/completion-rate-by-punto",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get completion rate by punto",
     description="Returns completion rate percentage for each punto",
 )
-def get_completion_rate_by_punto(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_completion_rate_by_punto(db: Session = Depends(get_db)) -> dict[str, Any]:
     """
     ## Get Completion Rate by Punto
 

@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -11,24 +10,24 @@ class ActividadProgresoCreate(BaseModel):
 
 
 class ActividadProgresoUpdate(BaseModel):
-    duracion: Optional[int] = None
-    fecha_fin: Optional[datetime] = None
-    estado: Optional[str] = Field(None, max_length=20)
-    puntuacion: Optional[float] = None
-    respuesta_contenido: Optional[str] = Field(
+    duracion: int | None = None
+    fecha_fin: datetime | None = None
+    estado: str | None = Field(None, max_length=20)
+    puntuacion: float | None = None
+    respuesta_contenido: str | None = Field(
         None, description="Texto largo o URL de imagen del usuario"
     )
 
 
 class ActividadProgresoCompletar(BaseModel):
     puntuacion: float = Field(..., description="Puntuación obtenida en la actividad")
-    respuesta_contenido: Optional[str] = Field(
+    respuesta_contenido: str | None = Field(
         None, description="Respuesta del usuario (texto o URL de imagen)"
     )
-    device_type: Optional[str] = Field(
+    device_type: str | None = Field(
         None, max_length=50, description="Tipo de dispositivo (iOS, Android)"
     )
-    app_version: Optional[str] = Field(None, max_length=20, description="Versión de la aplicación")
+    app_version: str | None = Field(None, max_length=20, description="Versión de la aplicación")
 
 
 class ActividadProgresoResponse(BaseModel):
@@ -37,11 +36,11 @@ class ActividadProgresoResponse(BaseModel):
     id_punto: str
     id_actividad: str
     fecha_inicio: datetime
-    duracion: Optional[int] = None
-    fecha_fin: Optional[datetime] = None
+    duracion: int | None = None
+    fecha_fin: datetime | None = None
     estado: str
-    puntuacion: Optional[float] = None
-    respuesta_contenido: Optional[str] = None
+    puntuacion: float | None = None
+    respuesta_contenido: str | None = None
 
     class Config:
         from_attributes = True
@@ -52,12 +51,12 @@ class PuntoResumen(BaseModel):
 
     id_juego: str
     id_punto: str
-    nombre_punto: Optional[str] = None
+    nombre_punto: str | None = None
     actividades_totales: int
     actividades_completadas: int
     actividades_en_progreso: int
     puntuacion_total: float
-    duracion_total: Optional[int] = None
-    fecha_inicio: Optional[datetime] = None
-    fecha_fin: Optional[datetime] = None
+    duracion_total: int | None = None
+    fecha_inicio: datetime | None = None
+    fecha_fin: datetime | None = None
     estado: str  # "no_iniciada", "en_progreso", "completada"

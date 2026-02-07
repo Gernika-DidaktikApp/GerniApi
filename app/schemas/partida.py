@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -9,17 +8,17 @@ class PartidaCreate(BaseModel):
 
 
 class PartidaUpdate(BaseModel):
-    fecha_fin: Optional[datetime] = None
-    duracion: Optional[int] = None
-    estado: Optional[str] = Field(None, max_length=20)
+    fecha_fin: datetime | None = None
+    duracion: int | None = None
+    estado: str | None = Field(None, max_length=20)
 
 
 class PartidaResponse(BaseModel):
     id: str
     id_usuario: str
     fecha_inicio: datetime
-    fecha_fin: Optional[datetime] = None
-    duracion: Optional[int] = None
+    fecha_fin: datetime | None = None
+    duracion: int | None = None
     estado: str
 
     class Config:

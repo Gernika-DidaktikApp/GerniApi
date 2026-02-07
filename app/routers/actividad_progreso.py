@@ -1,6 +1,5 @@
 import uuid
 from datetime import datetime
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -335,7 +334,7 @@ def crear_actividad_progreso(
 
 @router.get(
     "",
-    response_model=List[ActividadProgresoResponse],
+    response_model=list[ActividadProgresoResponse],
     dependencies=[Depends(require_api_key_only)],
 )
 def listar_actividad_progresos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):

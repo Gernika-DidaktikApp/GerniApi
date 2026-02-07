@@ -3,7 +3,7 @@ Statistics API endpoints
 Provides data for statistics dashboards and charts
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
@@ -22,11 +22,11 @@ router = APIRouter(
 
 @router.get(
     "/users/summary",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get user statistics summary",
     description="Returns summary metrics: DAU, new users today, active/total ratio, and logins today",
 )
-def get_users_summary(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_users_summary(db: Session = Depends(get_db)) -> dict[str, Any]:
     """
     ## Get User Statistics Summary
 
@@ -44,14 +44,14 @@ def get_users_summary(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 @router.get(
     "/users/active-timeline",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get active users timeline",
     description="Returns DAU, WAU, and MAU data for the specified number of days",
 )
 def get_active_users_timeline(
     days: int = Query(30, ge=1, le=365, description="Number of days to retrieve"),
     db: Session = Depends(get_db),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     ## Get Active Users Timeline (DAU/WAU/MAU)
 
@@ -74,14 +74,14 @@ def get_active_users_timeline(
 
 @router.get(
     "/users/new-by-day",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get new users by day",
     description="Returns count of new user registrations per day",
 )
 def get_new_users_by_day(
     days: int = Query(30, ge=1, le=365, description="Number of days to retrieve"),
     db: Session = Depends(get_db),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     ## Get New Users by Day
 
@@ -97,14 +97,14 @@ def get_new_users_by_day(
 
 @router.get(
     "/users/active-ratio-timeline",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get active ratio timeline",
     description="Returns the ratio of active users to total users over time",
 )
 def get_active_ratio_timeline(
     days: int = Query(30, ge=1, le=365, description="Number of days to retrieve"),
     db: Session = Depends(get_db),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     ## Get Active Ratio Timeline
 
@@ -125,14 +125,14 @@ def get_active_ratio_timeline(
 
 @router.get(
     "/users/logins-by-day",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get logins by day",
     description="Returns number of game sessions (logins) started per day",
 )
 def get_logins_by_day(
     days: int = Query(30, ge=1, le=365, description="Number of days to retrieve"),
     db: Session = Depends(get_db),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     ## Get Logins by Day
 

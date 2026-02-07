@@ -4,7 +4,7 @@ Registra todas las peticiones y respuestas con métricas de rendimiento
 """
 
 import time
-from typing import Callable
+from collections.abc import Callable
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware

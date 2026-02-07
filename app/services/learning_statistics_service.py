@@ -4,7 +4,8 @@ Provides data for learning statistics dashboard
 """
 
 import time
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
@@ -28,14 +29,14 @@ class LearningStatisticsService:
     """Service for calculating learning/performance statistics with caching"""
 
     # Cache storage
-    _cache: Dict[str, CacheEntry] = {}
+    _cache: dict[str, CacheEntry] = {}
 
     # Cache TTL in seconds (5 minutes by default)
     CACHE_TTL = 300
 
     @classmethod
     def _get_cached_or_fetch(
-        cls, cache_key: str, fetch_func: Callable, *args, ttl: Optional[int] = None
+        cls, cache_key: str, fetch_func: Callable, *args, ttl: int | None = None
     ) -> Any:
         """Generic cache getter with TTL"""
         # Check cache
@@ -59,7 +60,7 @@ class LearningStatisticsService:
         cls._cache.clear()
 
     @staticmethod
-    def get_learning_summary(db: Session) -> Dict[str, Any]:
+    def get_learning_summary(db: Session) -> dict[str, Any]:
         """
         Get summary statistics for learning/performance (with caching)
 
@@ -72,7 +73,7 @@ class LearningStatisticsService:
         )
 
     @staticmethod
-    def _fetch_learning_summary(db: Session) -> Dict[str, Any]:
+    def _fetch_learning_summary(db: Session) -> dict[str, Any]:
         """Internal method to fetch learning summary from database"""
         # Average score (puntuacion) of completed activities
         avg_score = (
@@ -141,7 +142,7 @@ class LearningStatisticsService:
         }
 
     @staticmethod
-    def get_average_score_by_punto(db: Session) -> Dict[str, List]:
+    def get_average_score_by_punto(db: Session) -> dict[str, list]:
         """
         Get average score by punto (with caching)
 
@@ -154,7 +155,7 @@ class LearningStatisticsService:
         )
 
     @staticmethod
-    def _fetch_average_score_by_punto(db: Session) -> Dict[str, List]:
+    def _fetch_average_score_by_punto(db: Session) -> dict[str, list]:
         """Internal method to fetch average score by punto from database"""
         # Query puntos with their average scores
         results = (
@@ -181,7 +182,7 @@ class LearningStatisticsService:
         return {"activities": activities, "scores": scores}
 
     @staticmethod
-    def get_score_distribution(db: Session) -> Dict[str, List]:
+    def get_score_distribution(db: Session) -> dict[str, list]:
         """
         Get score distribution for histogram (with caching)
 
@@ -194,7 +195,7 @@ class LearningStatisticsService:
         )
 
     @staticmethod
-    def _fetch_score_distribution(db: Session) -> Dict[str, Any]:
+    def _fetch_score_distribution(db: Session) -> dict[str, Any]:
         """Internal method to fetch score distribution from database"""
         # Get all scores from completed activities
         scores_query = (
@@ -216,7 +217,7 @@ class LearningStatisticsService:
         return {"scores": scores, "mean": round(mean_score, 1)}
 
     @staticmethod
-    def get_time_boxplot_by_punto(db: Session) -> Dict[str, Any]:
+    def get_time_boxplot_by_punto(db: Session) -> dict[str, Any]:
         """
         Get time data for boxplot by punto (with caching)
 
@@ -229,7 +230,7 @@ class LearningStatisticsService:
         )
 
     @staticmethod
-    def _fetch_time_boxplot_by_punto(db: Session) -> Dict[str, Any]:
+    def _fetch_time_boxplot_by_punto(db: Session) -> dict[str, Any]:
         """Internal method to fetch time boxplot data from database"""
         # Get puntos
         puntos = db.query(Punto).all()

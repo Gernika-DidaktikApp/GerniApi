@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -8,7 +6,7 @@ class PuntoCreate(BaseModel):
 
 
 class PuntoUpdate(BaseModel):
-    nombre: Optional[str] = Field(None, min_length=1, max_length=100)
+    nombre: str | None = Field(None, min_length=1, max_length=100)
 
 
 class PuntoResponse(BaseModel):

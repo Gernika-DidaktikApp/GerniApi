@@ -1,5 +1,4 @@
 import uuid
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -177,7 +176,7 @@ def crear_partida(
 
 @router.get(
     "",
-    response_model=List[PartidaResponse],
+    response_model=list[PartidaResponse],
     dependencies=[Depends(require_api_key_only)],
 )
 def listar_partidas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -229,11 +228,14 @@ def actualizar_partida(
     update_data = partida_data.model_dump(exclude_unset=True)
 
     # Auto-calculate duration if fecha_fin is provided and duration is not
-    if "fecha_fin" in update_data and update_data["fecha_fin"] is not None:
-        if "duracion" not in update_data or update_data["duracion"] is None:
-            # Calculate duration in seconds
-            duracion_segundos = int((update_data["fecha_fin"] - partida.fecha_inicio).total_seconds())
-            update_data["duracion"] = duracion_segundos
+    if (
+        "fecha_fin" in update_data
+        and update_data["fecha_fin"] is not None
+        and ("duracion" not in update_data or update_data["duracion"] is None)
+    ):
+        # Calculate duration in seconds
+        duracion_segundos = int((update_data["fecha_fin"] - partida.fecha_inicio).total_seconds())
+        update_data["duracion"] = duracion_segundos
 
     for field, value in update_data.items():
         setattr(partida, field, value)

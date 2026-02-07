@@ -4,7 +4,7 @@ Provides data for teacher dashboard page (class-level statistics)
 """
 
 import io
-from typing import Any, Dict, List
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
@@ -25,14 +25,14 @@ router = APIRouter(
 
 @router.get(
     "/classes",
-    response_model=List[Dict[str, str]],
+    response_model=list[dict[str, str]],
     summary="Get profesor's classes",
     description="Returns all classes for the authenticated profesor",
 )
 def get_profesor_classes(
     db: Session = Depends(get_db),
-    current_user: Dict = Depends(get_current_user_from_token),
-) -> List[Dict[str, str]]:
+    current_user: dict = Depends(get_current_user_from_token),
+) -> list[dict[str, str]]:
     """
     ## Get Profesor's Classes
 
@@ -56,7 +56,7 @@ def get_profesor_classes(
 
 @router.get(
     "/summary",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get class summary statistics",
     description="Returns summary metrics for a class: students, progress, time, grade",
 )
@@ -64,8 +64,8 @@ def get_class_summary(
     clase_id: str = Query(None, description="Optional class ID (if None, aggregates all classes)"),
     days: int = Query(7, ge=1, le=365, description="Number of days to look back"),
     db: Session = Depends(get_db),
-    current_user: Dict = Depends(get_current_user_from_token),
-) -> Dict[str, Any]:
+    current_user: dict = Depends(get_current_user_from_token),
+) -> dict[str, Any]:
     """
     ## Get Class Summary
 
@@ -94,15 +94,15 @@ def get_class_summary(
 
 @router.get(
     "/student-progress",
-    response_model=Dict[str, List],
+    response_model=dict[str, list],
     summary="Get progress by student",
     description="Returns progress percentage for each student",
 )
 def get_student_progress(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: Dict = Depends(get_current_user_from_token),
-) -> Dict[str, List]:
+    current_user: dict = Depends(get_current_user_from_token),
+) -> dict[str, list]:
     """
     ## Get Student Progress
 
@@ -127,7 +127,7 @@ def get_student_progress(
 
 @router.get(
     "/student-time",
-    response_model=Dict[str, List],
+    response_model=dict[str, list],
     summary="Get time spent by student",
     description="Returns time spent for each student",
 )
@@ -135,8 +135,8 @@ def get_student_time(
     clase_id: str = Query(None, description="Optional class ID"),
     days: int = Query(7, ge=1, le=365, description="Number of days to look back"),
     db: Session = Depends(get_db),
-    current_user: Dict = Depends(get_current_user_from_token),
-) -> Dict[str, List]:
+    current_user: dict = Depends(get_current_user_from_token),
+) -> dict[str, list]:
     """
     ## Get Student Time
 
@@ -162,15 +162,15 @@ def get_student_time(
 
 @router.get(
     "/activities-by-class",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get activities completion by class",
     description="Returns activity completion status (completed, in progress, not started)",
 )
 def get_activities_by_class(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: Dict = Depends(get_current_user_from_token),
-) -> Dict[str, Any]:
+    current_user: dict = Depends(get_current_user_from_token),
+) -> dict[str, Any]:
     """
     ## Get Activities by Class
 
@@ -197,7 +197,7 @@ def get_activities_by_class(
 
 @router.get(
     "/class-evolution",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get class evolution over time",
     description="Returns progress and grade evolution over time",
 )
@@ -205,8 +205,8 @@ def get_class_evolution(
     clase_id: str = Query(None, description="Optional class ID"),
     days: int = Query(14, ge=1, le=365, description="Number of days to retrieve"),
     db: Session = Depends(get_db),
-    current_user: Dict = Depends(get_current_user_from_token),
-) -> Dict[str, Any]:
+    current_user: dict = Depends(get_current_user_from_token),
+) -> dict[str, Any]:
     """
     ## Get Class Evolution
 
@@ -233,15 +233,15 @@ def get_class_evolution(
 
 @router.get(
     "/students-list",
-    response_model=List[Dict[str, Any]],
+    response_model=list[dict[str, Any]],
     summary="Get detailed students list",
     description="Returns detailed list of students with progress, time, and grades",
 )
 def get_students_list(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: Dict = Depends(get_current_user_from_token),
-) -> List[Dict[str, Any]]:
+    current_user: dict = Depends(get_current_user_from_token),
+) -> list[dict[str, Any]]:
     """
     ## Get Students List
 
@@ -277,7 +277,7 @@ def get_students_list(
 def export_students_csv(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: Dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user_from_token),
 ):
     """
     ## Export Students List to CSV
@@ -300,12 +300,13 @@ def export_students_csv(
 
     # Create filename with current date
     from datetime import datetime
+
     filename = f"alumnos_{datetime.now().strftime('%Y%m%d')}.csv"
 
     return StreamingResponse(
-        io.BytesIO(csv_content.encode('utf-8-sig')),
+        io.BytesIO(csv_content.encode("utf-8-sig")),
         media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
 
 
@@ -317,7 +318,7 @@ def export_students_csv(
 def export_students_excel(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: Dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user_from_token),
 ):
     """
     ## Export Students List to Excel
@@ -340,12 +341,13 @@ def export_students_excel(
 
     # Create filename with current date
     from datetime import datetime
+
     filename = f"alumnos_{datetime.now().strftime('%Y%m%d')}.xlsx"
 
     return StreamingResponse(
         io.BytesIO(excel_bytes),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
 
 
@@ -356,7 +358,7 @@ def export_students_excel(
     description="Clears all cached teacher dashboard data",
 )
 def clear_teacher_dashboard_cache(
-    current_user: Dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user_from_token),
 ):
     """
     ## Clear Teacher Dashboard Cache

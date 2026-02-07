@@ -6,8 +6,9 @@ Provides data for teacher dashboard page
 import csv
 import io
 import time
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
@@ -37,14 +38,14 @@ class TeacherDashboardService:
     """Service for calculating teacher dashboard statistics with caching"""
 
     # Cache storage
-    _cache: Dict[str, CacheEntry] = {}
+    _cache: dict[str, CacheEntry] = {}
 
     # Cache TTL in seconds (2 minutes for teacher dashboard)
     CACHE_TTL = 120
 
     @classmethod
     def _get_cached_or_fetch(
-        cls, cache_key: str, fetch_func: Callable, *args, ttl: Optional[int] = None
+        cls, cache_key: str, fetch_func: Callable, *args, ttl: int | None = None
     ) -> Any:
         """Generic cache getter with TTL"""
         # Check cache
@@ -69,8 +70,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def get_class_summary(
-        db: Session, profesor_id: str, clase_id: Optional[str] = None, days: int = 7
-    ) -> Dict[str, Any]:
+        db: Session, profesor_id: str, clase_id: str | None = None, days: int = 7
+    ) -> dict[str, Any]:
         """
         Get summary statistics for a class
 
@@ -90,8 +91,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def _fetch_class_summary(
-        db: Session, profesor_id: str, clase_id: Optional[str], days: int
-    ) -> Dict[str, Any]:
+        db: Session, profesor_id: str, clase_id: str | None, days: int
+    ) -> dict[str, Any]:
         """Internal method to fetch class summary from database"""
         # Build base query for students
         students_query = (
@@ -219,8 +220,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def get_student_progress(
-        db: Session, profesor_id: str, clase_id: Optional[str] = None
-    ) -> Dict[str, List]:
+        db: Session, profesor_id: str, clase_id: str | None = None
+    ) -> dict[str, list]:
         """
         Get progress for each student in the class
 
@@ -239,8 +240,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def _fetch_student_progress(
-        db: Session, profesor_id: str, clase_id: Optional[str]
-    ) -> Dict[str, List]:
+        db: Session, profesor_id: str, clase_id: str | None
+    ) -> dict[str, list]:
         """Internal method to fetch student progress from database"""
         # Get students
         students_query = (
@@ -287,8 +288,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def get_student_time(
-        db: Session, profesor_id: str, clase_id: Optional[str] = None, days: int = 7
-    ) -> Dict[str, List]:
+        db: Session, profesor_id: str, clase_id: str | None = None, days: int = 7
+    ) -> dict[str, list]:
         """
         Get time spent for each student in the class
 
@@ -308,8 +309,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def _fetch_student_time(
-        db: Session, profesor_id: str, clase_id: Optional[str], days: int
-    ) -> Dict[str, List]:
+        db: Session, profesor_id: str, clase_id: str | None, days: int
+    ) -> dict[str, list]:
         """Internal method to fetch student time from database"""
         # Get students
         students_query = (
@@ -364,8 +365,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def get_activities_by_class(
-        db: Session, profesor_id: str, clase_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+        db: Session, profesor_id: str, clase_id: str | None = None
+    ) -> dict[str, Any]:
         """
         Get activity completion status by class
 
@@ -384,8 +385,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def _fetch_activities_by_class(
-        db: Session, profesor_id: str, clase_id: Optional[str]
-    ) -> Dict[str, Any]:
+        db: Session, profesor_id: str, clase_id: str | None
+    ) -> dict[str, Any]:
         """Internal method to fetch activities by class from database"""
         # Get students
         students_query = (
@@ -480,8 +481,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def get_class_evolution(
-        db: Session, profesor_id: str, clase_id: Optional[str] = None, days: int = 14
-    ) -> Dict[str, Any]:
+        db: Session, profesor_id: str, clase_id: str | None = None, days: int = 14
+    ) -> dict[str, Any]:
         """
         Get class evolution over time (progress and grades)
 
@@ -506,8 +507,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def _fetch_class_evolution(
-        db: Session, profesor_id: str, clase_id: Optional[str], days: int
-    ) -> Dict[str, Any]:
+        db: Session, profesor_id: str, clase_id: str | None, days: int
+    ) -> dict[str, Any]:
         """Internal method to fetch class evolution from database"""
         # Get students
         students_query = (
@@ -596,7 +597,7 @@ class TeacherDashboardService:
         return {"dates": dates, "progress": progress_values, "grades": grade_values}
 
     @staticmethod
-    def get_profesor_classes(db: Session, profesor_id: str) -> List[Dict[str, str]]:
+    def get_profesor_classes(db: Session, profesor_id: str) -> list[dict[str, str]]:
         """
         Get all classes for a profesor
 
@@ -617,7 +618,7 @@ class TeacherDashboardService:
         )
 
     @staticmethod
-    def _fetch_profesor_classes(db: Session, profesor_id: str) -> List[Dict[str, str]]:
+    def _fetch_profesor_classes(db: Session, profesor_id: str) -> list[dict[str, str]]:
         """Internal method to fetch profesor classes from database"""
         classes = db.query(Clase).filter(Clase.id_profesor == profesor_id).all()
 
@@ -625,8 +626,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def get_students_list(
-        db: Session, profesor_id: str, clase_id: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+        db: Session, profesor_id: str, clase_id: str | None = None
+    ) -> list[dict[str, Any]]:
         """
         Get detailed list of students with progress and performance data
 
@@ -650,8 +651,8 @@ class TeacherDashboardService:
 
     @staticmethod
     def _fetch_students_list(
-        db: Session, profesor_id: str, clase_id: Optional[str]
-    ) -> List[Dict[str, Any]]:
+        db: Session, profesor_id: str, clase_id: str | None
+    ) -> list[dict[str, Any]]:
         """Internal method to fetch students list from database"""
         # Get students
         students_query = (
@@ -740,7 +741,9 @@ class TeacherDashboardService:
                     "tiempo_total": int(tiempo_minutos),
                     "nota_media": round(avg_grade, 1) if avg_grade else 0,
                     "actividades_completadas": completed_activities,
-                    "ultima_actividad": last_activity.strftime("%Y-%m-%d") if last_activity else "Nunca",
+                    "ultima_actividad": (
+                        last_activity.strftime("%Y-%m-%d") if last_activity else "Nunca"
+                    ),
                 }
             )
 
@@ -750,9 +753,7 @@ class TeacherDashboardService:
         return students_data
 
     @staticmethod
-    def export_students_csv(
-        db: Session, profesor_id: str, clase_id: Optional[str] = None
-    ) -> str:
+    def export_students_csv(db: Session, profesor_id: str, clase_id: str | None = None) -> str:
         """
         Export students list to CSV format
 
@@ -771,34 +772,36 @@ class TeacherDashboardService:
         writer = csv.writer(output)
 
         # Write header
-        writer.writerow([
-            "Nombre",
-            "Usuario",
-            "Progreso (%)",
-            "Actividades Completadas",
-            "Tiempo Total (min)",
-            "Nota Media",
-            "Última Actividad",
-        ])
+        writer.writerow(
+            [
+                "Nombre",
+                "Usuario",
+                "Progreso (%)",
+                "Actividades Completadas",
+                "Tiempo Total (min)",
+                "Nota Media",
+                "Última Actividad",
+            ]
+        )
 
         # Write data rows
         for student in students_data:
-            writer.writerow([
-                student["nombre"],
-                student["username"],
-                student["progreso"],
-                student["actividades_completadas"],
-                student["tiempo_total"],
-                student["nota_media"],
-                student["ultima_actividad"],
-            ])
+            writer.writerow(
+                [
+                    student["nombre"],
+                    student["username"],
+                    student["progreso"],
+                    student["actividades_completadas"],
+                    student["tiempo_total"],
+                    student["nota_media"],
+                    student["ultima_actividad"],
+                ]
+            )
 
         return output.getvalue()
 
     @staticmethod
-    def export_students_excel(
-        db: Session, profesor_id: str, clase_id: Optional[str] = None
-    ) -> bytes:
+    def export_students_excel(db: Session, profesor_id: str, clase_id: str | None = None) -> bytes:
         """
         Export students list to Excel format
 

@@ -18,6 +18,11 @@ htmlcov/
 .coverage
 coverage.xml
 
+# Linters
+.ruff_cache/
+.mypy_cache/
+.black_cache/
+
 # Logs
 logs/
 *.log

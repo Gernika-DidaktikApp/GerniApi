@@ -79,7 +79,7 @@ Solo API Key [API-KEY]
 79: - Puntos: POST, PUT, DELETE
 80: - Partidas: GET lista, DELETE
 81: - Estados: GET lista, DELETE
-82: 
+82:
 83: API Key o Token [MIXED]
 84: - Usuarios: GET/{id}, PUT/{id} *(solo su perfil)*
 85: - Partidas: POST, GET/{id}, PUT/{id} *(solo sus partidas)*

@@ -1,5 +1,4 @@
 import uuid
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -39,7 +38,7 @@ def crear_punto(punto_data: PuntoCreate, db: Session = Depends(get_db)):
 
 @router.get(
     "",
-    response_model=List[PuntoResponse],
+    response_model=list[PuntoResponse],
     dependencies=[Depends(require_api_key_only)],
 )
 def listar_puntos(

@@ -3,7 +3,7 @@ Learning Statistics API endpoints
 Provides data for learning/performance statistics dashboard (scores, tiempo)
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
@@ -22,11 +22,11 @@ router = APIRouter(
 
 @router.get(
     "/summary",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get learning statistics summary",
     description="Returns summary metrics: average score, pass rate, average time, evaluated activities",
 )
-def get_learning_summary(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_learning_summary(db: Session = Depends(get_db)) -> dict[str, Any]:
     """
     ## Get Learning Statistics Summary
 
@@ -43,11 +43,11 @@ def get_learning_summary(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 @router.get(
     "/average-score-by-punto",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get average score by punto",
     description="Returns average score for each punto",
 )
-def get_average_score_by_punto(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_average_score_by_punto(db: Session = Depends(get_db)) -> dict[str, Any]:
     """
     ## Get Average Score by Punto
 
@@ -62,11 +62,11 @@ def get_average_score_by_punto(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 @router.get(
     "/score-distribution",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get score distribution",
     description="Returns distribution of scores for histogram",
 )
-def get_score_distribution(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_score_distribution(db: Session = Depends(get_db)) -> dict[str, Any]:
     """
     ## Get Score Distribution
 
@@ -81,11 +81,11 @@ def get_score_distribution(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 @router.get(
     "/time-boxplot-by-punto",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
     summary="Get time boxplot data by punto",
     description="Returns time distribution data for boxplot visualization",
 )
-def get_time_boxplot_by_punto(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_time_boxplot_by_punto(db: Session = Depends(get_db)) -> dict[str, Any]:
     """
     ## Get Time Boxplot by Punto
 

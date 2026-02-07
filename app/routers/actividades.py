@@ -1,5 +1,4 @@
 import uuid
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -48,7 +47,7 @@ def crear_actividad(actividad_data: ActividadCreate, db: Session = Depends(get_d
 
 @router.get(
     "",
-    response_model=List[ActividadResponse],
+    response_model=list[ActividadResponse],
     dependencies=[Depends(require_api_key_only)],
 )
 def listar_actividades(

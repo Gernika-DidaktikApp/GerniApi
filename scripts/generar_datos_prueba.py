@@ -6,7 +6,6 @@ Script para generar datos de prueba en LOCAL para las estadísticas
 Por seguridad, NO permite ejecutarse contra producción.
 """
 
-import os
 import random
 import sys
 from datetime import datetime, timedelta
@@ -113,7 +112,6 @@ def crear_partida_con_eventos(token, user_id, dias_atras=0):
         return None
 
     partida = response.json()
-    partida_id = partida["id"]
 
     # Simular eventos en algunas actividades (no todas)
     num_actividades = random.randint(1, len(ACTIVIDADES))

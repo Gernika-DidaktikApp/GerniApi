@@ -31,7 +31,7 @@ def crear_profesor_prueba(
         nombre: Nombre del profesor
         apellido: Apellido del profesor
     """
-    print(f"\n🔧 Creando profesor de prueba...")
+    print("\n🔧 Creando profesor de prueba...")
     print(f"   Username: {username}")
     print(f"   Nombre: {nombre} {apellido}")
 
@@ -52,7 +52,7 @@ def crear_profesor_prueba(
                 db.commit()
                 print(f"\n✅ Contraseña actualizada para '{username}'")
             else:
-                print(f"\n✅ Profesor existente sin cambios")
+                print("\n✅ Profesor existente sin cambios")
 
             db.close()
             return
@@ -71,14 +71,14 @@ def crear_profesor_prueba(
         db.commit()
         db.refresh(profesor)
 
-        print(f"\n✅ Profesor creado exitosamente!")
+        print("\n✅ Profesor creado exitosamente!")
         print(f"   ID: {profesor.id}")
         print(f"   Username: {profesor.username}")
         print(f"   Nombre: {profesor.nombre} {profesor.apellido}")
-        print(f"\n📝 Credenciales de acceso:")
+        print("\n📝 Credenciales de acceso:")
         print(f"   Username: {username}")
         print(f"   Password: {password}")
-        print(f"\n🌐 Accede en: http://localhost:8000/login")
+        print("\n🌐 Accede en: http://localhost:8000/login")
 
     except Exception as e:
         print(f"\n❌ Error al crear profesor: {e}")

@@ -4,25 +4,25 @@ Script para generar datos de prueba directamente en la base de datos
 Sin necesidad de tener el servidor corriendo
 """
 
+import random
 import sys
 import uuid
-import random
 from datetime import datetime, timedelta
 
 # Add parent directory to path
 sys.path.insert(0, '/Users/warapacheco/Documents/DM25-26/DidaktikApp/API/GerniApi')
 
 from app.database import SessionLocal
-from app.models.usuario import Usuario
 from app.models.actividad import Actividad
-from app.models.evento import Eventos
+from app.models.actividad_progreso import ActividadProgreso
 from app.models.juego import Partida
-from app.models.evento_estado import EventoEstado
+from app.models.punto import Punto
+from app.models.usuario import Usuario
 
 
-def crear_actividades_eventos(db):
-    """Crea actividades y eventos si no existen"""
-    actividades_data = [
+def crear_puntos_actividades(db):
+    """Crea puntos y actividades si no existen"""
+    puntos_data = [
         ("Árbol del Gernika", [
             "Ubicación del árbol",
             "Historia del árbol",
@@ -50,49 +50,48 @@ def crear_actividades_eventos(db):
         ])
     ]
 
-    actividades = []
+    puntos = []
 
-    for nombre_act, eventos_nombres in actividades_data:
-        # Buscar o crear actividad
-        actividad = db.query(Actividad).filter(Actividad.nombre == nombre_act).first()
+    for nombre_punto, actividades_nombres in puntos_data:
+        # Buscar o crear punto
+        punto = db.query(Punto).filter(Punto.nombre == nombre_punto).first()
 
-        if not actividad:
-            actividad = Actividad(
+        if not punto:
+            punto = Punto(
                 id=str(uuid.uuid4()),
-                nombre=nombre_act
+                nombre=nombre_punto
             )
-            db.add(actividad)
+            db.add(punto)
             db.flush()
 
-        actividades.append(actividad)
+        puntos.append(punto)
 
-        # Crear eventos para esta actividad
-        for nombre_evt in eventos_nombres:
-            evento = db.query(Eventos).filter(
-                Eventos.nombre == nombre_evt,
-                Eventos.id_actividad == actividad.id
+        # Crear actividades para este punto
+        for nombre_act in actividades_nombres:
+            actividad = db.query(Actividad).filter(
+                Actividad.nombre == nombre_act,
+                Actividad.id_punto == punto.id
             ).first()
 
-            if not evento:
-                evento = Eventos(
+            if not actividad:
+                actividad = Actividad(
                     id=str(uuid.uuid4()),
-                    id_actividad=actividad.id,
-                    nombre=nombre_evt
+                    id_punto=punto.id,
+                    nombre=nombre_act
                 )
-                db.add(evento)
+                db.add(actividad)
 
     db.commit()
-    print(f"   ✅ {len(actividades)} actividades con eventos creadas")
+    print(f"   ✅ {len(puntos)} puntos con actividades creados")
 
-    return actividades
+    return puntos
 
 
-def generar_partidas_y_eventos(db, usuarios, actividades, dias=14):
-    """Genera partidas y eventos de estado para los últimos N días"""
+def generar_partidas_y_progreso(db, usuarios, puntos, dias=14):
+    """Genera partidas y progreso de actividades para los últimos N días"""
 
-    estados_posibles = ["completado", "en_progreso", "abandonado"]
     partidas_creadas = 0
-    eventos_creados = 0
+    progreso_creado = 0
 
     now = datetime.now()
 
@@ -123,60 +122,60 @@ def generar_partidas_y_eventos(db, usuarios, actividades, dias=14):
             db.flush()
             partidas_creadas += 1
 
-            # Crear eventos para esta partida
-            # Seleccionar 1-3 actividades aleatorias
-            actividades_partida = random.sample(actividades, k=random.randint(1, min(3, len(actividades))))
+            # Crear progreso para esta partida
+            # Seleccionar 1-3 puntos aleatorios
+            puntos_partida = random.sample(puntos, k=random.randint(1, min(3, len(puntos))))
 
-            for actividad in actividades_partida:
-                # Obtener eventos de esta actividad
-                eventos = db.query(Eventos).filter(Eventos.id_actividad == actividad.id).all()
+            for punto in puntos_partida:
+                # Obtener actividades de este punto
+                actividades = db.query(Actividad).filter(Actividad.id_punto == punto.id).all()
 
-                for evento in eventos:
-                    # No crear evento estado para todas las actividades
-                    if random.random() > 0.3:  # 70% probabilidad de crear evento
+                for actividad in actividades:
+                    # No crear progreso para todas las actividades
+                    if random.random() > 0.3:  # 70% probabilidad de crear progreso
                         continue
 
-                    # Estado del evento (más probable completado si partida completada)
+                    # Estado del progreso (más probable completado si partida completada)
                     if estado_partida == "completada":
-                        estado_evento = random.choices(
+                        estado_progreso = random.choices(
                             ["completado", "en_progreso", "abandonado"],
                             weights=[0.8, 0.1, 0.1]
                         )[0]
                     elif estado_partida == "en_progreso":
-                        estado_evento = random.choices(
+                        estado_progreso = random.choices(
                             ["completado", "en_progreso", "abandonado"],
                             weights=[0.4, 0.5, 0.1]
                         )[0]
                     else:
-                        estado_evento = "abandonado"
+                        estado_progreso = "abandonado"
 
-                    # Duración del evento (2-10 minutos)
-                    duracion_evento = random.randint(120, 600) if estado_evento == "completado" else None
+                    # Duración de la actividad (2-10 minutos)
+                    duracion_actividad = random.randint(120, 600) if estado_progreso == "completado" else None
 
                     # Puntuación (5-10 si completado)
-                    puntuacion = round(random.uniform(5.0, 10.0), 1) if estado_evento == "completado" else None
+                    puntuacion = round(random.uniform(5.0, 10.0), 1) if estado_progreso == "completado" else None
 
                     # Fecha fin
-                    fecha_fin = fecha_inicio + timedelta(seconds=duracion_evento) if duracion_evento else None
+                    fecha_fin = fecha_inicio + timedelta(seconds=duracion_actividad) if duracion_actividad else None
 
-                    # Crear evento estado
-                    evento_estado = EventoEstado(
+                    # Crear progreso de actividad
+                    actividad_progreso = ActividadProgreso(
                         id=str(uuid.uuid4()),
                         id_juego=partida.id,
+                        id_punto=punto.id,
                         id_actividad=actividad.id,
-                        id_evento=evento.id,
                         fecha_inicio=fecha_inicio + timedelta(minutes=random.randint(1, 10)),
-                        duracion=duracion_evento,
+                        duracion=duracion_actividad,
                         fecha_fin=fecha_fin,
-                        estado=estado_evento,
+                        estado=estado_progreso,
                         puntuacion=puntuacion
                     )
-                    db.add(evento_estado)
-                    eventos_creados += 1
+                    db.add(actividad_progreso)
+                    progreso_creado += 1
 
     db.commit()
     print(f"   ✅ {partidas_creadas} partidas creadas")
-    print(f"   ✅ {eventos_creados} eventos de estado creados")
+    print(f"   ✅ {progreso_creado} registros de progreso creados")
 
 
 def main():
@@ -195,19 +194,19 @@ def main():
 
         print(f"   Encontrados {len(usuarios)} alumnos")
 
-        # Crear actividades y eventos
-        actividades = crear_actividades_eventos(db)
+        # Crear puntos y actividades
+        puntos = crear_puntos_actividades(db)
 
-        # Generar partidas y eventos de estado
-        generar_partidas_y_eventos(db, usuarios, actividades, dias=14)
+        # Generar partidas y progreso de actividades
+        generar_partidas_y_progreso(db, usuarios, puntos, dias=14)
 
-        print(f"\n✅ Datos generados exitosamente!")
-        print(f"\n🌐 Ahora puedes:")
-        print(f"   1. Iniciar el servidor: make dev")
-        print(f"   2. Login: http://localhost:8000/login")
-        print(f"      Username: admin")
-        print(f"      Password: admin123")
-        print(f"   3. Ver dashboard: http://localhost:8000/dashboard/teacher")
+        print("\n✅ Datos generados exitosamente!")
+        print("\n🌐 Ahora puedes:")
+        print("   1. Iniciar el servidor: make dev")
+        print("   2. Login: http://localhost:8000/login")
+        print("      Username: admin")
+        print("      Password: admin123")
+        print("   3. Ver dashboard: http://localhost:8000/dashboard/teacher")
 
     except Exception as e:
         print(f"\n❌ Error: {e}")

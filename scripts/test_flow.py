@@ -111,7 +111,7 @@ def crear_partida(token, user_id):
 def iniciar_actividad(token, partida_id, actividad_id, nombre_actividad):
     """Inicia una actividad"""
     response = requests.post(
-        f"{BASE_URL}/api/v1/actividad-estados/iniciar",
+        f"{BASE_URL}/api/v1/actividad-progreso/iniciar",
         headers={"Authorization": f"Bearer {token}"},
         json={"id_juego": partida_id, "id_actividad": actividad_id},
     )

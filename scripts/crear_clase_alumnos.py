@@ -11,8 +11,8 @@ from datetime import datetime
 sys.path.insert(0, '/Users/warapacheco/Documents/DM25-26/DidaktikApp/API/GerniApi')
 
 from app.database import SessionLocal
-from app.models.profesor import Profesor
 from app.models.clase import Clase
+from app.models.profesor import Profesor
 from app.models.usuario import Usuario
 from app.utils.security import hash_password
 
@@ -94,16 +94,16 @@ def crear_clase_con_alumnos():
         # Contar total de alumnos en la clase
         total_alumnos = db.query(Usuario).filter(Usuario.id_clase == clase.id).count()
 
-        print(f"\n✅ Configuración completada!")
+        print("\n✅ Configuración completada!")
         print(f"   Clase: {clase.nombre}")
         print(f"   Profesor: {profesor.nombre} {profesor.apellido}")
         print(f"   Total alumnos: {total_alumnos}")
         print(f"   Nuevos alumnos creados: {alumnos_creados}")
 
         if alumnos_creados > 0:
-            print(f"\n📝 Credenciales de alumnos:")
-            print(f"   Username: [nombre].[apellido] (ej: aitor.etxebarria)")
-            print(f"   Password: alumno123")
+            print("\n📝 Credenciales de alumnos:")
+            print("   Username: [nombre].[apellido] (ej: aitor.etxebarria)")
+            print("   Password: alumno123")
 
     except Exception as e:
         print(f"\n❌ Error: {e}")

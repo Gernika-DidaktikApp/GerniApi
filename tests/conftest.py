@@ -15,9 +15,9 @@ from app.database import Base, get_db
 from app.main import app
 from app.models.actividad import Actividad
 from app.models.clase import Clase
-from app.models.evento import Eventos
 from app.models.juego import Partida
 from app.models.profesor import Profesor
+from app.models.punto import Punto
 from app.models.usuario import Usuario
 from app.utils.security import hash_password
 
@@ -107,28 +107,28 @@ def test_clase(db_session, test_profesor):
 
 
 @pytest.fixture
-def test_actividad(db_session):
-    """Crea una actividad de prueba"""
-    actividad = Actividad(id=str(uuid.uuid4()), nombre="Actividad de Prueba")
-    db_session.add(actividad)
+def test_punto(db_session):
+    """Crea un punto de prueba"""
+    punto = Punto(id=str(uuid.uuid4()), nombre="Punto de Prueba")
+    db_session.add(punto)
     db_session.commit()
-    db_session.refresh(actividad)
-    return actividad
+    db_session.refresh(punto)
+    return punto
 
 
 @pytest.fixture
-def test_eventos(db_session, test_actividad):
-    """Crea 3 eventos de prueba para una actividad"""
-    eventos = []
+def test_actividades(db_session, test_punto):
+    """Crea 3 actividades de prueba para un punto"""
+    actividades = []
     for i in range(1, 4):
-        evento = Eventos(id=str(uuid.uuid4()), id_actividad=test_actividad.id, nombre=f"Evento {i}")
-        db_session.add(evento)
-        eventos.append(evento)
+        actividad = Actividad(id=str(uuid.uuid4()), id_punto=test_punto.id, nombre=f"Actividad {i}")
+        db_session.add(actividad)
+        actividades.append(actividad)
 
     db_session.commit()
-    for evento in eventos:
-        db_session.refresh(evento)
-    return eventos
+    for actividad in actividades:
+        db_session.refresh(actividad)
+    return actividades
 
 
 @pytest.fixture

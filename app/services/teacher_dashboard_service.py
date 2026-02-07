@@ -145,20 +145,38 @@ class TeacherDashboardService:
         )
         progreso_medio = min(100, (avg_completed / total_events) * 100)
 
-        # Calculate average time (duration in minutes)
+        # Calculate average time from activity durations (duration in minutes)
         fecha_limite = datetime.now() - timedelta(days=days)
 
-        avg_time = (
-            db.query(func.avg(Partida.duracion))
-            .filter(
-                and_(
-                    Partida.id_usuario.in_(student_ids),
-                    Partida.duracion.isnot(None),
-                    Partida.fecha_inicio >= fecha_limite,
+        # Sum all activity durations per student, then average across students
+        total_time_per_student = []
+        for student_id in student_ids:
+            student_time = (
+                db.query(func.sum(ActividadProgreso.duracion))
+                .filter(
+                    and_(
+                        ActividadProgreso.id_juego.in_(
+                            db.query(Partida.id).filter(
+                                and_(
+                                    Partida.id_usuario == student_id,
+                                    Partida.fecha_inicio >= fecha_limite,
+                                )
+                            )
+                        ),
+                        ActividadProgreso.duracion.isnot(None),
+                        ActividadProgreso.estado == "completado",
+                    )
                 )
+                .scalar()
+                or 0
             )
-            .scalar()
-            or 0
+            if student_time > 0:
+                total_time_per_student.append(student_time)
+
+        avg_time = (
+            sum(total_time_per_student) / len(total_time_per_student)
+            if total_time_per_student
+            else 0
         )
 
         tiempo_promedio = round(avg_time / 60, 0) if avg_time else 0
@@ -314,14 +332,21 @@ class TeacherDashboardService:
         time_values = []
 
         for student in students:
-            # Calculate total time for this student
+            # Calculate total time for this student from activity durations
             total_time = (
-                db.query(func.sum(Partida.duracion))
+                db.query(func.sum(ActividadProgreso.duracion))
                 .filter(
                     and_(
-                        Partida.id_usuario == student.id,
-                        Partida.duracion.isnot(None),
-                        Partida.fecha_inicio >= fecha_limite,
+                        ActividadProgreso.id_juego.in_(
+                            db.query(Partida.id).filter(
+                                and_(
+                                    Partida.id_usuario == student.id,
+                                    Partida.fecha_inicio >= fecha_limite,
+                                )
+                            )
+                        ),
+                        ActividadProgreso.duracion.isnot(None),
+                        ActividadProgreso.estado == "completado",
                     )
                 )
                 .scalar()
@@ -666,13 +691,16 @@ class TeacherDashboardService:
             # Calculate progress percentage
             progreso = min(100, (completed_activities / total_activities) * 100)
 
-            # Calculate total time
+            # Calculate total time from sum of activity durations (not partida duration)
             total_time = (
-                db.query(func.sum(Partida.duracion))
+                db.query(func.sum(ActividadProgreso.duracion))
                 .filter(
                     and_(
-                        Partida.id_usuario == student.id,
-                        Partida.duracion.isnot(None),
+                        ActividadProgreso.id_juego.in_(
+                            db.query(Partida.id).filter(Partida.id_usuario == student.id)
+                        ),
+                        ActividadProgreso.duracion.isnot(None),
+                        ActividadProgreso.estado == "completado",
                     )
                 )
                 .scalar()

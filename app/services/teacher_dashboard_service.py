@@ -119,7 +119,7 @@ class TeacherDashboardService:
         completed_events_per_student = []
         for student_id in student_ids:
             completed = (
-                db.query(func.count(func.distinct(ActividadProgreso.id_evento)))
+                db.query(func.count(func.distinct(ActividadProgreso.id_actividad)))
                 .filter(
                     and_(
                         ActividadProgreso.id_juego.in_(
@@ -242,7 +242,7 @@ class TeacherDashboardService:
         for student in students:
             # Calculate progress for this student
             completed = (
-                db.query(func.count(func.distinct(ActividadProgreso.id_evento)))
+                db.query(func.count(func.distinct(ActividadProgreso.id_actividad)))
                 .filter(
                     and_(
                         ActividadProgreso.id_juego.in_(
@@ -394,7 +394,7 @@ class TeacherDashboardService:
                         Partida.id.in_(
                             db.query(ActividadProgreso.id_juego).filter(
                                 and_(
-                                    ActividadProgreso.id_actividad == activity.id,
+                                    ActividadProgreso.id_punto == activity.id,
                                     ActividadProgreso.estado == "completado",
                                 )
                             )
@@ -414,7 +414,7 @@ class TeacherDashboardService:
                         Partida.id.in_(
                             db.query(ActividadProgreso.id_juego).filter(
                                 and_(
-                                    ActividadProgreso.id_actividad == activity.id,
+                                    ActividadProgreso.id_punto == activity.id,
                                     ActividadProgreso.estado == "en_progreso",
                                 )
                             )
@@ -423,7 +423,7 @@ class TeacherDashboardService:
                         ~Partida.id.in_(
                             db.query(ActividadProgreso.id_juego).filter(
                                 and_(
-                                    ActividadProgreso.id_actividad == activity.id,
+                                    ActividadProgreso.id_punto == activity.id,
                                     ActividadProgreso.estado == "completado",
                                 )
                             )
@@ -512,7 +512,7 @@ class TeacherDashboardService:
             completed_by_date = []
             for student_id in student_ids:
                 completed = (
-                    db.query(func.count(func.distinct(ActividadProgreso.id_evento)))
+                    db.query(func.count(func.distinct(ActividadProgreso.id_actividad)))
                     .filter(
                         and_(
                             ActividadProgreso.id_juego.in_(

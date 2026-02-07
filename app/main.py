@@ -75,17 +75,17 @@ Solo API Key 🔑
 - Profesores: Todo el CRUD
 - Clases: Todo el CRUD
 - Usuarios: POST, GET lista, DELETE
-- Actividades: POST, PUT, DELETE
-- Eventos: POST, PUT, DELETE
-- Partidas: GET lista, DELETE
-- Estados: GET lista, DELETE
-
-API Key o Token 🎫
-- Usuarios: GET/{id}, PUT/{id} *(solo su perfil)*
-- Partidas: POST, GET/{id}, PUT/{id} *(solo sus partidas)*
-- Actividades: GET, GET/{id} *(lectura)*
-- Eventos: GET, GET/{id} *(lectura)*
-- Estados: POST, GET/{id}, PUT/{id} *(via su partida)*
+78: - Actividades: POST, PUT, DELETE
+79: - Puntos: POST, PUT, DELETE
+80: - Partidas: GET lista, DELETE
+81: - Estados: GET lista, DELETE
+82: 
+83: API Key o Token 🎫
+84: - Usuarios: GET/{id}, PUT/{id} *(solo su perfil)*
+85: - Partidas: POST, GET/{id}, PUT/{id} *(solo sus partidas)*
+86: - Actividades: GET, GET/{id} *(lectura)*
+87: - Puntos: GET, GET/{id} *(lectura)*
+88: - Progresos: POST, GET/{id}, PUT/{id} *(via su partida)*
 
 ---
 

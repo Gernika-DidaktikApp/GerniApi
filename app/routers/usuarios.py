@@ -292,10 +292,10 @@ def obtener_estadisticas_usuario(
             racha_dias += 1
             fecha_actual -= timedelta(days=1)
 
-    # 3. Módulos completados (actividades con al menos 1 evento completado)
+    # 3. Módulos completados (puntos con al menos 1 actividad completada)
     modulos_completados_query = (
         db.query(Punto.nombre)
-        .join(ActividadProgreso, Punto.id == ActividadProgreso.id_actividad)
+        .join(ActividadProgreso, Punto.id == ActividadProgreso.id_punto)
         .join(Partida, ActividadProgreso.id_juego == Partida.id)
         .filter(and_(Partida.id_usuario == usuario_id, ActividadProgreso.estado == "completado"))
         .distinct()

@@ -1,6 +1,6 @@
 """
 Gameplay Statistics API endpoints
-Provides data for gameplay statistics dashboard (partidas, eventos)
+Provides data for gameplay statistics dashboard (partidas, actividades)
 """
 
 from typing import Any, Dict
@@ -86,49 +86,49 @@ def get_partidas_by_status(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 
 @router.get(
-    "/eventos-by-status-timeline",
+    "/actividades-by-status-timeline",
     response_model=Dict[str, Any],
-    summary="Get eventos by status timeline",
-    description="Returns timeline of eventos by status (completados, en progreso, abandonados)",
+    summary="Get activities by status timeline",
+    description="Returns timeline of activities by status (completados, en progreso, abandonados)",
 )
-def get_eventos_by_status_timeline(
+def get_actividades_by_status_timeline(
     days: int = Query(30, ge=1, le=365, description="Number of days to retrieve"),
     db: Session = Depends(get_db),
 ) -> Dict[str, Any]:
     """
-    ## Get Eventos by Status Timeline
+    ## Get Actividades by Status Timeline
 
-    Returns stacked bar chart data for the "Eventos Iniciados vs Completados" chart:
+    Returns stacked bar chart data for the "Actividades Iniciadas vs Completadas" chart:
     - **dates**: Array of date strings (YYYY-MM-DD)
-    - **completados**: Number of completed eventos for each date
-    - **en_progreso**: Number of in-progress eventos for each date
-    - **abandonados**: Number of abandoned eventos for each date
+    - **completados**: Number of completed activities for each date
+    - **en_progreso**: Number of in-progress activities for each date
+    - **abandonados**: Number of abandoned activities for each date
 
     ### Parameters
     - **days**: Number of days to retrieve (default: 30, max: 365)
     """
-    return GameplayStatisticsService.get_eventos_by_status_timeline(db, days)
+    return GameplayStatisticsService.get_actividades_by_status_timeline(db, days)
 
 
 @router.get(
-    "/completion-rate-by-activity",
+    "/completion-rate-by-punto",
     response_model=Dict[str, Any],
-    summary="Get completion rate by activity",
-    description="Returns completion rate percentage for each activity",
+    summary="Get completion rate by punto",
+    description="Returns completion rate percentage for each punto",
 )
-def get_completion_rate_by_activity(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_completion_rate_by_punto(db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
-    ## Get Completion Rate by Activity
+    ## Get Completion Rate by Punto
 
-    Returns completion rate data for the "Completion Rate por Actividad" chart:
-    - **activities**: Array of activity names
-    - **rates**: Completion rate percentage (0-100) for each activity
+    Returns completion rate data for the "Completion Rate por Punto" chart:
+    - **activities**: Array of punto names
+    - **rates**: Completion rate percentage (0-100) for each punto
 
     ### Note
-    Only activities with at least one evento are included.
-    Completion rate = (completed eventos / total eventos) * 100
+    Only puntos with at least one activity are included.
+    Completion rate = (completed activities / total activities) * 100
     """
-    return GameplayStatisticsService.get_completion_rate_by_activity(db)
+    return GameplayStatisticsService.get_completion_rate_by_punto(db)
 
 
 @router.post(

@@ -37,7 +37,7 @@ class AuditLog(Base):
     def get_description(self) -> str:
         """
         Polimorfismo: Método base que puede ser sobrescrito por subclases.
-        Retorna una descripción legible del evento.
+        Retorna una descripción legible de la acción.
         """
         usuario = (
             f"Usuario {self.usuario_id}" if self.usuario_id else f"Profesor {self.profesor_id}"

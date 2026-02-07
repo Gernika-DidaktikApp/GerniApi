@@ -11,7 +11,7 @@ from app.utils.dependencies import AuthResult, require_auth
 
 router = APIRouter(prefix="/audit-logs", tags=["📋 Audit Logs"])
 
-# Los audit logs se crean automáticamente por el sistema (login, completar actividades, etc.)
+# Los audit logs se crean automáticamente por el sistema (login, completar puntos, etc.)
 # Solo se pueden leer, no crear ni eliminar manualmente
 
 

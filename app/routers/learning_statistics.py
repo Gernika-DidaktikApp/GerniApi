@@ -42,22 +42,22 @@ def get_learning_summary(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 
 @router.get(
-    "/average-score-by-activity",
+    "/average-score-by-punto",
     response_model=Dict[str, Any],
-    summary="Get average score by activity",
-    description="Returns average score for each activity",
+    summary="Get average score by punto",
+    description="Returns average score for each punto",
 )
-def get_average_score_by_activity(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_average_score_by_punto(db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
-    ## Get Average Score by Activity
+    ## Get Average Score by Punto
 
-    Returns average score data for the "Puntuación Media por Actividad" chart:
-    - **activities**: Array of activity names
-    - **scores**: Average score (0-10) for each activity
+    Returns average score data for the "Puntuación Media por Punto" chart:
+    - **activities**: Array of punto names
+    - **scores**: Average score (0-10) for each punto
 
-    Activities are ordered by score (descending).
+    Puntos are ordered by score (descending).
     """
-    return LearningStatisticsService.get_average_score_by_activity(db)
+    return LearningStatisticsService.get_average_score_by_punto(db)
 
 
 @router.get(
@@ -80,23 +80,23 @@ def get_score_distribution(db: Session = Depends(get_db)) -> Dict[str, Any]:
 
 
 @router.get(
-    "/time-boxplot-by-activity",
+    "/time-boxplot-by-punto",
     response_model=Dict[str, Any],
-    summary="Get time boxplot data by activity",
+    summary="Get time boxplot data by punto",
     description="Returns time distribution data for boxplot visualization",
 )
-def get_time_boxplot_by_activity(db: Session = Depends(get_db)) -> Dict[str, Any]:
+def get_time_boxplot_by_punto(db: Session = Depends(get_db)) -> Dict[str, Any]:
     """
-    ## Get Time Boxplot by Activity
+    ## Get Time Boxplot by Punto
 
-    Returns time distribution data for the "Tiempo por Actividad" boxplot:
-    - **activities**: Array of activity names
-    - **times**: Array of time arrays (minutes) for each activity
+    Returns time distribution data for the "Tiempo por Punto" boxplot:
+    - **activities**: Array of punto names
+    - **times**: Array of time arrays (minutes) for each punto
 
-    Each time array contains all completion times for that activity.
-    Only activities with at least 5 completed events are included.
+    Each time array contains all completion times for that punto.
+    Only puntos with at least 5 completed activities are included.
     """
-    return LearningStatisticsService.get_time_boxplot_by_activity(db)
+    return LearningStatisticsService.get_time_boxplot_by_punto(db)
 
 
 @router.post(

@@ -38,7 +38,7 @@ def iniciar_actividad(
     """
     Iniciar una actividad dentro de un punto.
 
-    Crea un nuevo registro de estado de actividad con estado 'en_progreso'.
+    Crea un nuevo registro de progreso de actividad con estado 'en_progreso'.
     La fecha de inicio se registra automáticamente.
 
     - Con API Key: Puede iniciar actividades para cualquier partida
@@ -67,7 +67,7 @@ def iniciar_actividad(
             detail="La actividad especificada no existe o no pertenece a este punto",
         )
 
-    evento_existente = (
+    progreso_existente = (
         db.query(ActividadProgreso)
         .filter(
             ActividadProgreso.id_juego == estado_data.id_juego,
@@ -77,7 +77,7 @@ def iniciar_actividad(
         .first()
     )
 
-    if evento_existente:
+    if progreso_existente:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Ya existe una actividad en progreso para este juego y actividad",
@@ -126,7 +126,7 @@ def completar_actividad(
     if not estado:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Estado de actividad no encontrado",
+            detail="Progreso de actividad no encontrado",
         )
 
     validate_partida_ownership(auth, estado.id_juego, db)
@@ -147,7 +147,7 @@ def completar_actividad(
 
     log_with_context(
         "info",
-        "Punto completado",
+        "Actividad completada",
         estado_id=estado.id,
         punto_id=estado.id_punto,
         puntuacion=data.puntuacion,
@@ -166,7 +166,7 @@ def completar_actividad(
         .count()
     )
 
-    # Si se completaron todos los eventos, registrar audit log (SOLO para app móvil)
+    # Si se completaron todas las actividades, registrar audit log (SOLO para app móvil)
     if actividades_completadas == actividades_totales:
         partida = db.query(Partida).filter(Partida.id == estado.id_juego).first()
         punto = db.query(Punto).filter(Punto.id == estado.id_punto).first()
@@ -278,10 +278,10 @@ def crear_actividad_progreso(
     auth: AuthResult = Depends(require_auth),
 ):
     """
-    Crear un nuevo estado de actividad.
+    Crear un nuevo progreso de actividad.
 
-    - Con API Key: Puede crear estados para cualquier partida
-    - Con Token: Solo puede crear estados para sus propias partidas
+    - Con API Key: Puede crear progresos para cualquier partida
+    - Con Token: Solo puede crear progresos para sus propias partidas
     """
     validate_partida_ownership(auth, estado_data.id_juego, db)
 
@@ -318,7 +318,7 @@ def crear_actividad_progreso(
     db.commit()
     db.refresh(nuevo_estado)
 
-    log_with_context("info", "Estado de actividad creado", estado_id=nuevo_estado.id)
+    log_with_context("info", "Progreso de actividad creado", estado_id=nuevo_estado.id)
 
     return nuevo_estado
 
@@ -329,7 +329,7 @@ def crear_actividad_progreso(
     dependencies=[Depends(require_api_key_only)],
 )
 def listar_actividad_progresos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Obtener lista de estados de actividad. Requiere API Key."""
+    """Obtener lista de progresos de actividad. Requiere API Key."""
     estados = db.query(ActividadProgreso).offset(skip).limit(limit).all()
     return estados
 
@@ -341,16 +341,16 @@ def obtener_actividad_progreso(
     auth: AuthResult = Depends(require_auth),
 ):
     """
-    Obtener un estado de actividad por ID.
+    Obtener un progreso de actividad por ID.
 
-    - Con API Key: Puede ver cualquier estado
-    - Con Token: Solo puede ver estados de sus propias partidas
+    - Con API Key: Puede ver cualquier progreso
+    - Con Token: Solo puede ver progresos de sus propias partidas
     """
     estado = db.query(ActividadProgreso).filter(ActividadProgreso.id == estado_id).first()
     if not estado:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Estado de actividad no encontrado",
+            detail="Progreso de actividad no encontrado",
         )
 
     validate_partida_ownership(auth, estado.id_juego, db)
@@ -366,16 +366,16 @@ def actualizar_actividad_progreso(
     auth: AuthResult = Depends(require_auth),
 ):
     """
-    Actualizar un estado de actividad existente.
+    Actualizar un progreso de actividad existente.
 
-    - Con API Key: Puede actualizar cualquier estado
-    - Con Token: Solo puede actualizar estados de sus propias partidas
+    - Con API Key: Puede actualizar cualquier progreso
+    - Con Token: Solo puede actualizar progresos de sus propias partidas
     """
     estado = db.query(ActividadProgreso).filter(ActividadProgreso.id == estado_id).first()
     if not estado:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Estado de actividad no encontrado",
+            detail="Progreso de actividad no encontrado",
         )
 
     validate_partida_ownership(auth, estado.id_juego, db)
@@ -387,7 +387,7 @@ def actualizar_actividad_progreso(
     db.commit()
     db.refresh(estado)
 
-    log_with_context("info", "Estado de actividad actualizado", estado_id=estado.id)
+    log_with_context("info", "Progreso de actividad actualizado", estado_id=estado.id)
 
     return estado
 
@@ -431,10 +431,10 @@ def resetear_punto(
     if not estados:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="No hay estados de actividades para esta actividad en esta partida",
+            detail="No hay progresos de actividades para esta actividad en esta partida",
         )
 
-    # Contar eventos antes de eliminar
+    # Contar progresos antes de eliminar
     total_eliminados = len(estados)
 
     # Eliminar todos los actividad_progresos
@@ -465,15 +465,15 @@ def resetear_punto(
     dependencies=[Depends(require_api_key_only)],
 )
 def eliminar_actividad_progreso(estado_id: str, db: Session = Depends(get_db)):
-    """Eliminar un estado de actividad. Requiere API Key."""
+    """Eliminar un progreso de actividad. Requiere API Key."""
     estado = db.query(ActividadProgreso).filter(ActividadProgreso.id == estado_id).first()
     if not estado:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Estado de actividad no encontrado",
+            detail="Progreso de actividad no encontrado",
         )
 
     db.delete(estado)
     db.commit()
 
-    log_with_context("info", "Estado de actividad eliminado", estado_id=estado_id)
+    log_with_context("info", "Progreso de actividad eliminado", estado_id=estado_id)

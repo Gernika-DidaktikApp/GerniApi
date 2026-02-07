@@ -1,5 +1,5 @@
 """
-Service for calculating gameplay statistics (partidas, eventos)
+Service for calculating gameplay statistics (partidas, actividades)
 Provides data for gameplay statistics dashboard
 """
 
@@ -93,8 +93,8 @@ class GameplayStatisticsService:
             db.query(func.avg(Partida.duracion)).filter(Partida.duracion.isnot(None)).scalar() or 0
         )
 
-        # ActividadModel completados
-        eventos_completados = (
+        # Actividades completadas
+        actividades_completadas = (
             db.query(ActividadProgreso).filter(ActividadProgreso.estado == "completado").count()
         )
 
@@ -105,7 +105,7 @@ class GameplayStatisticsService:
             "duracion_promedio": (
                 round(avg_duration / 60, 1) if avg_duration else 0
             ),  # Convertir a minutos
-            "eventos_completados": eventos_completados,
+            "actividades_completadas": actividades_completadas,
         }
 
     @staticmethod
@@ -180,9 +180,10 @@ class GameplayStatisticsService:
         }
 
     @staticmethod
-    def get_eventos_by_status_timeline(db: Session, days: int = 30) -> Dict[str, List]:
+    def get_actividades_by_status_timeline(db: Session, days: int = 30) -> Dict[str, List]:
         """
-        Get timeline of eventos by status (with caching)
+        Get timeline of activities by status (with caching)
+
 
         Args:
             db: Database session
@@ -191,14 +192,15 @@ class GameplayStatisticsService:
         Returns:
             Dictionary with dates and counts for completados, en_progreso, abandonados
         """
-        cache_key = f"eventos_by_status_timeline_{days}"
+        cache_key = f"actividades_by_status_timeline_{days}"
         return GameplayStatisticsService._get_cached_or_fetch(
-            cache_key, GameplayStatisticsService._fetch_eventos_by_status_timeline, db, days
+            cache_key, GameplayStatisticsService._fetch_actividades_by_status_timeline, db, days
         )
 
     @staticmethod
-    def _fetch_eventos_by_status_timeline(db: Session, days: int = 30) -> Dict[str, List]:
-        """Internal method to fetch eventos by status timeline from database"""
+    def _fetch_actividades_by_status_timeline(db: Session, days: int = 30) -> Dict[str, List]:
+        """Internal method to fetch activities by status timeline from database"""
+
         now = datetime.now()
         dates = []
         completados = []
@@ -210,7 +212,7 @@ class GameplayStatisticsService:
             date_start = datetime(date.year, date.month, date.day)
             date_end = date_start + timedelta(days=1)
 
-            # Count eventos by status for this day
+            # Count actividades by status for this day
             comp = (
                 db.query(ActividadProgreso)
                 .filter(
@@ -308,39 +310,39 @@ class GameplayStatisticsService:
         return {"dates": dates, "durations": durations}
 
     @staticmethod
-    def get_completion_rate_by_activity(db: Session) -> Dict[str, List]:
+    def get_completion_rate_by_punto(db: Session) -> Dict[str, List]:
         """
-        Get completion rate by activity (with caching)
+        Get completion rate by punto (with caching)
 
         Returns:
-            Dictionary with activity names and their completion rates
+            Dictionary with punto names and their completion rates
         """
-        cache_key = "completion_rate_by_activity"
+        cache_key = "completion_rate_by_punto"
         return GameplayStatisticsService._get_cached_or_fetch(
-            cache_key, GameplayStatisticsService._fetch_completion_rate_by_activity, db
+            cache_key, GameplayStatisticsService._fetch_completion_rate_by_punto, db
         )
 
     @staticmethod
-    def _fetch_completion_rate_by_activity(db: Session) -> Dict[str, List]:
-        """Internal method to fetch completion rate by activity from database"""
-        # Get all activities
-        activities = db.query(Punto).all()
+    def _fetch_completion_rate_by_punto(db: Session) -> Dict[str, List]:
+        """Internal method to fetch completion rate by punto from database"""
+        # Get all puntos
+        puntos = db.query(Punto).all()
 
-        activity_names = []
+        punto_names = []
         completion_rates = []
 
-        for activity in activities:
-            # Count total eventos for this activity
-            total_eventos = (
-                db.query(ActividadProgreso).filter(ActividadProgreso.id_actividad == activity.id).count()
+        for punto in puntos:
+            # Count total activities for this punto
+            total_actividades = (
+                db.query(ActividadProgreso).filter(ActividadProgreso.id_punto == punto.id).count()
             )
 
-            # Count completed eventos for this activity
-            completed_eventos = (
+            # Count completed activities for this punto
+            completed_actividades = (
                 db.query(ActividadProgreso)
                 .filter(
                     and_(
-                        ActividadProgreso.id_actividad == activity.id,
+                        ActividadProgreso.id_punto == punto.id,
                         ActividadProgreso.estado == "completado",
                     )
                 )
@@ -348,9 +350,9 @@ class GameplayStatisticsService:
             )
 
             # Calculate completion rate
-            if total_eventos > 0:
-                rate = (completed_eventos / total_eventos) * 100
-                activity_names.append(activity.nombre)
+            if total_actividades > 0:
+                rate = (completed_actividades / total_actividades) * 100
+                punto_names.append(punto.nombre)
                 completion_rates.append(round(rate, 1))
 
-        return {"activities": activity_names, "rates": completion_rates}
+        return {"activities": punto_names, "rates": completion_rates}

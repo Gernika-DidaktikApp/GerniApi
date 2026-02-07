@@ -74,7 +74,7 @@ class LearningStatisticsService:
     @staticmethod
     def _fetch_learning_summary(db: Session) -> Dict[str, Any]:
         """Internal method to fetch learning summary from database"""
-        # Average score (puntuacion) of completed eventos
+        # Average score (puntuacion) of completed activities
         avg_score = (
             db.query(func.avg(ActividadProgreso.puntuacion))
             .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
@@ -82,7 +82,7 @@ class LearningStatisticsService:
             or 0
         )
 
-        # Count of evaluated activities (completed eventos with score)
+        # Count of evaluated activities (completed activities with score)
         evaluated_count = (
             db.query(ActividadProgreso)
             .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
@@ -120,25 +120,25 @@ class LearningStatisticsService:
         }
 
     @staticmethod
-    def get_average_score_by_activity(db: Session) -> Dict[str, List]:
+    def get_average_score_by_punto(db: Session) -> Dict[str, List]:
         """
-        Get average score by activity (with caching)
+        Get average score by punto (with caching)
 
         Returns:
-            Dictionary with activity names and their average scores
+            Dictionary with punto names and their average scores
         """
-        cache_key = "average_score_by_activity"
+        cache_key = "average_score_by_punto"
         return LearningStatisticsService._get_cached_or_fetch(
-            cache_key, LearningStatisticsService._fetch_average_score_by_activity, db
+            cache_key, LearningStatisticsService._fetch_average_score_by_punto, db
         )
 
     @staticmethod
-    def _fetch_average_score_by_activity(db: Session) -> Dict[str, List]:
-        """Internal method to fetch average score by activity from database"""
-        # Query activities with their average scores
+    def _fetch_average_score_by_punto(db: Session) -> Dict[str, List]:
+        """Internal method to fetch average score by punto from database"""
+        # Query puntos with their average scores
         results = (
             db.query(Punto.nombre, func.avg(ActividadProgreso.puntuacion).label("avg_score"))
-            .join(ActividadProgreso, ActividadProgreso.id_actividad == Punto.id)
+            .join(ActividadProgreso, ActividadProgreso.id_punto == Punto.id)
             .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
             .group_by(Punto.id, Punto.nombre)
             .order_by(func.avg(ActividadProgreso.puntuacion).desc())
@@ -170,7 +170,7 @@ class LearningStatisticsService:
     @staticmethod
     def _fetch_score_distribution(db: Session) -> Dict[str, Any]:
         """Internal method to fetch score distribution from database"""
-        # Get all scores from completed eventos
+        # Get all scores from completed activities
         scores_query = (
             db.query(ActividadProgreso.puntuacion)
             .filter(and_(ActividadProgreso.puntuacion.isnot(None), ActividadProgreso.estado == "completado"))
@@ -185,34 +185,34 @@ class LearningStatisticsService:
         return {"scores": scores, "mean": round(mean_score, 1)}
 
     @staticmethod
-    def get_time_boxplot_by_activity(db: Session) -> Dict[str, Any]:
+    def get_time_boxplot_by_punto(db: Session) -> Dict[str, Any]:
         """
-        Get time data for boxplot by activity (with caching)
+        Get time data for boxplot by punto (with caching)
 
         Returns:
-            Dictionary with activity names and their time distributions
+            Dictionary with punto names and their time distributions
         """
-        cache_key = "time_boxplot_by_activity"
+        cache_key = "time_boxplot_by_punto"
         return LearningStatisticsService._get_cached_or_fetch(
-            cache_key, LearningStatisticsService._fetch_time_boxplot_by_activity, db
+            cache_key, LearningStatisticsService._fetch_time_boxplot_by_punto, db
         )
 
     @staticmethod
-    def _fetch_time_boxplot_by_activity(db: Session) -> Dict[str, Any]:
+    def _fetch_time_boxplot_by_punto(db: Session) -> Dict[str, Any]:
         """Internal method to fetch time boxplot data from database"""
-        # Get activities
-        activities = db.query(Punto).all()
+        # Get puntos
+        puntos = db.query(Punto).all()
 
-        activity_names = []
-        activity_times = []
+        punto_names = []
+        punto_times = []
 
-        for activity in activities:
-            # Get all durations for this activity (in minutes)
+        for punto in puntos:
+            # Get all durations for this punto (in minutes)
             times_query = (
                 db.query(ActividadProgreso.duracion)
                 .filter(
                     and_(
-                        ActividadProgreso.id_actividad == activity.id,
+                        ActividadProgreso.id_punto == punto.id,
                         ActividadProgreso.duracion.isnot(None),
                         ActividadProgreso.estado == "completado",
                     )
@@ -222,9 +222,9 @@ class LearningStatisticsService:
 
             times = [round(t[0] / 60, 1) for t in times_query if t[0]]  # Convert to minutes
 
-            # Only include activities with at least 5 data points
+            # Only include puntos with at least 5 data points
             if len(times) >= 5:
-                activity_names.append(activity.nombre)
-                activity_times.append(times)
+                punto_names.append(punto.nombre)
+                punto_times.append(times)
 
-        return {"activities": activity_names, "times": activity_times}
+        return {"activities": punto_names, "times": punto_times}

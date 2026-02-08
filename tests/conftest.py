@@ -2,13 +2,19 @@
 Configuración de fixtures para tests de GerniBide API
 """
 
+import sys
 import uuid
+from unittest.mock import MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+
+# Mock de fastapi_limiter para tests (antes de importar app)
+sys.modules["fastapi_limiter"] = MagicMock()
+sys.modules["fastapi_limiter.depends"] = MagicMock()
 
 from app.config import settings
 from app.database import Base, get_db

@@ -397,9 +397,7 @@ class TestUsuariosEstadisticas:
         assert data["actividades_completadas"] >= 1
         assert data["total_puntos_acumulados"] >= 0
 
-    def test_estadisticas_usuario_otro_falla(
-        self, client, test_usuario_secundario, auth_headers
-    ):
+    def test_estadisticas_usuario_otro_falla(self, client, test_usuario_secundario, auth_headers):
         """Test: No puede ver estadísticas de otro usuario con token"""
         response = client.get(
             f"/api/v1/usuarios/{test_usuario_secundario.id}/estadisticas",

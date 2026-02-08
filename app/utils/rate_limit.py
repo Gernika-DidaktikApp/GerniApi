@@ -6,13 +6,23 @@ para proteger la API contra abuso y ataques de fuerza bruta.
 Autor: Gernibide
 """
 
+import os
+
 from fastapi import Request
-from fastapi_limiter import FastAPILimiter
-from fastapi_limiter.depends import RateLimiter
-from redis import asyncio as aioredis
 
 from app.config import settings
 from app.logging import logger
+
+# Imports opcionales para rate limiting (pueden fallar en tests)
+try:
+    from fastapi_limiter import FastAPILimiter
+    from fastapi_limiter.depends import RateLimiter
+    from redis import asyncio as aioredis
+
+    RATE_LIMIT_AVAILABLE = True
+except ImportError:
+    RATE_LIMIT_AVAILABLE = False
+    logger.warning("Rate limiting no disponible (fastapi-limiter no instalado)")
 
 
 async def init_rate_limiter():
@@ -24,6 +34,10 @@ async def init_rate_limiter():
     Raises:
         Exception: Si no se puede conectar a Redis.
     """
+    if not RATE_LIMIT_AVAILABLE:
+        logger.warning("Rate limiter no disponible, saltando inicialización")
+        return
+
     try:
         redis = await aioredis.from_url(
             settings.REDIS_URL,
@@ -58,6 +72,9 @@ async def close_rate_limiter():
 
     Se ejecuta al apagar la aplicación para liberar recursos.
     """
+    if not RATE_LIMIT_AVAILABLE:
+        return
+
     try:
         await FastAPILimiter.close()
         logger.info("Rate limiter cerrado correctamente")
@@ -86,23 +103,38 @@ def ip_based_identifier(request: Request) -> str:
 
 # Dependencias de rate limiting predefinidas
 
+
+def _dummy_dependency():
+    """Dependencia dummy para cuando rate limiting no está disponible."""
+    return None
+
+
 # Rate limit general (10 req/min por defecto)
-rate_limit_default = RateLimiter(
-    times=settings.RATE_LIMIT_PER_MINUTE,
-    seconds=60,
-    identifier=ip_based_identifier,
-)
+if RATE_LIMIT_AVAILABLE:
+    rate_limit_default = RateLimiter(
+        times=settings.RATE_LIMIT_PER_MINUTE,
+        seconds=60,
+        identifier=ip_based_identifier,
+    )
+else:
+    rate_limit_default = _dummy_dependency
 
 # Rate limit estricto para endpoints sensibles (5 req/min)
-rate_limit_strict = RateLimiter(
-    times=5,
-    seconds=60,
-    identifier=ip_based_identifier,
-)
+if RATE_LIMIT_AVAILABLE:
+    rate_limit_strict = RateLimiter(
+        times=5,
+        seconds=60,
+        identifier=ip_based_identifier,
+    )
+else:
+    rate_limit_strict = _dummy_dependency
 
 # Rate limit permisivo para lectura (60 req/min)
-rate_limit_permissive = RateLimiter(
-    times=60,
-    seconds=60,
-    identifier=ip_based_identifier,
-)
+if RATE_LIMIT_AVAILABLE:
+    rate_limit_permissive = RateLimiter(
+        times=60,
+        seconds=60,
+        identifier=ip_based_identifier,
+    )
+else:
+    rate_limit_permissive = _dummy_dependency

@@ -2,6 +2,23 @@
 
 API REST con FastAPI para la aplicación móvil Gernibide. Gestiona autenticación de usuarios, juegos, puntos y actividades.
 
+[![Tests](https://github.com/TU_USUARIO/TU_REPO/workflows/Tests/badge.svg)](https://github.com/TU_USUARIO/TU_REPO/actions)
+[![Linting](https://github.com/TU_USUARIO/TU_REPO/workflows/Linting/badge.svg)](https://github.com/TU_USUARIO/TU_REPO/actions)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+## 📑 Índice
+
+- [Quick Start](#-quick-start)
+- [Requisitos Previos](#-requisitos-previos)
+- [Instalación Local](#️-instalación-local)
+- [Testing](#-testing)
+- [Endpoints Disponibles](#-endpoints-disponibles)
+- [Modelos de Base de Datos](#-modelos-de-base-de-datos)
+- [Estructura del Proyecto](#️-estructura-del-proyecto)
+- [Documentación Adicional](#-documentación-adicional)
+- [Características](#-características)
+
 ## 🚀 Quick Start
 
 ### Desarrollo Local
@@ -18,13 +35,32 @@ http://localhost:8000/docs
 
 Ver [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) para instrucciones completas de despliegue.
 
+### Para Desarrolladores
+
+```bash
+# 1. Ejecutar tests
+pytest tests/ -v
+
+# 2. Verificar linting
+black --check app/ tests/
+isort --check-only app/ tests/
+ruff check app/ tests/
+
+# 3. Formatear código automáticamente
+black app/ tests/
+isort app/ tests/
+```
+
+Ver [docs/TESTING.md](docs/TESTING.md) y [docs/LINTING.md](docs/LINTING.md) para guías completas.
+
 ---
 
 ## 📋 Requisitos Previos
 
-- Python 3.8+
+- Python 3.11+ (testeado en 3.11, 3.12, 3.13)
 - PostgreSQL 15+
 - Git
+- Redis (opcional, para rate limiting en producción)
 
 ---
 
@@ -224,39 +260,71 @@ Verifica que la API está corriendo.
 ```
 GerniApi/
 ├── app/
-│   ├── models/          # Modelos SQLAlchemy (ORM)
+│   ├── models/              # Modelos SQLAlchemy (ORM)
 │   │   ├── usuario.py
 │   │   ├── clase.py
 │   │   ├── profesor.py
-│   │   ├── juego.py
+│   │   ├── juego.py (Partida)
 │   │   ├── punto.py
 │   │   ├── actividad.py
-│   │   └── sesion.py
-│   ├── schemas/         # Esquemas Pydantic (validación)
+│   │   └── ...
+│   ├── schemas/             # Esquemas Pydantic (validación)
 │   │   ├── usuario.py
 │   │   └── ...
-│   ├── routers/         # Endpoints de la API
-│   │   └── auth.py
-│   ├── utils/           # Utilidades
-│   │   ├── security.py  # JWT, autenticación
-│   │   └── dependencies.py
-│   ├── logging/         # Sistema de logging
+│   ├── routers/             # Endpoints de la API
+│   │   ├── auth.py
+│   │   ├── usuarios.py
+│   │   └── ...
+│   ├── services/            # Lógica de negocio (Clean Architecture)
+│   │   ├── usuario_service.py
+│   │   └── usuario_stats_service.py
+│   ├── repositories/        # Acceso a datos (Clean Architecture)
+│   │   ├── usuario_repository.py
+│   │   └── ...
+│   ├── utils/               # Utilidades
+│   │   ├── security.py      # JWT, autenticación
+│   │   ├── dependencies.py  # Dependency injection
+│   │   └── rate_limit.py    # Rate limiting con Redis
+│   ├── logging/             # Sistema de logging estructurado
 │   │   ├── logger.py
-│   │   └── middleware.py
-│   ├── config.py        # Configuración (Pydantic Settings)
-│   ├── database.py      # Conexión a PostgreSQL
-│   └── main.py          # Punto de entrada FastAPI
-├── logs/                # Logs (solo local)
-├── .env                 # Variables de entorno (NO subir a git)
-├── .env.example         # Ejemplo de variables
-├── requirements.txt     # Dependencias Python
-├── Procfile             # Comando de inicio (Railway)
-├── railway.json         # Configuración Railway
-├── create_tables.py     # Script para crear tablas
-├── deploy_local.sh      # Script de despliegue local
-├── README.md            # Este archivo
-├── RAILWAY_DEPLOY.md    # Guía de despliegue en Railway
-└── QUICKSTART.md        # Inicio rápido
+│   │   ├── middleware.py
+│   │   └── exceptions.py
+│   ├── web/                 # Dashboard web para profesores
+│   │   ├── static/          # CSS, JS
+│   │   └── templates/       # HTML templates
+│   ├── config.py            # Configuración (Pydantic Settings)
+│   ├── database.py          # Conexión a PostgreSQL/SQLite
+│   └── main.py              # Punto de entrada FastAPI
+├── tests/
+│   ├── conftest.py          # Fixtures y configuración de tests
+│   ├── test_auth.py         # Tests de autenticación
+│   ├── test_usuarios.py     # Tests de usuarios
+│   ├── test_estados.py      # Tests de progreso
+│   ├── test_health.py       # Tests de health checks
+│   └── unit/                # Tests unitarios de servicios
+│       ├── test_usuario_service.py
+│       └── test_usuario_stats_service.py
+├── docs/                    # Documentación
+│   ├── TESTING.md           # Guía completa de testing
+│   ├── CI_CD.md             # CI/CD con GitHub Actions
+│   ├── LINTING.md           # Linting y formateo
+│   ├── API_ENDPOINTS.md     # Documentación de endpoints
+│   └── ...
+├── .github/
+│   └── workflows/
+│       ├── tests.yml        # CI: Tests automáticos
+│       └── lint.yml         # CI: Linting
+├── logs/                    # Logs (solo local, no en git)
+├── .env                     # Variables de entorno (NO subir a git)
+├── .env.example             # Ejemplo de variables
+├── requirements.txt         # Dependencias Python
+├── pyproject.toml           # Configuración de linters
+├── pytest.ini               # Configuración de pytest
+├── Procfile                 # Comando de inicio (Railway)
+├── railway.json             # Configuración Railway
+├── create_tables.py         # Script para crear tablas
+├── deploy_local.sh          # Script de despliegue local
+└── README.md                # Este archivo
 ```
 
 ---
@@ -398,7 +466,7 @@ Ver [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) para guía completa.
 
 ## 🧪 Testing
 
-El proyecto incluye una suite completa de tests automatizados con pytest.
+El proyecto incluye una suite completa de tests automatizados con pytest y cobertura de código.
 
 ### Ejecutar Tests
 
@@ -407,41 +475,89 @@ El proyecto incluye una suite completa de tests automatizados con pytest.
 pip install -r requirements.txt
 
 # Ejecutar todos los tests
-pytest
-
-# Tests con mayor detalle
-pytest -v
+pytest tests/ -v
 
 # Tests con reporte de cobertura
-pytest --cov=app --cov-report=html
+pytest tests/ --cov=app --cov-report=html
+
+# Ejecutar solo tests de integración
+pytest tests/test_*.py -v
+
+# Ejecutar solo tests unitarios
+pytest tests/unit/ -v
 ```
 
-### Tests Disponibles
+### Suite de Tests (77 tests)
 
-Los tests cubren:
+**Tests de Integración**:
 - ✅ Autenticación (login, tokens, errores)
-- ✅ Health checks y endpoints básicos
-- ✅ Sistema de progreso de puntos
-- ✅ Sistema de progreso de actividades
+- ✅ CRUD de usuarios (crear, listar, actualizar, eliminar)
+- ✅ Importación masiva de usuarios (bulk import)
+- ✅ Estadísticas de usuarios (racha de días, actividades, puntos)
+- ✅ Sistema de progreso de puntos y actividades
 - ✅ Auto-completado de puntos
 - ✅ Cálculo automático de duraciones
-- ✅ Suma de puntuaciones
-- ✅ Validaciones de datos
-- ✅ Manejo de errores
+- ✅ Health checks y endpoints básicos
 
-Ver [tests/README.md](tests/README.md) para documentación completa de tests.
+**Tests Unitarios** (tests/unit/):
+- ✅ UsuarioService (lógica de negocio de usuarios)
+- ✅ UsuarioStatsService (cálculo de estadísticas)
+- ✅ Validaciones y casos edge
+
+### Compatibilidad Python 3.11+
+
+Los tests están configurados para funcionar en **Python 3.11, 3.12 y 3.13**:
+- Mock mejorado de `fastapi_limiter` compatible con dependency injection
+- Base de datos SQLite en memoria para tests (no requiere PostgreSQL)
+- Fixtures completas para todos los modelos
+
+Ver **[docs/TESTING.md](docs/TESTING.md)** para:
+- Guía completa de fixtures disponibles
+- Mejores prácticas de testing
+- Debugging y troubleshooting
+- Compatibilidad entre versiones de Python
+
+### Linting y Formateo
+
+El proyecto usa **Black**, **isort** y **Ruff** para mantener calidad de código:
+
+```bash
+# Verificar formato (sin modificar)
+black --check app/ tests/
+isort --check-only app/ tests/
+ruff check app/ tests/
+
+# Formatear automáticamente
+black app/ tests/
+isort app/ tests/
+
+# Arreglar errores de Ruff (cuando sea posible)
+ruff check --fix app/ tests/
+```
+
+Ver **[docs/LINTING.md](docs/LINTING.md)** para configuración detallada y solución de problemas.
 
 ### CI/CD con GitHub Actions
 
-El proyecto incluye integración continua que ejecuta los tests automáticamente:
+El proyecto incluye integración continua que ejecuta automáticamente:
 
-- ✅ **Tests automáticos** en cada push a `main` y `develop`
-- ✅ **Tests en Pull Requests** antes de merge
-- ✅ **Múltiples versiones de Python** (3.11, 3.12)
+- ✅ **Tests en múltiples versiones** (Python 3.11, 3.12)
+- ✅ **Linting** (Black, isort, Ruff)
 - ✅ **Reporte de cobertura** generado automáticamente
 - ✅ **Cache de dependencias** para builds más rápidos
+- ✅ **Tests automáticos** en cada push a `main` y `develop`
+- ✅ **Tests en Pull Requests** antes de merge
 
-El workflow se encuentra en [.github/workflows/tests.yml](.github/workflows/tests.yml).
+**Archivos de configuración**:
+- [.github/workflows/tests.yml](.github/workflows/tests.yml) - Tests
+- [.github/workflows/lint.yml](.github/workflows/lint.yml) - Linting
+- [pyproject.toml](pyproject.toml) - Configuración de linters
+
+Ver **[docs/CI_CD.md](docs/CI_CD.md)** para:
+- Configuración detallada del CI
+- Troubleshooting de errores comunes
+- Cómo ver reportes de cobertura
+- Variables de entorno en CI
 
 ### Testing Manual
 
@@ -522,11 +638,19 @@ sudo systemctl start postgresql
 
 ## 📚 Documentación Adicional
 
-- **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - 📡 **Guía completa de uso de endpoints** (¡Empieza aquí!)
+### Guías de Usuario
+- **[API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** - 📡 **Guía completa de uso de endpoints** (¡Empieza aquí!)
 - **[GerniBide.postman_collection.json](GerniBide.postman_collection.json)** - 📮 **Colección de Postman** - Importa y usa todos los endpoints
 - [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) - Guía completa de despliegue en Railway
 - [QUICKSTART.md](QUICKSTART.md) - Inicio rápido en 5 pasos
 - [DEPLOY_GUIDE.md](DEPLOY_GUIDE.md) - Guía detallada de despliegue
+
+### Documentación para Desarrolladores
+- **[docs/TESTING.md](docs/TESTING.md)** - 🧪 **Guía completa de testing** - Fixtures, compatibilidad Python 3.11+, mejores prácticas
+- **[docs/CI_CD.md](docs/CI_CD.md)** - 🚀 **Integración continua con GitHub Actions** - Configuración, troubleshooting
+- **[docs/LINTING.md](docs/LINTING.md)** - ✨ **Linting y formateo de código** - Black, isort, Ruff
+- [docs/RATE_LIMITING.md](docs/RATE_LIMITING.md) - Rate limiting con Redis
+- [tests/README.md](tests/README.md) - Documentación de tests
 
 ### 📮 Usando la Colección de Postman
 
@@ -577,21 +701,44 @@ Este proyecto está bajo licencia MIT.
 
 ## ✨ Características
 
-- ✅ **Autenticación JWT** con tokens seguros
-- ✅ **Bcrypt nativo** para hash de contraseñas
-- ✅ **PostgreSQL** con SQLAlchemy 2.0+
+### Backend & API
 - ✅ **FastAPI** con documentación automática (Swagger + ReDoc)
-- ✅ **Logging estructurado** con colores y niveles
-- ✅ **Compatible con Railway** (deploy automático)
-- ✅ **Pool de conexiones** optimizado
+- ✅ **Clean Architecture** - Separación en capas (Router → Service → Repository)
+- ✅ **PostgreSQL** con SQLAlchemy 2.0+ y migraciones con Alembic
+- ✅ **Autenticación JWT** con tokens seguros y bcrypt para passwords
+- ✅ **Rate Limiting** con Redis para protección contra abuso
 - ✅ **CORS configurable** para apps móviles
-- ✅ **Health check** y endpoints de test
-- ✅ **Manejo robusto de errores** con mensajes descriptivos
-- ✅ **Colección de Postman** lista para importar
-- ✅ **Validación automática** con Pydantic schemas
-- ✅ **Sistema de progreso de puntos y actividades** con cálculos automáticos
-- ✅ **Tracking de progreso** con puntuaciones y tiempos
+- ✅ **Pool de conexiones** optimizado y compatible SQLite/PostgreSQL
+
+### Logging & Monitoreo
+- ✅ **Logging estructurado** con JSON, colores y niveles
+- ✅ **Audit logs** para acciones administrativas
+- ✅ **Manejo robusto de errores** con formato personalizado
+- ✅ **Health checks** y métricas
+
+### Desarrollo & Testing
+- ✅ **Suite de 77 tests** automatizados con pytest
+- ✅ **Tests unitarios** de servicios con mocks
+- ✅ **Tests de integración** de endpoints completos
+- ✅ **Cobertura de código** con reportes HTML
+- ✅ **Compatibilidad Python 3.11, 3.12, 3.13**
+- ✅ **Linting automático** (Black, isort, Ruff)
+- ✅ **CI/CD con GitHub Actions** (tests + linting automáticos)
+
+### Funcionalidades de Negocio
+- ✅ **Sistema de progreso** de puntos y actividades con cálculos automáticos
+- ✅ **Estadísticas de usuarios** (racha de días, puntos acumulados, módulos completados)
+- ✅ **Importación masiva** de usuarios con validaciones transaccionales
+- ✅ **Dashboard web** para profesores con gestión de clases
 - ✅ **Auto-completado de puntos** cuando se completan todas las actividades
+- ✅ **Tracking de progreso** con puntuaciones y tiempos calculados automáticamente
+
+### DevOps & Deploy
+- ✅ **Compatible con Railway** (deploy automático)
+- ✅ **Variables de entorno** con Pydantic Settings
+- ✅ **Scripts de deployment** automatizados
+- ✅ **Colección de Postman** lista para importar
+- ✅ **Documentación completa** para desarrolladores
 
 ---
 

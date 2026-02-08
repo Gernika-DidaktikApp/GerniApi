@@ -69,6 +69,15 @@ La API utiliza un sistema de autenticación dual:
 | PUT | `/api/v1/clases/{id}` | Actualizar clase | 🔑 |
 | DELETE | `/api/v1/clases/{id}` | Eliminar clase | 🔑 |
 
+### Puntos
+| Método | Endpoint | Descripción | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/v1/puntos` | Crear punto | 🔑 |
+| GET | `/api/v1/puntos` | Listar puntos | 🔑🎫 |
+| GET | `/api/v1/puntos/{id}` | Obtener punto | 🔑🎫 |
+| PUT | `/api/v1/puntos/{id}` | Actualizar punto | 🔑 |
+| DELETE | `/api/v1/puntos/{id}` | Eliminar punto | 🔑 |
+
 ### Actividades
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
@@ -78,35 +87,36 @@ La API utiliza un sistema de autenticación dual:
 | PUT | `/api/v1/actividades/{id}` | Actualizar actividad | 🔑 |
 | DELETE | `/api/v1/actividades/{id}` | Eliminar actividad | 🔑 |
 
-### Eventos
-| Método | Endpoint | Descripción | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/v1/eventos` | Crear evento | 🔑 |
-| GET | `/api/v1/eventos` | Listar eventos | 🔑🎫 |
-| GET | `/api/v1/eventos/{id}` | Obtener evento | 🔑🎫 |
-| PUT | `/api/v1/eventos/{id}` | Actualizar evento | 🔑 |
-| DELETE | `/api/v1/eventos/{id}` | Eliminar evento | 🔑 |
-
 ### Partidas
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/v1/partidas` | Crear partida | 🔑🎫 |
+| GET | `/api/v1/partidas/activa/usuario/{id}` | Obtener partida activa del usuario | 🔑🎫 |
+| POST | `/api/v1/partidas/activa/usuario/{id}/obtener-o-crear` | Obtener o crear partida activa | 🔑🎫 |
+| POST | `/api/v1/partidas` | Crear partida (⚠️ solo una activa por usuario) | 🔑🎫 |
 | GET | `/api/v1/partidas` | Listar partidas | 🔑 |
 | GET | `/api/v1/partidas/{id}` | Obtener partida | 🔑🎫 |
 | PUT | `/api/v1/partidas/{id}` | Actualizar partida | 🔑🎫 |
 | DELETE | `/api/v1/partidas/{id}` | Eliminar partida | 🔑 |
 
-### Estados de Eventos
+### Progreso de Actividades
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
-| POST | `/api/v1/evento-estados/iniciar` | Iniciar evento | 🔑🎫 |
-| PUT | `/api/v1/evento-estados/{id}/completar` | Completar evento | 🔑🎫 |
-| GET | `/api/v1/evento-estados/actividad/{id_juego}/{id_actividad}/resumen` | Resumen de actividad (calculado) | 🔑🎫 |
-| POST | `/api/v1/evento-estados` | Crear estado | 🔑🎫 |
-| GET | `/api/v1/evento-estados` | Listar estados | 🔑 |
-| GET | `/api/v1/evento-estados/{id}` | Obtener estado | 🔑🎫 |
-| PUT | `/api/v1/evento-estados/{id}` | Actualizar estado | 🔑🎫 |
-| DELETE | `/api/v1/evento-estados/{id}` | Eliminar estado | 🔑 |
+| POST | `/api/v1/actividad-progreso/iniciar` | Iniciar actividad | 🔑🎫 |
+| PUT | `/api/v1/actividad-progreso/{id}/completar` | Completar actividad | 🔑🎫 |
+| GET | `/api/v1/actividad-progreso/punto/{id_juego}/{id_punto}/resumen` | Resumen de punto (calculado) | 🔑🎫 |
+| POST | `/api/v1/actividad-progreso` | Crear progreso | 🔑🎫 |
+| GET | `/api/v1/actividad-progreso` | Listar progresos | 🔑 |
+| GET | `/api/v1/actividad-progreso/{id}` | Obtener progreso | 🔑🎫 |
+| PUT | `/api/v1/actividad-progreso/{id}` | Actualizar progreso | 🔑🎫 |
+| DELETE | `/api/v1/actividad-progreso/{id}` | Eliminar progreso | 🔑 |
+
+### Audit Logs (Solo lectura)
+| Método | Endpoint | Descripción | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/v1/audit-logs` | Listar audit logs (con filtros) | 🔑🎫 |
+| GET | `/api/v1/audit-logs/{id}` | Obtener audit log | 🔑🎫 |
+
+> **Nota:** Los audit logs se crean automáticamente por el sistema (login, completar actividades, etc.). Son **solo lectura** - no se pueden crear, actualizar ni eliminar manualmente.
 
 ---
 
@@ -536,9 +546,9 @@ Obtiene estadísticas detalladas del usuario para mostrar en el perfil de la app
 
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
-| `actividades_completadas` | int | Número de sub-actividades (eventos) completadas |
+| `actividades_completadas` | int | Número de actividades completadas |
 | `racha_dias` | int | Días consecutivos de juego (desde hoy hacia atrás) |
-| `modulos_completados` | string[] | Nombres de módulos/actividades completadas |
+| `modulos_completados` | string[] | Nombres de puntos completados |
 | `ultima_partida` | datetime? | Fecha de la última partida jugada (null si no ha jugado) |
 | `total_puntos_acumulados` | float | Suma de todos los puntos obtenidos |
 
@@ -734,11 +744,11 @@ Elimina una clase. **Response: 204 No Content**
 
 ---
 
-## 📝 Actividades
+## 📍 Puntos
 
-### POST `/api/v1/actividades`
+### POST `/api/v1/puntos`
 
-Crea una nueva actividad. **Requiere API Key.**
+Crea un nuevo punto. **Requiere API Key.**
 
 **Body:**
 ```json
@@ -751,8 +761,81 @@ Crea una nueva actividad. **Requiere API Key.**
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "nombre": "Actividad 1 - Introducción"
+  "nombre": "Punto 1 - Introducción"
 }
+```
+
+---
+
+### GET `/api/v1/puntos`
+
+Lista todos los puntos. **Requiere API Key o Token.**
+
+---
+
+### GET `/api/v1/puntos/{punto_id}`
+
+Obtiene un punto por ID. **Requiere API Key o Token.**
+
+---
+
+### PUT `/api/v1/puntos/{punto_id}`
+
+Actualiza un punto. **Requiere API Key.**
+
+---
+
+### DELETE `/api/v1/puntos/{punto_id}`
+
+Elimina un punto. **Requiere API Key.** **Response: 204 No Content**
+
+---
+
+## 📝 Actividades
+
+Las actividades son sub-elementos dentro de cada punto.
+
+### POST `/api/v1/actividades`
+
+Crea una nueva actividad. **Requiere API Key.**
+
+#### Request
+
+**Body:**
+```json
+{
+  "nombre": "string",
+  "id_punto": "uuid"
+}
+```
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `nombre` | string | ✅ | Nombre de la actividad (1-100 caracteres) |
+| `id_punto` | uuid | ✅ | ID del punto padre |
+
+#### Response
+
+**Status: 201 Created**
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "nombre": "Inicio del nivel",
+  "id_punto": "uuid-punto"
+}
+```
+
+#### Ejemplos
+
+**curl:**
+```bash
+curl -X POST "https://tu-api.up.railway.app/api/v1/actividades" \
+  -H "X-API-Key: <tu_api_key>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Inicio del nivel",
+    "id_punto": "uuid-punto"
+  }'
 ```
 
 ---
@@ -761,74 +844,104 @@ Crea una nueva actividad. **Requiere API Key.**
 
 Lista todas las actividades. **Requiere API Key o Token.**
 
+#### Query Parameters
+
+| Parámetro | Tipo | Default | Descripción |
+|-----------|------|---------|-------------|
+| `skip` | int | 0 | Registros a saltar (paginación) |
+| `limit` | int | 100 | Máximo de registros a retornar |
+
+#### Response
+
+**Status: 200 OK**
+```json
+[
+  {
+    "id": "uuid-1",
+    "nombre": "Inicio",
+    "id_punto": "uuid-punto"
+  },
+  {
+    "id": "uuid-2",
+    "nombre": "Mensaje",
+    "id_punto": "uuid-punto"
+  }
+]
+```
+
 ---
 
 ### GET `/api/v1/actividades/{actividad_id}`
 
-Obtiene una actividad por ID. **Requiere API Key o Token.**
+Obtiene una actividad específica por ID. **Requiere API Key o Token.**
+
+#### Response
+
+**Status: 200 OK**
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "nombre": "Medalla de oro",
+  "id_punto": "uuid-punto"
+}
+```
 
 ---
 
 ### PUT `/api/v1/actividades/{actividad_id}`
 
-Actualiza una actividad. **Requiere API Key.**
+Actualiza una actividad existente. **Requiere API Key o Token de usuario.**
+
+**Body (todos los campos son opcionales):**
+```json
+{
+  "id_punto": "uuid-del-punto",
+  "nombre": "Nuevo nombre de la actividad"
+}
+```
+
+**Response: 200 OK**
+```json
+{
+  "id": "uuid-de-la-actividad",
+  "id_punto": "uuid-del-punto",
+  "nombre": "Nuevo nombre de la actividad"
+}
+```
+
+**Ejemplos:**
+
+**curl:**
+```bash
+curl -X PUT "https://tu-api.up.railway.app/api/v1/actividades/{actividad_id}" \
+  -H "X-API-Key: tu-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Actividad actualizada"
+  }'
+```
+
+**JavaScript:**
+```javascript
+const response = await fetch(`${API_BASE_URL}/api/v1/actividades/${actividadId}`, {
+  method: 'PUT',
+  headers: {
+    'X-API-Key': API_KEY,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    nombre: 'Actividad actualizada'
+  })
+});
+```
 
 ---
 
 ### DELETE `/api/v1/actividades/{actividad_id}`
 
-Elimina una actividad. **Requiere API Key.** **Response: 204 No Content**
+Elimina una actividad. **Requiere API Key.**
 
----
-
-## 📅 Eventos
-
-Los eventos son sub-elementos dentro de cada actividad.
-
-### POST `/api/v1/eventos`
-
-Crea un nuevo evento. **Requiere API Key.**
-
-**Body:**
-```json
-{
-  "nombre": "string",
-  "id_actividad": "uuid"
-}
-```
-
-**Response: 201 Created**
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "nombre": "Evento 1",
-  "id_actividad": "uuid-de-la-actividad"
-}
-```
-
----
-
-### GET `/api/v1/eventos`
-
-Lista todos los eventos. **Requiere API Key o Token.**
-
----
-
-### GET `/api/v1/eventos/{evento_id}`
-
-Obtiene un evento por ID. **Requiere API Key o Token.**
-
----
-
-### PUT `/api/v1/eventos/{evento_id}`
-
-Actualiza un evento. **Requiere API Key.**
-
----
-
-### DELETE `/api/v1/eventos/{evento_id}`
-
-Elimina un evento. **Requiere API Key.** **Response: 204 No Content**
+**Response: 204 No Content**
 
 ---
 
@@ -836,12 +949,67 @@ Elimina un evento. **Requiere API Key.** **Response: 204 No Content**
 
 Las partidas representan sesiones de juego de un usuario.
 
+### GET `/api/v1/partidas/activa/usuario/{usuario_id}`
+
+Obtiene la partida activa del usuario. **Requiere API Key o Token.**
+
+- Con API Key: Puede ver la partida activa de cualquier usuario
+- Con Token: Solo puede ver su propia partida activa
+
+**Response: 200 OK**
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "id_usuario": "uuid-del-usuario",
+  "fecha_inicio": "2026-01-23T10:30:00",
+  "fecha_fin": null,
+  "duracion": null,
+  "estado": "en_progreso"
+}
+```
+
+**Response: 404 Not Found** (si no hay partida activa)
+```json
+{
+  "detail": "El usuario no tiene una partida activa"
+}
+```
+
+---
+
+### POST `/api/v1/partidas/activa/usuario/{usuario_id}/obtener-o-crear`
+
+Obtiene la partida activa del usuario, o crea una nueva si no existe. **Requiere API Key o Token.**
+
+Este es el endpoint **RECOMENDADO** para la app móvil, ya que simplifica la lógica:
+- Si existe una partida activa, la retorna
+- Si no existe, crea una automáticamente
+
+**Response: 200 OK**
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "id_usuario": "uuid-del-usuario",
+  "fecha_inicio": "2026-01-23T10:30:00",
+  "fecha_fin": null,
+  "duracion": null,
+  "estado": "en_progreso"
+}
+```
+
+---
+
 ### POST `/api/v1/partidas`
 
 Crea una nueva partida. **Requiere API Key o Token.**
 
 - Con API Key: Puede crear partidas para cualquier usuario
 - Con Token: Solo puede crear partidas para sí mismo
+
+**⚠️ RESTRICCIÓN IMPORTANTE:** Un usuario solo puede tener **una partida activa** a la vez.
+Si el usuario ya tiene una partida con estado "en_progreso", este endpoint retornará error 400.
+
+**Recomendación:** Usa `/partidas/activa/usuario/{id}/obtener-o-crear` en su lugar.
 
 **Body:**
 ```json
@@ -855,7 +1023,17 @@ Crea una nueva partida. **Requiere API Key o Token.**
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
   "id_usuario": "uuid-del-usuario",
-  "fecha_inicio": "2026-01-23T10:30:00"
+  "fecha_inicio": "2026-01-23T10:30:00",
+  "fecha_fin": null,
+  "duracion": null,
+  "estado": "en_progreso"
+}
+```
+
+**Response: 400 Bad Request** (si ya hay partida activa)
+```json
+{
+  "detail": "El usuario ya tiene una partida activa (ID: 550e8400-...). Debe finalizarla antes de crear una nueva."
 }
 ```
 
@@ -888,23 +1066,23 @@ Elimina una partida. **Requiere API Key.** **Response: 204 No Content**
 
 ---
 
-## 📊 Estados de Eventos
+## 📊 Progreso de Actividades
 
-El sistema de gestión de estados permite rastrear el progreso de los eventos de los jugadores, calculando automáticamente tiempos y puntuaciones.
+El sistema de gestión de progreso permite rastrear el progreso de las actividades de los jugadores, calculando automáticamente tiempos y puntuaciones.
 
 ### Flujo de Trabajo Simplificado
 
-1. **Jugador inicia evento** → POST `/api/v1/evento-estados/iniciar`
-2. **Jugador completa evento** → PUT `/api/v1/evento-estados/{id}/completar`
-3. **Consultar resumen de actividad** → GET `/api/v1/evento-estados/actividad/{id_juego}/{id_actividad}/resumen`
+1. **Jugador inicia actividad** → POST `/api/v1/actividad-progreso/iniciar`
+2. **Jugador completa actividad** → PUT `/api/v1/actividad-progreso/{id}/completar`
+3. **Consultar resumen de punto** → GET `/api/v1/actividad-progreso/punto/{id_juego}/{id_punto}/resumen`
 
-> **Nota:** El resumen de actividad (puntuación total, estado, duración) se calcula automáticamente desde los eventos.
+> **Nota:** El resumen de punto (puntuación total, estado, duración) se calcula automáticamente desde las actividades.
 
 ---
 
-### POST `/api/v1/evento-estados/iniciar`
+### POST `/api/v1/actividad-progreso/iniciar`
 
-Inicia un evento dentro de una actividad. Registra automáticamente la fecha de inicio.
+Inicia una actividad dentro de un punto. Registra automáticamente la fecha de inicio.
 
 #### Request
 
@@ -917,8 +1095,8 @@ Content-Type: application/json
 ```json
 {
   "id_juego": "uuid-de-la-partida",
-  "id_actividad": "uuid-de-la-actividad",
-  "id_evento": "uuid-del-evento"
+  "id_punto": "uuid-del-punto",
+  "id_actividad": "uuid-de-la-actividad"
 }
 ```
 
@@ -929,27 +1107,28 @@ Content-Type: application/json
 {
   "id": "660e8400-e29b-41d4-a716-446655440000",
   "id_juego": "uuid-de-la-partida",
+  "id_punto": "uuid-del-punto",
   "id_actividad": "uuid-de-la-actividad",
-  "id_evento": "uuid-del-evento",
   "fecha_inicio": "2026-01-18T10:35:00",
   "duracion": null,
   "fecha_fin": null,
   "estado": "en_progreso",
-  "puntuacion": null
+  "puntuacion": null,
+  "respuesta_contenido": null
 }
 ```
 
 **Status: 400 Bad Request**
 ```json
 {
-  "detail": "Ya existe un evento en progreso para este juego y evento"
+  "detail": "Ya existe una actividad en progreso para este juego y actividad"
 }
 ```
 
 **Status: 404 Not Found**
 ```json
 {
-  "detail": "El evento especificado no existe o no pertenece a esta actividad"
+  "detail": "La actividad especificada no existe o no pertenece a este punto"
 }
 ```
 
@@ -957,57 +1136,57 @@ Content-Type: application/json
 
 **curl:**
 ```bash
-curl -X POST "https://tu-api.up.railway.app/api/v1/evento-estados/iniciar" \
+curl -X POST "https://tu-api.up.railway.app/api/v1/actividad-progreso/iniciar" \
   -H "Content-Type: application/json" \
   -d '{
     "id_juego": "uuid-partida",
-    "id_actividad": "uuid-actividad",
-    "id_evento": "uuid-evento"
+    "id_punto": "uuid-punto",
+    "id_actividad": "uuid-actividad"
   }'
 ```
 
 **JavaScript:**
 ```javascript
-const response = await fetch(`${API_BASE_URL}/api/v1/evento-estados/iniciar`, {
+const response = await fetch(`${API_BASE_URL}/api/v1/actividad-progreso/iniciar`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     id_juego: partidaId,
-    id_actividad: actividadId,
-    id_evento: eventoId
+    id_punto: puntoId,
+    id_actividad: actividadId
   })
 });
 
-const eventoEstado = await response.json();
+const actividadProgreso = await response.json();
 // Guardar el ID para completar después
-localStorage.setItem('evento_estado_id', eventoEstado.id);
+localStorage.setItem('actividad_progreso_id', actividadProgreso.id);
 ```
 
 **Flutter:**
 ```dart
 final response = await http.post(
-  Uri.parse('$baseUrl/api/v1/evento-estados/iniciar'),
+  Uri.parse('$baseUrl/api/v1/actividad-progreso/iniciar'),
   headers: {'Content-Type': 'application/json'},
   body: jsonEncode({
     'id_juego': partidaId,
-    'id_actividad': actividadId,
-    'id_evento': eventoId
+    'id_punto': puntoId,
+    'id_actividad': actividadId
   }),
 );
 
 if (response.statusCode == 201) {
-  final eventoEstado = jsonDecode(response.body);
+  final actividadProgreso = jsonDecode(response.body);
   // Guardar ID para completar después
-  await prefs.setString('evento_estado_id', eventoEstado['id']);
+  await prefs.setString('actividad_progreso_id', actividadProgreso['id']);
 }
 ```
 
 ---
 
-### PUT `/api/v1/evento-estados/{estado_id}/completar`
+### PUT `/api/v1/actividad-progreso/{progreso_id}/completar`
 
-Completa un evento y registra su puntuación. **Calcula automáticamente**:
-- Duración del evento (fecha_fin - fecha_inicio)
+Completa una actividad y registra su puntuación. **Calcula automáticamente**:
+- Duración de la actividad (fecha_fin - fecha_inicio)
 - Actualiza el estado a "completado"
 
 #### Request
@@ -1018,12 +1197,15 @@ Content-Type: application/json
 ```
 
 **URL Parameters:**
-- `estado_id`: UUID del estado del evento (obtenido al iniciar el evento)
+- `progreso_id`: UUID del progreso de la actividad (obtenido al iniciar la actividad)
 
 **Body:**
 ```json
 {
-  "puntuacion": 85.5
+  "puntuacion": 85.5,
+  "respuesta_contenido": "string (opcional) - Texto o URL de la respuesta del usuario",
+  "device_type": "string (opcional) - Tipo de dispositivo (ej: iOS, Android)",
+  "app_version": "string (opcional) - Versión de la aplicación (ej: 1.0.0)"
 }
 ```
 
@@ -1034,27 +1216,28 @@ Content-Type: application/json
 {
   "id": "660e8400-e29b-41d4-a716-446655440000",
   "id_juego": "uuid-de-la-partida",
+  "id_punto": "uuid-del-punto",
   "id_actividad": "uuid-de-la-actividad",
-  "id_evento": "uuid-del-evento",
   "fecha_inicio": "2026-01-18T10:35:00",
   "fecha_fin": "2026-01-18T10:40:30",
   "duracion": 330,
   "estado": "completado",
-  "puntuacion": 85.5
+  "puntuacion": 85.5,
+  "respuesta_contenido": "Respuesta del usuario"
 }
 ```
 
 **Status: 400 Bad Request**
 ```json
 {
-  "detail": "El evento no está en progreso. Estado actual: completado"
+  "detail": "La actividad no está en progreso. Estado actual: completado"
 }
 ```
 
 **Status: 404 Not Found**
 ```json
 {
-  "detail": "Estado de evento no encontrado"
+  "detail": "Progreso de actividad no encontrado"
 }
 ```
 
@@ -1062,74 +1245,82 @@ Content-Type: application/json
 
 **curl:**
 ```bash
-# Completar evento con puntuación
-curl -X PUT "https://tu-api.up.railway.app/api/v1/evento-estados/660e8400.../completar" \
+# Completar actividad con puntuación
+curl -X PUT "https://tu-api.up.railway.app/api/v1/actividad-progreso/660e8400.../completar" \
   -H "Content-Type: application/json" \
   -d '{
-    "puntuacion": 85.5
+    "puntuacion": 85.5,
+    "respuesta_contenido": "Respuesta del usuario"
   }'
 ```
 
 **JavaScript:**
 ```javascript
-// Completar evento
-const eventoEstadoId = localStorage.getItem('evento_estado_id');
+// Completar actividad
+const actividadProgresoId = localStorage.getItem('actividad_progreso_id');
 
 const response = await fetch(
-  `${API_BASE_URL}/api/v1/evento-estados/${eventoEstadoId}/completar`,
+  `${API_BASE_URL}/api/v1/actividad-progreso/${actividadProgresoId}/completar`,
   {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      puntuacion: playerScore
+      puntuacion: playerScore,
+      respuesta_contenido: userAnswer
     })
   }
 );
 
-const eventoCompletado = await response.json();
-console.log('Evento completado con', eventoCompletado.puntuacion, 'puntos');
-console.log('Duración:', eventoCompletado.duracion, 'segundos');
+const actividadCompletada = await response.json();
+console.log('Actividad completada con', actividadCompletada.puntuacion, 'puntos');
+console.log('Duración:', actividadCompletada.duracion, 'segundos');
 ```
 
 **Kotlin:**
 ```kotlin
-val eventoEstadoId = prefs.getString("evento_estado_id", "")
+val actividadProgresoId = prefs.getString("actividad_progreso_id", "")
 
-val response = client.put("$baseUrl/api/v1/evento-estados/$eventoEstadoId/completar") {
+val response = client.put("$baseUrl/api/v1/actividad-progreso/$actividadProgresoId/completar") {
     contentType(ContentType.Application.Json)
-    setBody(mapOf("puntuacion" to 85.5))
+    setBody(mapOf(
+        "puntuacion" to 85.5,
+        "respuesta_contenido" to "Respuesta del usuario"
+    ))
 }
 
-val eventoCompletado = response.body<EventoEstadoResponse>()
-println("Duración: ${eventoCompletado.duracion} segundos")
+val actividadCompletada = response.body<ActividadProgresoResponse>()
+println("Duración: ${actividadCompletada.duracion} segundos")
 ```
 
 **Flutter:**
 ```dart
-final eventoEstadoId = await prefs.getString('evento_estado_id');
+final actividadProgresoId = await prefs.getString('actividad_progreso_id');
 
 final response = await http.put(
-  Uri.parse('$baseUrl/api/v1/evento-estados/$eventoEstadoId/completar'),
+  Uri.parse('$baseUrl/api/v1/actividad-progreso/$actividadProgresoId/completar'),
   headers: {'Content-Type': 'application/json'},
-  body: jsonEncode({'puntuacion': playerScore}),
+  body: jsonEncode({
+    'puntuacion': playerScore,
+    'respuesta_contenido': userAnswer
+  }),
 );
 
 if (response.statusCode == 200) {
-  final evento = jsonDecode(response.body);
-  print('Evento completado: ${evento['puntuacion']} puntos');
-  print('Duración: ${evento['duracion']} segundos');
+  final actividad = jsonDecode(response.body);
+  print('Actividad completada: ${actividad['puntuacion']} puntos');
+  print('Duración: ${actividad['duracion']} segundos');
 }
 ```
 
 ---
 
-### GET `/api/v1/evento-estados/actividad/{id_juego}/{id_actividad}/resumen`
+### GET `/api/v1/actividad-progreso/punto/{id_juego}/{id_punto}/resumen`
 
-Obtiene el resumen calculado de una actividad basado en los eventos completados.
+Obtiene el resumen calculado de un punto basado en las actividades completadas.
 
 #### URL Parameters
 - `id_juego`: UUID de la partida
-- `id_actividad`: UUID de la actividad
+- `id_punto`: UUID del punto
 
 #### Response
 
@@ -1137,11 +1328,11 @@ Obtiene el resumen calculado de una actividad basado en los eventos completados.
 ```json
 {
   "id_juego": "uuid-de-la-partida",
-  "id_actividad": "uuid-de-la-actividad",
-  "nombre_actividad": "Bunkers",
-  "eventos_totales": 5,
-  "eventos_completados": 3,
-  "eventos_en_progreso": 1,
+  "id_punto": "uuid-del-punto",
+  "nombre_punto": "Bunkers",
+  "actividades_totales": 5,
+  "actividades_completadas": 3,
+  "actividades_en_progreso": 1,
   "puntuacion_total": 256.5,
   "duracion_total": 450,
   "fecha_inicio": "2026-01-18T10:30:00",
@@ -1152,9 +1343,9 @@ Obtiene el resumen calculado de una actividad basado en los eventos completados.
 
 | Campo | Descripción |
 |-------|-------------|
-| `eventos_totales` | Total de eventos en la actividad |
-| `eventos_completados` | Eventos ya completados |
-| `puntuacion_total` | Suma de puntuaciones de eventos completados |
+| `actividades_totales` | Total de actividades en el punto |
+| `actividades_completadas` | Actividades ya completadas |
+| `puntuacion_total` | Suma de puntuaciones de actividades completadas |
 | `duracion_total` | Suma de duraciones en segundos |
 | `estado` | "no_iniciada", "en_progreso" o "completada" |
 
@@ -1162,19 +1353,112 @@ Obtiene el resumen calculado de una actividad basado en los eventos completados.
 
 **curl:**
 ```bash
-curl -X GET "https://tu-api.up.railway.app/api/v1/evento-estados/actividad/{id_juego}/{id_actividad}/resumen" \
+curl -X GET "https://tu-api.up.railway.app/api/v1/actividad-progreso/punto/{id_juego}/{id_punto}/resumen" \
   -H "Authorization: Bearer <token>"
 ```
 
 **JavaScript:**
 ```javascript
 const resumen = await fetch(
-  `${API_BASE_URL}/api/v1/evento-estados/actividad/${partidaId}/${actividadId}/resumen`,
+  `${API_BASE_URL}/api/v1/actividad-progreso/punto/${partidaId}/${puntoId}/resumen`,
   { headers: { 'Authorization': `Bearer ${token}` } }
 ).then(r => r.json());
 
 console.log('Estado:', resumen.estado);
 console.log('Puntuación:', resumen.puntuacion_total);
+```
+
+---
+
+### PUT `/api/v1/actividad-progreso/{progreso_id}`
+
+Actualiza un progreso de actividad existente.
+
+**⚠️ RESTRICCIÓN IMPORTANTE:** Solo se puede actualizar `respuesta_contenido` cuando la actividad está **completada**.
+
+#### Request
+
+**Headers:**
+```
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+**URL Parameters:**
+- `progreso_id`: UUID del progreso de la actividad
+
+**Body (todos los campos son opcionales):**
+```json
+{
+  "duracion": 120,
+  "fecha_fin": "2026-02-07T15:30:00",
+  "estado": "completado",
+  "puntuacion": 9.0,
+  "respuesta_contenido": "Solo se puede actualizar si estado=completado"
+}
+```
+
+#### Response
+
+**Status: 200 OK**
+```json
+{
+  "id": "660e8400-e29b-41d4-a716-446655440000",
+  "id_juego": "uuid-de-la-partida",
+  "id_punto": "uuid-del-punto",
+  "id_actividad": "uuid-de-la-actividad",
+  "fecha_inicio": "2026-01-18T10:35:00",
+  "fecha_fin": "2026-01-18T10:40:30",
+  "duracion": 120,
+  "estado": "completado",
+  "puntuacion": 9.0,
+  "respuesta_contenido": "Respuesta actualizada"
+}
+```
+
+**Status: 400 Bad Request** (intentando actualizar respuesta_contenido sin estar completada)
+```json
+{
+  "detail": "Solo se puede actualizar respuesta_contenido cuando la actividad está completada"
+}
+```
+
+#### Ejemplos
+
+**JavaScript - Actualizar respuesta después de completar:**
+```javascript
+// Primero completar la actividad
+await fetch(`${API_URL}/actividad-progreso/${id}/completar`, {
+  method: 'PUT',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    puntuacion: 8.5,
+    respuesta_contenido: "Respuesta inicial"
+  })
+});
+
+// Luego actualizar la respuesta (solo funciona si está completada)
+await fetch(`${API_URL}/actividad-progreso/${id}`, {
+  method: 'PUT',
+  headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    respuesta_contenido: "Respuesta corregida o mejorada"
+  })
+});
+```
+
+**curl - Actualizar puntuación:**
+```bash
+curl -X PUT "https://tu-api.up.railway.app/api/v1/actividad-progreso/660e8400.../
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"puntuacion": 9.5}'
 ```
 
 ---
@@ -1197,11 +1481,11 @@ const partidaResponse = await fetch(`${API_BASE_URL}/api/v1/partidas`, {
 });
 const { id: partidaId } = await partidaResponse.json();
 
-// 2. Para cada evento de la actividad
-for (const eventoId of eventosIds) {
-  // 2a. Iniciar evento
-  const eventoInicioResponse = await fetch(
-    `${API_BASE_URL}/api/v1/evento-estados/iniciar`,
+// 2. Para cada actividad del punto
+for (const actividadId of actividadesIds) {
+  // 2a. Iniciar actividad
+  const actividadInicioResponse = await fetch(
+    `${API_BASE_URL}/api/v1/actividad-progreso/iniciar`,
     {
       method: 'POST',
       headers: {
@@ -1210,40 +1494,130 @@ for (const eventoId of eventosIds) {
       },
       body: JSON.stringify({
         id_juego: partidaId,
-        id_actividad: actividadId,
-        id_evento: eventoId
+        id_punto: puntoId,
+        id_actividad: actividadId
       })
     }
   );
-  const { id: eventoEstadoId } = await eventoInicioResponse.json();
+  const { id: actividadProgresoId } = await actividadInicioResponse.json();
 
-  // 2b. Jugador completa el evento
+  // 2b. Jugador completa la actividad
   // ... lógica del juego ...
 
-  // 2c. Completar evento con puntuación
+  // 2c. Completar actividad con puntuación
   await fetch(
-    `${API_BASE_URL}/api/v1/evento-estados/${eventoEstadoId}/completar`,
+    `${API_BASE_URL}/api/v1/actividad-progreso/${actividadProgresoId}/completar`,
     {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ puntuacion: score })
+      body: JSON.stringify({
+        puntuacion: score,
+        respuesta_contenido: userAnswer
+      })
     }
   );
 }
 
-// 3. Obtener resumen de la actividad
+// 3. Obtener resumen del punto
 const resumen = await fetch(
-  `${API_BASE_URL}/api/v1/evento-estados/actividad/${partidaId}/${actividadId}/resumen`,
+  `${API_BASE_URL}/api/v1/actividad-progreso/punto/${partidaId}/${puntoId}/resumen`,
   { headers: { 'Authorization': `Bearer ${token}` } }
 ).then(r => r.json());
 
-console.log('Actividad:', resumen.estado);
+console.log('Punto:', resumen.estado);
 console.log('Puntuación total:', resumen.puntuacion_total);
 console.log('Tiempo total:', resumen.duracion_total, 'segundos');
 ```
+
+---
+
+### POST `/api/v1/actividad-progreso/punto/{id_juego}/{id_punto}/reset`
+
+Resetea un punto completado para permitir que el usuario lo repita desde cero.
+
+Este endpoint elimina todos los progreso de actividades del punto especificado para la partida dada, permitiendo al usuario volver a iniciar y completar las actividades como si nunca las hubiera hecho.
+
+**Autenticación:**
+- Con API Key: Puede resetear puntos de cualquier partida
+- Con Token: Solo puede resetear puntos de sus propias partidas
+
+#### URL Parameters
+- `id_juego`: UUID de la partida
+- `id_punto`: UUID del punto a resetear
+
+#### Response
+
+**Status: 200 OK**
+```json
+{
+  "mensaje": "Punto reseteado exitosamente",
+  "id_juego": "uuid-de-la-partida",
+  "id_punto": "uuid-del-punto",
+  "actividades_reseteadas": 5
+}
+```
+
+**Status: 404 Not Found**
+```json
+{
+  "detail": "No hay progreso de actividades para este punto en esta partida"
+}
+```
+
+o
+
+```json
+{
+  "detail": "Punto no encontrado"
+}
+```
+
+#### Ejemplos
+
+**curl:**
+```bash
+curl -X POST "https://tu-api.up.railway.app/api/v1/actividad-progreso/punto/{id_juego}/{id_punto}/reset" \
+  -H "Authorization: Bearer <token>"
+```
+
+**JavaScript:**
+```javascript
+const response = await fetch(
+  `${API_BASE_URL}/api/v1/actividad-progreso/punto/${partidaId}/${puntoId}/reset`,
+  {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` }
+  }
+);
+
+const result = await response.json();
+console.log(`Punto reseteado: ${result.actividades_reseteadas} actividades eliminadas`);
+// Ahora el usuario puede volver a iniciar las actividades desde cero
+```
+
+**Flutter:**
+```dart
+final response = await http.post(
+  Uri.parse('$baseUrl/api/v1/actividad-progreso/punto/$partidaId/$puntoId/reset'),
+  headers: {'Authorization': 'Bearer $token'},
+);
+
+if (response.statusCode == 200) {
+  final result = jsonDecode(response.body);
+  print('Punto reseteado: ${result['actividades_reseteadas']} actividades');
+  // Volver a la pantalla inicial del punto
+  Navigator.pushReplacement(context, PuntoScreen(puntoId));
+}
+```
+
+**Uso típico:**
+1. Usuario completa un punto
+2. Usuario quiere repetir el punto para mejorar su puntuación
+3. Se llama a este endpoint para resetear todas las actividades
+4. Usuario puede volver a llamar `/iniciar` para cada actividad y jugar de nuevo
 
 ---
 
@@ -1757,7 +2131,7 @@ Verifica que la API está corriendo: `GET /health`
 
 ---
 
-**Última actualización:** 24 de Enero 2026
+**Última actualización:** 7 de Febrero 2026
 
 ---
 
@@ -1769,8 +2143,9 @@ Verifica que la API está corriendo: `GET /health`
 | Usuarios | 5 |
 | Profesores | 5 |
 | Clases | 5 |
+| Puntos | 5 |
 | Actividades | 5 |
-| Eventos | 5 |
 | Partidas | 5 |
-| Estados de Eventos | 8 |
-| **Total** | **40 endpoints**
+| Progreso de Actividades | 8 |
+| Audit Logs (solo lectura) | 2 |
+| **Total** | **42 endpoints**

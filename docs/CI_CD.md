@@ -128,6 +128,16 @@ pytest --cov=app --cov-report=html
 **Causa**: SQLite no soporta los parámetros de pool de conexiones de PostgreSQL
 **Solución**: Ya está solucionado en `app/database.py` - detecta automáticamente el tipo de BD y usa los parámetros apropiados
 
+#### Error: "Field required" para query.args, query.kwargs
+**Causa**: Incompatibilidad del mock de `fastapi_limiter` con FastAPI dependency injection en Python 3.11
+**Solución**: Ya está solucionado en `tests/conftest.py` - el mock de `RateLimiter` retorna una función de dependencia válida (`lambda: None`) en lugar de un simple `MagicMock()`
+
+**Detalles técnicos**:
+- En Python 3.11, FastAPI intenta validar los parámetros de las dependencias mockeadas
+- El mock antiguo (`_dummy_dependency = MagicMock()`) causaba errores de validación
+- El mock mejorado (`RateLimiter = lambda *args, **kwargs: lambda: None`) es compatible con el sistema de inyección de dependencias de FastAPI
+- Los tests pasan en Python 3.11, 3.12 y 3.13
+
 ## 🔒 Variables de Entorno en CI
 
 El workflow configura automáticamente las variables de entorno necesarias:

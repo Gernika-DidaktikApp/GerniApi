@@ -81,6 +81,23 @@ def test_usuario(db_session):
 
 
 @pytest.fixture
+def test_usuario_secundario(db_session):
+    """Crea un segundo usuario de prueba para tests de ownership"""
+    usuario = Usuario(
+        id=str(uuid.uuid4()),
+        username="otrouser",
+        nombre="Otro",
+        apellido="Usuario",
+        password=hash_password("password123"),
+        top_score=0,
+    )
+    db_session.add(usuario)
+    db_session.commit()
+    db_session.refresh(usuario)
+    return usuario
+
+
+@pytest.fixture
 def test_profesor(db_session):
     """Crea un profesor de prueba"""
     profesor = Profesor(
@@ -134,11 +151,37 @@ def test_actividades(db_session, test_punto):
 @pytest.fixture
 def test_partida(db_session, test_usuario):
     """Crea una partida de prueba"""
-    partida = Partida(id=str(uuid.uuid4()), id_usuario=test_usuario.id, estado="en_progreso")
+    from datetime import datetime
+
+    partida = Partida(
+        id=str(uuid.uuid4()),
+        id_usuario=test_usuario.id,
+        estado="en_progreso",
+        fecha_inicio=datetime.now(),
+    )
     db_session.add(partida)
     db_session.commit()
     db_session.refresh(partida)
     return partida
+
+
+@pytest.fixture
+def test_actividad_completada(db_session, test_partida, test_actividades):
+    """Crea una actividad completada con progreso"""
+    from app.models.actividad_progreso import ActividadProgreso
+
+    actividad_progreso = ActividadProgreso(
+        id=str(uuid.uuid4()),
+        id_juego=test_partida.id,
+        id_actividad=test_actividades[0].id,
+        id_punto=test_actividades[0].id_punto,
+        estado="completado",
+        puntuacion=100.0,
+    )
+    db_session.add(actividad_progreso)
+    db_session.commit()
+    db_session.refresh(actividad_progreso)
+    return actividad_progreso
 
 
 @pytest.fixture

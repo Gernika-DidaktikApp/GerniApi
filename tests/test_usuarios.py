@@ -45,7 +45,7 @@ class TestUsuariosEndpoints:
         )
 
         assert response.status_code == 400
-        assert "username" in response.json()["detail"].lower()
+        assert "username" in response.json()["error"]["message"].lower()
 
     def test_crear_usuario_con_clase_valida(self, client, test_clase):
         """Test: Crear usuario asignado a una clase existente"""
@@ -78,7 +78,7 @@ class TestUsuariosEndpoints:
         )
 
         assert response.status_code == 404
-        assert "clase" in response.json()["detail"].lower()
+        assert "clase" in response.json()["error"]["message"].lower()
 
     def test_listar_usuarios_requiere_api_key(self, client, test_usuario):
         """Test: Listar usuarios requiere API Key"""
@@ -160,7 +160,7 @@ class TestUsuariosEndpoints:
         )
 
         assert response.status_code == 400
-        assert "username" in response.json()["detail"].lower()
+        assert "username" in response.json()["error"]["message"].lower()
 
     def test_actualizar_usuario_otro_falla(self, client, test_usuario_secundario, auth_headers):
         """Test: Usuario no puede actualizar otro usuario con token"""
@@ -181,7 +181,7 @@ class TestUsuariosEndpoints:
         )
 
         assert response.status_code == 404
-        assert "clase" in response.json()["detail"].lower()
+        assert "clase" in response.json()["error"]["message"].lower()
 
     def test_eliminar_usuario_requiere_api_key(self, client, test_usuario):
         """Test: Eliminar usuario requiere API Key"""
@@ -283,7 +283,7 @@ class TestUsuariosBulk:
         )
 
         assert response.status_code == 404
-        assert "clase" in response.json()["detail"].lower()
+        assert "clase" in response.json()["error"]["message"].lower()
 
     def test_bulk_import_username_duplicado_en_batch(self, admin_client, test_clase):
         """Test: Falla si hay usernames duplicados dentro del batch (transaccional)"""
@@ -309,7 +309,7 @@ class TestUsuariosBulk:
         )
 
         assert response.status_code == 400
-        assert "duplicado" in response.json()["detail"].lower()
+        assert "duplicado" in response.json()["error"]["message"].lower()
 
     def test_bulk_import_username_ya_existe_bd(self, admin_client, test_usuario, test_clase):
         """Test: Falla si username ya existe en BD (transaccional)"""
@@ -335,7 +335,7 @@ class TestUsuariosBulk:
         )
 
         assert response.status_code == 400
-        assert "testuser" in response.json()["detail"].lower()
+        assert "testuser" in response.json()["error"]["message"].lower()
 
         # Verificar que NINGUNO fue creado (transaccional)
         response = admin_client.get("/api/v1/usuarios")

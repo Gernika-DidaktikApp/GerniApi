@@ -6,7 +6,6 @@ para proteger la API contra abuso y ataques de fuerza bruta.
 Autor: Gernibide
 """
 
-
 from fastapi import Request
 
 from app.config import settings

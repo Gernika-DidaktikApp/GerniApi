@@ -29,8 +29,8 @@ class TestAuth:
 
         assert response.status_code == 401
         data = response.json()
-        # La API puede devolver "detail" o un objeto "error"
-        assert "detail" in data or "error" in data
+        assert data["success"] is False
+        assert "error" in data
 
     def test_login_password_incorrecta(self, client, test_usuario):
         """Test: Login con password incorrecta debe fallar"""
@@ -41,8 +41,8 @@ class TestAuth:
 
         assert response.status_code == 401
         data = response.json()
-        # La API puede devolver "detail" o un objeto "error"
-        assert "detail" in data or "error" in data
+        assert data["success"] is False
+        assert "error" in data
 
     def test_login_datos_faltantes(self, client):
         """Test: Login sin datos requeridos debe fallar"""

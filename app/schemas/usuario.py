@@ -22,12 +22,10 @@ class LoginAppRequest(BaseModel):
         password: Contraseña del usuario en texto plano (será hasheada).
     """
 
-    username: str = Field(..., description="Nombre de usuario", example="usuario123")
-    password: str = Field(..., description="Contraseña del usuario", example="password123")
-
-    model_config = {
-        "json_schema_extra": {"examples": [{"username": "usuario123", "password": "password123"}]}
-    }
+    username: str = Field(..., min_length=1, description="Nombre de usuario", example="usuario123")
+    password: str = Field(
+        ..., min_length=1, description="Contraseña del usuario", example="password123"
+    )
 
 
 class UsuarioCreate(BaseModel):

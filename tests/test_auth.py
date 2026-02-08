@@ -51,7 +51,7 @@ class TestAuth:
         assert response.status_code == 422
 
     def test_login_datos_vacios(self, client):
-        """Test: Login con strings vacíos debe fallar"""
+        """Test: Login con strings vacíos debe fallar con error de validación"""
         response = client.post("/api/v1/auth/login-app", json={"username": "", "password": ""})
 
-        assert response.status_code == 401
+        assert response.status_code == 422

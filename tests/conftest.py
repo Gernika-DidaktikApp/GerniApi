@@ -14,8 +14,21 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 # Mock de fastapi_limiter para tests (antes de importar app)
-sys.modules["fastapi_limiter"] = MagicMock()
-sys.modules["fastapi_limiter.depends"] = MagicMock()
+# Crear mock que no interfiera con FastAPI dependency injection
+fastapi_limiter_mock = MagicMock()
+fastapi_limiter_depends_mock = MagicMock()
+
+
+# Mock RateLimiter para que retorne una dependencia compatible
+def dummy_rate_limiter(*args, **kwargs):
+    """Dependency dummy que no hace nada"""
+    return lambda: None
+
+
+fastapi_limiter_depends_mock.RateLimiter = dummy_rate_limiter
+
+sys.modules["fastapi_limiter"] = fastapi_limiter_mock
+sys.modules["fastapi_limiter.depends"] = fastapi_limiter_depends_mock
 
 from app.config import settings
 from app.database import Base, get_db

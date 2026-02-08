@@ -13,8 +13,12 @@ from typing import Any
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
+from app.models.actividad import Actividad
 from app.models.actividad_progreso import ActividadProgreso
+from app.models.clase import Clase
+from app.models.juego import Partida
 from app.models.punto import Punto
+from app.models.usuario import Usuario
 
 
 class CacheEntry:
@@ -362,3 +366,162 @@ class LearningStatisticsService:
                 punto_times.append(times)
 
         return {"activities": punto_names, "times": punto_times}
+
+    @staticmethod
+    def get_most_played_activities(db: Session, limit: int = 10) -> dict[str, list]:
+        """Get most played activities ordered by play count.
+
+        Args:
+            db: Database session for querying.
+            limit: Number of top activities to return.
+
+        Returns:
+            Dictionary containing:
+                - activities: List of activity names
+                - counts: Number of times each activity was played
+        """
+        cache_key = f"most_played_activities_{limit}"
+        return LearningStatisticsService._get_cached_or_fetch(
+            cache_key,
+            lambda db: LearningStatisticsService._fetch_most_played_activities(db, limit),
+            db,
+        )
+
+    @staticmethod
+    def _fetch_most_played_activities(db: Session, limit: int) -> dict[str, list]:
+        """Internal method to fetch most played activities from database.
+
+        Args:
+            db: Database session for querying.
+            limit: Number of top activities to return.
+
+        Returns:
+            Dictionary with activity names and play counts.
+        """
+        results = (
+            db.query(Actividad.nombre, func.count(ActividadProgreso.id).label("count"))
+            .join(ActividadProgreso, Actividad.id == ActividadProgreso.id_actividad)
+            .group_by(Actividad.id, Actividad.nombre)
+            .order_by(func.count(ActividadProgreso.id).desc())
+            .limit(limit)
+            .all()
+        )
+
+        activity_names = [row[0] for row in results]
+        play_counts = [row[1] for row in results]
+
+        return {"activities": activity_names, "counts": play_counts}
+
+    @staticmethod
+    def get_highest_scoring_activities(db: Session, limit: int = 10) -> dict[str, list]:
+        """Get activities with highest average scores.
+
+        Args:
+            db: Database session for querying.
+            limit: Number of top activities to return.
+
+        Returns:
+            Dictionary containing:
+                - activities: List of activity names
+                - scores: Average score (0-10) for each activity
+        """
+        cache_key = f"highest_scoring_activities_{limit}"
+        return LearningStatisticsService._get_cached_or_fetch(
+            cache_key,
+            lambda db: LearningStatisticsService._fetch_highest_scoring_activities(db, limit),
+            db,
+        )
+
+    @staticmethod
+    def _fetch_highest_scoring_activities(db: Session, limit: int) -> dict[str, list]:
+        """Internal method to fetch highest scoring activities from database.
+
+        Args:
+            db: Database session for querying.
+            limit: Number of top activities to return.
+
+        Returns:
+            Dictionary with activity names and average scores.
+        """
+        results = (
+            db.query(
+                Actividad.nombre,
+                func.avg(ActividadProgreso.puntuacion).label("avg_score"),
+                func.count(ActividadProgreso.id).label("attempts"),
+            )
+            .join(ActividadProgreso, Actividad.id == ActividadProgreso.id_actividad)
+            .filter(
+                and_(
+                    ActividadProgreso.puntuacion.isnot(None),
+                    ActividadProgreso.estado == "completado",
+                )
+            )
+            .group_by(Actividad.id, Actividad.nombre)
+            .having(func.count(ActividadProgreso.id) >= 3)  # Minimum 3 attempts
+            .order_by(func.avg(ActividadProgreso.puntuacion).desc())
+            .limit(limit)
+            .all()
+        )
+
+        activity_names = [row[0] for row in results]
+        avg_scores = [round(row[1], 1) for row in results]
+
+        return {"activities": activity_names, "scores": avg_scores}
+
+    @staticmethod
+    def get_class_performance(db: Session) -> dict[str, list]:
+        """Get average performance by class.
+
+        Args:
+            db: Database session for querying.
+
+        Returns:
+            Dictionary containing:
+                - classes: List of class names
+                - scores: Average score (0-10) for each class
+                - student_counts: Number of students in each class
+        """
+        cache_key = "class_performance"
+        return LearningStatisticsService._get_cached_or_fetch(
+            cache_key, LearningStatisticsService._fetch_class_performance, db
+        )
+
+    @staticmethod
+    def _fetch_class_performance(db: Session) -> dict[str, list]:
+        """Internal method to fetch class performance from database.
+
+        Args:
+            db: Database session for querying.
+
+        Returns:
+            Dictionary with class names, average scores, and student counts.
+        """
+        results = (
+            db.query(
+                Clase.nombre,
+                func.avg(ActividadProgreso.puntuacion).label("avg_score"),
+                func.count(func.distinct(Usuario.id)).label("num_students"),
+            )
+            .join(Usuario, Clase.id == Usuario.id_clase)
+            .join(Partida, Usuario.id == Partida.id_usuario)
+            .join(ActividadProgreso, Partida.id == ActividadProgreso.id_juego)
+            .filter(
+                and_(
+                    ActividadProgreso.puntuacion.isnot(None),
+                    ActividadProgreso.estado == "completado",
+                )
+            )
+            .group_by(Clase.id, Clase.nombre)
+            .order_by(func.avg(ActividadProgreso.puntuacion).desc())
+            .all()
+        )
+
+        class_names = [row[0] for row in results]
+        avg_scores = [round(row[1], 1) for row in results]
+        student_counts = [row[2] for row in results]
+
+        return {
+            "classes": class_names,
+            "scores": avg_scores,
+            "student_counts": student_counts,
+        }

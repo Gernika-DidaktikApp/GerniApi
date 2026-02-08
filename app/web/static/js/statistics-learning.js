@@ -134,35 +134,32 @@ function showErrorInSummaryCards() {
     });
 }
 
-async function fetchAverageScoreByPunto() {
+async function fetchMostPlayedActivities() {
     try {
-        const response = await fetch(`${API_BASE}/average-score-by-punto`);
-        if (!response.ok) throw new Error('Failed to fetch average score by punto');
+        const response = await fetch(`${API_BASE}/most-played-activities?limit=10`);
+        if (!response.ok) throw new Error('Failed to fetch most played activities');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching average score by punto:', error);
         return null;
     }
 }
 
-async function fetchScoreDistribution() {
+async function fetchHighestScoringActivities() {
     try {
-        const response = await fetch(`${API_BASE}/score-distribution`);
-        if (!response.ok) throw new Error('Failed to fetch score distribution');
+        const response = await fetch(`${API_BASE}/highest-scoring-activities?limit=10`);
+        if (!response.ok) throw new Error('Failed to fetch highest scoring activities');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching score distribution:', error);
         return null;
     }
 }
 
-async function fetchTimeBoxplotByPunto() {
+async function fetchClassPerformance() {
     try {
-        const response = await fetch(`${API_BASE}/time-boxplot-by-punto`);
-        if (!response.ok) throw new Error('Failed to fetch time boxplot');
+        const response = await fetch(`${API_BASE}/class-performance`);
+        if (!response.ok) throw new Error('Failed to fetch class performance');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching time boxplot:', error);
         return null;
     }
 }
@@ -202,42 +199,47 @@ const commonConfig = {
 };
 
 // ============================================
-// Chart 1: Puntuación media por punto - Barras
+// Chart 1: Actividades Más Jugadas - Barras Horizontales
 // ============================================
-async function initChartPuntuacionMedia() {
-    const chartId = 'chartPuntuacionMedia';
+async function initChartMostPlayed() {
+    const chartId = 'chartMostPlayed';
     showLoading(chartId);
 
-    const apiData = await fetchAverageScoreByPunto();
+    const apiData = await fetchMostPlayedActivities();
     if (!apiData) {
-        showError(chartId, 'Error al cargar puntuaciones');
+        showError(chartId, 'Error al cargar actividades más jugadas');
         return;
     }
 
-    const { puntos, scores } = apiData;
+    const { activities, counts } = apiData;
 
-    if (!puntos || puntos.length === 0) {
-        showEmpty(chartId, 'No hay datos de puntuaciones disponibles');
+    if (!activities || activities.length === 0) {
+        showEmpty(chartId, 'No hay datos de actividades jugadas');
         return;
     }
+
+    // Find max count for color gradient
+    const maxCount = Math.max(...counts);
 
     const data = [{
-        y: puntos,
-        x: scores,
+        y: activities,
+        x: counts,
         type: 'bar',
         orientation: 'h',
         marker: {
-            color: scores.map(p => {
-                if (p >= 8) return COLORS.olive;
-                if (p >= 7) return COLORS.lime;
-                return COLORS.yellow;
+            color: counts.map(count => {
+                const ratio = count / maxCount;
+                if (ratio >= 0.8) return COLORS.olive;
+                if (ratio >= 0.6) return COLORS.lime;
+                if (ratio >= 0.4) return COLORS.yellow;
+                return COLORS.brown;
             }),
             line: { width: 0 }
         },
-        text: scores.map(p => p.toFixed(1)),
+        text: counts.map(c => c),
         textposition: 'outside',
-        textfont: { size: 12, color: COLORS.text, family: 'Inter, sans-serif' },
-        hovertemplate: '<b>%{y}</b><br>Puntuación media: %{x:.1f}<extra></extra>'
+        textfont: { size: 11, color: COLORS.text, family: 'Inter, sans-serif' },
+        hovertemplate: '<b>%{y}</b><br>%{x} veces jugada<extra></extra>'
     }];
 
     const layout = {
@@ -246,8 +248,7 @@ async function initChartPuntuacionMedia() {
         showlegend: false,
         xaxis: {
             ...commonLayout.xaxis,
-            title: { text: 'Puntuación (0-10)', font: { size: 12 } },
-            range: [0, 10]
+            title: { text: 'Veces Jugadas', font: { size: 12 } }
         },
         yaxis: {
             ...commonLayout.yaxis,
@@ -265,85 +266,74 @@ async function initChartPuntuacionMedia() {
 }
 
 // ============================================
-// Chart 2: Distribución de puntuaciones - Histograma
+// Chart 2: Actividades con Mayor Puntuación - Barras Horizontales
 // ============================================
-async function initChartDistribucion() {
-    const chartId = 'chartDistribucion';
+async function initChartHighestScoring() {
+    const chartId = 'chartHighestScoring';
     showLoading(chartId);
 
-    const apiData = await fetchScoreDistribution();
+    const apiData = await fetchHighestScoringActivities();
     if (!apiData) {
-        showError(chartId, 'Error al cargar distribución');
+        showError(chartId, 'Error al cargar actividades con mayor puntuación');
         return;
     }
 
-    const { scores, mean } = apiData;
+    const { activities, scores } = apiData;
 
-    if (!scores || scores.length === 0) {
-        showEmpty(chartId, 'No hay datos de distribución disponibles');
+    if (!activities || activities.length === 0) {
+        showEmpty(chartId, 'No hay datos de actividades puntuadas');
         return;
     }
 
     const data = [{
+        y: activities,
         x: scores,
-        type: 'histogram',
+        type: 'bar',
+        orientation: 'h',
         marker: {
-            color: COLORS.olive,
-            line: {
-                color: COLORS.oliveDark,
-                width: 1
-            }
+            color: scores.map(score => {
+                if (score >= 8) return COLORS.olive;
+                if (score >= 6) return COLORS.lime;
+                if (score >= 5) return COLORS.yellow;
+                return COLORS.brown;
+            }),
+            line: { width: 0 }
         },
-        opacity: 0.85,
-        xbins: {
-            start: 0,
-            end: 10,
-            size: 0.5
-        },
-        hovertemplate: 'Puntuación: %{x}<br>Frecuencia: %{y}<extra></extra>'
+        text: scores.map(s => s.toFixed(1)),
+        textposition: 'outside',
+        textfont: { size: 11, color: COLORS.text, family: 'Inter, sans-serif' },
+        hovertemplate: '<b>%{y}</b><br>Puntuación: %{x:.1f}/10<br>(promedio)<extra></extra>'
     }];
 
     const layout = {
         ...commonLayout,
+        margin: { t: 20, r: 60, b: 50, l: 180 },
         showlegend: false,
-        bargap: 0.05,
         xaxis: {
             ...commonLayout.xaxis,
-            title: { text: 'Puntuación', font: { size: 12 } },
-            range: [0, 10],
-            dtick: 1
+            title: { text: 'Puntuación Media (0-10)', font: { size: 12 } },
+            range: [0, 10]
         },
         yaxis: {
             ...commonLayout.yaxis,
-            title: { text: 'Frecuencia', font: { size: 12 } }
+            automargin: true,
+            tickfont: { size: 11 }
         },
         shapes: [
-            // Add vertical line for mean
             {
                 type: 'line',
-                x0: mean,
-                x1: mean,
-                y0: 0,
-                y1: 1,
-                yref: 'paper',
+                x0: 5,
+                x1: 5,
+                y0: -0.5,
+                y1: activities.length - 0.5,
                 line: {
                     color: COLORS.brown,
-                    width: 2,
+                    width: 1,
                     dash: 'dash'
                 }
             }
         ],
-        annotations: [
-            {
-                x: mean,
-                y: 1,
-                yref: 'paper',
-                text: `Media: ${mean}`,
-                showarrow: false,
-                font: { size: 11, color: COLORS.brown },
-                yshift: 10
-            }
-        ]
+        height: 400
     };
 
     // Clear loading spinner before rendering
@@ -354,49 +344,75 @@ async function initChartDistribucion() {
 }
 
 // ============================================
-// Chart 3: Tiempo por punto - Boxplot
+// Chart 3: Rendimiento Medio por Clase - Barras Horizontales
 // ============================================
-async function initChartTiempoBoxplot() {
-    const chartId = 'chartTiempoBoxplot';
+async function initChartClassPerformance() {
+    const chartId = 'chartClassPerformance';
     showLoading(chartId);
 
-    const apiData = await fetchTimeBoxplotByPunto();
+    const apiData = await fetchClassPerformance();
     if (!apiData) {
-        showError(chartId, 'Error al cargar tiempos');
+        showError(chartId, 'Error al cargar rendimiento por clase');
         return;
     }
 
-    const { puntos, times } = apiData;
+    const { classes, scores, student_counts } = apiData;
 
-    if (!puntos || puntos.length === 0) {
-        showEmpty(chartId, 'No hay datos de tiempo disponibles');
+    if (!classes || classes.length === 0) {
+        showEmpty(chartId, 'No hay datos de clases');
         return;
     }
 
-    // Create color palette for boxplots
-    const colorPalette = [COLORS.olive, COLORS.lime, COLORS.brown, COLORS.oliveDark, COLORS.yellow];
-
-    const data = puntos.map((punto, index) => ({
-        y: times[index],
-        type: 'box',
-        name: punto,
-        marker: { color: colorPalette[index % colorPalette.length] },
-        boxpoints: 'outliers',
-        jitter: 0.3,
-        hovertemplate: '%{y} min<extra></extra>'
-    }));
+    const data = [{
+        y: classes,
+        x: scores,
+        type: 'bar',
+        orientation: 'h',
+        marker: {
+            color: scores.map(score => {
+                if (score >= 8) return COLORS.olive;
+                if (score >= 6) return COLORS.lime;
+                if (score >= 5) return COLORS.yellow;
+                return COLORS.brown;
+            }),
+            line: { width: 0 }
+        },
+        text: scores.map(s => s.toFixed(1)),
+        textposition: 'outside',
+        textfont: { size: 11, color: COLORS.text, family: 'Inter, sans-serif' },
+        customdata: student_counts,
+        hovertemplate: '<b>%{y}</b><br>Puntuación Media: %{x:.1f}/10<br>%{customdata} estudiantes<extra></extra>'
+    }];
 
     const layout = {
         ...commonLayout,
+        margin: { t: 20, r: 60, b: 50, l: 180 },
         showlegend: false,
-        yaxis: {
-            ...commonLayout.yaxis,
-            title: { text: 'Tiempo (minutos)', font: { size: 12 } }
-        },
         xaxis: {
             ...commonLayout.xaxis,
-            tickfont: { size: 10 }
-        }
+            title: { text: 'Puntuación Media (0-10)', font: { size: 12 } },
+            range: [0, 10]
+        },
+        yaxis: {
+            ...commonLayout.yaxis,
+            automargin: true,
+            tickfont: { size: 11 }
+        },
+        shapes: [
+            {
+                type: 'line',
+                x0: 5,
+                x1: 5,
+                y0: -0.5,
+                y1: classes.length - 0.5,
+                line: {
+                    color: COLORS.brown,
+                    width: 1,
+                    dash: 'dash'
+                }
+            }
+        ],
+        height: 400
     };
 
     // Clear loading spinner before rendering
@@ -481,7 +497,7 @@ async function updateSummaryCards() {
 // Window Resize Handler
 // ============================================
 function handleResize() {
-    const charts = ['chartPuntuacionMedia', 'chartDistribucion', 'chartTiempoBoxplot'];
+    const charts = ['chartMostPlayed', 'chartHighestScoring', 'chartClassPerformance'];
     charts.forEach(chartId => {
         const chartEl = document.getElementById(chartId);
         if (chartEl && chartEl.data) {
@@ -506,13 +522,11 @@ function debounce(func, wait) {
 // Initialize
 // ============================================
 async function init() {
-    console.log('Statistics Learning page initialized');
-
     if (typeof Plotly !== 'undefined') {
         await Promise.all([
-            initChartPuntuacionMedia(),
-            initChartDistribucion(),
-            initChartTiempoBoxplot()
+            initChartMostPlayed(),
+            initChartHighestScoring(),
+            initChartClassPerformance()
         ]);
     } else {
         console.error('Plotly is not loaded');

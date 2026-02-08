@@ -14,7 +14,7 @@ Autor: Gernibide
 
 from typing import Any
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -106,6 +106,74 @@ def get_time_boxplot_by_punto(db: Session = Depends(get_db)) -> dict[str, Any]:
     Only puntos with at least 5 completed activities are included.
     """
     return LearningStatisticsService.get_time_boxplot_by_punto(db)
+
+
+@router.get(
+    "/most-played-activities",
+    response_model=dict[str, Any],
+    summary="Get most played activities",
+    description="Returns top 10 activities ordered by number of times played",
+)
+def get_most_played_activities(
+    limit: int = Query(10, ge=1, le=50, description="Number of activities to return"),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    """
+    ## Get Most Played Activities
+
+    Returns the most played activities ordered by play count:
+    - **activities**: Array of activity names
+    - **counts**: Number of times each activity was played
+
+    ### Note
+    Counts all actividad_progreso records regardless of status.
+    """
+    return LearningStatisticsService.get_most_played_activities(db, limit)
+
+
+@router.get(
+    "/highest-scoring-activities",
+    response_model=dict[str, Any],
+    summary="Get highest scoring activities",
+    description="Returns top 10 activities with highest average scores",
+)
+def get_highest_scoring_activities(
+    limit: int = Query(10, ge=1, le=50, description="Number of activities to return"),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    """
+    ## Get Highest Scoring Activities
+
+    Returns activities with the highest average scores:
+    - **activities**: Array of activity names
+    - **scores**: Average score (0-10) for each activity
+
+    ### Note
+    Only includes activities with at least 3 completed attempts.
+    """
+    return LearningStatisticsService.get_highest_scoring_activities(db, limit)
+
+
+@router.get(
+    "/class-performance",
+    response_model=dict[str, Any],
+    summary="Get performance by class",
+    description="Returns average performance for each class",
+)
+def get_class_performance(db: Session = Depends(get_db)) -> dict[str, Any]:
+    """
+    ## Get Class Performance
+
+    Returns average performance metrics for each class:
+    - **classes**: Array of class names
+    - **scores**: Average score (0-10) for each class
+    - **student_counts**: Number of students in each class
+
+    ### Note
+    Only includes classes with at least one completed activity.
+    Ordered by score (descending).
+    """
+    return LearningStatisticsService.get_class_performance(db)
 
 
 @router.post(

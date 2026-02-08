@@ -470,3 +470,49 @@ class GameplayStatisticsService:
                 completion_rates.append(round(rate, 1))
 
         return {"activities": punto_names, "rates": completion_rates}
+
+    @staticmethod
+    def get_most_played_activities(db: Session, limit: int = 10) -> dict[str, list]:
+        """Get most played activities/puntos ordered by play count.
+
+        Args:
+            db: Database session for querying.
+            limit: Number of top activities to return.
+
+        Returns:
+            Dictionary containing:
+                - activities: List of punto names
+                - counts: Number of times each activity was played
+        """
+        cache_key = f"most_played_activities_{limit}"
+        return GameplayStatisticsService._get_cached_or_fetch(
+            cache_key,
+            lambda db: GameplayStatisticsService._fetch_most_played_activities(db, limit),
+            db,
+        )
+
+    @staticmethod
+    def _fetch_most_played_activities(db: Session, limit: int) -> dict[str, list]:
+        """Internal method to fetch most played activities from database.
+
+        Args:
+            db: Database session for querying.
+            limit: Number of top activities to return.
+
+        Returns:
+            Dictionary with activity names and play counts.
+        """
+        # Query to count actividad_progreso records per punto
+        results = (
+            db.query(Punto.nombre, func.count(ActividadProgreso.id).label("count"))
+            .join(ActividadProgreso, Punto.id == ActividadProgreso.id_punto)
+            .group_by(Punto.id, Punto.nombre)
+            .order_by(func.count(ActividadProgreso.id).desc())
+            .limit(limit)
+            .all()
+        )
+
+        activity_names = [row[0] for row in results]
+        play_counts = [row[1] for row in results]
+
+        return {"activities": activity_names, "counts": play_counts}

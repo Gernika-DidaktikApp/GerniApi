@@ -170,13 +170,12 @@ async function fetchActividadesByStatusTimeline(days = 30) {
     }
 }
 
-async function fetchCompletionRateByPunto() {
+async function fetchMostPlayedActivities() {
     try {
-        const response = await fetch(`${API_BASE}/completion-rate-by-punto`);
-        if (!response.ok) throw new Error('Failed to fetch completion rate by punto');
+        const response = await fetch(`${API_BASE}/most-played-activities?limit=10`);
+        if (!response.ok) throw new Error('Failed to fetch most played activities');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching completion rate by punto:', error);
         return null;
     }
 }
@@ -408,48 +407,52 @@ async function initChartEventosStack() {
 }
 
 // ============================================
-// Chart 4: Completion Rate por Punto - Barras Horizontales
+// Chart 4: Actividades Más Jugadas - Barras Horizontales
 // ============================================
-async function initChartCompletionRate() {
-    const chartId = 'chartCompletionRate';
+async function initChartMostPlayed() {
+    const chartId = 'chartMostPlayed';
     showLoading(chartId);
 
-    const apiData = await fetchCompletionRateByPunto();
+    const apiData = await fetchMostPlayedActivities();
     if (!apiData) {
-        showError(chartId, 'Error al cargar completion rate');
+        showError(chartId, 'Error al cargar actividades más jugadas');
         return;
     }
 
-    const { puntos, rates } = apiData;
+    const { activities, counts } = apiData;
 
-    if (!puntos || puntos.length === 0) {
-        showEmpty(chartId, 'No hay datos de completion rate');
+    if (!activities || activities.length === 0) {
+        showEmpty(chartId, 'No hay datos de actividades jugadas');
         return;
     }
+
+    // Find max count for color gradient
+    const maxCount = Math.max(...counts);
 
     const data = [{
-        y: puntos,
-        x: rates,
+        y: activities,
+        x: counts,
         type: 'bar',
         orientation: 'h',
-        name: 'Completion Rate',
+        name: 'Veces Jugadas',
         marker: {
-            color: rates.map(rate => {
-                if (rate >= 80) return COLORS.olive;
-                if (rate >= 60) return COLORS.lime;
-                if (rate >= 40) return COLORS.yellow;
+            color: counts.map(count => {
+                const ratio = count / maxCount;
+                if (ratio >= 0.8) return COLORS.olive;
+                if (ratio >= 0.6) return COLORS.lime;
+                if (ratio >= 0.4) return COLORS.yellow;
                 return COLORS.brown;
             }),
             line: { width: 0 }
         },
-        text: rates.map(r => `${r.toFixed(1)}%`),
+        text: counts.map(c => c),
         textposition: 'outside',
         textfont: {
             family: 'Inter, sans-serif',
             size: 11,
             color: COLORS.text
         },
-        hovertemplate: '<b>%{y}</b><br>%{x:.1f}% completado<extra></extra>'
+        hovertemplate: '<b>%{y}</b><br>%{x} veces jugada<extra></extra>'
     }];
 
     const layout = {
@@ -458,8 +461,7 @@ async function initChartCompletionRate() {
         margin: { t: 20, r: 60, b: 50, l: 180 },
         xaxis: {
             ...commonLayout.xaxis,
-            title: { text: 'Completion Rate (%)', font: { size: 12 } },
-            range: [0, 100]
+            title: { text: 'Veces Jugadas', font: { size: 12 } }
         },
         yaxis: {
             ...commonLayout.yaxis,
@@ -556,7 +558,7 @@ async function updateSummaryCards() {
 // Window Resize Handler
 // ============================================
 function handleResize() {
-    const charts = ['chartPartidasDia', 'chartPartidasDonut', 'chartEventosStack', 'chartCompletionRate'];
+    const charts = ['chartPartidasDia', 'chartPartidasDonut', 'chartEventosStack', 'chartMostPlayed'];
     charts.forEach(chartId => {
         const chartEl = document.getElementById(chartId);
         if (chartEl && chartEl.data) {
@@ -588,7 +590,7 @@ async function init() {
             initChartPartidasDia(),
             initChartPartidasDonut(),
             initChartEventosStack(),
-            initChartCompletionRate()
+            initChartMostPlayed()
         ]);
     } else {
         console.error('Plotly is not loaded');

@@ -212,37 +212,37 @@
                 <h2 class="section-title">Análisis de Rendimiento</h2>
 
                 <div class="charts-grid">
-                    <!-- Chart 1: Puntuación media por actividad - Barras -->
+                    <!-- Chart 1: Actividades más jugadas - Barras Horizontales -->
                     <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Puntuación Media por Actividad</h3>
-                                <span class="chart-type-tag">Barras</span>
+                                <h3>Actividades Más Jugadas</h3>
+                                <span class="chart-type-tag">Barras Horizontales</span>
                             </div>
                         </div>
-                        <div class="chart-container chart-container-tall" id="chartPuntuacionMedia"></div>
+                        <div class="chart-container chart-container-tall" id="chartMostPlayed"></div>
                     </div>
 
-                    <!-- Chart 2: Distribución de puntuaciones - Histograma -->
-                    <div class="chart-card chart-medium">
+                    <!-- Chart 2: Actividades con mayor puntuación - Barras Horizontales -->
+                    <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Distribución de Puntuaciones</h3>
-                                <span class="chart-type-tag">Histograma</span>
+                                <h3>Actividades con Mayor Puntuación Media</h3>
+                                <span class="chart-type-tag">Barras Horizontales</span>
                             </div>
                         </div>
-                        <div class="chart-container" id="chartDistribucion"></div>
+                        <div class="chart-container chart-container-tall" id="chartHighestScoring"></div>
                     </div>
 
-                    <!-- Chart 3: Tiempo por actividad - Boxplot -->
-                    <div class="chart-card chart-medium">
+                    <!-- Chart 3: Rendimiento medio por clase - Barras Horizontales -->
+                    <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Tiempo por Actividad</h3>
-                                <span class="chart-type-tag">Boxplot</span>
+                                <h3>Rendimiento Medio por Clase</h3>
+                                <span class="chart-type-tag">Barras Horizontales</span>
                             </div>
                         </div>
-                        <div class="chart-container" id="chartTiempoBoxplot"></div>
+                        <div class="chart-container chart-container-tall" id="chartClassPerformance"></div>
                     </div>
                 </div>
             </section>
@@ -303,7 +303,7 @@
 
     <!-- JavaScript -->
     <script src="/static/js/auth.js?v=5"></script>
-    <script src="/static/js/statistics-learning.js?v=2" defer></script>
+    <script src="/static/js/statistics-learning.js?v=3" defer></script>
 </body>
 
 </html>

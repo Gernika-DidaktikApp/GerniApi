@@ -28,26 +28,22 @@ let statsData = {
 async function fetchRealStats() {
     try {
         // Fetch user statistics
-        const userStatsResponse = await fetch('/api/statistics/summary');
+        const userStatsResponse = await fetch('/api/statistics/users/summary');
+        if (!userStatsResponse.ok) throw new Error('Failed to fetch user stats');
         const userStats = await userStatsResponse.json();
 
-        // Fetch gameplay statistics
+        // Fetch gameplay statistics (includes tiempo_total_minutos)
         const gameplayStatsResponse = await fetch('/api/statistics/gameplay/summary');
+        if (!gameplayStatsResponse.ok) throw new Error('Failed to fetch gameplay stats');
         const gameplayStats = await gameplayStatsResponse.json();
 
-        // Calculate total minutes from actividades progreso
-        const minutesResponse = await fetch('/api/teacher/dashboard/summary?days=36500'); // All time
-        const minutesData = await minutesResponse.json();
-
-        // Update stats data
+        // Update stats data from available endpoints
         statsData.totalUsers = userStats.total_users || 0;
-        statsData.minutesPlayed = Math.round((minutesData.tiempo_total_minutos || 0));
+        statsData.minutesPlayed = Math.round(gameplayStats.tiempo_total_minutos || 0);
         statsData.eventsCompleted = gameplayStats.actividades_completadas || 0;
 
-        console.log('Real stats loaded:', statsData);
         return true;
     } catch (error) {
-        console.error('Error fetching stats:', error);
         // Use fallback values if API fails
         statsData.totalUsers = 0;
         statsData.minutesPlayed = 0;
@@ -170,8 +166,6 @@ window.addEventListener('scroll', checkStatsAnimation);
  * Initializes the home page
  */
 async function init() {
-    console.log('Home page initialized');
-
     // Fetch real statistics first
     await fetchRealStats();
 

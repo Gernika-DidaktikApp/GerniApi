@@ -141,6 +141,32 @@ def get_completion_rate_by_punto(db: Session = Depends(get_db)) -> dict[str, Any
     return GameplayStatisticsService.get_completion_rate_by_punto(db)
 
 
+@router.get(
+    "/most-played-activities",
+    response_model=dict[str, Any],
+    summary="Get most played activities",
+    description="Returns the activities/puntos ordered by number of times played",
+)
+def get_most_played_activities(
+    limit: int = Query(10, ge=1, le=50, description="Number of activities to return"),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    """
+    ## Get Most Played Activities
+
+    Returns the most played activities/puntos ordered by play count:
+    - **activities**: Array of punto names
+    - **counts**: Number of times each activity was played (actividad_progreso records)
+
+    ### Parameters
+    - **limit**: Number of top activities to return (default: 10, max: 50)
+
+    ### Note
+    Counts all actividad_progreso records regardless of status.
+    """
+    return GameplayStatisticsService.get_most_played_activities(db, limit)
+
+
 @router.post(
     "/cache/clear",
     status_code=status.HTTP_204_NO_CONTENT,

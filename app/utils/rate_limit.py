@@ -102,9 +102,14 @@ def ip_based_identifier(request: Request) -> str:
 # Dependencias de rate limiting predefinidas
 
 
-def _dummy_dependency():
-    """Dependencia dummy para cuando rate limiting no está disponible."""
-    return None
+class _DummyRateLimiter:
+    """Dependencia dummy compatible con FastAPI cuando rate limiting no está disponible."""
+
+    def __call__(self):
+        return None
+
+
+_dummy_dependency = _DummyRateLimiter()
 
 
 # Rate limit general (10 req/min por defecto)

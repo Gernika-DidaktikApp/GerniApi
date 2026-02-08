@@ -33,6 +33,7 @@ from app.routers import (
     teacher_dashboard,
     usuarios,
 )
+from app.utils.rate_limit import close_rate_limiter, init_rate_limiter
 from app.web import routes as web_routes
 
 app = FastAPI(
@@ -201,8 +202,8 @@ logger.info("Router de interfaz web registrado")
 async def startup_event():
     """Evento ejecutado al iniciar la aplicación.
 
-    Crea las tablas en la base de datos si no existen y registra
-    el inicio de la aplicación en los logs.
+    Crea las tablas en la base de datos si no existen, inicializa
+    el rate limiter con Redis y registra el inicio en los logs.
 
     Raises:
         Exception: Si hay un error al crear las tablas (no detiene la app).
@@ -212,6 +213,16 @@ async def startup_event():
         logger.info("Creando tablas en la base de datos si no existen...")
         Base.metadata.create_all(bind=engine)
         logger.info("Tablas creadas/verificadas exitosamente")
+
+        # Inicializar rate limiter si está habilitado
+        if settings.RATE_LIMIT_ENABLED:
+            try:
+                await init_rate_limiter()
+            except Exception as e:
+                logger.warning(
+                    f"Rate limiter no pudo inicializarse: {e}. Continuando sin rate limiting."
+                )
+
         logger.info("Aplicación iniciada correctamente")
     except Exception as e:
         logger.error(f"Error al iniciar la aplicación: {e}", exc_info=True)
@@ -222,8 +233,14 @@ async def startup_event():
 async def shutdown_event():
     """Evento ejecutado al detener la aplicación.
 
-    Registra en los logs el cierre de la aplicación.
+    Cierra la conexión del rate limiter y registra el cierre en los logs.
     """
+    if settings.RATE_LIMIT_ENABLED:
+        try:
+            await close_rate_limiter()
+        except Exception as e:
+            logger.warning(f"Error al cerrar rate limiter: {e}")
+
     logger.info("Aplicación detenida")
 
 

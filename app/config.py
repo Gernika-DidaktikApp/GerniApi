@@ -35,6 +35,13 @@ class Settings(BaseSettings):
     API_KEY: str
     API_KEY_HEADER: str = "X-API-Key"
 
+    # Redis configuration
+    REDIS_URL: str = "redis://localhost:6379/0"
+
+    # Rate limiting
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_PER_MINUTE: int = 10
+
     class Config:
         """Configuración de Pydantic Settings."""
 

@@ -6,7 +6,6 @@ de negocio de los detalles de implementación de SQLAlchemy.
 Autor: Gernibide
 """
 
-
 from sqlalchemy.orm import Session
 
 from app.models.clase import Clase

@@ -145,7 +145,9 @@ class UsuarioService:
         updated = self.usuario_repo.update(usuario)
 
         # Log de operación DB
-        log_db_operation("UPDATE", "usuario", updated.id, campos_actualizados=list(update_data.keys()))
+        log_db_operation(
+            "UPDATE", "usuario", updated.id, campos_actualizados=list(update_data.keys())
+        )
 
         return updated
 

@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Panel de administración de Gernibide">
-    <title>Dashboard - Gernibide Admin</title>
+    <meta name="description" content="Vista de profesor - Estadísticas de clase">
+    <title>Vista Profesor - Gernibide</title>
 
     <!-- Favicon -->
     <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
@@ -23,27 +23,30 @@
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="/static/css/navbar.css?v=5">
-    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="stylesheet" href="/static/css/dashboard-teacher.css?v=3">
 </head>
 
 <body class="has-navbar">
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
-            <a href="/" class="navbar-logo">
+            <a href="/dashboard" class="navbar-logo">
                 <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
                 <span>Gernibide</span>
             </a>
 
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
-                    <a href="/dashboard" class="navbar-menu-link active">Dashboard</a>
+                    <a href="/" class="navbar-menu-link">Inicio</a>
                 </li>
                 <li class="navbar-menu-item">
                     <a href="/statistics" class="navbar-menu-link">Estadísticas</a>
                 </li>
-                <li class="navbar-menu-item">
-                    <a href="/dashboard/teacher" class="navbar-menu-link">Mis Clases</a>
+                <li class="navbar-menu-item navbar-admin-only">
+                    <a href="/dashboard/teacher" class="navbar-menu-link">Clases</a>
+                </li>
+                <li class="navbar-menu-item navbar-admin-only">
+                    <a href="/dashboard" class="navbar-menu-link active">Tablero</a>
                 </li>
             </ul>
 
@@ -54,7 +57,7 @@
             </div>
 
             <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
-                <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none">
                     <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round" />
                 </svg>
@@ -62,252 +65,315 @@
         </div>
     </nav>
 
-    <!-- Dashboard Layout -->
-    <div class="dashboard-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <img src="/static/icons/gernibide-logo.png" alt="Gernibide">
-                </div>
-                <h3>Gernibide Admin</h3>
-            </div>
-
-            <!-- Team Section -->
-            <div class="sidebar-team">
-                <div class="team-header">
-                    <span>Equipo</span>
-                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </div>
-                <div class="team-avatars">
-                    <div class="avatar gradient-green"></div>
-                    <div class="avatar gradient-lime"></div>
-                    <div class="avatar gradient-brown"></div>
-                </div>
-            </div>
-
-            <!-- Navigation -->
-            <nav class="sidebar-nav">
-                <a href="#" class="sidebar-nav-item active">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 4H17M3 8H17M3 12H17M3 16H17" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" />
-                    </svg>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M9 2C13.418 2 17 5.582 17 10C17 14.418 13.418 18 9 18C4.582 18 1 14.418 1 10C1 5.582 4.582 2 9 2ZM9 4C5.686 4 3 6.686 3 10C3 13.314 5.686 16 9 16C12.314 16 15 13.314 15 10C15 6.686 12.314 4 9 4Z"
-                            fill="currentColor" />
-                    </svg>
-                    <span>Estadísticas</span>
-                </a>
-                <a href="#" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M10 9C11.6569 9 13 7.65685 13 6C13 4.34315 11.6569 3 10 3C8.34315 3 7 4.34315 7 6C7 7.65685 8.34315 9 10 9Z"
-                            stroke="currentColor" stroke-width="2" />
-                        <path d="M3 18C3 14.134 6.134 11 10 11C13.866 11 17 14.134 17 18" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" />
-                    </svg>
-                    <span>Usuarios</span>
-                </a>
-                <a href="#" class="sidebar-nav-item">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10.5 2.5L2 7L10.5 11.5L19 7L10.5 2.5Z" stroke="currentColor" stroke-width="2"
-                            stroke-linejoin="round" />
-                        <path d="M2 12L10.5 16.5L19 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                    <span>Actividades</span>
-                </a>
-            </nav>
-
-            <!-- Footer Info -->
-            <div class="sidebar-footer">
-                <div class="sidebar-info">
-                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z"
-                            stroke="currentColor" stroke-width="2" />
-                        <path d="M10 14V10M10 6H10.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                    </svg>
-                    <span>Cultivando el Futuro de las Ciudades</span>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="dashboard-main">
-            <div class="dashboard-container">
-                <!-- Hero Section -->
-                <section class="dashboard-hero">
-                    <h1 class="dashboard-title">
-                        Gestión Educativa de
-                        <span class="highlight">Gernibide</span>
-                    </h1>
-                    <p class="dashboard-subtitle">
-                        Panel de control para gestionar actividades, usuarios y estadísticas del entorno educativo
-                        natural
-                    </p>
-
-                    <!-- Quick Actions -->
-                    <div class="quick-actions">
-                        <button class="action-btn action-btn-primary">
-                            <span>Explorar más</span>
-                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round" />
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-header">
+                    <div class="hero-icon-wrapper">
+                        <span class="hero-emoji">
+                            <svg width="48" height="48" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="currentColor" d="M505.837,180.418L279.265,76.124c-7.349-3.385-15.177-5.093-23.265-5.093c-8.088,0-15.914,1.708-23.265,5.093
+                                    L6.163,180.418C2.418,182.149,0,185.922,0,190.045s2.418,7.896,6.163,9.627l226.572,104.294c7.349,3.385,15.177,5.101,23.265,5.101
+                                    c8.088,0,15.916-1.716,23.267-5.101l178.812-82.306v82.881c-7.096,0.8-12.63,6.84-12.63,14.138c0,6.359,4.208,11.864,10.206,13.618
+                                    l-12.092,79.791h55.676l-12.09-79.791c5.996-1.754,10.204-7.259,10.204-13.618c0-7.298-5.534-13.338-12.63-14.138v-95.148
+                                    l21.116-9.721c3.744-1.731,6.163-5.504,6.163-9.627S509.582,182.149,505.837,180.418z"/>
+                                <path fill="currentColor" d="M256,346.831c-11.246,0-22.143-2.391-32.386-7.104L112.793,288.71v101.638
+                                    c0,22.314,67.426,50.621,143.207,50.621c75.782,0,143.209-28.308,143.209-50.621V288.71l-110.827,51.017
+                                    C278.145,344.44,267.25,346.831,256,346.831z"/>
                             </svg>
+                        </span>
+                    </div>
+                    <div class="hero-text">
+                        <h1 class="hero-title">Vista <span class="highlight">Profesor</span></h1>
+                        <p class="hero-description">
+                            Seguimiento del progreso de tu clase: rendimiento por alumno, tiempo dedicado y evolución
+                            educativa.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters Section -->
+            <section class="filters-section">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                    stroke="currentColor" stroke-width="2" />
+                                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Clase
+                        </label>
+                        <select class="filter-select" id="filterClase">
+                            <option value="all">Todas las clases</option>
+                            <option value="4a" selected>4º A - Primaria</option>
+                            <option value="4b">4º B - Primaria</option>
+                            <option value="5a">5º A - Primaria</option>
+                            <option value="5b">5º B - Primaria</option>
+                            <option value="6a">6º A - Primaria</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor"
+                                    stroke-width="2" />
+                                <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            Rango de Fechas
+                        </label>
+                        <select class="filter-select" id="filterFechas">
+                            <option value="7d" selected>Últimos 7 días</option>
+                            <option value="14d">Últimos 14 días</option>
+                            <option value="30d">Últimos 30 días</option>
+                            <option value="trimestre">Este trimestre</option>
+                            <option value="curso">Todo el curso</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <path
+                                    d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z"
+                                    stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            Actividad
+                        </label>
+                        <select class="filter-select" id="filterActividad">
+                            <option value="all" selected>Todas las actividades</option>
+                            <option value="bunkers">Búnkers</option>
+                            <option value="mercado">Mercado</option>
+                            <option value="fronton">Frontón</option>
+                            <option value="arbol">Árbol</option>
+                            <option value="picasso">Picasso</option>
+                        </select>
+                    </div>
+
+                    <button class="filter-apply-btn" id="applyFilters">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Aplicar
+                    </button>
+                </div>
+            </section>
+
+            <!-- Statistics Summary Cards -->
+            <section class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-icon gradient-green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                stroke="white" stroke-width="2" />
+                            <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Alumnos en Clase</span>
+                        <span class="summary-value" id="alumnosValue">24</span>
+                        <span class="summary-trend neutral">4º A - Primaria</span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon gradient-lime">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.86"
+                                stroke="white" stroke-width="2" stroke-linecap="round" />
+                            <path d="M22 4L12 14.01L9 11.01" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Progreso Medio</span>
+                        <span class="summary-value" id="progresoValue">68%</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            +8%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon gradient-brown">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" />
+                            <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Tiempo Promedio</span>
+                        <span class="summary-value" id="tiempoValue">32 min</span>
+                        <span class="summary-trend neutral">por sesión</span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon gradient-dark-green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">Nota Media Clase</span>
+                        <span class="summary-value" id="notaValue">7.4</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            +0.6
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-section">
+                <h2 class="section-title">Análisis de la Clase</h2>
+
+                <div class="charts-grid">
+                    <!-- Chart 1: Progreso por alumno - Barras -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Progreso por Alumno</h3>
+                                <span class="chart-type-tag">Barras</span>
+                            </div>
+                            <div class="chart-actions">
+                                <button class="chart-action-btn" title="Ordenar">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M3 6H21M6 12H18M9 18H15" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container chart-container-tall" id="chartProgresoAlumno"></div>
+                    </div>
+
+                    <!-- Chart 2: Tiempo dedicado por alumno - Barras -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Tiempo Dedicado por Alumno</h3>
+                                <span class="chart-type-tag">Barras</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartTiempoAlumno"></div>
+                    </div>
+
+                    <!-- Chart 3: Actividades completadas por clase - Barras apiladas -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Actividades Completadas</h3>
+                                <span class="chart-type-tag">Barras Apiladas</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>Completadas</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>En Progreso</span>
+                                <span class="legend-item"><span class="legend-color legend-color-yellow"></span>Sin Empezar</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartActividadesClase"></div>
+                    </div>
+
+                    <!-- Chart 4: Evolución de la clase - Línea -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>Evolución de la Clase</h3>
+                                <span class="chart-type-tag">Línea</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>Progreso</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>Nota Media</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartEvolucionClase"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students List Section -->
+            <section class="students-list-section">
+                <div class="section-header">
+                    <h2 class="section-title">Lista de Alumnos</h2>
+                    <div class="export-buttons">
+                        <button class="export-btn" id="exportCSV" title="Descargar como CSV">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            CSV
                         </button>
-                        <button class="action-btn action-btn-secondary">
-                            Gestionar
+                        <button class="export-btn" id="exportExcel" title="Descargar como Excel">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Excel
                         </button>
                     </div>
-                </section>
+                </div>
+                <div class="table-container">
+                    <table class="students-table" id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Usuario</th>
+                                <th>Progreso</th>
+                                <th>Actividades</th>
+                                <th>Tiempo Total</th>
+                                <th>Nota Media</th>
+                                <th>Última Actividad</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr>
+                                <td colspan="7" class="loading-message">
+                                    Cargando datos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-                <!-- Charts Grid -->
-                <section class="charts-section">
-                    <h2 class="section-title">Estadísticas y Análisis</h2>
+        </div>
+    </main>
 
-                    <div class="charts-grid">
-                        <!-- Chart 1 - Large -->
-                        <div class="chart-card chart-large">
-                            <div class="chart-header">
-                                <h3>Actividad de Usuarios</h3>
-                                <div class="chart-tags">
-                                    <span class="tag">Inteligente</span>
-                                    <span class="tag">Sostenible</span>
-                                    <span class="tag">Innovación</span>
-                                </div>
-                            </div>
-                            <div class="chart-placeholder" id="chart1">
-                                <!-- Plotly chart will go here -->
-                                <div class="placeholder-content">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M7 14L11 10L15 14L21 8" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    <p>Gráfico de Plotly</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Chart 2 - Small -->
-                        <div class="chart-card chart-small">
-                            <div class="chart-header">
-                                <h3>Eventos Completados</h3>
-                            </div>
-                            <div class="chart-placeholder" id="chart2">
-                                <div class="placeholder-content">
-                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                                        <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" />
-                                    </svg>
-                                    <p>Gráfico Plotly</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Chart 3 - Small -->
-                        <div class="chart-card chart-small">
-                            <div class="chart-header">
-                                <h3>Distribución</h3>
-                            </div>
-                            <div class="chart-placeholder" id="chart3">
-                                <div class="placeholder-content">
-                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2"
-                                            stroke-linejoin="round" />
-                                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    <p>Gráfico Plotly</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Chart 4 - Medium -->
-                        <div class="chart-card chart-medium">
-                            <div class="chart-header">
-                                <h3>Tendencias Mensuales</h3>
-                            </div>
-                            <div class="chart-placeholder" id="chart4">
-                                <div class="placeholder-content">
-                                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M3 3V21H21" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" />
-                                        <rect x="7" y="11" width="3" height="7" fill="currentColor" opacity="0.3" />
-                                        <rect x="11" y="8" width="3" height="10" fill="currentColor" opacity="0.5" />
-                                        <rect x="15" y="5" width="3" height="13" fill="currentColor" opacity="0.7" />
-                                    </svg>
-                                    <p>Gráfico Plotly</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Chart 5 - Medium -->
-                        <div class="chart-card chart-medium">
-                            <div class="chart-header">
-                                <h3>Rendimiento</h3>
-                            </div>
-                            <div class="chart-placeholder" id="chart5">
-                                <div class="placeholder-content">
-                                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-                                            stroke="currentColor" stroke-width="2" />
-                                        <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" />
-                                    </svg>
-                                    <p>Gráfico Plotly</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Bottom Cards -->
-                <section class="bottom-section">
-                    <div class="info-cards">
-                        <div class="info-card">
-                            <h4>Sistemas Ecológicos</h4>
-                            <p>Gestión integrada de recursos naturales</p>
-                        </div>
-                        <div class="info-card">
-                            <h4>Diseño de Infraestructura Verde</h4>
-                            <div class="card-icon">
-                                <img src="/static/icons/gernibide-logo.png" alt="Icon">
-                            </div>
-                        </div>
-                        <div class="info-card">
-                            <h4>Sistema de Riego Inteligente</h4>
-                            <p>Optimización de recursos hídricos</p>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </main>
-    </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">GERNIBIDE EDUCACIÓN © 2024 | Panel de Profesor</p>
+        </div>
+    </footer>
 
     <!-- JavaScript -->
     <script src="/static/js/auth.js?v=5"></script>
-    <script src="/static/js/dashboard.js" defer></script>
+    <script src="/static/js/dashboard-teacher.js?v=4" defer></script>
 </body>
 
 </html>

@@ -121,24 +121,17 @@ class AuthManager {
      * Update navbar based on auth state
      */
     updateNavbar() {
-        const navbarMenu = document.getElementById('navbarMenu');
         const navbarContact = document.querySelector('.navbar-contact');
         const navbarLogout = document.querySelector('.navbar-logout');
         const navbarUserName = document.querySelector('.navbar-user-name');
+        const adminOnlyItems = document.querySelectorAll('.navbar-admin-only');
 
         // Debug logging
         console.log('🔄 Updating navbar. Auth state:', this.isAuthenticated);
-        console.log('   Elements found:', {
-            menu: !!navbarMenu,
-            contact: !!navbarContact,
-            logout: !!navbarLogout,
-            userName: !!navbarUserName
-        });
-
-        if (!navbarMenu) return;
+        console.log('   Admin items found:', adminOnlyItems.length);
 
         if (this.isAuthenticated) {
-            console.log('   ✓ User is authenticated - showing logout, hiding login');
+            console.log('   ✓ User is authenticated - showing admin options');
 
             // Hide login button, show logout button
             if (navbarContact) {
@@ -154,21 +147,10 @@ class AuthManager {
                 };
             }
 
-            // Add "Mis Clases" link if it doesn't exist
-            const misClasesExists = Array.from(navbarMenu.querySelectorAll('a')).some(
-                link => link.textContent.includes('Mi Clase') || link.href.includes('/dashboard/teacher')
-            );
-
-            if (!misClasesExists) {
-                const misClasesLi = document.createElement('li');
-                misClasesLi.className = 'navbar-menu-item';
-                misClasesLi.innerHTML = `
-                    <a href="/dashboard/teacher" class="navbar-menu-link">
-                        Mis Clases
-                    </a>
-                `;
-                navbarMenu.appendChild(misClasesLi);
-            }
+            // Show admin-only menu items
+            adminOnlyItems.forEach(item => {
+                item.classList.remove('hidden');
+            });
 
             // Update user name display
             if (navbarUserName && this.user) {
@@ -176,7 +158,7 @@ class AuthManager {
                 navbarUserName.classList.remove('hidden');
             }
         } else {
-            console.log('   ✗ User is NOT authenticated - showing login, hiding logout');
+            console.log('   ✗ User is NOT authenticated - hiding admin options');
 
             // Show login button, hide logout button
             if (navbarContact) {
@@ -186,17 +168,14 @@ class AuthManager {
                 navbarLogout.classList.add('hidden');
             }
 
+            // Hide admin-only menu items
+            adminOnlyItems.forEach(item => {
+                item.classList.add('hidden');
+            });
+
             // Hide user name
             if (navbarUserName) {
                 navbarUserName.classList.add('hidden');
-            }
-
-            // Remove "Mis Clases" link
-            const misClasesLink = Array.from(navbarMenu.querySelectorAll('a')).find(
-                link => link.textContent.includes('Mi Clase') || link.href.includes('/dashboard/teacher')
-            );
-            if (misClasesLink) {
-                misClasesLink.parentElement.remove();
             }
         }
     }

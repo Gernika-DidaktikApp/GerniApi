@@ -210,3 +210,82 @@ class UsuarioStatsResponse(BaseModel):
             ]
         }
     }
+
+
+class UsuarioBulkCreate(BaseModel):
+    """Datos para crear múltiples usuarios de forma masiva"""
+
+    usuarios: list[UsuarioCreate] = Field(
+        ...,
+        description="Lista de usuarios a crear",
+        min_length=1,
+    )
+    id_clase: str | None = Field(
+        None,
+        description="ID de la clase para asignar a todos los usuarios (opcional)",
+        example="550e8400-e29b-41d4-a716-446655440000",
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "usuarios": [
+                        {
+                            "username": "jperez",
+                            "nombre": "Juan",
+                            "apellido": "Pérez",
+                            "password": "password123",
+                        },
+                        {
+                            "username": "mgarcia",
+                            "nombre": "María",
+                            "apellido": "García",
+                            "password": "password456",
+                        },
+                    ],
+                    "id_clase": "550e8400-e29b-41d4-a716-446655440000",
+                }
+            ]
+        }
+    }
+
+
+class UsuarioBulkResponse(BaseModel):
+    """Respuesta de creación masiva de usuarios"""
+
+    usuarios_creados: list[UsuarioResponse] = Field(
+        ...,
+        description="Lista de usuarios creados exitosamente",
+    )
+    total: int = Field(
+        ...,
+        description="Número total de usuarios creados",
+        example=10,
+    )
+    errores: list[str] = Field(
+        default=[],
+        description="Lista de errores encontrados durante la operación",
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "usuarios_creados": [
+                        {
+                            "id": "550e8400-e29b-41d4-a716-446655440000",
+                            "username": "jperez",
+                            "nombre": "Juan",
+                            "apellido": "Pérez",
+                            "id_clase": "550e8400-e29b-41d4-a716-446655440000",
+                            "creation": "2024-01-15T10:30:00",
+                            "top_score": 0,
+                        }
+                    ],
+                    "total": 1,
+                    "errores": [],
+                }
+            ]
+        }
+    }

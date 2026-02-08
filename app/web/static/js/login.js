@@ -86,10 +86,10 @@ function togglePasswordVisibility() {
 
     if (isPasswordVisible) {
         passwordInput.type = 'text';
-        togglePasswordBtn.setAttribute('aria-label', 'Ocultar contraseña');
+        togglePasswordBtn.setAttribute('aria-label', t('accessibility.hide_password'));
     } else {
         passwordInput.type = 'password';
-        togglePasswordBtn.setAttribute('aria-label', 'Mostrar contraseña');
+        togglePasswordBtn.setAttribute('aria-label', t('accessibility.show_password'));
     }
 
     // Add subtle animation
@@ -108,12 +108,12 @@ function validateUsername() {
     const inputWrapper = usernameInput.closest('.input-wrapper');
 
     if (!username) {
-        showError(usernameError, 'El usuario es obligatorio', inputWrapper);
+        showError(usernameError, t('validation.username_required'), inputWrapper);
         return false;
     }
 
     if (username.length < 3) {
-        showError(usernameError, 'El usuario debe tener al menos 3 caracteres', inputWrapper);
+        showError(usernameError, t('validation.username_min_length'), inputWrapper);
         return false;
     }
 
@@ -130,12 +130,12 @@ function validatePassword() {
     const inputWrapper = passwordInput.closest('.input-wrapper');
 
     if (!password) {
-        showError(passwordError, 'La contraseña es obligatoria', inputWrapper);
+        showError(passwordError, t('validation.password_required'), inputWrapper);
         return false;
     }
 
     if (password.length < 6) {
-        showError(passwordError, 'La contraseña debe tener al menos 6 caracteres', inputWrapper);
+        showError(passwordError, t('validation.password_min_length'), inputWrapper);
         return false;
     }
 
@@ -218,14 +218,14 @@ async function handleSubmit(event) {
             }, 500);
         } else {
             // Handle error response
-            throw new Error(data.detail || 'Error al iniciar sesión');
+            throw new Error(data.detail || t('errors.login_failed'));
         }
     } catch (error) {
         console.error('Login error:', error);
 
         // Show error message
         const inputWrapper = passwordInput.closest('.input-wrapper');
-        showError(passwordError, error.message || 'Error de conexión. Por favor, inténtalo de nuevo.', inputWrapper);
+        showError(passwordError, error.message || t('errors.network'), inputWrapper);
 
         // Reset loading state
         setLoadingState(false);

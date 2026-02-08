@@ -10,10 +10,11 @@ const translations = {
     es: {
         errors: {
             generic: "Ha ocurrido un error",
-            network: "Error de conexión",
+            network: "Error de conexión. Por favor, inténtalo de nuevo.",
             unauthorized: "No autorizado",
             not_found: "No encontrado",
-            server_error: "Error del servidor"
+            server_error: "Error del servidor",
+            login_failed: "Error al iniciar sesión"
         },
         messages: {
             success: "Operación exitosa",
@@ -22,6 +23,16 @@ const translations = {
             saving: "Guardando...",
             deleting: "Eliminando...",
             confirm_delete: "¿Estás seguro de que deseas eliminar este elemento?"
+        },
+        validation: {
+            username_required: "El usuario es obligatorio",
+            username_min_length: "El usuario debe tener al menos 3 caracteres",
+            password_required: "La contraseña es obligatoria",
+            password_min_length: "La contraseña debe tener al menos 6 caracteres"
+        },
+        accessibility: {
+            show_password: "Mostrar contraseña",
+            hide_password: "Ocultar contraseña"
         },
         charts: {
             days: "días",
@@ -49,10 +60,11 @@ const translations = {
     eu: {
         errors: {
             generic: "Errore bat gertatu da",
-            network: "Konexio errorea",
+            network: "Konexio errorea. Mesedez, saiatu berriz.",
             unauthorized: "Baimenik gabe",
             not_found: "Ez da aurkitu",
-            server_error: "Zerbitzariaren errorea"
+            server_error: "Zerbitzariaren errorea",
+            login_failed: "Saioa hastean errorea"
         },
         messages: {
             success: "Eragiketa arrakastatsua",
@@ -61,6 +73,16 @@ const translations = {
             saving: "Gordetzen...",
             deleting: "Ezabatzen...",
             confirm_delete: "Ziur zaude elementu hau ezabatu nahi duzula?"
+        },
+        validation: {
+            username_required: "Erabiltzailea beharrezkoa da",
+            username_min_length: "Erabiltzaileak gutxienez 3 karaktere izan behar ditu",
+            password_required: "Pasahitza beharrezkoa da",
+            password_min_length: "Pasahitzak gutxienez 6 karaktere izan behar ditu"
+        },
+        accessibility: {
+            show_password: "Erakutsi pasahitza",
+            hide_password: "Ezkutatu pasahitza"
         },
         charts: {
             days: "egunak",

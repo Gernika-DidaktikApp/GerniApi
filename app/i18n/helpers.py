@@ -6,6 +6,7 @@ preferido del usuario y generar funciones de traducción.
 Autor: Gernibide
 """
 
+import contextlib
 from collections.abc import Callable
 
 from fastapi import Request
@@ -82,11 +83,9 @@ def get_translator(request: Request) -> tuple[Callable[[str], str], str]:
         """
         value = get_nested_value(translations, key, default=key)
         if kwargs:
-            try:
+            # If formatting fails, return unformatted value
+            with contextlib.suppress(KeyError, ValueError):
                 value = value.format(**kwargs)
-            except (KeyError, ValueError):
-                # If formatting fails, return unformatted value
-                pass
         return value
 
     return translate, lang

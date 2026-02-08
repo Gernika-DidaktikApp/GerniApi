@@ -1,3 +1,11 @@
+"""Router de gestión de progreso de actividades.
+
+Este módulo maneja el seguimiento del progreso de los usuarios en las actividades,
+incluyendo inicio, completado, resumen de puntos y reseteo de progresos.
+
+Autor: Gernibide
+"""
+
 import uuid
 from datetime import datetime
 

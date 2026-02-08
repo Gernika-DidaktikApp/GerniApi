@@ -1,3 +1,12 @@
+"""Router de gestión de audit logs.
+
+Este módulo proporciona endpoints de solo lectura para consultar los registros
+de auditoría del sistema. Los audit logs se crean automáticamente y demuestran
+el uso de herencia y polimorfismo (AuditLogWeb y AuditLogApp).
+
+Autor: Gernibide
+"""
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 

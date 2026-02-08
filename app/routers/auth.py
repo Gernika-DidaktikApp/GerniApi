@@ -1,3 +1,11 @@
+"""Router de autenticación para usuarios y profesores.
+
+Este módulo maneja los endpoints de login para usuarios de la app móvil
+y profesores de la interfaz web, generando tokens JWT para autenticación.
+
+Autor: Gernibide
+"""
+
 import uuid
 from datetime import timedelta
 
@@ -21,12 +29,30 @@ from app.utils.security import create_access_token, verify_password
 
 # Schema temporal para Token
 class Token(BaseModel):
+    """Schema para respuesta de token JWT.
+
+    Attributes:
+        access_token: Token JWT generado.
+        token_type: Tipo de token (siempre "bearer").
+    """
+
     access_token: str
     token_type: str
 
 
 # Schema para respuesta de login profesor
 class LoginProfesorResponse(BaseModel):
+    """Schema para respuesta de login de profesor.
+
+    Attributes:
+        access_token: Token JWT generado.
+        token_type: Tipo de token (siempre "bearer").
+        profesor_id: ID único del profesor.
+        username: Nombre de usuario del profesor.
+        nombre: Nombre del profesor.
+        apellido: Apellido del profesor.
+    """
+
     access_token: str
     token_type: str
     profesor_id: str
@@ -46,7 +72,15 @@ router = APIRouter(
 
 
 def _extract_browser(user_agent: str | None) -> str | None:
-    """Extrae el nombre del navegador del user-agent"""
+    """Extrae el nombre del navegador del user-agent.
+
+    Args:
+        user_agent: String del user-agent HTTP.
+
+    Returns:
+        Nombre del navegador detectado o "Unknown" si no se reconoce.
+        None si no se proporciona user_agent.
+    """
     if not user_agent:
         return None
 

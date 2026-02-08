@@ -1,3 +1,12 @@
+"""Aplicación principal FastAPI para GerniBide.
+
+Este módulo configura y ejecuta la aplicación FastAPI principal,
+incluyendo la configuración de middlewares, CORS, archivos estáticos
+y todos los routers de la API.
+
+Autor: Gernibide
+"""
+
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -190,7 +199,14 @@ logger.info("Router de interfaz web registrado")
 
 @app.on_event("startup")
 async def startup_event():
-    """Evento ejecutado al iniciar la aplicación"""
+    """Evento ejecutado al iniciar la aplicación.
+
+    Crea las tablas en la base de datos si no existen y registra
+    el inicio de la aplicación en los logs.
+
+    Raises:
+        Exception: Si hay un error al crear las tablas (no detiene la app).
+    """
     try:
         # Crear todas las tablas si no existen
         logger.info("Creando tablas en la base de datos si no existen...")
@@ -204,17 +220,30 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Evento ejecutado al detener la aplicación"""
+    """Evento ejecutado al detener la aplicación.
+
+    Registra en los logs el cierre de la aplicación.
+    """
     logger.info("Aplicación detenida")
 
 
 @app.get("/")
 def root():
+    """Endpoint raíz de la API.
+
+    Returns:
+        dict: Mensaje indicando que la API está funcionando correctamente.
+    """
     logger.debug("Endpoint raíz accedido")
     return {"message": "GerniBide API - Funcionando correctamente"}
 
 
 @app.get("/health")
 def health_check():
+    """Endpoint de verificación de salud de la API.
+
+    Returns:
+        dict: Estado de salud de la aplicación.
+    """
     logger.debug("Health check realizado")
     return {"status": "healthy"}

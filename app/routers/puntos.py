@@ -1,3 +1,11 @@
+"""Router de gestión de puntos educativos.
+
+Este módulo maneja los endpoints CRUD para puntos (módulos) del juego educativo.
+Todas las operaciones requieren API Key.
+
+Autor: Gernibide
+"""
+
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status

@@ -1,6 +1,9 @@
-"""
-Service for calculating learning/performance statistics (scores, tiempo)
-Provides data for learning statistics dashboard
+"""Service for calculating learning/performance statistics.
+
+This module provides data for learning statistics dashboards, including
+academic performance metrics such as scores, pass rates, and time spent.
+
+Autor: Gernibide
 """
 
 import time
@@ -15,18 +18,48 @@ from app.models.punto import Punto
 
 
 class CacheEntry:
-    """Cache entry with TTL"""
+    """Cache entry with TTL (Time To Live) for temporary data storage.
+
+    Attributes:
+        data: The cached data of any type.
+        expires_at: Unix timestamp when this cache entry expires.
+    """
 
     def __init__(self, data: Any, ttl_seconds: int):
+        """Initialize cache entry.
+
+        Args:
+            data: The data to cache.
+            ttl_seconds: Time to live in seconds.
+        """
         self.data = data
         self.expires_at = time.time() + ttl_seconds
 
     def is_expired(self) -> bool:
+        """Check if cache entry has expired.
+
+        Returns:
+            True if current time exceeds expiration time, False otherwise.
+        """
         return time.time() > self.expires_at
 
 
 class LearningStatisticsService:
-    """Service for calculating learning/performance statistics with caching"""
+    """Service for calculating learning/performance statistics with caching.
+
+    This service provides comprehensive learning metrics including:
+    - Average scores and grade distributions
+    - Pass/fail rates
+    - Time spent on activities
+    - Performance analysis by activity punto
+
+    All methods utilize an in-memory cache with configurable TTL to reduce
+    database load.
+
+    Attributes:
+        _cache: Class-level cache storage for computed statistics.
+        CACHE_TTL: Default cache time-to-live in seconds (300 = 5 minutes).
+    """
 
     # Cache storage
     _cache: dict[str, CacheEntry] = {}
@@ -38,7 +71,17 @@ class LearningStatisticsService:
     def _get_cached_or_fetch(
         cls, cache_key: str, fetch_func: Callable, *args, ttl: int | None = None
     ) -> Any:
-        """Generic cache getter with TTL"""
+        """Generic cache getter with TTL.
+
+        Args:
+            cache_key: Unique key for this cached data.
+            fetch_func: Function to call if cache miss.
+            *args: Arguments to pass to fetch_func.
+            ttl: Custom TTL in seconds. Uses CACHE_TTL if None.
+
+        Returns:
+            Cached or freshly fetched data.
+        """
         # Check cache
         if cache_key in cls._cache:
             entry = cls._cache[cache_key]
@@ -56,16 +99,26 @@ class LearningStatisticsService:
 
     @classmethod
     def clear_cache(cls):
-        """Clear all cached data"""
+        """Clear all cached data.
+
+        Use this method when you need to force refresh of all statistics,
+        for example after bulk data imports or updates.
+        """
         cls._cache.clear()
 
     @staticmethod
     def get_learning_summary(db: Session) -> dict[str, Any]:
-        """
-        Get summary statistics for learning/performance (with caching)
+        """Get summary statistics for learning/performance (with caching).
+
+        Args:
+            db: Database session for querying.
 
         Returns:
-            Dictionary with average score, pass rate, average time, evaluated activities
+            Dictionary containing:
+                - puntuacion_media: Average score across all completed activities
+                - aprobados_porcentaje: Pass rate (score >= 5) as percentage
+                - tiempo_medio: Average time spent in minutes
+                - actividades_evaluadas: Number of evaluated activities
         """
         cache_key = "learning_summary"
         return LearningStatisticsService._get_cached_or_fetch(
@@ -74,7 +127,14 @@ class LearningStatisticsService:
 
     @staticmethod
     def _fetch_learning_summary(db: Session) -> dict[str, Any]:
-        """Internal method to fetch learning summary from database"""
+        """Internal method to fetch learning summary from database.
+
+        Args:
+            db: Database session for querying.
+
+        Returns:
+            Dictionary with learning summary metrics.
+        """
         # Average score (puntuacion) of completed activities
         avg_score = (
             db.query(func.avg(ActividadProgreso.puntuacion))
@@ -143,11 +203,18 @@ class LearningStatisticsService:
 
     @staticmethod
     def get_average_score_by_punto(db: Session) -> dict[str, list]:
-        """
-        Get average score by punto (with caching)
+        """Get average score by punto (with caching).
+
+        Calculates average scores for each activity punto, ordered by
+        score descending.
+
+        Args:
+            db: Database session for querying.
 
         Returns:
-            Dictionary with punto names and their average scores
+            Dictionary containing:
+                - activities: List of punto names (sorted by score)
+                - scores: Average score for each punto (0-10 scale)
         """
         cache_key = "average_score_by_punto"
         return LearningStatisticsService._get_cached_or_fetch(
@@ -156,7 +223,14 @@ class LearningStatisticsService:
 
     @staticmethod
     def _fetch_average_score_by_punto(db: Session) -> dict[str, list]:
-        """Internal method to fetch average score by punto from database"""
+        """Internal method to fetch average score by punto from database.
+
+        Args:
+            db: Database session for querying.
+
+        Returns:
+            Dictionary with average scores per punto.
+        """
         # Query puntos with their average scores
         results = (
             db.query(Punto.nombre, func.avg(ActividadProgreso.puntuacion).label("avg_score"))
@@ -183,11 +257,18 @@ class LearningStatisticsService:
 
     @staticmethod
     def get_score_distribution(db: Session) -> dict[str, list]:
-        """
-        Get score distribution for histogram (with caching)
+        """Get score distribution for histogram (with caching).
+
+        Retrieves all individual scores from completed activities to enable
+        histogram visualization and statistical analysis.
+
+        Args:
+            db: Database session for querying.
 
         Returns:
-            Dictionary with all scores and their mean
+            Dictionary containing:
+                - scores: List of all individual scores
+                - mean: Mean score value
         """
         cache_key = "score_distribution"
         return LearningStatisticsService._get_cached_or_fetch(
@@ -196,7 +277,14 @@ class LearningStatisticsService:
 
     @staticmethod
     def _fetch_score_distribution(db: Session) -> dict[str, Any]:
-        """Internal method to fetch score distribution from database"""
+        """Internal method to fetch score distribution from database.
+
+        Args:
+            db: Database session for querying.
+
+        Returns:
+            Dictionary with score distribution data.
+        """
         # Get all scores from completed activities
         scores_query = (
             db.query(ActividadProgreso.puntuacion)
@@ -218,11 +306,18 @@ class LearningStatisticsService:
 
     @staticmethod
     def get_time_boxplot_by_punto(db: Session) -> dict[str, Any]:
-        """
-        Get time data for boxplot by punto (with caching)
+        """Get time data for boxplot by punto (with caching).
+
+        Retrieves time distribution data for each punto to enable boxplot
+        visualization. Only includes puntos with at least 5 data points.
+
+        Args:
+            db: Database session for querying.
 
         Returns:
-            Dictionary with punto names and their time distributions
+            Dictionary containing:
+                - activities: List of punto names (filtered to those with >= 5 data points)
+                - times: List of time arrays (in minutes) for each punto
         """
         cache_key = "time_boxplot_by_punto"
         return LearningStatisticsService._get_cached_or_fetch(
@@ -231,7 +326,14 @@ class LearningStatisticsService:
 
     @staticmethod
     def _fetch_time_boxplot_by_punto(db: Session) -> dict[str, Any]:
-        """Internal method to fetch time boxplot data from database"""
+        """Internal method to fetch time boxplot data from database.
+
+        Args:
+            db: Database session for querying.
+
+        Returns:
+            Dictionary with time distribution data per punto.
+        """
         # Get puntos
         puntos = db.query(Punto).all()
 

@@ -1,3 +1,12 @@
+"""Router de gestión de profesores.
+
+Este módulo maneja todos los endpoints relacionados con profesores:
+creación, listado, actualización y eliminación. Todos los endpoints
+requieren API Key para autenticación.
+
+Autor: Gernibide
+"""
+
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -19,7 +28,18 @@ router = APIRouter(
 
 @router.post("", response_model=ProfesorResponse, status_code=status.HTTP_201_CREATED)
 def crear_profesor(profesor_data: ProfesorCreate, db: Session = Depends(get_db)):
-    """Crear un nuevo profesor."""
+    """Crear un nuevo profesor.
+
+    Args:
+        profesor_data: Datos del profesor a crear.
+        db: Sesión de base de datos.
+
+    Returns:
+        Datos del profesor creado.
+
+    Raises:
+        HTTPException: Si el username ya está en uso.
+    """
     # Validar que el username no exista
     existe = db.query(Profesor).filter(Profesor.username == profesor_data.username).first()
     if existe:
@@ -52,14 +72,34 @@ def crear_profesor(profesor_data: ProfesorCreate, db: Session = Depends(get_db))
 
 @router.get("", response_model=list[ProfesorResponse])
 def listar_profesores(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Obtener lista de profesores."""
+    """Obtener lista paginada de profesores.
+
+    Args:
+        skip: Número de registros a saltar.
+        limit: Número máximo de registros a retornar.
+        db: Sesión de base de datos.
+
+    Returns:
+        Lista de profesores.
+    """
     profesores = db.query(Profesor).offset(skip).limit(limit).all()
     return profesores
 
 
 @router.get("/{profesor_id}", response_model=ProfesorResponse)
 def obtener_profesor(profesor_id: str, db: Session = Depends(get_db)):
-    """Obtener un profesor por ID."""
+    """Obtener un profesor por ID.
+
+    Args:
+        profesor_id: ID único del profesor.
+        db: Sesión de base de datos.
+
+    Returns:
+        Datos del profesor.
+
+    Raises:
+        HTTPException: Si el profesor no existe.
+    """
     profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
     if not profesor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado")
@@ -70,7 +110,19 @@ def obtener_profesor(profesor_id: str, db: Session = Depends(get_db)):
 def actualizar_profesor(
     profesor_id: str, profesor_data: ProfesorUpdate, db: Session = Depends(get_db)
 ):
-    """Actualizar un profesor existente."""
+    """Actualizar un profesor existente.
+
+    Args:
+        profesor_id: ID único del profesor.
+        profesor_data: Datos a actualizar.
+        db: Sesión de base de datos.
+
+    Returns:
+        Datos actualizados del profesor.
+
+    Raises:
+        HTTPException: Si el profesor no existe o el username ya está en uso.
+    """
     profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
     if not profesor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado")
@@ -102,7 +154,15 @@ def actualizar_profesor(
 
 @router.delete("/{profesor_id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_profesor(profesor_id: str, db: Session = Depends(get_db)):
-    """Eliminar un profesor."""
+    """Eliminar un profesor del sistema.
+
+    Args:
+        profesor_id: ID único del profesor a eliminar.
+        db: Sesión de base de datos.
+
+    Raises:
+        HTTPException: Si el profesor no existe.
+    """
     profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
     if not profesor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado")

@@ -1,6 +1,16 @@
-"""
-Gameplay Statistics API endpoints
-Provides data for gameplay statistics dashboard (partidas, actividades)
+"""Gameplay Statistics API endpoints.
+
+Este módulo proporciona endpoints para estadísticas de juego,
+incluyendo partidas creadas, estado de actividades, y tasas de completado.
+
+Los endpoints permiten:
+    - Obtener resumen de partidas (total, completadas, en progreso, duración promedio)
+    - Analizar partidas creadas por día
+    - Comparar partidas por estado (completadas, abandonadas, en progreso)
+    - Seguir línea temporal de actividades por estado
+    - Evaluar tasa de completado por punto
+
+Autor: Gernibide
 """
 
 from typing import Any

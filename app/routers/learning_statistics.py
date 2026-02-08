@@ -1,6 +1,15 @@
-"""
-Learning Statistics API endpoints
-Provides data for learning/performance statistics dashboard (scores, tiempo)
+"""Learning Statistics API endpoints.
+
+Este módulo proporciona endpoints para estadísticas de aprendizaje y rendimiento,
+incluyendo puntuaciones, distribución de notas, y análisis de tiempo por actividad.
+
+Los endpoints permiten:
+    - Obtener resumen de métricas de aprendizaje (puntuación media, tasa de aprobados)
+    - Analizar puntuación media por punto
+    - Visualizar distribución de puntuaciones
+    - Comparar tiempos de completado por punto (boxplot)
+
+Autor: Gernibide
 """
 
 from typing import Any

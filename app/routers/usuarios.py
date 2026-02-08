@@ -1,3 +1,11 @@
+"""Router de gestión de usuarios.
+
+Este módulo maneja todos los endpoints relacionados con usuarios:
+creación, listado, actualización, eliminación, importación masiva y estadísticas.
+
+Autor: Gernibide
+"""
+
 import uuid
 from datetime import datetime, timedelta
 
@@ -6,13 +14,21 @@ from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.logging import log_db_operation, log_warning
+from app.logging import log_db_operation, log_info, log_warning
 from app.models.actividad_progreso import ActividadProgreso
+from app.models.audit_log import AuditLogWeb
 from app.models.clase import Clase
 from app.models.juego import Partida
 from app.models.punto import Punto
 from app.models.usuario import Usuario
-from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioStatsResponse, UsuarioUpdate
+from app.schemas.usuario import (
+    UsuarioBulkCreate,
+    UsuarioBulkResponse,
+    UsuarioCreate,
+    UsuarioResponse,
+    UsuarioStatsResponse,
+    UsuarioUpdate,
+)
 from app.utils.dependencies import (
     AuthResult,
     require_api_key_only,
@@ -86,9 +102,187 @@ def crear_usuario(
     db.commit()
     db.refresh(nuevo_usuario)
 
+    # Log de operación DB
     log_db_operation("CREATE", "usuario", nuevo_usuario.id, username=nuevo_usuario.username)
 
+    # Log estructurado
+    log_info(
+        "Usuario creado",
+        usuario_id=nuevo_usuario.id,
+        username=nuevo_usuario.username,
+        nombre=f"{nuevo_usuario.nombre} {nuevo_usuario.apellido}",
+        id_clase=nuevo_usuario.id_clase,
+    )
+
     return nuevo_usuario
+
+
+@router.post(
+    "/bulk",
+    response_model=UsuarioBulkResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Crear múltiples usuarios",
+    description="Crea múltiples usuarios de forma transaccional (todo o nada).",
+)
+def crear_usuarios_bulk(
+    usuarios_data: UsuarioBulkCreate,
+    db: Session = Depends(get_db),
+    auth: AuthResult = Depends(require_auth),
+):
+    """
+    ## Crear Múltiples Usuarios (Importación Masiva)
+
+    Endpoint para importar múltiples usuarios de forma transaccional.
+    Si algún usuario falla la validación, ninguno se crea (rollback).
+
+    ### Validaciones
+    - Todos los usernames deben ser únicos (entre sí y con los existentes)
+    - Si se proporciona id_clase, la clase debe existir
+    - Las contraseñas se hashean automáticamente con bcrypt
+
+    ### Retorna
+    - **usuarios_creados**: Lista de usuarios creados exitosamente
+    - **total**: Número total de usuarios creados
+    - **errores**: Lista de errores si los hubo (en validación previa)
+    """
+    try:
+        # Log inicio de importación
+        log_info(
+            "Iniciando importación masiva de usuarios",
+            total_usuarios=len(usuarios_data.usuarios),
+            id_clase=usuarios_data.id_clase,
+            auth_type="api_key" if auth.is_api_key else "token",
+        )
+
+        # Validar que la clase existe si se proporciona
+        if usuarios_data.id_clase:
+            clase = db.query(Clase).filter(Clase.id == usuarios_data.id_clase).first()
+            if not clase:
+                log_warning(
+                    "Importación fallida: clase inexistente",
+                    id_clase=usuarios_data.id_clase,
+                    total_usuarios=len(usuarios_data.usuarios),
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"La clase con ID {usuarios_data.id_clase} no existe",
+                )
+
+        # Recolectar todos los usernames para validar duplicados
+        usernames = [u.username for u in usuarios_data.usuarios]
+
+        # Validar usernames duplicados dentro del mismo batch
+        usernames_set = set(usernames)
+        if len(usernames_set) != len(usernames):
+            duplicados = [u for u in usernames if usernames.count(u) > 1]
+            log_warning(
+                "Importación fallida: usernames duplicados en el batch",
+                duplicados=", ".join(set(duplicados)),
+                total_usuarios=len(usuarios_data.usuarios),
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Hay usernames duplicados en el archivo: {', '.join(set(duplicados))}",
+            )
+
+        # Validar que ningún username ya existe en la BD
+        existentes = db.query(Usuario.username).filter(Usuario.username.in_(usernames)).all()
+        if existentes:
+            usernames_existentes = [u[0] for u in existentes]
+            log_warning(
+                "Importación fallida: usernames ya existen en BD",
+                existentes=", ".join(usernames_existentes),
+                total_usuarios=len(usuarios_data.usuarios),
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Los siguientes usernames ya existen: {', '.join(usernames_existentes)}",
+            )
+
+        # Crear todos los usuarios
+        nuevos_usuarios = []
+        for usuario_data in usuarios_data.usuarios:
+            nuevo_usuario = Usuario(
+                id=str(uuid.uuid4()),
+                username=usuario_data.username,
+                nombre=usuario_data.nombre,
+                apellido=usuario_data.apellido,
+                password=hash_password(usuario_data.password),
+                id_clase=usuarios_data.id_clase,
+            )
+            db.add(nuevo_usuario)
+            nuevos_usuarios.append(nuevo_usuario)
+
+        # Commit transaccional - si algo falla, todo se revierte
+        db.commit()
+
+        # Refresh todos los usuarios para obtener los datos completos
+        for usuario in nuevos_usuarios:
+            db.refresh(usuario)
+
+        # Log de operación DB
+        log_db_operation(
+            "BULK_CREATE",
+            "usuario",
+            ",".join([u.id for u in nuevos_usuarios]),
+            count=len(nuevos_usuarios),
+        )
+
+        # Log estructurado de éxito
+        log_info(
+            "Importación masiva completada exitosamente",
+            total_usuarios=len(nuevos_usuarios),
+            id_clase=usuarios_data.id_clase,
+            usernames=", ".join([u.username for u in nuevos_usuarios]),
+            auth_type="api_key" if auth.is_api_key else "token",
+        )
+
+        # Audit log
+        clase_info = ""
+        profesor_id = None
+        if usuarios_data.id_clase:
+            clase = db.query(Clase).filter(Clase.id == usuarios_data.id_clase).first()
+            if clase:
+                clase_info = f" en clase '{clase.nombre}'"
+                profesor_id = clase.id_profesor
+
+        audit_log = AuditLogWeb(
+            id=str(uuid.uuid4()),
+            timestamp=datetime.now(),
+            profesor_id=profesor_id,
+            accion="IMPORTAR_USUARIOS_MASIVO",
+            detalles=f"{len(nuevos_usuarios)} usuarios importados{clase_info}. Usernames: {', '.join([u.username for u in nuevos_usuarios])}",
+            tipo="web",
+        )
+        db.add(audit_log)
+        db.commit()
+
+        return UsuarioBulkResponse(
+            usuarios_creados=nuevos_usuarios,
+            total=len(nuevos_usuarios),
+            errores=[],
+        )
+
+    except HTTPException:
+        db.rollback()
+        log_info(
+            "Importación masiva cancelada por validación",
+            total_usuarios=len(usuarios_data.usuarios),
+            id_clase=usuarios_data.id_clase,
+        )
+        raise
+    except Exception as e:
+        db.rollback()
+        log_warning(
+            "Error inesperado en importación masiva de usuarios",
+            error=str(e),
+            total_usuarios=len(usuarios_data.usuarios),
+            id_clase=usuarios_data.id_clase,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al crear usuarios: {str(e)}",
+        )
 
 
 @router.get(
@@ -162,11 +356,24 @@ def actualizar_usuario(
     db: Session = Depends(get_db),
     auth: AuthResult = Depends(require_auth),
 ):
-    """
-    Actualizar un usuario existente.
+    """Actualizar un usuario existente.
 
-    - Con API Key: Puede actualizar cualquier usuario
-    - Con Token: Solo puede actualizar su propio perfil
+    Args:
+        usuario_id: ID único del usuario.
+        usuario_data: Datos a actualizar.
+        db: Sesión de base de datos.
+        auth: Resultado de autenticación.
+
+    Returns:
+        Datos actualizados del usuario.
+
+    Raises:
+        HTTPException: Si el usuario no existe, el username está en uso,
+            o la clase especificada no existe.
+
+    Note:
+        - Con API Key: Puede actualizar cualquier usuario
+        - Con Token: Solo puede actualizar su propio perfil
     """
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
@@ -211,7 +418,18 @@ def actualizar_usuario(
     dependencies=[Depends(require_api_key_only)],
 )
 def eliminar_usuario(usuario_id: str, db: Session = Depends(get_db)):
-    """Eliminar un usuario. Requiere API Key."""
+    """Eliminar un usuario del sistema.
+
+    Args:
+        usuario_id: ID único del usuario a eliminar.
+        db: Sesión de base de datos.
+
+    Raises:
+        HTTPException: Si el usuario no existe.
+
+    Note:
+        Requiere API Key.
+    """
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")

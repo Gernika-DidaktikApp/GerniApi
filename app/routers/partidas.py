@@ -1,3 +1,11 @@
+"""Router de gestión de partidas de juego.
+
+Este módulo maneja los endpoints para crear y gestionar partidas de juego,
+incluyendo la obtención o creación de partidas activas para usuarios.
+
+Autor: Gernibide
+"""
+
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status

@@ -1,6 +1,9 @@
-"""
-Service for calculating teacher dashboard statistics (class-level)
-Provides data for teacher dashboard page
+"""Service for calculating teacher dashboard statistics (class-level).
+
+This module provides comprehensive class-level analytics for teachers, including
+student progress tracking, performance metrics, and data export functionality.
+
+Autor: Gernibide
 """
 
 import csv
@@ -24,18 +27,50 @@ from app.models.usuario import Usuario
 
 
 class CacheEntry:
-    """Cache entry with TTL"""
+    """Cache entry with TTL (Time To Live) for temporary data storage.
+
+    Attributes:
+        data: The cached data of any type.
+        expires_at: Unix timestamp when this cache entry expires.
+    """
 
     def __init__(self, data: Any, ttl_seconds: int):
+        """Initialize cache entry.
+
+        Args:
+            data: The data to cache.
+            ttl_seconds: Time to live in seconds.
+        """
         self.data = data
         self.expires_at = time.time() + ttl_seconds
 
     def is_expired(self) -> bool:
+        """Check if cache entry has expired.
+
+        Returns:
+            True if current time exceeds expiration time, False otherwise.
+        """
         return time.time() > self.expires_at
 
 
 class TeacherDashboardService:
-    """Service for calculating teacher dashboard statistics with caching"""
+    """Service for calculating teacher dashboard statistics with caching.
+
+    This service provides comprehensive class-level metrics for teachers including:
+    - Class summary statistics (students, progress, time, grades)
+    - Individual student progress and performance tracking
+    - Activity completion status by class
+    - Class evolution over time
+    - Data export to CSV and Excel formats
+
+    All methods utilize an in-memory cache with configurable TTL to reduce
+    database load. Teacher-specific data has a shorter TTL (2 minutes) for
+    more current information.
+
+    Attributes:
+        _cache: Class-level cache storage for computed statistics.
+        CACHE_TTL: Default cache time-to-live in seconds (120 = 2 minutes).
+    """
 
     # Cache storage
     _cache: dict[str, CacheEntry] = {}
@@ -47,7 +82,17 @@ class TeacherDashboardService:
     def _get_cached_or_fetch(
         cls, cache_key: str, fetch_func: Callable, *args, ttl: int | None = None
     ) -> Any:
-        """Generic cache getter with TTL"""
+        """Generic cache getter with TTL.
+
+        Args:
+            cache_key: Unique key for this cached data.
+            fetch_func: Function to call if cache miss.
+            *args: Arguments to pass to fetch_func.
+            ttl: Custom TTL in seconds. Uses CACHE_TTL if None.
+
+        Returns:
+            Cached or freshly fetched data.
+        """
         # Check cache
         if cache_key in cls._cache:
             entry = cls._cache[cache_key]
@@ -65,24 +110,32 @@ class TeacherDashboardService:
 
     @classmethod
     def clear_cache(cls):
-        """Clear all cached data"""
+        """Clear all cached data.
+
+        Use this method when you need to force refresh of all statistics,
+        for example after bulk data imports or updates.
+        """
         cls._cache.clear()
 
     @staticmethod
     def get_class_summary(
         db: Session, profesor_id: str, clase_id: str | None = None, days: int = 7
     ) -> dict[str, Any]:
-        """
-        Get summary statistics for a class
+        """Get summary statistics for a class (with caching).
 
         Args:
-            db: Database session
-            profesor_id: ID of the profesor
-            clase_id: Optional specific class ID (if None, aggregates all classes)
-            days: Number of days to look back
+            db: Database session for querying.
+            profesor_id: ID of the professor whose class(es) to analyze.
+            clase_id: Optional specific class ID. If None, aggregates all classes.
+            days: Number of days to look back for time/grade metrics. Defaults to 7.
 
         Returns:
-            Dictionary with summary stats
+            Dictionary containing:
+                - total_alumnos: Number of students in the class(es)
+                - progreso_medio: Average progress percentage (0-100)
+                - tiempo_promedio: Average time spent in minutes
+                - nota_media: Average grade/score
+                - clase_nombre: Name of the class or "Todas las clases"
         """
         cache_key = f"class_summary_{profesor_id}_{clase_id}_{days}"
         return TeacherDashboardService._get_cached_or_fetch(
@@ -93,7 +146,17 @@ class TeacherDashboardService:
     def _fetch_class_summary(
         db: Session, profesor_id: str, clase_id: str | None, days: int
     ) -> dict[str, Any]:
-        """Internal method to fetch class summary from database"""
+        """Internal method to fetch class summary from database.
+
+        Args:
+            db: Database session for querying.
+            profesor_id: ID of the professor.
+            clase_id: Optional specific class ID.
+            days: Number of days to look back.
+
+        Returns:
+            Dictionary with class summary metrics.
+        """
         # Build base query for students
         students_query = (
             db.query(Usuario)
@@ -222,16 +285,19 @@ class TeacherDashboardService:
     def get_student_progress(
         db: Session, profesor_id: str, clase_id: str | None = None
     ) -> dict[str, list]:
-        """
-        Get progress for each student in the class
+        """Get progress for each student in the class (with caching).
+
+        Calculates the percentage of unique activities completed by each student.
 
         Args:
-            db: Database session
-            profesor_id: ID of the profesor
-            clase_id: Optional specific class ID
+            db: Database session for querying.
+            profesor_id: ID of the professor whose class(es) to analyze.
+            clase_id: Optional specific class ID. If None, includes all classes.
 
         Returns:
-            Dictionary with student names and progress percentages
+            Dictionary containing:
+                - students: List of student full names
+                - progress: Progress percentage (0-100) for each student
         """
         cache_key = f"student_progress_{profesor_id}_{clase_id}"
         return TeacherDashboardService._get_cached_or_fetch(
@@ -242,7 +308,16 @@ class TeacherDashboardService:
     def _fetch_student_progress(
         db: Session, profesor_id: str, clase_id: str | None
     ) -> dict[str, list]:
-        """Internal method to fetch student progress from database"""
+        """Internal method to fetch student progress from database.
+
+        Args:
+            db: Database session for querying.
+            profesor_id: ID of the professor.
+            clase_id: Optional specific class ID.
+
+        Returns:
+            Dictionary with student progress data.
+        """
         # Get students
         students_query = (
             db.query(Usuario)
@@ -290,17 +365,21 @@ class TeacherDashboardService:
     def get_student_time(
         db: Session, profesor_id: str, clase_id: str | None = None, days: int = 7
     ) -> dict[str, list]:
-        """
-        Get time spent for each student in the class
+        """Get time spent for each student in the class (with caching).
+
+        Calculates total time spent on completed activities within the specified
+        time window. Only includes students with time > 0.
 
         Args:
-            db: Database session
-            profesor_id: ID of the profesor
-            clase_id: Optional specific class ID
-            days: Number of days to look back
+            db: Database session for querying.
+            profesor_id: ID of the professor whose class(es) to analyze.
+            clase_id: Optional specific class ID. If None, includes all classes.
+            days: Number of days to look back. Defaults to 7.
 
         Returns:
-            Dictionary with student names and time in minutes
+            Dictionary containing:
+                - students: List of student first names (students with time > 0 only)
+                - time: Time spent in minutes for each student
         """
         cache_key = f"student_time_{profesor_id}_{clase_id}_{days}"
         return TeacherDashboardService._get_cached_or_fetch(
@@ -311,7 +390,17 @@ class TeacherDashboardService:
     def _fetch_student_time(
         db: Session, profesor_id: str, clase_id: str | None, days: int
     ) -> dict[str, list]:
-        """Internal method to fetch student time from database"""
+        """Internal method to fetch student time from database.
+
+        Args:
+            db: Database session for querying.
+            profesor_id: ID of the professor.
+            clase_id: Optional specific class ID.
+            days: Number of days to look back.
+
+        Returns:
+            Dictionary with student time data.
+        """
         # Get students
         students_query = (
             db.query(Usuario)
@@ -367,16 +456,22 @@ class TeacherDashboardService:
     def get_activities_by_class(
         db: Session, profesor_id: str, clase_id: str | None = None
     ) -> dict[str, Any]:
-        """
-        Get activity completion status by class
+        """Get activity completion status by class (with caching).
+
+        Analyzes how many students have completed, started, or not started
+        each activity punto.
 
         Args:
-            db: Database session
-            profesor_id: ID of the profesor
-            clase_id: Optional specific class ID
+            db: Database session for querying.
+            profesor_id: ID of the professor whose class(es) to analyze.
+            clase_id: Optional specific class ID. If None, includes all classes.
 
         Returns:
-            Dictionary with activities and completion counts
+            Dictionary containing:
+                - activities: List of activity punto names
+                - completed: Number of students who completed each activity
+                - in_progress: Number of students with activity in progress
+                - not_started: Number of students who haven't started
         """
         cache_key = f"activities_by_class_{profesor_id}_{clase_id}"
         return TeacherDashboardService._get_cached_or_fetch(
@@ -387,7 +482,16 @@ class TeacherDashboardService:
     def _fetch_activities_by_class(
         db: Session, profesor_id: str, clase_id: str | None
     ) -> dict[str, Any]:
-        """Internal method to fetch activities by class from database"""
+        """Internal method to fetch activities by class from database.
+
+        Args:
+            db: Database session for querying.
+            profesor_id: ID of the professor.
+            clase_id: Optional specific class ID.
+
+        Returns:
+            Dictionary with activity completion status data.
+        """
         # Get students
         students_query = (
             db.query(Usuario)
@@ -483,17 +587,22 @@ class TeacherDashboardService:
     def get_class_evolution(
         db: Session, profesor_id: str, clase_id: str | None = None, days: int = 14
     ) -> dict[str, Any]:
-        """
-        Get class evolution over time (progress and grades)
+        """Get class evolution over time (with caching).
+
+        Tracks how the class's average progress and grades have evolved
+        over the specified time period.
 
         Args:
-            db: Database session
-            profesor_id: ID of the profesor
-            clase_id: Optional specific class ID
-            days: Number of days to retrieve
+            db: Database session for querying.
+            profesor_id: ID of the professor whose class(es) to analyze.
+            clase_id: Optional specific class ID. If None, includes all classes.
+            days: Number of days to retrieve. Defaults to 14.
 
         Returns:
-            Dictionary with dates, progress, and grades
+            Dictionary containing:
+                - dates: List of date strings (YYYY-MM-DD format)
+                - progress: Average class progress percentage for each date
+                - grades: Average class grade for each date
         """
         cache_key = f"class_evolution_{profesor_id}_{clase_id}_{days}"
         return TeacherDashboardService._get_cached_or_fetch(
@@ -509,7 +618,17 @@ class TeacherDashboardService:
     def _fetch_class_evolution(
         db: Session, profesor_id: str, clase_id: str | None, days: int
     ) -> dict[str, Any]:
-        """Internal method to fetch class evolution from database"""
+        """Internal method to fetch class evolution from database.
+
+        Args:
+            db: Database session for querying.
+            profesor_id: ID of the professor.
+            clase_id: Optional specific class ID.
+            days: Number of days to retrieve.
+
+        Returns:
+            Dictionary with class evolution data.
+        """
         # Get students
         students_query = (
             db.query(Usuario)
@@ -598,15 +717,16 @@ class TeacherDashboardService:
 
     @staticmethod
     def get_profesor_classes(db: Session, profesor_id: str) -> list[dict[str, str]]:
-        """
-        Get all classes for a profesor
+        """Get all classes for a professor (with caching).
 
         Args:
-            db: Database session
-            profesor_id: ID of the profesor
+            db: Database session for querying.
+            profesor_id: ID of the professor.
 
         Returns:
-            List of dictionaries with class info
+            List of dictionaries, each containing:
+                - id: Class ID
+                - nombre: Class name
         """
         cache_key = f"profesor_classes_{profesor_id}"
         return TeacherDashboardService._get_cached_or_fetch(
@@ -619,7 +739,15 @@ class TeacherDashboardService:
 
     @staticmethod
     def _fetch_profesor_classes(db: Session, profesor_id: str) -> list[dict[str, str]]:
-        """Internal method to fetch profesor classes from database"""
+        """Internal method to fetch professor classes from database.
+
+        Args:
+            db: Database session for querying.
+            profesor_id: ID of the professor.
+
+        Returns:
+            List of class dictionaries.
+        """
         classes = db.query(Clase).filter(Clase.id_profesor == profesor_id).all()
 
         return [{"id": clase.id, "nombre": clase.nombre} for clase in classes]
@@ -628,16 +756,26 @@ class TeacherDashboardService:
     def get_students_list(
         db: Session, profesor_id: str, clase_id: str | None = None
     ) -> list[dict[str, Any]]:
-        """
-        Get detailed list of students with progress and performance data
+        """Get detailed list of students with progress and performance data (with caching).
+
+        Provides comprehensive information for each student including progress,
+        time spent, grades, and last activity date. Results are sorted by
+        progress descending.
 
         Args:
-            db: Database session
-            profesor_id: ID of the profesor
-            clase_id: Optional specific class ID
+            db: Database session for querying.
+            profesor_id: ID of the professor whose students to retrieve.
+            clase_id: Optional specific class ID. If None, includes all classes.
 
         Returns:
-            List of student dictionaries with detailed info
+            List of student dictionaries, each containing:
+                - nombre: Full name (first + last)
+                - username: Student username
+                - progreso: Progress percentage (0-100)
+                - tiempo_total: Total time spent in minutes
+                - nota_media: Average grade/score
+                - actividades_completadas: Number of unique activities completed
+                - ultima_actividad: Last activity date (YYYY-MM-DD) or "Nunca"
         """
         cache_key = f"students_list_{profesor_id}_{clase_id}"
         return TeacherDashboardService._get_cached_or_fetch(
@@ -653,7 +791,16 @@ class TeacherDashboardService:
     def _fetch_students_list(
         db: Session, profesor_id: str, clase_id: str | None
     ) -> list[dict[str, Any]]:
-        """Internal method to fetch students list from database"""
+        """Internal method to fetch students list from database.
+
+        Args:
+            db: Database session for querying.
+            profesor_id: ID of the professor.
+            clase_id: Optional specific class ID.
+
+        Returns:
+            List of student detail dictionaries.
+        """
         # Get students
         students_query = (
             db.query(Usuario)
@@ -754,16 +901,18 @@ class TeacherDashboardService:
 
     @staticmethod
     def export_students_csv(db: Session, profesor_id: str, clase_id: str | None = None) -> str:
-        """
-        Export students list to CSV format
+        """Export students list to CSV format.
+
+        Generates a CSV file with student performance data. Uses the cached
+        students list from get_students_list.
 
         Args:
-            db: Database session
-            profesor_id: ID of the profesor
-            clase_id: Optional specific class ID
+            db: Database session for querying.
+            profesor_id: ID of the professor whose students to export.
+            clase_id: Optional specific class ID. If None, includes all classes.
 
         Returns:
-            CSV content as string
+            CSV content as string, ready for download.
         """
         students_data = TeacherDashboardService.get_students_list(db, profesor_id, clase_id)
 
@@ -802,16 +951,19 @@ class TeacherDashboardService:
 
     @staticmethod
     def export_students_excel(db: Session, profesor_id: str, clase_id: str | None = None) -> bytes:
-        """
-        Export students list to Excel format
+        """Export students list to Excel format.
+
+        Generates a formatted Excel workbook with student performance data,
+        including header styling and proper column widths. Uses the cached
+        students list from get_students_list.
 
         Args:
-            db: Database session
-            profesor_id: ID of the profesor
-            clase_id: Optional specific class ID
+            db: Database session for querying.
+            profesor_id: ID of the professor whose students to export.
+            clase_id: Optional specific class ID. If None, includes all classes.
 
         Returns:
-            Excel file as bytes
+            Excel file as bytes, ready for download.
         """
         students_data = TeacherDashboardService.get_students_list(db, profesor_id, clase_id)
 

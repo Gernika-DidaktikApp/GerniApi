@@ -1,3 +1,11 @@
+"""Router de gestión de actividades.
+
+Este módulo maneja los endpoints CRUD para actividades educativas.
+Todas las operaciones requieren API Key.
+
+Autor: Gernibide
+"""
+
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status

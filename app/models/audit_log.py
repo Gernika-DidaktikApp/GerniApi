@@ -1,3 +1,11 @@
+"""Modelos SQLAlchemy para audit logs con herencia polimórfica.
+
+Define la tabla de audit logs usando herencia polimórfica (STI - Single Table Inheritance)
+para registrar acciones desde web (AuditLogWeb) y app móvil (AuditLogApp).
+
+Autor: Gernibide
+"""
+
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, ForeignKey, String, Text
@@ -6,9 +14,10 @@ from app.database import Base
 
 
 class AuditLog(Base):
-    """
-    Clase base para audit logs usando herencia polimórfica.
+    """Clase base para audit logs usando herencia polimórfica.
+
     Registra acciones de usuarios desde diferentes plataformas (web, app).
+    Implementa STI (Single Table Inheritance) con discriminador 'tipo'.
     """
 
     __tablename__ = "audit_log"
@@ -46,9 +55,10 @@ class AuditLog(Base):
 
 
 class AuditLogWeb(AuditLog):
-    """
-    Audit log para acciones realizadas desde la aplicación web.
+    """Audit log para acciones realizadas desde la aplicación web.
+
     Hereda de AuditLog y añade comportamiento específico para web.
+    Incluye campos: ip_address, user_agent, browser.
     """
 
     __mapper_args__ = {"polymorphic_identity": "web"}
@@ -67,9 +77,10 @@ class AuditLogWeb(AuditLog):
 
 
 class AuditLogApp(AuditLog):
-    """
-    Audit log para acciones realizadas desde la aplicación móvil.
+    """Audit log para acciones realizadas desde la aplicación móvil.
+
     Hereda de AuditLog y añade comportamiento específico para app.
+    Incluye campos: device_type, app_version, device_id.
     """
 
     __mapper_args__ = {"polymorphic_identity": "app"}

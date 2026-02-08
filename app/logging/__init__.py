@@ -1,6 +1,9 @@
-"""
-Módulo de logging para GerniApi
-Proporciona logging estructurado con rotación de archivos
+"""Módulo de logging para GerniApi.
+
+Proporciona logging estructurado con rotación de archivos, middleware
+para logging HTTP y manejadores de excepciones globales.
+
+Autor: Gernibide
 """
 
 from .exceptions import register_exception_handlers

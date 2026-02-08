@@ -1,3 +1,11 @@
+"""Configuración de la base de datos con SQLAlchemy.
+
+Este módulo configura el motor de SQLAlchemy, la sesión de base de datos
+y la clase base para los modelos. Soporta tanto SQLite como PostgreSQL.
+
+Autor: Gernibide
+"""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
@@ -30,6 +38,14 @@ Base = declarative_base()
 
 # Dependencia para obtener la sesión de BD
 def get_db():
+    """Dependencia de FastAPI para obtener una sesión de base de datos.
+
+    Crea una nueva sesión de base de datos para cada petición
+    y la cierra automáticamente al finalizar.
+
+    Yields:
+        Session: Sesión de SQLAlchemy para realizar operaciones de BD.
+    """
     db = SessionLocal()
     try:
         yield db

@@ -1,3 +1,10 @@
+"""Modelo SQLAlchemy para usuarios del sistema.
+
+Define la tabla de usuarios (estudiantes) que utilizan la aplicación móvil.
+
+Autor: Gernibide
+"""
+
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
@@ -6,6 +13,21 @@ from app.database import Base
 
 
 class Usuario(Base):
+    """Modelo de Usuario (estudiante).
+
+    Representa a los usuarios/estudiantes que juegan en la aplicación móvil.
+
+    Attributes:
+        id: ID único del usuario (UUID).
+        username: Nombre de usuario único.
+        nombre: Nombre del usuario.
+        apellido: Apellido del usuario.
+        password: Contraseña hasheada con bcrypt.
+        id_clase: ID de la clase asignada (opcional).
+        creation: Fecha de creación del usuario.
+        top_score: Puntuación máxima alcanzada.
+    """
+
     __tablename__ = "usuario"
 
     id = Column(String(36), primary_key=True, nullable=False)

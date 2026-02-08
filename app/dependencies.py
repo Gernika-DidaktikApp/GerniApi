@@ -1,6 +1,9 @@
-"""
-Dependency functions for FastAPI endpoints
-Handles authentication and authorization
+"""Funciones de dependencias para endpoints de FastAPI.
+
+Este módulo maneja la autenticación y autorización de usuarios,
+validando tokens JWT y extrayendo información del usuario actual.
+
+Autor: Gernibide
 """
 
 import jwt

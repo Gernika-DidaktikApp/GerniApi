@@ -1,6 +1,9 @@
-"""
-Middleware para logging de peticiones HTTP
-Registra todas las peticiones y respuestas con métricas de rendimiento
+"""Middleware para logging de peticiones HTTP.
+
+Registra todas las peticiones y respuestas con métricas de rendimiento,
+incluyendo duración, código de estado y información del cliente.
+
+Autor: Gernibide
 """
 
 import time

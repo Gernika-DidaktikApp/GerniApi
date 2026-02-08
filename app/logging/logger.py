@@ -1,6 +1,9 @@
-"""
-Módulo de configuración de logging estructurado
-Proporciona logging con rotación de archivos y diferentes niveles
+"""Módulo de configuración de logging estructurado.
+
+Proporciona logging con rotación de archivos, diferentes niveles y
+formateadores personalizados para logs estructurados y legibles.
+
+Autor: Gernibide
 """
 
 import logging

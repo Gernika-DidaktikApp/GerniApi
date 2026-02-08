@@ -1,6 +1,9 @@
-"""
-Service for calculating gameplay statistics (partidas, actividades)
-Provides data for gameplay statistics dashboard
+"""Service for calculating gameplay statistics (partidas, actividades).
+
+This module provides data for gameplay statistics dashboards, including
+game session metrics, activity completion rates, and duration analytics.
+
+Autor: Gernibide
 """
 
 import time
@@ -17,18 +20,48 @@ from app.models.punto import Punto
 
 
 class CacheEntry:
-    """Cache entry with TTL"""
+    """Cache entry with TTL (Time To Live) for temporary data storage.
+
+    Attributes:
+        data: The cached data of any type.
+        expires_at: Unix timestamp when this cache entry expires.
+    """
 
     def __init__(self, data: Any, ttl_seconds: int):
+        """Initialize cache entry.
+
+        Args:
+            data: The data to cache.
+            ttl_seconds: Time to live in seconds.
+        """
         self.data = data
         self.expires_at = time.time() + ttl_seconds
 
     def is_expired(self) -> bool:
+        """Check if cache entry has expired.
+
+        Returns:
+            True if current time exceeds expiration time, False otherwise.
+        """
         return time.time() > self.expires_at
 
 
 class GameplayStatisticsService:
-    """Service for calculating gameplay statistics with caching"""
+    """Service for calculating gameplay statistics with caching.
+
+    This service provides comprehensive gameplay metrics including:
+    - Game session (partida) counts and status distribution
+    - Activity completion tracking
+    - Average game duration analysis
+    - Completion rates by activity points (puntos)
+
+    All methods utilize an in-memory cache with configurable TTL to reduce
+    database load.
+
+    Attributes:
+        _cache: Class-level cache storage for computed statistics.
+        CACHE_TTL: Default cache time-to-live in seconds (300 = 5 minutes).
+    """
 
     # Cache storage
     _cache: dict[str, CacheEntry] = {}
@@ -40,7 +73,17 @@ class GameplayStatisticsService:
     def _get_cached_or_fetch(
         cls, cache_key: str, fetch_func: Callable, *args, ttl: int | None = None
     ) -> Any:
-        """Generic cache getter with TTL"""
+        """Generic cache getter with TTL.
+
+        Args:
+            cache_key: Unique key for this cached data.
+            fetch_func: Function to call if cache miss.
+            *args: Arguments to pass to fetch_func.
+            ttl: Custom TTL in seconds. Uses CACHE_TTL if None.
+
+        Returns:
+            Cached or freshly fetched data.
+        """
         # Check cache
         if cache_key in cls._cache:
             entry = cls._cache[cache_key]
@@ -58,16 +101,27 @@ class GameplayStatisticsService:
 
     @classmethod
     def clear_cache(cls):
-        """Clear all cached data"""
+        """Clear all cached data.
+
+        Use this method when you need to force refresh of all statistics,
+        for example after bulk data imports or updates.
+        """
         cls._cache.clear()
 
     @staticmethod
     def get_gameplay_summary(db: Session) -> dict[str, Any]:
-        """
-        Get summary statistics for gameplay (with caching)
+        """Get summary statistics for gameplay (with caching).
+
+        Args:
+            db: Database session for querying.
 
         Returns:
-            Dictionary with total partidas, completadas, en progreso, promedio duración
+            Dictionary containing:
+                - total_partidas: Total number of game sessions
+                - partidas_completadas: Number of completed sessions
+                - partidas_en_progreso: Number of in-progress sessions
+                - duracion_promedio: Average duration in minutes
+                - actividades_completadas: Total completed activities
         """
         cache_key = "gameplay_summary"
         return GameplayStatisticsService._get_cached_or_fetch(
@@ -76,7 +130,14 @@ class GameplayStatisticsService:
 
     @staticmethod
     def _fetch_gameplay_summary(db: Session) -> dict[str, Any]:
-        """Internal method to fetch gameplay summary from database"""
+        """Internal method to fetch gameplay summary from database.
+
+        Args:
+            db: Database session for querying.
+
+        Returns:
+            Dictionary with gameplay summary metrics.
+        """
         # Total partidas
         total_partidas = db.query(Partida).count()
 
@@ -108,15 +169,16 @@ class GameplayStatisticsService:
 
     @staticmethod
     def get_partidas_by_day(db: Session, days: int = 30) -> dict[str, list]:
-        """
-        Get count of partidas created per day (with caching)
+        """Get count of partidas created per day (with caching).
 
         Args:
-            db: Database session
-            days: Number of days to retrieve (default 30)
+            db: Database session for querying.
+            days: Number of days to retrieve. Defaults to 30.
 
         Returns:
-            Dictionary with dates and partida counts
+            Dictionary containing:
+                - dates: List of date strings (YYYY-MM-DD format)
+                - counts: Number of partidas created on each date
         """
         cache_key = f"partidas_by_day_{days}"
         return GameplayStatisticsService._get_cached_or_fetch(
@@ -125,7 +187,15 @@ class GameplayStatisticsService:
 
     @staticmethod
     def _fetch_partidas_by_day(db: Session, days: int = 30) -> dict[str, list]:
-        """Internal method to fetch partidas by day from database"""
+        """Internal method to fetch partidas by day from database.
+
+        Args:
+            db: Database session for querying.
+            days: Number of days to retrieve.
+
+        Returns:
+            Dictionary with partida counts per day.
+        """
         now = datetime.now()
         dates = []
         counts = []
@@ -148,11 +218,17 @@ class GameplayStatisticsService:
 
     @staticmethod
     def get_partidas_by_status(db: Session) -> dict[str, Any]:
-        """
-        Get count of partidas by status (with caching)
+        """Get count of partidas by status (with caching).
+
+        Args:
+            db: Database session for querying.
 
         Returns:
-            Dictionary with counts for completada, abandonada, en_progreso
+            Dictionary containing:
+                - completadas: Number of completed partidas
+                - abandonadas: Number of abandoned partidas
+                - en_progreso: Number of in-progress partidas
+                - total: Total count of all partidas
         """
         cache_key = "partidas_by_status"
         return GameplayStatisticsService._get_cached_or_fetch(
@@ -161,7 +237,14 @@ class GameplayStatisticsService:
 
     @staticmethod
     def _fetch_partidas_by_status(db: Session) -> dict[str, Any]:
-        """Internal method to fetch partidas by status from database"""
+        """Internal method to fetch partidas by status from database.
+
+        Args:
+            db: Database session for querying.
+
+        Returns:
+            Dictionary with partida counts by status.
+        """
         completadas = db.query(Partida).filter(Partida.estado == "completada").count()
 
         abandonadas = db.query(Partida).filter(Partida.estado == "abandonada").count()
@@ -179,16 +262,18 @@ class GameplayStatisticsService:
 
     @staticmethod
     def get_actividades_by_status_timeline(db: Session, days: int = 30) -> dict[str, list]:
-        """
-        Get timeline of activities by status (with caching)
-
+        """Get timeline of activities by status (with caching).
 
         Args:
-            db: Database session
-            days: Number of days to retrieve (default 30)
+            db: Database session for querying.
+            days: Number of days to retrieve. Defaults to 30.
 
         Returns:
-            Dictionary with dates and counts for completados, en_progreso, abandonados
+            Dictionary containing:
+                - dates: List of date strings (YYYY-MM-DD format)
+                - completados: Number of completed activities per date
+                - en_progreso: Number of in-progress activities per date
+                - abandonados: Number of abandoned activities per date
         """
         cache_key = f"actividades_by_status_timeline_{days}"
         return GameplayStatisticsService._get_cached_or_fetch(
@@ -197,7 +282,15 @@ class GameplayStatisticsService:
 
     @staticmethod
     def _fetch_actividades_by_status_timeline(db: Session, days: int = 30) -> dict[str, list]:
-        """Internal method to fetch activities by status timeline from database"""
+        """Internal method to fetch activities by status timeline from database.
+
+        Args:
+            db: Database session for querying.
+            days: Number of days to retrieve.
+
+        Returns:
+            Dictionary with activity status counts per day.
+        """
 
         now = datetime.now()
         dates = []
@@ -261,15 +354,16 @@ class GameplayStatisticsService:
 
     @staticmethod
     def get_duracion_promedio_timeline(db: Session, days: int = 30) -> dict[str, list]:
-        """
-        Get average duration of completed partidas over time (with caching)
+        """Get average duration of completed partidas over time (with caching).
 
         Args:
-            db: Database session
-            days: Number of days to retrieve (default 30)
+            db: Database session for querying.
+            days: Number of days to retrieve. Defaults to 30.
 
         Returns:
-            Dictionary with dates and average durations in minutes
+            Dictionary containing:
+                - dates: List of date strings (YYYY-MM-DD format)
+                - durations: Average duration in minutes for each date
         """
         cache_key = f"duracion_promedio_timeline_{days}"
         return GameplayStatisticsService._get_cached_or_fetch(
@@ -278,7 +372,15 @@ class GameplayStatisticsService:
 
     @staticmethod
     def _fetch_duracion_promedio_timeline(db: Session, days: int = 30) -> dict[str, list]:
-        """Internal method to fetch duracion promedio timeline from database"""
+        """Internal method to fetch average duration timeline from database.
+
+        Args:
+            db: Database session for querying.
+            days: Number of days to retrieve.
+
+        Returns:
+            Dictionary with average durations per day.
+        """
         now = datetime.now()
         dates = []
         durations = []
@@ -309,11 +411,18 @@ class GameplayStatisticsService:
 
     @staticmethod
     def get_completion_rate_by_punto(db: Session) -> dict[str, list]:
-        """
-        Get completion rate by punto (with caching)
+        """Get completion rate by punto (with caching).
+
+        Calculates the percentage of completed activities for each punto
+        (activity point/location in the game).
+
+        Args:
+            db: Database session for querying.
 
         Returns:
-            Dictionary with punto names and their completion rates
+            Dictionary containing:
+                - activities: List of punto names
+                - rates: Completion rate percentage (0-100) for each punto
         """
         cache_key = "completion_rate_by_punto"
         return GameplayStatisticsService._get_cached_or_fetch(
@@ -322,7 +431,14 @@ class GameplayStatisticsService:
 
     @staticmethod
     def _fetch_completion_rate_by_punto(db: Session) -> dict[str, list]:
-        """Internal method to fetch completion rate by punto from database"""
+        """Internal method to fetch completion rate by punto from database.
+
+        Args:
+            db: Database session for querying.
+
+        Returns:
+            Dictionary with completion rates per punto.
+        """
         # Get all puntos
         puntos = db.query(Punto).all()
 

@@ -1,6 +1,9 @@
-"""
-Flask-style web routes for serving HTML templates
-Integrates with FastAPI to provide web interface
+"""Rutas web para servir plantillas HTML.
+
+Integra interfaz web con FastAPI proporcionando rutas para
+páginas de login, dashboards y estadísticas.
+
+Autor: Gernibide
 """
 
 from pathlib import Path

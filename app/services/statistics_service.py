@@ -1,6 +1,9 @@
-"""
-Service for calculating statistics and metrics
-Provides data for statistics dashboards and charts
+"""Service for calculating statistics and metrics.
+
+This module provides data for statistics dashboards and charts, including
+user metrics, activity timelines, and engagement analytics with built-in caching.
+
+Autor: Gernibide
 """
 
 import time
@@ -16,18 +19,48 @@ from app.models.usuario import Usuario
 
 
 class CacheEntry:
-    """Cache entry with TTL"""
+    """Cache entry with TTL (Time To Live) for temporary data storage.
+
+    Attributes:
+        data: The cached data of any type.
+        expires_at: Unix timestamp when this cache entry expires.
+    """
 
     def __init__(self, data: Any, ttl_seconds: int):
+        """Initialize cache entry.
+
+        Args:
+            data: The data to cache.
+            ttl_seconds: Time to live in seconds.
+        """
         self.data = data
         self.expires_at = time.time() + ttl_seconds
 
     def is_expired(self) -> bool:
+        """Check if cache entry has expired.
+
+        Returns:
+            True if current time exceeds expiration time, False otherwise.
+        """
         return time.time() > self.expires_at
 
 
 class StatisticsService:
-    """Service for calculating user and activity statistics with caching"""
+    """Service for calculating user and activity statistics with caching.
+
+    This service provides comprehensive user engagement metrics including:
+    - Daily/Weekly/Monthly Active Users (DAU/WAU/MAU)
+    - New user registrations
+    - User activity ratios
+    - Login patterns
+
+    All methods utilize an in-memory cache with configurable TTL to reduce
+    database load.
+
+    Attributes:
+        _cache: Class-level cache storage for computed statistics.
+        CACHE_TTL: Default cache time-to-live in seconds (300 = 5 minutes).
+    """
 
     # Cache storage
     _cache: dict[str, CacheEntry] = {}
@@ -68,16 +101,27 @@ class StatisticsService:
 
     @classmethod
     def clear_cache(cls):
-        """Clear all cached data"""
+        """Clear all cached data.
+
+        Use this method when you need to force refresh of all statistics,
+        for example after bulk data imports or updates.
+        """
         cls._cache.clear()
 
     @staticmethod
     def get_users_summary(db: Session) -> dict[str, Any]:
-        """
-        Get summary statistics for users (with caching)
+        """Get summary statistics for users (with caching).
+
+        Args:
+            db: Database session for querying.
 
         Returns:
-            Dictionary with DAU, new users today, active/total ratio, and logins today
+            Dictionary containing:
+                - dau: Daily Active Users (users who started a game today)
+                - new_users_today: Users created today
+                - ratio_active_total: Percentage of users active in last 7 days
+                - logins_today: Number of game sessions started today
+                - total_users: Total user count
         """
         cache_key = "users_summary"
         return StatisticsService._get_cached_or_fetch(
@@ -86,7 +130,14 @@ class StatisticsService:
 
     @staticmethod
     def _fetch_users_summary(db: Session) -> dict[str, Any]:
-        """Internal method to fetch users summary from database"""
+        """Internal method to fetch users summary from database.
+
+        Args:
+            db: Database session for querying.
+
+        Returns:
+            Dictionary with user summary metrics.
+        """
         now = datetime.now()
         today_start = datetime(now.year, now.month, now.day)
         week_ago = now - timedelta(days=7)
@@ -129,15 +180,18 @@ class StatisticsService:
 
     @staticmethod
     def get_active_users_timeline(db: Session, days: int = 30) -> dict[str, list]:
-        """
-        Get timeline of DAU, WAU, MAU for the last N days (with caching)
+        """Get timeline of DAU, WAU, MAU for the last N days (with caching).
 
         Args:
-            db: Database session
-            days: Number of days to retrieve (default 30)
+            db: Database session for querying.
+            days: Number of days to retrieve. Defaults to 30.
 
         Returns:
-            Dictionary with dates and DAU/WAU/MAU arrays
+            Dictionary containing:
+                - dates: List of date strings (YYYY-MM-DD format)
+                - dau: Daily Active Users for each date
+                - wau: Weekly Active Users (7-day rolling window)
+                - mau: Monthly Active Users (30-day rolling window)
         """
         cache_key = f"active_users_timeline_{days}"
         return StatisticsService._get_cached_or_fetch(
@@ -146,7 +200,15 @@ class StatisticsService:
 
     @staticmethod
     def _fetch_active_users_timeline(db: Session, days: int = 30) -> dict[str, list]:
-        """Internal method to fetch active users timeline from database"""
+        """Internal method to fetch active users timeline from database.
+
+        Args:
+            db: Database session for querying.
+            days: Number of days to retrieve.
+
+        Returns:
+            Dictionary with timeline data.
+        """
         now = datetime.now()
         dates = []
         dau_data = []
@@ -193,15 +255,16 @@ class StatisticsService:
 
     @staticmethod
     def get_new_users_by_day(db: Session, days: int = 30) -> dict[str, list]:
-        """
-        Get count of new users registered per day (with caching)
+        """Get count of new users registered per day (with caching).
 
         Args:
-            db: Database session
-            days: Number of days to retrieve (default 30)
+            db: Database session for querying.
+            days: Number of days to retrieve. Defaults to 30.
 
         Returns:
-            Dictionary with dates and new user counts
+            Dictionary containing:
+                - dates: List of date strings (YYYY-MM-DD format)
+                - counts: Number of new users registered on each date
         """
         cache_key = f"new_users_by_day_{days}"
         return StatisticsService._get_cached_or_fetch(
@@ -210,7 +273,15 @@ class StatisticsService:
 
     @staticmethod
     def _fetch_new_users_by_day(db: Session, days: int = 30) -> dict[str, list]:
-        """Internal method to fetch new users by day from database"""
+        """Internal method to fetch new users by day from database.
+
+        Args:
+            db: Database session for querying.
+            days: Number of days to retrieve.
+
+        Returns:
+            Dictionary with new user counts per day.
+        """
         now = datetime.now()
         dates = []
         counts = []
@@ -233,15 +304,19 @@ class StatisticsService:
 
     @staticmethod
     def get_active_ratio_timeline(db: Session, days: int = 30) -> dict[str, list]:
-        """
-        Get ratio of active users to total users over time (with caching)
+        """Get ratio of active users to total users over time (with caching).
+
+        Calculates the percentage of total registered users who were active
+        in the 7 days prior to each date.
 
         Args:
-            db: Database session
-            days: Number of days to retrieve (default 30)
+            db: Database session for querying.
+            days: Number of days to retrieve. Defaults to 30.
 
         Returns:
-            Dictionary with dates and ratio percentages
+            Dictionary containing:
+                - dates: List of date strings (YYYY-MM-DD format)
+                - ratios: Percentage of active users for each date (0-100)
         """
         cache_key = f"active_ratio_timeline_{days}"
         return StatisticsService._get_cached_or_fetch(
@@ -250,7 +325,15 @@ class StatisticsService:
 
     @staticmethod
     def _fetch_active_ratio_timeline(db: Session, days: int = 30) -> dict[str, list]:
-        """Internal method to fetch active ratio timeline from database"""
+        """Internal method to fetch active ratio timeline from database.
+
+        Args:
+            db: Database session for querying.
+            days: Number of days to retrieve.
+
+        Returns:
+            Dictionary with active user ratios per day.
+        """
         now = datetime.now()
         dates = []
         ratios = []
@@ -283,15 +366,18 @@ class StatisticsService:
 
     @staticmethod
     def get_logins_by_day(db: Session, days: int = 30) -> dict[str, list]:
-        """
-        Get number of game sessions (logins) started per day (with caching)
+        """Get number of game sessions (logins) started per day (with caching).
+
+        Note: Login events are tracked as new game sessions (Partida creation).
 
         Args:
-            db: Database session
-            days: Number of days to retrieve (default 30)
+            db: Database session for querying.
+            days: Number of days to retrieve. Defaults to 30.
 
         Returns:
-            Dictionary with dates and login counts
+            Dictionary containing:
+                - dates: List of date strings (YYYY-MM-DD format)
+                - counts: Number of game sessions started on each date
         """
         cache_key = f"logins_by_day_{days}"
         return StatisticsService._get_cached_or_fetch(
@@ -300,7 +386,15 @@ class StatisticsService:
 
     @staticmethod
     def _fetch_logins_by_day(db: Session, days: int = 30) -> dict[str, list]:
-        """Internal method to fetch logins by day from database"""
+        """Internal method to fetch logins by day from database.
+
+        Args:
+            db: Database session for querying.
+            days: Number of days to retrieve.
+
+        Returns:
+            Dictionary with login counts per day.
+        """
         now = datetime.now()
         dates = []
         counts = []

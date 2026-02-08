@@ -1,10 +1,26 @@
+"""Schemas Pydantic para gestión de usuarios.
+
+Este módulo define los modelos de validación y serialización para todas las
+operaciones relacionadas con usuarios, incluyendo autenticación, CRUD,
+estadísticas y operaciones masivas.
+
+Autor: Gernibide
+"""
+
 from datetime import datetime
 
 from pydantic import BaseModel, Field
 
 
 class LoginAppRequest(BaseModel):
-    """Credenciales para autenticación de usuario"""
+    """Credenciales para autenticación de usuario.
+
+    Modelo de validación para las solicitudes de login desde la aplicación móvil.
+
+    Attributes:
+        username: Nombre de usuario único en el sistema.
+        password: Contraseña del usuario en texto plano (será hasheada).
+    """
 
     username: str = Field(..., description="Nombre de usuario", example="usuario123")
     password: str = Field(..., description="Contraseña del usuario", example="password123")
@@ -15,7 +31,18 @@ class LoginAppRequest(BaseModel):
 
 
 class UsuarioCreate(BaseModel):
-    """Datos para crear un nuevo usuario"""
+    """Datos para crear un nuevo usuario.
+
+    Modelo de validación para la creación de usuarios. Requiere todos los campos
+    obligatorios y valida longitudes y formatos.
+
+    Attributes:
+        username: Nombre de usuario único (3-45 caracteres).
+        nombre: Nombre del usuario (1-45 caracteres).
+        apellido: Apellido del usuario (1-45 caracteres).
+        password: Contraseña en texto plano (4-100 caracteres, será hasheada con bcrypt).
+        id_clase: ID de la clase asignada (UUID), opcional.
+    """
 
     username: str = Field(
         ...,
@@ -67,7 +94,19 @@ class UsuarioCreate(BaseModel):
 
 
 class UsuarioUpdate(BaseModel):
-    """Datos para actualizar un usuario existente (todos los campos son opcionales)"""
+    """Datos para actualizar un usuario existente.
+
+    Modelo de validación para actualización parcial de usuarios. Todos los campos
+    son opcionales, solo se actualizan los campos proporcionados.
+
+    Attributes:
+        username: Nuevo nombre de usuario (3-45 caracteres), opcional.
+        nombre: Nuevo nombre (1-45 caracteres), opcional.
+        apellido: Nuevo apellido (1-45 caracteres), opcional.
+        password: Nueva contraseña (4-100 caracteres, será hasheada), opcional.
+        id_clase: Nueva clase asignada (UUID), opcional.
+        top_score: Nueva puntuación máxima, opcional.
+    """
 
     username: str | None = Field(
         None,
@@ -104,7 +143,19 @@ class UsuarioUpdate(BaseModel):
 
 
 class LoginAppResponse(BaseModel):
-    """Respuesta de login con token y datos del usuario"""
+    """Respuesta de login con token y datos del usuario.
+
+    Modelo de respuesta tras autenticación exitosa. Incluye token JWT y
+    datos básicos del usuario para la sesión.
+
+    Attributes:
+        access_token: Token JWT para autenticación en solicitudes posteriores.
+        token_type: Tipo de token (siempre "bearer").
+        user_id: ID único del usuario (UUID).
+        username: Nombre de usuario.
+        nombre: Nombre del usuario.
+        apellido: Apellido del usuario.
+    """
 
     access_token: str = Field(..., description="Token JWT para autenticación")
     token_type: str = Field(default="bearer", description="Tipo de token")
@@ -130,7 +181,20 @@ class LoginAppResponse(BaseModel):
 
 
 class UsuarioResponse(BaseModel):
-    """Respuesta con los datos del usuario (sin contraseña)"""
+    """Respuesta con los datos del usuario.
+
+    Modelo de respuesta con información completa del usuario, excluyendo
+    la contraseña por seguridad.
+
+    Attributes:
+        id: ID único del usuario (UUID).
+        username: Nombre de usuario.
+        nombre: Nombre del usuario.
+        apellido: Apellido del usuario.
+        id_clase: ID de la clase asignada (UUID), puede ser None.
+        creation: Fecha y hora de creación de la cuenta.
+        top_score: Puntuación máxima alcanzada por el usuario.
+    """
 
     id: str = Field(
         ...,
@@ -169,7 +233,18 @@ class UsuarioResponse(BaseModel):
 
 
 class UsuarioStatsResponse(BaseModel):
-    """Estadísticas detalladas del usuario para la app móvil"""
+    """Estadísticas detalladas del usuario para la app móvil.
+
+    Modelo de respuesta con estadísticas completas de progreso y actividad
+    del usuario en el juego.
+
+    Attributes:
+        actividades_completadas: Número total de actividades terminadas.
+        racha_dias: Días consecutivos de juego desde hoy hacia atrás.
+        modulos_completados: Lista de nombres de módulos/actividades completados.
+        ultima_partida: Fecha y hora de la última partida jugada, puede ser None.
+        total_puntos_acumulados: Suma de todos los puntos obtenidos en actividades.
+    """
 
     actividades_completadas: int = Field(
         ...,
@@ -213,7 +288,15 @@ class UsuarioStatsResponse(BaseModel):
 
 
 class UsuarioBulkCreate(BaseModel):
-    """Datos para crear múltiples usuarios de forma masiva"""
+    """Datos para crear múltiples usuarios de forma masiva.
+
+    Modelo de validación para operaciones de creación masiva de usuarios,
+    típicamente desde importación CSV.
+
+    Attributes:
+        usuarios: Lista de usuarios a crear (mínimo 1).
+        id_clase: ID de clase para asignar a todos los usuarios (UUID), opcional.
+    """
 
     usuarios: list[UsuarioCreate] = Field(
         ...,
@@ -252,7 +335,16 @@ class UsuarioBulkCreate(BaseModel):
 
 
 class UsuarioBulkResponse(BaseModel):
-    """Respuesta de creación masiva de usuarios"""
+    """Respuesta de creación masiva de usuarios.
+
+    Modelo de respuesta tras operación de creación masiva. Incluye usuarios
+    creados exitosamente y posibles errores encontrados.
+
+    Attributes:
+        usuarios_creados: Lista de usuarios creados exitosamente.
+        total: Número total de usuarios creados.
+        errores: Lista de mensajes de error encontrados durante la operación.
+    """
 
     usuarios_creados: list[UsuarioResponse] = Field(
         ...,

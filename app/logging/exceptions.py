@@ -1,6 +1,9 @@
-"""
-Manejadores de excepciones globales con logging estructurado
-Captura y registra todos los errores de la aplicación
+"""Manejadores de excepciones globales con logging estructurado.
+
+Captura y registra todos los errores de la aplicación, incluyendo
+HTTP exceptions, validación, errores de base de datos y excepciones genéricas.
+
+Autor: Gernibide
 """
 
 import traceback

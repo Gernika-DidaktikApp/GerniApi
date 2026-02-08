@@ -1,6 +1,18 @@
-"""
-Teacher Dashboard API endpoints
-Provides data for teacher dashboard page (class-level statistics)
+"""Teacher Dashboard API endpoints.
+
+Este módulo proporciona endpoints para el panel de control del profesor,
+incluyendo estadísticas a nivel de clase, progreso de alumnos, tiempo dedicado,
+y exportación de datos en CSV y Excel.
+
+Los endpoints permiten:
+    - Obtener resúmenes de clase (alumnos, progreso, tiempo, notas)
+    - Visualizar progreso por alumno
+    - Analizar tiempo dedicado por alumno
+    - Seguir actividades completadas
+    - Observar evolución temporal de la clase
+    - Exportar datos de alumnos en varios formatos
+
+Autor: Gernibide
 """
 
 import io

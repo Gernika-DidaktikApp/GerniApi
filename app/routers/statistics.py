@@ -1,6 +1,9 @@
-"""
-Statistics API endpoints
-Provides data for statistics dashboards and charts
+"""Router de estadísticas generales.
+
+Este módulo proporciona endpoints para obtener estadísticas de usuarios,
+actividad y métricas para los dashboards de visualización.
+
+Autor: Gernibide
 """
 
 from typing import Any

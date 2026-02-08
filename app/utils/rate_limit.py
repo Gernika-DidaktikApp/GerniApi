@@ -6,7 +6,6 @@ para proteger la API contra abuso y ataques de fuerza bruta.
 Autor: Gernibide
 """
 
-import os
 
 from fastapi import Request
 

@@ -56,12 +56,11 @@ class UsuarioService:
             )
 
         # Validar que la clase existe
-        if usuario_data.id_clase:
-            if not self.clase_repo.exists(usuario_data.id_clase):
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="La clase especificada no existe",
-                )
+        if usuario_data.id_clase and not self.clase_repo.exists(usuario_data.id_clase):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="La clase especificada no existe",
+            )
 
         # Crear instancia de usuario
         nuevo_usuario = Usuario(
@@ -119,20 +118,22 @@ class UsuarioService:
         usuario = self.obtener_usuario(usuario_id)
 
         # Validar username único si cambió
-        if usuario_data.username and usuario_data.username != usuario.username:
-            if self.usuario_repo.exists_by_username(usuario_data.username):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="El username ya está en uso",
-                )
+        if (
+            usuario_data.username
+            and usuario_data.username != usuario.username
+            and self.usuario_repo.exists_by_username(usuario_data.username)
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El username ya está en uso",
+            )
 
         # Validar que la clase existe
-        if usuario_data.id_clase:
-            if not self.clase_repo.exists(usuario_data.id_clase):
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="La clase especificada no existe",
-                )
+        if usuario_data.id_clase and not self.clase_repo.exists(usuario_data.id_clase):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="La clase especificada no existe",
+            )
 
         # Aplicar cambios
         update_data = usuario_data.model_dump(exclude_unset=True)
@@ -199,12 +200,11 @@ class UsuarioService:
         """
         try:
             # 1. Validar que la clase existe
-            if usuarios_data.id_clase:
-                if not self.clase_repo.exists(usuarios_data.id_clase):
-                    raise HTTPException(
-                        status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"La clase con ID {usuarios_data.id_clase} no existe",
-                    )
+            if usuarios_data.id_clase and not self.clase_repo.exists(usuarios_data.id_clase):
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"La clase con ID {usuarios_data.id_clase} no existe",
+                )
 
             # 2. Validar usernames duplicados dentro del batch
             usernames = [u.username for u in usuarios_data.usuarios]

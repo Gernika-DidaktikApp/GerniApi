@@ -2,6 +2,7 @@
 Configuración de fixtures para tests de GerniBide API
 """
 
+# ruff: noqa: E402
 import sys
 import uuid
 from unittest.mock import MagicMock

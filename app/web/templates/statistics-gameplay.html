@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ current_lang }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Estadísticas de uso del juego de Gernibide">
-    <title>Uso del Juego - Estadísticas - Gernibide</title>
+    <meta name="description" content="{{ _('statistics.gameplay.meta.description') }}">
+    <title>{{ _('statistics.gameplay.meta.title') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
@@ -37,23 +37,29 @@
 
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
-                    <a href="/" class="navbar-menu-link">Inicio</a>
+                    <a href="/" class="navbar-menu-link">{{ _('common.nav.home') }}</a>
                 </li>
                 <li class="navbar-menu-item">
-                    <a href="/statistics" class="navbar-menu-link active">Estadísticas</a>
+                    <a href="/statistics" class="navbar-menu-link active">{{ _('common.nav.statistics') }}</a>
                 </li>
                 <li class="navbar-menu-item navbar-admin-only hidden">
-                    <a href="/dashboard/teacher" class="navbar-menu-link">Clases</a>
+                    <a href="/dashboard/teacher" class="navbar-menu-link">{{ _('common.nav.classes') }}</a>
                 </li>
                 <li class="navbar-menu-item navbar-admin-only hidden">
-                    <a href="/dashboard" class="navbar-menu-link">Tablero</a>
+                    <a href="/dashboard" class="navbar-menu-link">{{ _('common.nav.dashboard') }}</a>
                 </li>
             </ul>
 
             <div class="navbar-auth">
                 <span class="navbar-user-name hidden"></span>
-                <a href="/login" class="navbar-contact">Login</a>
-                <a href="#" class="navbar-logout hidden" id="logoutBtn">Salir</a>
+                <div class="language-selector">
+                    <select id="languageSelect" class="language-dropdown">
+                        <option value="es" {% if current_lang == 'es' %}selected{% endif %}>ES</option>
+                        <option value="eu" {% if current_lang == 'eu' %}selected{% endif %}>EU</option>
+                    </select>
+                </div>
+                <a href="/login" class="navbar-contact">{{ _('common.nav.login') }}</a>
+                <a href="#" class="navbar-logout hidden" id="logoutBtn">{{ _('common.nav.logout') }}</a>
             </div>
 
             <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
@@ -310,11 +316,12 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p class="footer-text">GERNIBIDE EDUCACIÓN © 2024</p>
+            <p class="footer-text">{{ _('common.footer.copyright') }}</p>
         </div>
     </footer>
 
     <!-- JavaScript -->
+    <script src="/static/js/i18n.js?v=1"></script>
     <script src="/static/js/auth.js?v=5"></script>
     <script src="/static/js/statistics-gameplay.js?v=4" defer></script>
 </body>

@@ -297,6 +297,36 @@ body.has-navbar {
     transform: translateY(0);
 }
 
+/* Language Selector */
+.language-selector {
+    display: flex;
+    align-items: center;
+}
+
+.language-dropdown {
+    padding: 0.5rem 0.75rem;
+    border: 2px solid var(--navbar-border);
+    border-radius: 0.5rem;
+    background-color: white;
+    color: var(--navbar-text);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 200ms ease;
+    outline: none;
+    letter-spacing: 0.05em;
+}
+
+.language-dropdown:hover {
+    border-color: var(--navbar-accent);
+    background-color: #f9fafb;
+}
+
+.language-dropdown:focus {
+    border-color: var(--navbar-accent);
+    box-shadow: 0 0 0 3px rgba(107, 142, 58, 0.1);
+}
+
 /* Utility class for hiding elements */
 .hidden {
     display: none !important;

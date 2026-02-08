@@ -1,0 +1,168 @@
+{
+  "common": {
+    "nav": {
+      "home": "Inicio",
+      "statistics": "Estadísticas",
+      "classes": "Clases",
+      "dashboard": "Tablero",
+      "login": "Login",
+      "logout": "Salir"
+    },
+    "footer": {
+      "copyright": "GERNIBIDE EDUCACIÓN © 2024"
+    },
+    "buttons": {
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "close": "Cerrar",
+      "submit": "Enviar",
+      "back": "Volver"
+    }
+  },
+  "home": {
+    "meta": {
+      "title": "Gernibide - Inicio",
+      "description": "Descubre Gernibide - Explora actividades educativas naturales en el entorno educativo natural."
+    },
+    "hero": {
+      "title": "Descubre la historia de",
+      "highlight": "Gernibide",
+      "description": "Explora actividades educativas en entornos naturales, recorridos interactivos y estrategias pedagógicas en el entorno educativo natural."
+    },
+    "stats": {
+      "section_title": "Comunidad Gernibide",
+      "total_users": "Usuarios Totales",
+      "minutes_played": "Minutos Jugados",
+      "events_completed": "Eventos Finalizados"
+    },
+    "download": {
+      "title": "Lleva la historia en tu bolsillo",
+      "description": "Descarga la aplicación móvil y disfruta de todas las actividades educativas de Gernibide.",
+      "app_store": "App Store",
+      "google_play": "Google Play",
+      "coming_soon": "Muy Pronto"
+    }
+  },
+  "login": {
+    "meta": {
+      "title": "Entrar en Gernibide - Didaktik App",
+      "description": "Accede a tu cuenta para gestionar el entorno educativo natural de Gernibide"
+    },
+    "title": "Entrar en Gernibide",
+    "subtitle": "Accede a tu cuenta para gestionar el entorno educativo natural",
+    "username": "Usuario",
+    "password": "Password",
+    "submit": "Entrar",
+    "show_password": "Mostrar contraseña",
+    "hide_password": "Ocultar contraseña",
+    "errors": {
+      "username_required": "El nombre de usuario es obligatorio",
+      "password_required": "La contraseña es obligatoria",
+      "invalid_credentials": "Credenciales incorrectas",
+      "network_error": "Error de conexión. Por favor, inténtalo de nuevo"
+    }
+  },
+  "statistics": {
+    "meta": {
+      "title": "Estadísticas - Gernibide",
+      "description": "Visualiza métricas y estadísticas de uso de Gernibide"
+    },
+    "submenu": {
+      "users": "Usuarios y Actividad",
+      "gameplay": "Uso del Juego",
+      "learning": "Rendimiento y Aprendizaje"
+    },
+    "users": {
+      "title": "Usuarios y",
+      "highlight": "Actividad",
+      "description": "Análisis del comportamiento de usuarios: registros, actividad mensual y datos de sesiones.",
+      "summary": {
+        "total_users": "Usuarios Totales",
+        "active_users": "Usuarios Activos",
+        "avg_session_time": "Tiempo Medio de Sesión",
+        "total_sessions": "Sesiones Totales"
+      },
+      "charts": {
+        "new_users": "Nuevos Usuarios por Mes",
+        "active_users": "Usuarios Activos por Mes",
+        "session_time": "Distribución del Tiempo de Sesión",
+        "sessions_by_day": "Sesiones por Día de la Semana"
+      }
+    },
+    "gameplay": {
+      "meta": {
+        "title": "Uso del Juego - Estadísticas - Gernibide",
+        "description": "Estadísticas de uso y juego de Gernibide"
+      },
+      "title": "Uso del",
+      "highlight": "Juego",
+      "description": "Análisis del uso del juego: partidas creadas, estado de actividades y tasas de completado.",
+      "summary": {
+        "total_partidas": "Total Partidas",
+        "completed_partidas": "Partidas Completadas",
+        "in_progress": "En Progreso",
+        "avg_duration": "Duración Promedio"
+      },
+      "charts": {
+        "partidas_by_day": "Partidas Creadas por Día",
+        "partidas_by_status": "Partidas Completadas vs Abandonadas",
+        "activities_timeline": "Actividades Iniciadas vs Completadas",
+        "most_played": "Actividades Más Jugadas"
+      }
+    },
+    "learning": {
+      "meta": {
+        "title": "Rendimiento y Aprendizaje - Estadísticas - Gernibide",
+        "description": "Estadísticas de rendimiento y aprendizaje de Gernibide"
+      },
+      "title": "Rendimiento y",
+      "highlight": "Aprendizaje",
+      "description": "Análisis del progreso educativo: puntuaciones, distribución de resultados y tiempos de completación por actividad.",
+      "summary": {
+        "avg_score": "Puntuación Media",
+        "pass_rate": "Aprobados",
+        "avg_time": "Tiempo Medio",
+        "evaluated_activities": "Actividades Evaluadas"
+      },
+      "charts": {
+        "most_played": "Actividades Más Jugadas",
+        "highest_scoring": "Actividades con Mayor Puntuación Media",
+        "class_performance": "Rendimiento Medio por Clase"
+      }
+    },
+    "filters": {
+      "7d": "7 días",
+      "30d": "30 días",
+      "90d": "90 días",
+      "1y": "1 año"
+    },
+    "info": {
+      "score_title": "Puntuación",
+      "score_description": "Calificación de 0-10 obtenida en cada actividad educativa",
+      "histogram_title": "Histograma",
+      "histogram_description": "Distribución de frecuencias de las puntuaciones obtenidas",
+      "boxplot_title": "Boxplot",
+      "boxplot_description": "Visualización de la dispersión del tiempo: mediana, cuartiles y valores atípicos"
+    }
+  },
+  "dashboard": {
+    "meta": {
+      "title": "Tablero - Gernibide",
+      "description": "Panel de administración de Gernibide"
+    },
+    "title": "Tablero de Administración"
+  },
+  "dashboard_teacher": {
+    "meta": {
+      "title": "Panel del Profesor - Gernibide",
+      "description": "Gestiona tus clases y estudiantes"
+    },
+    "title": "Panel del Profesor",
+    "my_classes": "Mis Clases",
+    "students": "Estudiantes",
+    "activities": "Actividades",
+    "performance": "Rendimiento"
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "common": {
+    "nav": {
+      "home": "Hasiera",
+      "statistics": "Estatistikak",
+      "classes": "Klaseak",
+      "dashboard": "Aginte-panela",
+      "login": "Saioa hasi",
+      "logout": "Irten"
+    },
+    "footer": {
+      "copyright": "GERNIBIDE HEZKUNTZA © 2024"
+    },
+    "buttons": {
+      "save": "Gorde",
+      "cancel": "Utzi",
+      "delete": "Ezabatu",
+      "edit": "Editatu",
+      "close": "Itxi",
+      "submit": "Bidali",
+      "back": "Atzera"
+    }
+  },
+  "home": {
+    "meta": {
+      "title": "Gernibide - Hasiera",
+      "description": "Aurkitu Gernibide - Esploratu hezkuntza jarduerak ingurune naturaletan."
+    },
+    "hero": {
+      "title": "Aurkitu",
+      "highlight": "Gernibide",
+      "description": "Esploratu hezkuntza jarduerak ingurune naturaletan, ibilbide interaktiboak eta estrategia pedagogikoak ingurune natural hezitzailean."
+    },
+    "stats": {
+      "section_title": "Gernibide Komunitatea",
+      "total_users": "Erabiltzaile Guztira",
+      "minutes_played": "Jolastu Minutuak",
+      "events_completed": "Bukatutako Gertaerak"
+    },
+    "download": {
+      "title": "Eraman historia zure poltsikoan",
+      "description": "Deskargatu aplikazio mugikorra eta gozatu Gernibide-ren hezkuntza jarduera guztiekin.",
+      "app_store": "App Store",
+      "google_play": "Google Play",
+      "coming_soon": "Laster"
+    }
+  },
+  "login": {
+    "meta": {
+      "title": "Sartu Gernibide-n - Didaktik App",
+      "description": "Sartu zure kontuan ingurune natural hezitzailea kudeatzeko"
+    },
+    "title": "Sartu Gernibide-n",
+    "subtitle": "Sartu zure kontuan ingurune natural hezitzailea kudeatzeko",
+    "username": "Erabiltzailea",
+    "password": "Pasahitza",
+    "submit": "Sartu",
+    "show_password": "Erakutsi pasahitza",
+    "hide_password": "Ezkutatu pasahitza",
+    "errors": {
+      "username_required": "Erabiltzaile-izena beharrezkoa da",
+      "password_required": "Pasahitza beharrezkoa da",
+      "invalid_credentials": "Kredentzial okerrak",
+      "network_error": "Konexio errorea. Mesedez, saiatu berriz"
+    }
+  },
+  "statistics": {
+    "meta": {
+      "title": "Estatistikak - Gernibide",
+      "description": "Gernibide-ren erabilera metrikak eta estatistikak ikusi"
+    },
+    "submenu": {
+      "users": "Erabiltzaileak eta Jarduera",
+      "gameplay": "Jokoaren Erabilera",
+      "learning": "Errendimendua eta Ikaskuntza"
+    },
+    "users": {
+      "title": "Erabiltzaileak eta",
+      "highlight": "Jarduera",
+      "description": "Erabiltzaileen portaeraren analisia: erregistroak, hilabeteko jarduera eta saio datuak.",
+      "summary": {
+        "total_users": "Erabiltzaile Guztira",
+        "active_users": "Erabiltzaile Aktiboak",
+        "avg_session_time": "Batez besteko saio-denbora",
+        "total_sessions": "Saio Guztira"
+      },
+      "charts": {
+        "new_users": "Erabiltzaile Berriak Hilabeteko",
+        "active_users": "Erabiltzaile Aktiboak Hilabeteko",
+        "session_time": "Saio Denboraren Banaketa",
+        "sessions_by_day": "Saioak Asteko Egunaren arabera"
+      }
+    },
+    "gameplay": {
+      "meta": {
+        "title": "Jokoaren Erabilera - Estatistikak - Gernibide",
+        "description": "Gernibide-ren erabilera eta joko estatistikak"
+      },
+      "title": "Jokoaren",
+      "highlight": "Erabilera",
+      "description": "Jokoaren erabileraren analisia: sortutako partidak, jardueren egoera eta amaitzeko tasak.",
+      "summary": {
+        "total_partidas": "Partida Guztira",
+        "completed_partidas": "Bukatutako Partidak",
+        "in_progress": "Abian",
+        "avg_duration": "Batez besteko Iraupena"
+      },
+      "charts": {
+        "partidas_by_day": "Sortutako Partidak Eguneko",
+        "partidas_by_status": "Bukatutako Partidak vs Utzitakoak",
+        "activities_timeline": "Hasitako Jarduerak vs Bukatutakoak",
+        "most_played": "Gehien Jolastu Jarduerak"
+      }
+    },
+    "learning": {
+      "meta": {
+        "title": "Errendimendua eta Ikaskuntza - Estatistikak - Gernibide",
+        "description": "Gernibide-ren errendimendua eta ikaskuntza estatistikak"
+      },
+      "title": "Errendimendua eta",
+      "highlight": "Ikaskuntza",
+      "description": "Hezkuntza aurrerapenaren analisia: puntuazioak, emaitzen banaketa eta jarduera bakoitzeko amaitzeko denborak.",
+      "summary": {
+        "avg_score": "Batez besteko Puntuazioa",
+        "pass_rate": "Gaindituak",
+        "avg_time": "Batez besteko Denbora",
+        "evaluated_activities": "Ebaluatutako Jarduerak"
+      },
+      "charts": {
+        "most_played": "Gehien Jolastu Jarduerak",
+        "highest_scoring": "Puntuazio Handieneko Jarduerak",
+        "class_performance": "Batez besteko Errendimendua Klaseka"
+      }
+    },
+    "filters": {
+      "7d": "7 egun",
+      "30d": "30 egun",
+      "90d": "90 egun",
+      "1y": "1 urte"
+    },
+    "info": {
+      "score_title": "Puntuazioa",
+      "score_description": "Hezkuntza jarduera bakoitzean lortutako 0-10 kalifikazioa",
+      "histogram_title": "Histograma",
+      "histogram_description": "Lortutako puntuazioen maiztasun banaketa",
+      "boxplot_title": "Boxplot",
+      "boxplot_description": "Denboraren dispertsioaren bistaratze: mediana, kuartilak eta balio atipikoak"
+    }
+  },
+  "dashboard": {
+    "meta": {
+      "title": "Aginte-panela - Gernibide",
+      "description": "Gernibide-ren administrazio panela"
+    },
+    "title": "Administrazio Aginte-panela"
+  },
+  "dashboard_teacher": {
+    "meta": {
+      "title": "Irakaslearen Panela - Gernibide",
+      "description": "Kudeatu zure klaseak eta ikasleak"
+    },
+    "title": "Irakaslearen Panela",
+    "my_classes": "Nire Klaseak",
+    "students": "Ikasleak",
+    "activities": "Jarduerak",
+    "performance": "Errendimendua"
+  }
+}

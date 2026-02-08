@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ current_lang }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Descubre Gernibide - Explora actividades educativas naturales en el entorno educativo natural.">
-    <title>Gernibide - Inicio</title>
+        content="{{ _('home.meta.description') }}">
+    <title>{{ _('home.meta.title') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
@@ -35,23 +35,29 @@
 
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
-                    <a href="/" class="navbar-menu-link active">Inicio</a>
+                    <a href="/" class="navbar-menu-link active">{{ _('common.nav.home') }}</a>
                 </li>
                 <li class="navbar-menu-item">
-                    <a href="/statistics" class="navbar-menu-link">Estadísticas</a>
+                    <a href="/statistics" class="navbar-menu-link">{{ _('common.nav.statistics') }}</a>
                 </li>
                 <li class="navbar-menu-item navbar-admin-only hidden">
-                    <a href="/dashboard/teacher" class="navbar-menu-link">Clases</a>
+                    <a href="/dashboard/teacher" class="navbar-menu-link">{{ _('common.nav.classes') }}</a>
                 </li>
                 <li class="navbar-menu-item navbar-admin-only hidden">
-                    <a href="/dashboard" class="navbar-menu-link">Tablero</a>
+                    <a href="/dashboard" class="navbar-menu-link">{{ _('common.nav.dashboard') }}</a>
                 </li>
             </ul>
 
             <div class="navbar-auth">
                 <span class="navbar-user-name hidden"></span>
-                <a href="/login" class="navbar-contact">Login</a>
-                <a href="#" class="navbar-logout hidden" id="logoutBtn">Salir</a>
+                <div class="language-selector">
+                    <select id="languageSelect" class="language-dropdown">
+                        <option value="es" {% if current_lang == 'es' %}selected{% endif %}>ES</option>
+                        <option value="eu" {% if current_lang == 'eu' %}selected{% endif %}>EU</option>
+                    </select>
+                </div>
+                <a href="/login" class="navbar-contact">{{ _('common.nav.login') }}</a>
+                <a href="#" class="navbar-logout hidden" id="logoutBtn">{{ _('common.nav.logout') }}</a>
             </div>
 
             <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
@@ -72,17 +78,16 @@
                     <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="hero-logo">
                 </div>
 
-                <h1 class="hero-title">Descubre la historia de <span class="highlight">Gernibide</span></h1>
+                <h1 class="hero-title">{{ _('home.hero.title') }} <span class="highlight">{{ _('home.hero.highlight') }}</span></h1>
 
                 <p class="hero-description">
-                    Explora actividades educativas en entornos naturales, recorridos interactivos y estrategias
-                    pedagógicas en el entorno educativo natural.
+                    {{ _('home.hero.description') }}
                 </p>
             </section>
 
             <!-- Stats Section -->
             <section class="stats-section">
-                <h2 class="section-title">Comunidad Gernibide</h2>
+                <h2 class="section-title">{{ _('home.stats.section_title') }}</h2>
 
                 <div class="stats-grid">
                     <!-- Stat 1 -->
@@ -93,7 +98,7 @@
                             </div>
                         </div>
                         <div class="stat-content">
-                            <div class="stat-label">Usuarios Totales</div>
+                            <div class="stat-label">{{ _('home.stats.total_users') }}</div>
                             <div class="stat-number" data-target="12400">0</div>
                         </div>
                     </div>
@@ -106,7 +111,7 @@
                             </div>
                         </div>
                         <div class="stat-content">
-                            <div class="stat-label">Minutos Jugados</div>
+                            <div class="stat-label">{{ _('home.stats.minutes_played') }}</div>
                             <div class="stat-number" data-target="450000">0</div>
                         </div>
                     </div>
@@ -119,7 +124,7 @@
                             </div>
                         </div>
                         <div class="stat-content">
-                            <div class="stat-label">Eventos Finalizados</div>
+                            <div class="stat-label">{{ _('home.stats.events_completed') }}</div>
                             <div class="stat-number" data-target="8250">0</div>
                         </div>
                     </div>
@@ -129,9 +134,9 @@
             <!-- Download Banner -->
             <section class="download-section">
                 <div class="download-card">
-                    <h2 class="download-title">Lleva la historia en tu bolsillo</h2>
+                    <h2 class="download-title">{{ _('home.download.title') }}</h2>
                     <p class="download-description">
-                        Descarga la aplicación móvil y disfruta de todas las actividades educativas de Gernibide.
+                        {{ _('home.download.description') }}
                     </p>
 
                     <div class="download-badges">
@@ -143,8 +148,8 @@
                                     fill="currentColor" />
                             </svg>
                             <div class="badge-text">
-                                <span class="badge-store">App Store</span>
-                                <span class="badge-status">Muy Pronto</span>
+                                <span class="badge-store">{{ _('home.download.app_store') }}</span>
+                                <span class="badge-status">{{ _('home.download.coming_soon') }}</span>
                             </div>
                         </div>
 
@@ -159,8 +164,8 @@
                                     fill="currentColor" />
                             </svg>
                             <div class="badge-text">
-                                <span class="badge-store">Google Play</span>
-                                <span class="badge-status">Muy Pronto</span>
+                                <span class="badge-store">{{ _('home.download.google_play') }}</span>
+                                <span class="badge-status">{{ _('home.download.coming_soon') }}</span>
                             </div>
                         </div>
                     </div>
@@ -172,11 +177,12 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <p class="footer-text">GERNIBIDE EDUCACIÓN © 2024</p>
+            <p class="footer-text">{{ _('common.footer.copyright') }}</p>
         </div>
     </footer>
 
     <!-- JavaScript -->
+    <script src="/static/js/i18n.js?v=1"></script>
     <script src="/static/js/auth.js?v=5"></script>
     <script src="/static/js/home.js?v=4" defer></script>
 </body>

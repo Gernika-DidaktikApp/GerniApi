@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ current_lang }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Accede a tu cuenta para gestionar el entorno educativo natural de Gernibide">
-    <title>Entrar en Gernibide - Didaktik App</title>
+    <meta name="description" content="{{ _('login.meta.description') }}">
+    <title>{{ _('login.meta.title') }}</title>
 
     <!-- Favicon -->
     <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
@@ -34,23 +34,29 @@
 
             <ul class="navbar-menu" id="navbarMenu">
                 <li class="navbar-menu-item">
-                    <a href="/" class="navbar-menu-link">Inicio</a>
+                    <a href="/" class="navbar-menu-link">{{ _('common.nav.home') }}</a>
                 </li>
                 <li class="navbar-menu-item">
-                    <a href="/statistics" class="navbar-menu-link">Estadísticas</a>
+                    <a href="/statistics" class="navbar-menu-link">{{ _('common.nav.statistics') }}</a>
                 </li>
                 <li class="navbar-menu-item navbar-admin-only hidden">
-                    <a href="/dashboard/teacher" class="navbar-menu-link">Clases</a>
+                    <a href="/dashboard/teacher" class="navbar-menu-link">{{ _('common.nav.classes') }}</a>
                 </li>
                 <li class="navbar-menu-item navbar-admin-only hidden">
-                    <a href="/dashboard" class="navbar-menu-link">Tablero</a>
+                    <a href="/dashboard" class="navbar-menu-link">{{ _('common.nav.dashboard') }}</a>
                 </li>
             </ul>
 
             <div class="navbar-auth">
                 <span class="navbar-user-name hidden"></span>
-                <a href="/login" class="navbar-contact">Login</a>
-                <a href="#" class="navbar-logout hidden" id="logoutBtn">Salir</a>
+                <div class="language-selector">
+                    <select id="languageSelect" class="language-dropdown">
+                        <option value="es" {% if current_lang == 'es' %}selected{% endif %}>ES</option>
+                        <option value="eu" {% if current_lang == 'eu' %}selected{% endif %}>EU</option>
+                    </select>
+                </div>
+                <a href="/login" class="navbar-contact">{{ _('common.nav.login') }}</a>
+                <a href="#" class="navbar-logout hidden" id="logoutBtn">{{ _('common.nav.logout') }}</a>
             </div>
 
             <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
@@ -73,8 +79,8 @@
 
             <!-- Header -->
             <header class="login-header">
-                <h1>Entrar en Gernibide</h1>
-                <p class="subtitle">Accede a tu cuenta para gestionar el entorno educativo natural</p>
+                <h1>{{ _('login.title') }}</h1>
+                <p class="subtitle">{{ _('login.subtitle') }}</p>
             </header>
 
             <!-- Login Form -->
@@ -93,8 +99,8 @@
                                     fill="currentColor" />
                             </svg>
                         </span>
-                        <input type="text" id="username" name="username" placeholder="Usuario" required
-                            autocomplete="username" aria-label="Nombre de usuario">
+                        <input type="text" id="username" name="username" placeholder="{{ _('login.username') }}" required
+                            autocomplete="username" aria-label="{{ _('login.username') }}">
                     </div>
                     <span class="error-message" id="usernameError"></span>
                 </div>
@@ -115,10 +121,10 @@
                                     stroke-linejoin="round" />
                             </svg>
                         </span>
-                        <input type="password" id="password" name="password" placeholder="Password" required
-                            autocomplete="current-password" aria-label="Contraseña">
+                        <input type="password" id="password" name="password" placeholder="{{ _('login.password') }}" required
+                            autocomplete="current-password" aria-label="{{ _('login.password') }}">
                         <button type="button" class="toggle-password" id="togglePassword"
-                            aria-label="Mostrar contraseña">
+                            aria-label="{{ _('login.show_password') }}">
                             <svg class="eye-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -137,7 +143,7 @@
 
                 <!-- Submit Button -->
                 <button type="submit" class="submit-btn" id="submitBtn">
-                    <span class="btn-text">Entrar</span>
+                    <span class="btn-text">{{ _('login.submit') }}</span>
                     <span class="btn-loader" id="btnLoader"></span>
                 </button>
             </form>
@@ -146,10 +152,11 @@
 
     <!-- Footer -->
     <footer class="login-footer">
-        <p class="copyright">GERNIBIDE EDUCACIÓN © 2024</p>
+        <p class="copyright">{{ _('common.footer.copyright') }}</p>
     </footer>
 
     <!-- JavaScript -->
+    <script src="/static/js/i18n.js?v=1"></script>
     <script src="/static/js/auth.js?v=5"></script>
     <script src="/static/js/login.js" defer></script>
 </body>

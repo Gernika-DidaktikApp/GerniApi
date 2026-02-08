@@ -25,6 +25,7 @@ from app.routers import (
     auth,
     clases,
     gameplay_statistics,
+    i18n,
     learning_statistics,
     partidas,
     profesores,
@@ -191,6 +192,7 @@ app.include_router(statistics.router)  # Statistics doesn't use API_V1_PREFIX
 app.include_router(gameplay_statistics.router)  # Gameplay statistics doesn't use API_V1_PREFIX
 app.include_router(learning_statistics.router)  # Learning statistics doesn't use API_V1_PREFIX
 app.include_router(teacher_dashboard.router)  # Teacher dashboard doesn't use API_V1_PREFIX
+app.include_router(i18n.router)  # i18n language switching endpoint
 logger.info(f"Routers de API registrados en {settings.API_V1_PREFIX}")
 
 # Incluir router de interfaz web

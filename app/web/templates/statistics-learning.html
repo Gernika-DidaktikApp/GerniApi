@@ -80,19 +80,19 @@
                     <span class="submenu-icon">
                         <img src="/static/images/usuariosyactividad-green.svg" alt="" width="20" height="20">
                     </span>
-                    <span class="submenu-text">Usuarios y Actividad</span>
+                    <span class="submenu-text">{{ _('statistics.submenu.users') }}</span>
                 </a>
                 <a href="/statistics/gameplay" class="submenu-item">
                     <span class="submenu-icon">
                         <img src="/static/images/Usodeljuego-green.svg" alt="" width="20" height="20">
                     </span>
-                    <span class="submenu-text">Uso del Juego</span>
+                    <span class="submenu-text">{{ _('statistics.submenu.gameplay') }}</span>
                 </a>
                 <a href="/statistics/learning" class="submenu-item active">
                     <span class="submenu-icon">
                         <img src="/static/images/RendimientoAprendizaje-green.svg" alt="" width="20" height="20">
                     </span>
-                    <span class="submenu-text">Rendimiento y Aprendizaje</span>
+                    <span class="submenu-text">{{ _('statistics.submenu.learning') }}</span>
                 </a>
             </nav>
 
@@ -105,20 +105,19 @@
                         </span>
                     </div>
                     <div class="hero-text">
-                        <h1 class="hero-title">Rendimiento y <span class="highlight">Aprendizaje</span></h1>
+                        <h1 class="hero-title">{{ _('statistics.learning.title') }} <span class="highlight">{{ _('statistics.learning.highlight') }}</span></h1>
                         <p class="hero-description">
-                            Análisis del progreso educativo: puntuaciones, distribución de resultados y tiempos de
-                            completación por actividad.
+                            {{ _('statistics.learning.description') }}
                         </p>
                     </div>
                 </div>
 
                 <!-- Time Filter -->
                 <div class="time-filter">
-                    <button class="filter-btn active" data-range="7d">7 días</button>
-                    <button class="filter-btn" data-range="30d">30 días</button>
-                    <button class="filter-btn" data-range="90d">90 días</button>
-                    <button class="filter-btn" data-range="1y">1 año</button>
+                    <button class="filter-btn active" data-range="7d">{{ _('statistics.filters.7d') }}</button>
+                    <button class="filter-btn" data-range="30d">{{ _('statistics.filters.30d') }}</button>
+                    <button class="filter-btn" data-range="90d">{{ _('statistics.filters.90d') }}</button>
+                    <button class="filter-btn" data-range="1y">{{ _('statistics.filters.1y') }}</button>
                 </div>
             </section>
 
@@ -133,7 +132,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Puntuación Media</span>
+                        <span class="summary-label">{{ _('statistics.learning.summary.avg_score') }}</span>
                         <span class="summary-value" id="puntuacionMediaValue">7.8</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -156,7 +155,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Aprobados</span>
+                        <span class="summary-label">{{ _('statistics.learning.summary.pass_rate') }}</span>
                         <span class="summary-value" id="aprobadosValue">84.2%</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -176,7 +175,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Tiempo Medio</span>
+                        <span class="summary-label">{{ _('statistics.learning.summary.avg_time') }}</span>
                         <span class="summary-value" id="tiempoMedioValue">18 min</span>
                         <span class="summary-trend negative">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -200,7 +199,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Actividades Evaluadas</span>
+                        <span class="summary-label">{{ _('statistics.learning.summary.evaluated_activities') }}</span>
                         <span class="summary-value" id="actividadesEvaluadasValue">2,847</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -215,15 +214,15 @@
 
             <!-- Charts Grid -->
             <section class="charts-section">
-                <h2 class="section-title">Análisis de Rendimiento</h2>
+                <h2 class="section-title">{{ _('statistics.learning.section_title') }}</h2>
 
                 <div class="charts-grid">
                     <!-- Chart 1: Actividades más jugadas - Barras Horizontales -->
                     <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Actividades Más Jugadas</h3>
-                                <span class="chart-type-tag">Barras Horizontales</span>
+                                <h3>{{ _('statistics.learning.charts.most_played') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.learning.chart_types.horizontal_bars') }}</span>
                             </div>
                         </div>
                         <div class="chart-container chart-container-tall" id="chartMostPlayed"></div>
@@ -233,8 +232,8 @@
                     <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Actividades con Mayor Puntuación Media</h3>
-                                <span class="chart-type-tag">Barras Horizontales</span>
+                                <h3>{{ _('statistics.learning.charts.highest_scoring') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.learning.chart_types.horizontal_bars') }}</span>
                             </div>
                         </div>
                         <div class="chart-container chart-container-tall" id="chartHighestScoring"></div>
@@ -244,8 +243,8 @@
                     <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Rendimiento Medio por Clase</h3>
-                                <span class="chart-type-tag">Barras Horizontales</span>
+                                <h3>{{ _('statistics.learning.charts.class_performance') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.learning.chart_types.horizontal_bars') }}</span>
                             </div>
                         </div>
                         <div class="chart-container chart-container-tall" id="chartClassPerformance"></div>
@@ -264,8 +263,8 @@
                         </svg>
                     </div>
                     <div class="info-content">
-                        <h4>Puntuación</h4>
-                        <p>Calificación de 0-10 obtenida en cada actividad educativa</p>
+                        <h4>{{ _('statistics.info.score_title') }}</h4>
+                        <p>{{ _('statistics.info.score_description') }}</p>
                     </div>
                 </div>
 
@@ -278,8 +277,8 @@
                         </svg>
                     </div>
                     <div class="info-content">
-                        <h4>Histograma</h4>
-                        <p>Distribución de frecuencias de las puntuaciones obtenidas</p>
+                        <h4>{{ _('statistics.info.histogram_title') }}</h4>
+                        <p>{{ _('statistics.info.histogram_description') }}</p>
                     </div>
                 </div>
 
@@ -292,8 +291,8 @@
                         </svg>
                     </div>
                     <div class="info-content">
-                        <h4>Boxplot</h4>
-                        <p>Visualización de la dispersión del tiempo: mediana, cuartiles y valores atípicos</p>
+                        <h4>{{ _('statistics.info.boxplot_title') }}</h4>
+                        <p>{{ _('statistics.info.boxplot_description') }}</p>
                     </div>
                 </div>
             </section>

@@ -92,10 +92,9 @@
                         </span>
                     </div>
                     <div class="hero-text">
-                        <h1 class="hero-title">Vista <span class="highlight">Profesor</span></h1>
+                        <h1 class="hero-title">{{ _('dashboard.hero.title') }} <span class="highlight">{{ _('dashboard.hero.highlight') }}</span></h1>
                         <p class="hero-description">
-                            Seguimiento del progreso de tu clase: rendimiento por alumno, tiempo dedicado y evolución
-                            educativa.
+                            {{ _('dashboard.hero.description') }}
                         </p>
                     </div>
                 </div>
@@ -112,10 +111,10 @@
                                     stroke="currentColor" stroke-width="2" />
                                 <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" />
                             </svg>
-                            Clase
+                            {{ _('dashboard.filters.class') }}
                         </label>
                         <select class="filter-select" id="filterClase">
-                            <option value="all">Todas las clases</option>
+                            <option value="all">{{ _('dashboard.filters.all_classes') }}</option>
                             <option value="4a" selected>4º A - Primaria</option>
                             <option value="4b">4º B - Primaria</option>
                             <option value="5a">5º A - Primaria</option>
@@ -132,14 +131,14 @@
                                 <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" />
                             </svg>
-                            Rango de Fechas
+                            {{ _('dashboard.filters.date_range') }}
                         </label>
                         <select class="filter-select" id="filterFechas">
-                            <option value="7d" selected>Últimos 7 días</option>
-                            <option value="14d">Últimos 14 días</option>
-                            <option value="30d">Últimos 30 días</option>
-                            <option value="trimestre">Este trimestre</option>
-                            <option value="curso">Todo el curso</option>
+                            <option value="7d" selected>{{ _('dashboard.date_options.7d') }}</option>
+                            <option value="14d">{{ _('dashboard.date_options.14d') }}</option>
+                            <option value="30d">{{ _('dashboard.date_options.30d') }}</option>
+                            <option value="trimestre">{{ _('dashboard.date_options.quarter') }}</option>
+                            <option value="curso">{{ _('dashboard.date_options.course') }}</option>
                         </select>
                     </div>
 
@@ -153,10 +152,10 @@
                                     d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z"
                                     stroke="currentColor" stroke-width="2" />
                             </svg>
-                            Actividad
+                            {{ _('dashboard.filters.activity') }}
                         </label>
                         <select class="filter-select" id="filterActividad">
-                            <option value="all" selected>Todas las actividades</option>
+                            <option value="all" selected>{{ _('dashboard.filters.all_activities') }}</option>
                             <option value="bunkers">Búnkers</option>
                             <option value="mercado">Mercado</option>
                             <option value="fronton">Frontón</option>
@@ -170,7 +169,7 @@
                             <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="2"
                                 stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        Aplicar
+                        {{ _('dashboard.filters.apply') }}
                     </button>
                 </div>
             </section>
@@ -187,7 +186,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Alumnos en Clase</span>
+                        <span class="summary-label">{{ _('dashboard.summary.students_in_class') }}</span>
                         <span class="summary-value" id="alumnosValue">24</span>
                         <span class="summary-trend neutral">4º A - Primaria</span>
                     </div>
@@ -204,7 +203,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Progreso Medio</span>
+                        <span class="summary-label">{{ _('dashboard.summary.avg_progress') }}</span>
                         <span class="summary-value" id="progresoValue">68%</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -224,9 +223,9 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Tiempo Promedio</span>
+                        <span class="summary-label">{{ _('dashboard.summary.avg_time') }}</span>
                         <span class="summary-value" id="tiempoValue">32 min</span>
-                        <span class="summary-trend neutral">por sesión</span>
+                        <span class="summary-trend neutral">{{ _('dashboard.summary.per_session') }}</span>
                     </div>
                 </div>
 
@@ -239,7 +238,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Nota Media Clase</span>
+                        <span class="summary-label">{{ _('dashboard.summary.avg_grade') }}</span>
                         <span class="summary-value" id="notaValue">7.4</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -254,18 +253,18 @@
 
             <!-- Charts Grid -->
             <section class="charts-section">
-                <h2 class="section-title">Análisis de la Clase</h2>
+                <h2 class="section-title">{{ _('dashboard.section_title') }}</h2>
 
                 <div class="charts-grid">
                     <!-- Chart 1: Progreso por alumno - Barras -->
                     <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Progreso por Alumno</h3>
-                                <span class="chart-type-tag">Barras</span>
+                                <h3>{{ _('dashboard.charts.student_progress') }}</h3>
+                                <span class="chart-type-tag">{{ _('dashboard.chart_types.bars') }}</span>
                             </div>
                             <div class="chart-actions">
-                                <button class="chart-action-btn" title="Ordenar">
+                                <button class="chart-action-btn" title="{{ _('dashboard.sort_button') }}">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                         <path d="M3 6H21M6 12H18M9 18H15" stroke="currentColor" stroke-width="2"
                                             stroke-linecap="round" />
@@ -280,8 +279,8 @@
                     <div class="chart-card chart-medium">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Tiempo Dedicado por Alumno</h3>
-                                <span class="chart-type-tag">Barras</span>
+                                <h3>{{ _('dashboard.charts.time_per_student') }}</h3>
+                                <span class="chart-type-tag">{{ _('dashboard.chart_types.bars') }}</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartTiempoAlumno"></div>
@@ -291,13 +290,13 @@
                     <div class="chart-card chart-medium">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Actividades Completadas</h3>
-                                <span class="chart-type-tag">Barras Apiladas</span>
+                                <h3>{{ _('dashboard.charts.completed_activities') }}</h3>
+                                <span class="chart-type-tag">{{ _('dashboard.chart_types.stacked_bars') }}</span>
                             </div>
                             <div class="chart-legend">
-                                <span class="legend-item"><span class="legend-color legend-color-green"></span>Completadas</span>
-                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>En Progreso</span>
-                                <span class="legend-item"><span class="legend-color legend-color-yellow"></span>Sin Empezar</span>
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>{{ _('dashboard.legend.completed') }}</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>{{ _('dashboard.legend.in_progress') }}</span>
+                                <span class="legend-item"><span class="legend-color legend-color-yellow"></span>{{ _('dashboard.legend.not_started') }}</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartActividadesClase"></div>
@@ -307,12 +306,12 @@
                     <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Evolución de la Clase</h3>
-                                <span class="chart-type-tag">Línea</span>
+                                <h3>{{ _('dashboard.charts.class_evolution') }}</h3>
+                                <span class="chart-type-tag">{{ _('dashboard.chart_types.line') }}</span>
                             </div>
                             <div class="chart-legend">
-                                <span class="legend-item"><span class="legend-color legend-color-green"></span>Progreso</span>
-                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>Nota Media</span>
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>{{ _('dashboard.legend.progress') }}</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>{{ _('dashboard.legend.avg_grade') }}</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartEvolucionClase"></div>
@@ -323,9 +322,9 @@
             <!-- Students List Section -->
             <section class="students-list-section">
                 <div class="section-header">
-                    <h2 class="section-title">Lista de Alumnos</h2>
+                    <h2 class="section-title">{{ _('dashboard.students_list.title') }}</h2>
                     <div class="export-buttons">
-                        <button class="export-btn" id="exportCSV" title="Descargar como CSV">
+                        <button class="export-btn" id="exportCSV" title="{{ _('dashboard.students_list.export_csv') }}">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                 <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                 <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -333,7 +332,7 @@
                             </svg>
                             CSV
                         </button>
-                        <button class="export-btn" id="exportExcel" title="Descargar como Excel">
+                        <button class="export-btn" id="exportExcel" title="{{ _('dashboard.students_list.export_excel') }}">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                 <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                 <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -347,19 +346,19 @@
                     <table class="students-table" id="studentsTable">
                         <thead>
                             <tr>
-                                <th>Nombre</th>
-                                <th>Usuario</th>
-                                <th>Progreso</th>
-                                <th>Actividades</th>
-                                <th>Tiempo Total</th>
-                                <th>Nota Media</th>
-                                <th>Última Actividad</th>
+                                <th>{{ _('dashboard.table_headers.name') }}</th>
+                                <th>{{ _('dashboard.table_headers.username') }}</th>
+                                <th>{{ _('dashboard.table_headers.progress') }}</th>
+                                <th>{{ _('dashboard.table_headers.activities') }}</th>
+                                <th>{{ _('dashboard.table_headers.total_time') }}</th>
+                                <th>{{ _('dashboard.table_headers.avg_grade') }}</th>
+                                <th>{{ _('dashboard.table_headers.last_activity') }}</th>
                             </tr>
                         </thead>
                         <tbody id="studentsTableBody">
                             <tr>
                                 <td colspan="7" class="loading-message">
-                                    Cargando datos...
+                                    {{ _('dashboard.loading') }}
                                 </td>
                             </tr>
                         </tbody>

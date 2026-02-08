@@ -78,17 +78,24 @@
       "title": "Usuarios y",
       "highlight": "Actividad",
       "description": "Análisis del comportamiento de usuarios: registros, actividad mensual y datos de sesiones.",
+      "section_title": "Análisis Detallado",
       "summary": {
-        "total_users": "Usuarios Totales",
-        "active_users": "Usuarios Activos",
-        "avg_session_time": "Tiempo Medio de Sesión",
-        "total_sessions": "Sesiones Totales"
+        "active_users_dau": "Usuarios Activos (DAU)",
+        "new_users_today": "Nuevos Usuarios Hoy",
+        "active_ratio": "Ratio Activos/Totales",
+        "logins_today": "Logins Hoy"
       },
       "charts": {
-        "new_users": "Nuevos Usuarios por Mes",
-        "active_users": "Usuarios Activos por Mes",
-        "session_time": "Distribución del Tiempo de Sesión",
-        "sessions_by_day": "Sesiones por Día de la Semana"
+        "active_users_dau_wau_mau": "Usuarios Activos (DAU / WAU / MAU)",
+        "new_users_by_day": "Nuevos Usuarios por Día",
+        "active_ratio_chart": "Ratio Usuarios Activos / Totales",
+        "logins_by_day": "Logins por Día"
+      },
+      "chart_types": {
+        "line": "Línea",
+        "bars": "Barras",
+        "area": "Área",
+        "line_markers": "Línea + Marcadores"
       }
     },
     "gameplay": {
@@ -98,18 +105,38 @@
       },
       "title": "Uso del",
       "highlight": "Juego",
-      "description": "Análisis del uso del juego: partidas creadas, estado de actividades y tasas de completado.",
+      "description": "Métricas de gameplay: partidas, eventos y tasas de completación de las actividades educativas.",
       "summary": {
-        "total_partidas": "Total Partidas",
-        "completed_partidas": "Partidas Completadas",
-        "in_progress": "En Progreso",
-        "avg_duration": "Duración Promedio"
+        "active_games": "Partidas Activas",
+        "completion_rate": "Tasa de Completación",
+        "events_completed": "Eventos Completados",
+        "avg_time": "Tiempo Promedio"
       },
+      "section_title": "Análisis de Gameplay",
       "charts": {
         "partidas_by_day": "Partidas Creadas por Día",
         "partidas_by_status": "Partidas Completadas vs Abandonadas",
-        "activities_timeline": "Actividades Iniciadas vs Completadas",
+        "activities_timeline": "Eventos Iniciados vs Completados",
         "most_played": "Actividades Más Jugadas"
+      },
+      "chart_types": {
+        "bars": "Barras",
+        "donut": "Donut",
+        "stacked_bars": "Barras Apiladas",
+        "horizontal_bars": "Barras Horizontales"
+      },
+      "legend": {
+        "completed": "Completados",
+        "in_progress": "En Progreso",
+        "abandoned": "Abandonados"
+      },
+      "info": {
+        "partidas_title": "Partidas",
+        "partidas_description": "Sesiones de juego individuales iniciadas por usuarios",
+        "eventos_title": "Eventos",
+        "eventos_description": "Actividades o puntos de interés dentro de cada partida",
+        "completion_rate_title": "Completion Rate",
+        "completion_rate_description": "Porcentaje de actividades finalizadas correctamente"
       }
     },
     "learning": {
@@ -126,10 +153,14 @@
         "avg_time": "Tiempo Medio",
         "evaluated_activities": "Actividades Evaluadas"
       },
+      "section_title": "Análisis de Rendimiento",
       "charts": {
         "most_played": "Actividades Más Jugadas",
         "highest_scoring": "Actividades con Mayor Puntuación Media",
         "class_performance": "Rendimiento Medio por Clase"
+      },
+      "chart_types": {
+        "horizontal_bars": "Barras Horizontales"
       }
     },
     "filters": {
@@ -152,7 +183,69 @@
       "title": "Tablero - Gernibide",
       "description": "Panel de administración de Gernibide"
     },
-    "title": "Tablero de Administración"
+    "title": "Tablero de Administración",
+    "hero": {
+      "title": "Vista",
+      "highlight": "Profesor",
+      "description": "Seguimiento del progreso de tu clase: rendimiento por alumno, tiempo dedicado y evolución educativa."
+    },
+    "filters": {
+      "class": "Clase",
+      "all_classes": "Todas las clases",
+      "date_range": "Rango de Fechas",
+      "activity": "Actividad",
+      "all_activities": "Todas las actividades",
+      "apply": "Aplicar"
+    },
+    "date_options": {
+      "7d": "Últimos 7 días",
+      "14d": "Últimos 14 días",
+      "30d": "Últimos 30 días",
+      "quarter": "Este trimestre",
+      "course": "Todo el curso"
+    },
+    "summary": {
+      "students_in_class": "Alumnos en Clase",
+      "avg_progress": "Progreso Medio",
+      "avg_time": "Tiempo Promedio",
+      "avg_grade": "Nota Media Clase",
+      "per_session": "por sesión"
+    },
+    "section_title": "Análisis de la Clase",
+    "charts": {
+      "student_progress": "Progreso por Alumno",
+      "time_per_student": "Tiempo Dedicado por Alumno",
+      "completed_activities": "Actividades Completadas",
+      "class_evolution": "Evolución de la Clase"
+    },
+    "chart_types": {
+      "bars": "Barras",
+      "stacked_bars": "Barras Apiladas",
+      "line": "Línea"
+    },
+    "legend": {
+      "completed": "Completadas",
+      "in_progress": "En Progreso",
+      "not_started": "Sin Empezar",
+      "progress": "Progreso",
+      "avg_grade": "Nota Media"
+    },
+    "sort_button": "Ordenar",
+    "students_list": {
+      "title": "Lista de Alumnos",
+      "export_csv": "Descargar como CSV",
+      "export_excel": "Descargar como Excel"
+    },
+    "table_headers": {
+      "name": "Nombre",
+      "username": "Usuario",
+      "progress": "Progreso",
+      "activities": "Actividades",
+      "total_time": "Tiempo Total",
+      "avg_grade": "Nota Media",
+      "last_activity": "Última Actividad"
+    },
+    "loading": "Cargando datos..."
   },
   "dashboard_teacher": {
     "meta": {
@@ -163,6 +256,59 @@
     "my_classes": "Mis Clases",
     "students": "Estudiantes",
     "activities": "Actividades",
-    "performance": "Rendimiento"
+    "performance": "Rendimiento",
+    "page": {
+      "title": "Gestión de",
+      "highlight": "Clases"
+    },
+    "buttons": {
+      "create_class": "Crear Clase",
+      "import_students": "Importar Alumnos"
+    },
+    "class_info": {
+      "select_class": "Selecciona una clase",
+      "code_label": "Código:",
+      "copy_code": "Copiar código",
+      "students_count": "alumnos"
+    },
+    "students_section": {
+      "title": "Alumnos de la Clase",
+      "export_csv": "CSV",
+      "export_excel": "Excel"
+    },
+    "table_headers": {
+      "student": "Alumno",
+      "progress": "Progreso",
+      "activities": "Actividades",
+      "total_time": "Tiempo Total",
+      "avg_grade": "Nota Media",
+      "last_activity": "Última Actividad",
+      "status": "Estado"
+    },
+    "loading_classes": "Cargando clases...",
+    "select_class_prompt": "Selecciona una clase para ver los alumnos",
+    "sidebar": {
+      "my_classes": "Mis Clases"
+    },
+    "modals": {
+      "create_class": {
+        "title": "Crear Nueva Clase",
+        "name_label": "Nombre de la Clase",
+        "name_placeholder": "Ej: 4º A - Primaria",
+        "description_label": "Descripción (opcional)",
+        "description_placeholder": "Descripción de la clase...",
+        "cancel": "Cancelar",
+        "submit": "Crear Clase"
+      },
+      "import": {
+        "title": "Importar Alumnos",
+        "csv_label": "Archivo CSV",
+        "csv_instructions": "El archivo CSV debe tener las columnas: <strong>nombre, apellido, username</strong><br><strong>📌 Inicio de sesión:</strong> La contraseña de cada alumno será igual a su <strong>username</strong>.<br><em style=\"font-size: 0.8rem;\">Ejemplo: Si username es \"jperez\", la contraseña será \"jperez\"</em>",
+        "download_template": "Descargar Plantilla CSV",
+        "preparing": "Preparando importación...",
+        "cancel": "Cancelar",
+        "submit": "Importar"
+      }
+    }
   }
 }

@@ -139,7 +139,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Usuarios Activos (DAU)</span>
+                        <span class="summary-label">{{ _('statistics.users.summary.active_users_dau') }}</span>
                         <span class="summary-value" id="dauValue">1,247</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -168,7 +168,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Nuevos Usuarios Hoy</span>
+                        <span class="summary-label">{{ _('statistics.users.summary.new_users_today') }}</span>
                         <span class="summary-value" id="newUsersValue">89</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -188,7 +188,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Ratio Activos/Totales</span>
+                        <span class="summary-label">{{ _('statistics.users.summary.active_ratio') }}</span>
                         <span class="summary-value" id="ratioValue">32.4%</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -212,7 +212,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Logins Hoy</span>
+                        <span class="summary-label">{{ _('statistics.users.summary.logins_today') }}</span>
                         <span class="summary-value" id="loginsValue">2,156</span>
                         <span class="summary-trend negative">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -227,15 +227,15 @@
 
             <!-- Charts Grid -->
             <section class="charts-section">
-                <h2 class="section-title">Análisis Detallado</h2>
+                <h2 class="section-title">{{ _('statistics.users.section_title') }}</h2>
 
                 <div class="charts-grid">
                     <!-- Chart 1: Usuarios activos (DAU / WAU / MAU) - Línea -->
                     <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Usuarios Activos (DAU / WAU / MAU)</h3>
-                                <span class="chart-type-tag">Línea</span>
+                                <h3>{{ _('statistics.users.charts.active_users_dau_wau_mau') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.users.chart_types.line') }}</span>
                             </div>
                             <div class="chart-legend">
                                 <span class="legend-item"><span class="legend-color legend-color-green"></span>DAU</span>
@@ -250,8 +250,8 @@
                     <div class="chart-card chart-medium">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Nuevos Usuarios por Día</h3>
-                                <span class="chart-type-tag">Barras</span>
+                                <h3>{{ _('statistics.users.charts.new_users_by_day') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.users.chart_types.bars') }}</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartNewUsers"></div>
@@ -261,8 +261,8 @@
                     <div class="chart-card chart-medium">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Ratio Usuarios Activos / Totales</h3>
-                                <span class="chart-type-tag">Área</span>
+                                <h3>{{ _('statistics.users.charts.active_ratio_chart') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.users.chart_types.area') }}</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartRatio"></div>
@@ -272,8 +272,8 @@
                     <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Logins por Día</h3>
-                                <span class="chart-type-tag">Línea + Marcadores</span>
+                                <h3>{{ _('statistics.users.charts.logins_by_day') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.users.chart_types.line_markers') }}</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartLogins"></div>

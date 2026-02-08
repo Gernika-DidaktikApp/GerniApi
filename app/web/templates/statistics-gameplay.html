@@ -80,19 +80,19 @@
                     <span class="submenu-icon">
                         <img src="/static/images/usuariosyactividad-green.svg" alt="" width="20" height="20">
                     </span>
-                    <span class="submenu-text">Usuarios y Actividad</span>
+                    <span class="submenu-text">{{ _('statistics.submenu.users') }}</span>
                 </a>
                 <a href="/statistics/gameplay" class="submenu-item active">
                     <span class="submenu-icon">
                         <img src="/static/images/Usodeljuego-green.svg" alt="" width="20" height="20">
                     </span>
-                    <span class="submenu-text">Uso del Juego</span>
+                    <span class="submenu-text">{{ _('statistics.submenu.gameplay') }}</span>
                 </a>
                 <a href="/statistics/learning" class="submenu-item">
                     <span class="submenu-icon">
                         <img src="/static/images/RendimientoAprendizaje-green.svg" alt="" width="20" height="20">
                     </span>
-                    <span class="submenu-text">Rendimiento y Aprendizaje</span>
+                    <span class="submenu-text">{{ _('statistics.submenu.learning') }}</span>
                 </a>
             </nav>
 
@@ -105,20 +105,19 @@
                         </span>
                     </div>
                     <div class="hero-text">
-                        <h1 class="hero-title">Uso del <span class="highlight">Juego</span></h1>
+                        <h1 class="hero-title">{{ _('statistics.gameplay.title') }} <span class="highlight">{{ _('statistics.gameplay.highlight') }}</span></h1>
                         <p class="hero-description">
-                            Métricas de gameplay: partidas, eventos y tasas de completación de las actividades
-                            educativas.
+                            {{ _('statistics.gameplay.description') }}
                         </p>
                     </div>
                 </div>
 
                 <!-- Time Filter -->
                 <div class="time-filter">
-                    <button class="filter-btn active" data-range="7d">7 días</button>
-                    <button class="filter-btn" data-range="30d">30 días</button>
-                    <button class="filter-btn" data-range="90d">90 días</button>
-                    <button class="filter-btn" data-range="1y">1 año</button>
+                    <button class="filter-btn active" data-range="7d">{{ _('statistics.filters.7d') }}</button>
+                    <button class="filter-btn" data-range="30d">{{ _('statistics.filters.30d') }}</button>
+                    <button class="filter-btn" data-range="90d">{{ _('statistics.filters.90d') }}</button>
+                    <button class="filter-btn" data-range="1y">{{ _('statistics.filters.1y') }}</button>
                 </div>
             </section>
 
@@ -134,7 +133,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Partidas Activas</span>
+                        <span class="summary-label">{{ _('statistics.gameplay.summary.active_games') }}</span>
                         <span class="summary-value" id="partidasActivasValue">342</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -155,7 +154,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Tasa de Completación</span>
+                        <span class="summary-label">{{ _('statistics.gameplay.summary.completion_rate') }}</span>
                         <span class="summary-value" id="completionRateValue">78.5%</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -176,7 +175,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Eventos Completados</span>
+                        <span class="summary-label">{{ _('statistics.gameplay.summary.events_completed') }}</span>
                         <span class="summary-value" id="eventosCompletadosValue">1,892</span>
                         <span class="summary-trend positive">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -197,7 +196,7 @@
                         </svg>
                     </div>
                     <div class="summary-content">
-                        <span class="summary-label">Tiempo Promedio</span>
+                        <span class="summary-label">{{ _('statistics.gameplay.summary.avg_time') }}</span>
                         <span class="summary-value" id="tiempoPromedioValue">24 min</span>
                         <span class="summary-trend negative">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
@@ -212,15 +211,15 @@
 
             <!-- Charts Grid -->
             <section class="charts-section">
-                <h2 class="section-title">Análisis de Gameplay</h2>
+                <h2 class="section-title">{{ _('statistics.gameplay.section_title') }}</h2>
 
                 <div class="charts-grid">
                     <!-- Chart 1: Partidas creadas por día - Barras -->
                     <div class="chart-card chart-medium">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Partidas Creadas por Día</h3>
-                                <span class="chart-type-tag">Barras</span>
+                                <h3>{{ _('statistics.gameplay.charts.partidas_by_day') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.gameplay.chart_types.bars') }}</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartPartidasDia"></div>
@@ -230,8 +229,8 @@
                     <div class="chart-card chart-medium">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Partidas Completadas vs Abandonadas</h3>
-                                <span class="chart-type-tag">Donut</span>
+                                <h3>{{ _('statistics.gameplay.charts.partidas_by_status') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.gameplay.chart_types.donut') }}</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartPartidasDonut"></div>
@@ -241,13 +240,13 @@
                     <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Eventos Iniciados vs Completados</h3>
-                                <span class="chart-type-tag">Barras Apiladas</span>
+                                <h3>{{ _('statistics.gameplay.charts.activities_timeline') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.gameplay.chart_types.stacked_bars') }}</span>
                             </div>
                             <div class="chart-legend">
-                                <span class="legend-item"><span class="legend-color legend-color-green"></span>Completados</span>
-                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>En Progreso</span>
-                                <span class="legend-item"><span class="legend-color legend-color-yellow"></span>Abandonados</span>
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>{{ _('statistics.gameplay.legend.completed') }}</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>{{ _('statistics.gameplay.legend.in_progress') }}</span>
+                                <span class="legend-item"><span class="legend-color legend-color-yellow"></span>{{ _('statistics.gameplay.legend.abandoned') }}</span>
                             </div>
                         </div>
                         <div class="chart-container" id="chartEventosStack"></div>
@@ -257,8 +256,8 @@
                     <div class="chart-card chart-large">
                         <div class="chart-header">
                             <div class="chart-title-wrapper">
-                                <h3>Actividades Más Jugadas</h3>
-                                <span class="chart-type-tag">Barras Horizontales</span>
+                                <h3>{{ _('statistics.gameplay.charts.most_played') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.gameplay.chart_types.horizontal_bars') }}</span>
                             </div>
                         </div>
                         <div class="chart-container chart-container-tall" id="chartMostPlayed"></div>
@@ -277,8 +276,8 @@
                         </svg>
                     </div>
                     <div class="info-content">
-                        <h4>Partidas</h4>
-                        <p>Sesiones de juego individuales iniciadas por usuarios</p>
+                        <h4>{{ _('statistics.gameplay.info.partidas_title') }}</h4>
+                        <p>{{ _('statistics.gameplay.info.partidas_description') }}</p>
                     </div>
                 </div>
 
@@ -291,8 +290,8 @@
                         </svg>
                     </div>
                     <div class="info-content">
-                        <h4>Eventos</h4>
-                        <p>Actividades o puntos de interés dentro de cada partida</p>
+                        <h4>{{ _('statistics.gameplay.info.eventos_title') }}</h4>
+                        <p>{{ _('statistics.gameplay.info.eventos_description') }}</p>
                     </div>
                 </div>
 
@@ -305,8 +304,8 @@
                         </svg>
                     </div>
                     <div class="info-content">
-                        <h4>Completion Rate</h4>
-                        <p>Porcentaje de actividades finalizadas correctamente</p>
+                        <h4>{{ _('statistics.gameplay.info.completion_rate_title') }}</h4>
+                        <p>{{ _('statistics.gameplay.info.completion_rate_description') }}</p>
                     </div>
                 </div>
             </section>

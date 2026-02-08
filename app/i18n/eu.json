@@ -78,17 +78,24 @@
       "title": "Erabiltzaileak eta",
       "highlight": "Jarduera",
       "description": "Erabiltzaileen portaeraren analisia: erregistroak, hilabeteko jarduera eta saio datuak.",
+      "section_title": "Azterketa Xehatua",
       "summary": {
-        "total_users": "Erabiltzaile Guztira",
-        "active_users": "Erabiltzaile Aktiboak",
-        "avg_session_time": "Batez besteko saio-denbora",
-        "total_sessions": "Saio Guztira"
+        "active_users_dau": "Erabiltzaile Aktiboak (DAU)",
+        "new_users_today": "Gaur Erabiltzaile Berriak",
+        "active_ratio": "Aktiboen/Guztiren Ratioa",
+        "logins_today": "Gaur Saioak"
       },
       "charts": {
-        "new_users": "Erabiltzaile Berriak Hilabeteko",
-        "active_users": "Erabiltzaile Aktiboak Hilabeteko",
-        "session_time": "Saio Denboraren Banaketa",
-        "sessions_by_day": "Saioak Asteko Egunaren arabera"
+        "active_users_dau_wau_mau": "Erabiltzaile Aktiboak (DAU / WAU / MAU)",
+        "new_users_by_day": "Erabiltzaile Berriak Eguneko",
+        "active_ratio_chart": "Erabiltzaile Aktiboen / Guztiren Ratioa",
+        "logins_by_day": "Saioak Eguneko"
+      },
+      "chart_types": {
+        "line": "Lerroa",
+        "bars": "Barrak",
+        "area": "Area",
+        "line_markers": "Lerroa + Markatzaileak"
       }
     },
     "gameplay": {
@@ -98,18 +105,38 @@
       },
       "title": "Jokoaren",
       "highlight": "Erabilera",
-      "description": "Jokoaren erabileraren analisia: sortutako partidak, jardueren egoera eta amaitzeko tasak.",
+      "description": "Jokoaren metrikak: partidak, gertaerak eta hezkuntza jardueren amaitzeko tasak.",
       "summary": {
-        "total_partidas": "Partida Guztira",
-        "completed_partidas": "Bukatutako Partidak",
-        "in_progress": "Abian",
-        "avg_duration": "Batez besteko Iraupena"
+        "active_games": "Partida Aktiboak",
+        "completion_rate": "Amaitzeko Tasa",
+        "events_completed": "Bukatutako Gertaerak",
+        "avg_time": "Batez besteko Denbora"
       },
+      "section_title": "Jokoaren Analisia",
       "charts": {
         "partidas_by_day": "Sortutako Partidak Eguneko",
         "partidas_by_status": "Bukatutako Partidak vs Utzitakoak",
-        "activities_timeline": "Hasitako Jarduerak vs Bukatutakoak",
+        "activities_timeline": "Hasitako Gertaerak vs Bukatutakoak",
         "most_played": "Gehien Jolastu Jarduerak"
+      },
+      "chart_types": {
+        "bars": "Barrak",
+        "donut": "Donut",
+        "stacked_bars": "Barrak Pilatuak",
+        "horizontal_bars": "Barra Horizontalak"
+      },
+      "legend": {
+        "completed": "Bukatuta",
+        "in_progress": "Abian",
+        "abandoned": "Utzita"
+      },
+      "info": {
+        "partidas_title": "Partidak",
+        "partidas_description": "Erabiltzaileek hasitako joko-saio indibidualak",
+        "eventos_title": "Gertaerak",
+        "eventos_description": "Partida bakoitzeko jarduera edo intereseko puntuak",
+        "completion_rate_title": "Completion Rate",
+        "completion_rate_description": "Zuzen amaitutako jardueren ehunekoa"
       }
     },
     "learning": {
@@ -126,10 +153,14 @@
         "avg_time": "Batez besteko Denbora",
         "evaluated_activities": "Ebaluatutako Jarduerak"
       },
+      "section_title": "Errendimenduaren Analisia",
       "charts": {
         "most_played": "Gehien Jolastu Jarduerak",
         "highest_scoring": "Puntuazio Handieneko Jarduerak",
         "class_performance": "Batez besteko Errendimendua Klaseka"
+      },
+      "chart_types": {
+        "horizontal_bars": "Barra Horizontalak"
       }
     },
     "filters": {
@@ -152,7 +183,69 @@
       "title": "Aginte-panela - Gernibide",
       "description": "Gernibide-ren administrazio panela"
     },
-    "title": "Administrazio Aginte-panela"
+    "title": "Administrazio Aginte-panela",
+    "hero": {
+      "title": "Irakaslearen",
+      "highlight": "Ikuspegia",
+      "description": "Zure klaseko aurrerapenaren jarraipena: ikaslearen errendimendua, dedikatutako denbora eta hezkuntza garapena."
+    },
+    "filters": {
+      "class": "Klasea",
+      "all_classes": "Klase guztiak",
+      "date_range": "Data Tartea",
+      "activity": "Jarduera",
+      "all_activities": "Jarduera guztiak",
+      "apply": "Aplikatu"
+    },
+    "date_options": {
+      "7d": "Azken 7 egunak",
+      "14d": "Azken 14 egunak",
+      "30d": "Azken 30 egunak",
+      "quarter": "Hiruhileko hau",
+      "course": "Ikasturtea osoa"
+    },
+    "summary": {
+      "students_in_class": "Klaseko Ikasleak",
+      "avg_progress": "Batez besteko Aurrerapena",
+      "avg_time": "Batez besteko Denbora",
+      "avg_grade": "Batez besteko Nota",
+      "per_session": "saio bakoitzeko"
+    },
+    "section_title": "Klasearen Analisia",
+    "charts": {
+      "student_progress": "Ikaslearen Aurrerapena",
+      "time_per_student": "Ikasleak Dedikatutako Denbora",
+      "completed_activities": "Bukatutako Jarduerak",
+      "class_evolution": "Klasearen Bilakaera"
+    },
+    "chart_types": {
+      "bars": "Barrak",
+      "stacked_bars": "Barrak Pilatuak",
+      "line": "Lerroa"
+    },
+    "legend": {
+      "completed": "Bukatuta",
+      "in_progress": "Abian",
+      "not_started": "Hasi gabe",
+      "progress": "Aurrerapena",
+      "avg_grade": "Batez besteko Nota"
+    },
+    "sort_button": "Ordenatu",
+    "students_list": {
+      "title": "Ikasleen Zerrenda",
+      "export_csv": "Deskargatu CSV gisa",
+      "export_excel": "Deskargatu Excel gisa"
+    },
+    "table_headers": {
+      "name": "Izena",
+      "username": "Erabiltzailea",
+      "progress": "Aurrerapena",
+      "activities": "Jarduerak",
+      "total_time": "Denbora Guztira",
+      "avg_grade": "Batez besteko Nota",
+      "last_activity": "Azken Jarduera"
+    },
+    "loading": "Datuak kargatzen..."
   },
   "dashboard_teacher": {
     "meta": {
@@ -163,6 +256,59 @@
     "my_classes": "Nire Klaseak",
     "students": "Ikasleak",
     "activities": "Jarduerak",
-    "performance": "Errendimendua"
+    "performance": "Errendimendua",
+    "page": {
+      "title": "Klaseen",
+      "highlight": "Kudeaketa"
+    },
+    "buttons": {
+      "create_class": "Klasea Sortu",
+      "import_students": "Ikasleak Inportatu"
+    },
+    "class_info": {
+      "select_class": "Hautatu klase bat",
+      "code_label": "Kodea:",
+      "copy_code": "Kopiatu kodea",
+      "students_count": "ikasle"
+    },
+    "students_section": {
+      "title": "Klaseko Ikasleak",
+      "export_csv": "CSV",
+      "export_excel": "Excel"
+    },
+    "table_headers": {
+      "student": "Ikaslea",
+      "progress": "Aurrerapena",
+      "activities": "Jarduerak",
+      "total_time": "Denbora Guztira",
+      "avg_grade": "Batez besteko Nota",
+      "last_activity": "Azken Jarduera",
+      "status": "Egoera"
+    },
+    "loading_classes": "Klaseak kargatzen...",
+    "select_class_prompt": "Hautatu klasea ikasleak ikusteko",
+    "sidebar": {
+      "my_classes": "Nire Klaseak"
+    },
+    "modals": {
+      "create_class": {
+        "title": "Klase Berria Sortu",
+        "name_label": "Klasearen Izena",
+        "name_placeholder": "Ad: 4. A - Lehen Hezkuntza",
+        "description_label": "Deskribapena (aukerakoa)",
+        "description_placeholder": "Klasearen deskribapena...",
+        "cancel": "Utzi",
+        "submit": "Klasea Sortu"
+      },
+      "import": {
+        "title": "Ikasleak Inportatu",
+        "csv_label": "CSV Fitxategia",
+        "csv_instructions": "CSV fitxategiak honako zutabeak izan behar ditu: <strong>izena, abizena, erabiltzailea</strong><br><strong>📌 Saioa hasteko:</strong> Ikasle bakoitzaren pasahitza bere <strong>erabiltzailea</strong> berdina izango da.<br><em style=\"font-size: 0.8rem;\">Adibidea: Erabiltzailea \"jperez\" bada, pasahitza \"jperez\" izango da</em>",
+        "download_template": "Deskargatu CSV Txantiloia",
+        "preparing": "Inportazioa prestatzen...",
+        "cancel": "Utzi",
+        "submit": "Inportatu"
+      }
+    }
   }
 }

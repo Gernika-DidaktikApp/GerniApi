@@ -115,3 +115,64 @@ def validate_partida_ownership(auth: AuthResult, partida_id: str, db: Session) -
         )
 
     return partida
+
+
+# ============================================================
+# Dependency Injection para Repositorios y Servicios
+# ============================================================
+
+
+def get_usuario_repository(db: Session = Depends(get_db)):
+    """Inyecta UsuarioRepository con sesión de BD."""
+    from app.repositories import UsuarioRepository
+
+    return UsuarioRepository(db)
+
+
+def get_clase_repository(db: Session = Depends(get_db)):
+    """Inyecta ClaseRepository con sesión de BD."""
+    from app.repositories import ClaseRepository
+
+    return ClaseRepository(db)
+
+
+def get_partida_repository(db: Session = Depends(get_db)):
+    """Inyecta PartidaRepository con sesión de BD."""
+    from app.repositories import PartidaRepository
+
+    return PartidaRepository(db)
+
+
+def get_actividad_progreso_repository(db: Session = Depends(get_db)):
+    """Inyecta ActividadProgresoRepository con sesión de BD."""
+    from app.repositories import ActividadProgresoRepository
+
+    return ActividadProgresoRepository(db)
+
+
+def get_punto_repository(db: Session = Depends(get_db)):
+    """Inyecta PuntoRepository con sesión de BD."""
+    from app.repositories import PuntoRepository
+
+    return PuntoRepository(db)
+
+
+def get_usuario_service(
+    usuario_repo=Depends(get_usuario_repository),
+    clase_repo=Depends(get_clase_repository),
+):
+    """Inyecta UsuarioService con repositorios necesarios."""
+    from app.services.usuario_service import UsuarioService
+
+    return UsuarioService(usuario_repo, clase_repo)
+
+
+def get_usuario_stats_service(
+    partida_repo=Depends(get_partida_repository),
+    actividad_repo=Depends(get_actividad_progreso_repository),
+    punto_repo=Depends(get_punto_repository),
+):
+    """Inyecta UsuarioStatsService con repositorios necesarios."""
+    from app.services.usuario_stats_service import UsuarioStatsService
+
+    return UsuarioStatsService(partida_repo, actividad_repo, punto_repo)

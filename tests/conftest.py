@@ -198,6 +198,10 @@ def auth_token(client, test_usuario):
         "/api/v1/auth/login-app",
         json={"username": "testuser", "password": "password123"},
     )
+    if response.status_code != 200:
+        print(f"\n❌ Login failed: {response.status_code}")
+        print(f"Response: {response.json()}")
+        pytest.fail(f"Login failed with status {response.status_code}: {response.json()}")
     return response.json()["access_token"]
 
 

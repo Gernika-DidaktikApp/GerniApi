@@ -1,9 +1,13 @@
 # GerniBide API
 
+<div align="center">
+  <img src="app/web/static/images/GernikaLogo.png" alt="Gernibide Logo" width="300"/>
+</div>
+
+<br/>
+
 API REST con FastAPI para la aplicación móvil Gernibide. Gestiona autenticación de usuarios, juegos, puntos y actividades.
 
-[![Tests](https://github.com/TU_USUARIO/TU_REPO/workflows/Tests/badge.svg)](https://github.com/TU_USUARIO/TU_REPO/actions)
-[![Linting](https://github.com/TU_USUARIO/TU_REPO/workflows/Linting/badge.svg)](https://github.com/TU_USUARIO/TU_REPO/actions)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -274,6 +278,7 @@ GerniApi/
 │   ├── routers/             # Endpoints de la API
 │   │   ├── auth.py
 │   │   ├── usuarios.py
+│   │   ├── i18n.py          # Endpoint para cambiar idioma
 │   │   └── ...
 │   ├── services/            # Lógica de negocio (Clean Architecture)
 │   │   ├── usuario_service.py
@@ -289,9 +294,17 @@ GerniApi/
 │   │   ├── logger.py
 │   │   ├── middleware.py
 │   │   └── exceptions.py
+│   ├── i18n/                # Sistema de internacionalización
+│   │   ├── es.json          # Traducciones en español
+│   │   ├── eu.json          # Traducciones en euskera
+│   │   ├── loader.py        # Carga de traducciones con cache
+│   │   └── helpers.py       # Detección de idioma y helpers
 │   ├── web/                 # Dashboard web para profesores
 │   │   ├── static/          # CSS, JS
-│   │   └── templates/       # HTML templates
+│   │   │   ├── js/
+│   │   │   │   └── i18n.js  # Sistema de traducción JS
+│   │   │   └── css/
+│   │   └── templates/       # HTML templates (7 páginas traducidas)
 │   ├── config.py            # Configuración (Pydantic Settings)
 │   ├── database.py          # Conexión a PostgreSQL/SQLite
 │   └── main.py              # Punto de entrada FastAPI
@@ -326,6 +339,138 @@ GerniApi/
 ├── deploy_local.sh          # Script de despliegue local
 └── README.md                # Este archivo
 ```
+
+---
+
+## 🌐 Sistema de Internacionalización (i18n)
+
+La plataforma web para profesores está completamente traducida a **Español (ES)** y **Euskera (EU)**, cumpliendo con los requisitos educativos regionales del País Vasco.
+
+### Características i18n
+
+- ✅ **Sistema híbrido**: Backend (Jinja2) + Frontend (JavaScript)
+- ✅ **7 páginas traducidas**: Home, Login, Estadísticas (3 páginas), Dashboard (2 páginas)
+- ✅ **2 idiomas soportados**: Español (es) y Euskera (eu)
+- ✅ **Persistencia**: Preferencia guardada en cookies (1 año)
+- ✅ **Cache en memoria**: Traducciones cacheadas para mejor performance
+- ✅ **Selector de idioma**: Disponible en todas las páginas
+- ✅ **Detección automática**: Cookie → Query param → Accept-Language header
+- ✅ **Fácil extensión**: Agregar nuevos idiomas solo requiere crear archivo JSON
+
+### Arquitectura
+
+**Backend (Python):**
+```python
+# app/i18n/loader.py - Carga traducciones con cache
+def load_translations(lang: str) -> dict[str, Any]
+
+# app/i18n/helpers.py - Detección de idioma
+def get_language_from_request(request: Request) -> str
+def get_translator(request: Request) -> tuple[callable, str]
+
+# app/routers/i18n.py - Endpoint para cambiar idioma
+POST /api/set-language {"language": "es"|"eu"}
+```
+
+**Frontend (JavaScript):**
+```javascript
+// app/web/static/js/i18n.js
+function t(key) // Traduce claves (ej: t('errors.network'))
+function getCurrentLanguage() // Detecta idioma actual
+```
+
+**Templates (Jinja2):**
+```html
+<!-- Sintaxis de traducción -->
+<h1>{{ _('statistics.title') }}</h1>
+<p>{{ _('statistics.description') }}</p>
+```
+
+### Archivos de Traducción
+
+Las traducciones están organizadas jerárquicamente en JSON:
+
+```json
+// app/i18n/es.json
+{
+  "common": {
+    "nav": {
+      "home": "Inicio",
+      "statistics": "Estadísticas"
+    }
+  },
+  "statistics": {
+    "users": {
+      "summary": {
+        "active_users_dau": "Usuarios Activos (DAU)"
+      }
+    }
+  }
+}
+```
+
+### Usar el Sistema i18n
+
+**En templates HTML:**
+```html
+<!-- Traducir texto -->
+{{ _('common.nav.home') }}
+
+<!-- Con variables -->
+{{ _('welcome.message', name=user.nombre) }}
+
+<!-- Selector de idioma -->
+<select id="languageSelect">
+  <option value="es">ES</option>
+  <option value="eu">EU</option>
+</select>
+```
+
+**En JavaScript:**
+```javascript
+// Traducir mensaje de error
+alert(t('errors.network'));
+
+// Traducir labels de gráficos
+const chartData = {
+  labels: [t('charts.days'), t('charts.minutes')]
+};
+
+// Cambiar idioma (recarga la página)
+await fetch('/api/set-language', {
+  method: 'POST',
+  body: JSON.stringify({ language: 'eu' })
+});
+window.location.reload();
+```
+
+### Agregar Nuevo Idioma
+
+1. **Crear archivo de traducciones:**
+   ```bash
+   cp app/i18n/es.json app/i18n/fr.json
+   # Traducir el contenido a francés
+   ```
+
+2. **Actualizar helpers.py:**
+   ```python
+   SUPPORTED_LANGUAGES = ["es", "eu", "fr"]
+   ```
+
+3. **Agregar al selector:**
+   ```html
+   <option value="fr">FR</option>
+   ```
+
+### Páginas Traducidas
+
+1. **home.html** - Página de inicio con hero, stats, features
+2. **login.html** - Formulario de inicio de sesión
+3. **statistics.html** - Usuarios y Actividad
+4. **statistics-gameplay.html** - Uso del Juego
+5. **statistics-learning.html** - Rendimiento y Aprendizaje
+6. **dashboard.html** - Vista Profesor (análisis de clase)
+7. **dashboard-teacher.html** - Gestión de Clases
 
 ---
 
@@ -674,16 +819,6 @@ sudo systemctl start postgresql
 
 ---
 
-## 🤝 Contribuir
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
----
-
 ## 📄 Licencia
 
 Este proyecto está bajo licencia MIT.
@@ -732,6 +867,9 @@ Este proyecto está bajo licencia MIT.
 - ✅ **Dashboard web** para profesores con gestión de clases
 - ✅ **Auto-completado de puntos** cuando se completan todas las actividades
 - ✅ **Tracking de progreso** con puntuaciones y tiempos calculados automáticamente
+- ✅ **Internacionalización (i18n)** - Español y Euskera en toda la plataforma web
+- ✅ **7 páginas traducidas** (Home, Login, Estadísticas×3, Dashboard×2)
+- ✅ **Selector de idioma** con persistencia en cookies
 
 ### DevOps & Deploy
 - ✅ **Compatible con Railway** (deploy automático)
@@ -741,5 +879,3 @@ Este proyecto está bajo licencia MIT.
 - ✅ **Documentación completa** para desarrolladores
 
 ---
-
-**Desarrollado con ❤️ usando FastAPI y PostgreSQL**

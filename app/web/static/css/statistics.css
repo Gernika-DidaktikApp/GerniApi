@@ -22,7 +22,7 @@
 
 body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     background: linear-gradient(135deg, var(--color-beige) 0%, #E8EFD8 100%);
     color: var(--color-text-primary);
     min-height: 100vh;
@@ -183,7 +183,7 @@ body {
     background: transparent;
     border: none;
     border-radius: 0.625rem;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--color-text-secondary);

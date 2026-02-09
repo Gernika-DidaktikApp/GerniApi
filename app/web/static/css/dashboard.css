@@ -20,7 +20,7 @@
 
 body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     background: linear-gradient(135deg, var(--color-beige) 0%, #E8EFD8 100%);
     color: var(--color-text-primary);
 }
@@ -207,7 +207,7 @@ body {
 .action-btn {
     padding: 0.75rem 1.5rem;
     border-radius: 0.75rem;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-size: 0.9375rem;
     font-weight: 600;
     border: none;

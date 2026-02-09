@@ -400,9 +400,7 @@ class ActividadDetalle(BaseModel):
 
     id_actividad: str = Field(..., description="ID único de la actividad")
     nombre_actividad: str = Field(..., description="Nombre de la actividad")
-    estado: str = Field(
-        ..., description="Estado: no_iniciada, en_progreso, completada"
-    )
+    estado: str = Field(..., description="Estado: no_iniciada, en_progreso, completada")
     puntuacion: float | None = Field(None, description="Puntuación obtenida")
     fecha_completado: datetime | None = Field(None, description="Fecha de completado")
     duracion_segundos: int | None = Field(None, description="Duración en segundos")
@@ -453,25 +451,15 @@ class EstadisticasGenerales(BaseModel):
     total_actividades_disponibles: int = Field(
         ..., description="Total de actividades en el sistema"
     )
-    actividades_completadas: int = Field(
-        ..., description="Actividades completadas por el usuario"
-    )
+    actividades_completadas: int = Field(..., description="Actividades completadas por el usuario")
     porcentaje_progreso_global: float = Field(
         ..., description="Porcentaje de progreso global (0-100)"
     )
-    total_puntos_acumulados: float = Field(
-        ..., description="Suma de todos los puntos obtenidos"
-    )
+    total_puntos_acumulados: float = Field(..., description="Suma de todos los puntos obtenidos")
     racha_dias: int = Field(..., description="Días consecutivos de juego")
-    ultima_partida: datetime | None = Field(
-        None, description="Fecha de la última partida"
-    )
-    puntos_completados: int = Field(
-        ..., description="Número de puntos/módulos completados al 100%"
-    )
-    total_puntos_disponibles: int = Field(
-        ..., description="Total de puntos/módulos en el sistema"
-    )
+    ultima_partida: datetime | None = Field(None, description="Fecha de la última partida")
+    puntos_completados: int = Field(..., description="Número de puntos/módulos completados al 100%")
+    total_puntos_disponibles: int = Field(..., description="Total de puntos/módulos en el sistema")
 
 
 class PerfilProgreso(BaseModel):
@@ -487,12 +475,8 @@ class PerfilProgreso(BaseModel):
     """
 
     usuario: UsuarioResponse = Field(..., description="Información del usuario")
-    estadisticas: EstadisticasGenerales = Field(
-        ..., description="Estadísticas generales"
-    )
-    puntos: list[PuntoProgreso] = Field(
-        ..., description="Progreso detallado por punto"
-    )
+    estadisticas: EstadisticasGenerales = Field(..., description="Estadísticas generales")
+    puntos: list[PuntoProgreso] = Field(..., description="Progreso detallado por punto")
 
     model_config = {
         "json_schema_extra": {

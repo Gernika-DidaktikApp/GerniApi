@@ -70,3 +70,46 @@ class ActividadProgresoRepository:
             .scalar()
         )
         return total or 0.0
+
+    def get_progreso_by_punto_and_user(
+        self, punto_id: str, user_id: str
+    ) -> dict[str, ActividadProgreso]:
+        """Obtiene el progreso más reciente de cada actividad de un punto para un usuario.
+
+        Args:
+            punto_id: ID del punto.
+            user_id: ID del usuario.
+
+        Returns:
+            Diccionario {id_actividad: ActividadProgreso} con el progreso más reciente.
+        """
+        # Obtener IDs de partidas del usuario
+        partidas_usuario = self.db.query(Partida.id).filter(Partida.id_usuario == user_id).all()
+        ids_partidas = [p.id for p in partidas_usuario]
+
+        if not ids_partidas:
+            return {}
+
+        # Obtener todos los progresos del punto para el usuario
+        progresos_query = (
+            self.db.query(ActividadProgreso)
+            .filter(
+                and_(
+                    ActividadProgreso.id_punto == punto_id,
+                    ActividadProgreso.id_juego.in_(ids_partidas),
+                )
+            )
+            .all()
+        )
+
+        # Crear dict con el progreso más reciente por actividad
+        progresos_dict = {}
+        for prog in progresos_query:
+            if prog.id_actividad not in progresos_dict:
+                progresos_dict[prog.id_actividad] = prog
+            else:
+                # Mantener el más reciente
+                if prog.fecha_inicio > progresos_dict[prog.id_actividad].fecha_inicio:
+                    progresos_dict[prog.id_actividad] = prog
+
+        return progresos_dict

@@ -157,6 +157,13 @@ def get_punto_repository(db: Session = Depends(get_db)):
     return PuntoRepository(db)
 
 
+def get_actividad_repository(db: Session = Depends(get_db)):
+    """Inyecta ActividadRepository con sesión de BD."""
+    from app.repositories import ActividadRepository
+
+    return ActividadRepository(db)
+
+
 def get_usuario_service(
     usuario_repo=Depends(get_usuario_repository),
     clase_repo=Depends(get_clase_repository),
@@ -179,11 +186,19 @@ def get_usuario_stats_service(
 
 
 def get_usuario_perfil_service(
-    db: Session = Depends(get_db),
     usuario_repo=Depends(get_usuario_repository),
     partida_repo=Depends(get_partida_repository),
+    punto_repo=Depends(get_punto_repository),
+    actividad_repo=Depends(get_actividad_repository),
+    actividad_progreso_repo=Depends(get_actividad_progreso_repository),
 ):
     """Inyecta UsuarioPerfilService con repositorios necesarios."""
     from app.services.usuario_perfil_service import UsuarioPerfilService
 
-    return UsuarioPerfilService(db, usuario_repo, partida_repo)
+    return UsuarioPerfilService(
+        usuario_repo,
+        partida_repo,
+        punto_repo,
+        actividad_repo,
+        actividad_progreso_repo,
+    )

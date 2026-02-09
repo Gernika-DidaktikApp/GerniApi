@@ -28,6 +28,14 @@ class PuntoRepository:
         """
         self.db = db
 
+    def get_all_ordered(self) -> list[Punto]:
+        """Obtiene todos los puntos ordenados por nombre.
+
+        Returns:
+            Lista de todos los puntos ordenados alfabéticamente.
+        """
+        return self.db.query(Punto).order_by(Punto.nombre).all()
+
     def get_completed_modules_by_user(self, user_id: str) -> list[str]:
         """Obtiene nombres de módulos/puntos completados por el usuario.
 

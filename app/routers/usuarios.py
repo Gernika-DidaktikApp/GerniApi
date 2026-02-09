@@ -366,6 +366,7 @@ def obtener_estadisticas_usuario(
 def obtener_perfil_progreso(
     usuario_id: str = Path(..., description="ID único del usuario (UUID)"),
     auth: AuthResult = Depends(require_auth),
+    usuario_service: UsuarioService = Depends(get_usuario_service),
     perfil_service: UsuarioPerfilService = Depends(get_usuario_perfil_service),
 ):
     """
@@ -405,14 +406,11 @@ def obtener_perfil_progreso(
     - **404**: Si el usuario no existe
     - **403**: Si intenta acceder al perfil de otro usuario con Token
     """
+    # Verificar que el usuario existe
+    usuario_service.obtener_usuario(usuario_id)  # Lanza 404 si no existe
+
     # Validar ownership (MANTENER en router - es autorización, no negocio)
     validate_user_ownership(auth, usuario_id)
 
-    try:
-        # Delegar al servicio de perfil
-        return perfil_service.obtener_perfil_progreso(usuario_id)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e),
-        )
+    # Delegar al servicio de perfil
+    return perfil_service.obtener_perfil_progreso(usuario_id)

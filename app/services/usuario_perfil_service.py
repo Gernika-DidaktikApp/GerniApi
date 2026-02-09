@@ -8,14 +8,10 @@ Autor: Gernibide
 
 from datetime import datetime, timedelta
 
-from sqlalchemy import and_
-from sqlalchemy.orm import Session
-
-from app.models.actividad import Actividad
-from app.models.actividad_progreso import ActividadProgreso
-from app.models.juego import Partida
-from app.models.punto import Punto
+from app.repositories.actividad_progreso_repository import ActividadProgresoRepository
+from app.repositories.actividad_repository import ActividadRepository
 from app.repositories.partida_repository import PartidaRepository
+from app.repositories.punto_repository import PuntoRepository
 from app.repositories.usuario_repository import UsuarioRepository
 from app.schemas.usuario import (
     ActividadDetalle,
@@ -34,20 +30,26 @@ class UsuarioPerfilService:
 
     def __init__(
         self,
-        db: Session,
         usuario_repo: UsuarioRepository,
         partida_repo: PartidaRepository,
+        punto_repo: PuntoRepository,
+        actividad_repo: ActividadRepository,
+        actividad_progreso_repo: ActividadProgresoRepository,
     ):
         """Inicializa el servicio.
 
         Args:
-            db: Sesión de SQLAlchemy.
             usuario_repo: Repositorio de usuarios.
             partida_repo: Repositorio de partidas.
+            punto_repo: Repositorio de puntos.
+            actividad_repo: Repositorio de actividades.
+            actividad_progreso_repo: Repositorio de progreso de actividades.
         """
-        self.db = db
         self.usuario_repo = usuario_repo
         self.partida_repo = partida_repo
+        self.punto_repo = punto_repo
+        self.actividad_repo = actividad_repo
+        self.actividad_progreso_repo = actividad_progreso_repo
 
     def obtener_perfil_progreso(self, usuario_id: str) -> PerfilProgreso:
         """Obtiene el perfil y progreso completo del usuario.
@@ -58,21 +60,17 @@ class UsuarioPerfilService:
         Returns:
             Información completa de perfil, estadísticas y progreso por punto.
 
-        Raises:
-            ValueError: Si el usuario no existe.
+        Note:
+            La validación de existencia del usuario debe hacerse en el router.
         """
-        # Obtener usuario
+        # Obtener usuario (asumimos que ya se validó su existencia en el router)
         usuario = self.usuario_repo.get_by_id(usuario_id)
-        if not usuario:
-            raise ValueError("Usuario no encontrado")
 
         # 1. Obtener progreso por punto
         puntos_progreso = self._obtener_progreso_por_punto(usuario_id)
 
         # 2. Calcular estadísticas generales
-        estadisticas = self._calcular_estadisticas_generales(
-            usuario_id, puntos_progreso
-        )
+        estadisticas = self._calcular_estadisticas_generales(usuario_id, puntos_progreso)
 
         return PerfilProgreso(
             usuario=usuario,
@@ -89,54 +87,22 @@ class UsuarioPerfilService:
         Returns:
             Lista de progreso por cada punto con sus actividades.
         """
-        # Obtener todos los puntos
-        puntos = self.db.query(Punto).order_by(Punto.nombre).all()
-
-        # Obtener todas las partidas del usuario
-        partidas_usuario = (
-            self.db.query(Partida.id).filter(Partida.id_usuario == usuario_id).all()
-        )
-        ids_partidas = [p.id for p in partidas_usuario]
+        # Obtener todos los puntos usando repositorio
+        puntos = self.punto_repo.get_all_ordered()
 
         resultado = []
 
         for punto in puntos:
-            # Obtener todas las actividades del punto
-            actividades = (
-                self.db.query(Actividad)
-                .filter(Actividad.id_punto == punto.id)
-                .order_by(Actividad.nombre)
-                .all()
-            )
+            # Obtener todas las actividades del punto usando repositorio
+            actividades = self.actividad_repo.get_all_by_punto(punto.id)
 
             if not actividades:
                 continue
 
-            # Obtener progreso de actividades del usuario para este punto
-            progresos = {}
-            if ids_partidas:
-                progresos_query = (
-                    self.db.query(ActividadProgreso)
-                    .filter(
-                        and_(
-                            ActividadProgreso.id_punto == punto.id,
-                            ActividadProgreso.id_juego.in_(ids_partidas),
-                        )
-                    )
-                    .all()
-                )
-
-                # Crear dict para acceso rápido (tomamos el más reciente si hay múltiples)
-                for prog in progresos_query:
-                    if prog.id_actividad not in progresos:
-                        progresos[prog.id_actividad] = prog
-                    else:
-                        # Mantener el más reciente
-                        if (
-                            prog.fecha_inicio
-                            > progresos[prog.id_actividad].fecha_inicio
-                        ):
-                            progresos[prog.id_actividad] = prog
+            # Obtener progreso de actividades del usuario para este punto usando repositorio
+            progresos = self.actividad_progreso_repo.get_progreso_by_punto_and_user(
+                punto.id, usuario_id
+            )
 
             # Construir detalles de actividades
             actividades_detalle = []
@@ -217,12 +183,8 @@ class UsuarioPerfilService:
             Estadísticas generales.
         """
         # Total de actividades y completadas
-        total_actividades_disponibles = sum(
-            p.total_actividades for p in progreso_por_punto
-        )
-        actividades_completadas = sum(
-            p.actividades_completadas for p in progreso_por_punto
-        )
+        total_actividades_disponibles = sum(p.total_actividades for p in progreso_por_punto)
+        actividades_completadas = sum(p.actividades_completadas for p in progreso_por_punto)
 
         # Porcentaje global
         porcentaje_global = (
@@ -235,9 +197,7 @@ class UsuarioPerfilService:
         total_puntos_acumulados = sum(p.puntos_obtenidos for p in progreso_por_punto)
 
         # Puntos completados (módulos al 100%)
-        puntos_completados = sum(
-            1 for p in progreso_por_punto if p.estado == "completado"
-        )
+        puntos_completados = sum(1 for p in progreso_por_punto if p.estado == "completado")
 
         # Última partida
         ultima_partida = self.partida_repo.get_last_partida_date(usuario_id)

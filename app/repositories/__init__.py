@@ -7,6 +7,7 @@ Autor: Gernibide
 """
 
 from .actividad_progreso_repository import ActividadProgresoRepository
+from .actividad_repository import ActividadRepository
 from .clase_repository import ClaseRepository
 from .partida_repository import PartidaRepository
 from .punto_repository import PuntoRepository
@@ -17,5 +18,6 @@ __all__ = [
     "ClaseRepository",
     "PartidaRepository",
     "ActividadProgresoRepository",
+    "ActividadRepository",
     "PuntoRepository",
 ]

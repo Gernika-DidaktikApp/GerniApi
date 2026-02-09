@@ -36,19 +36,27 @@ from app.utils.dependencies import (
 router = APIRouter(prefix="/actividad-progreso", tags=["📊 Progreso"])
 
 
-@router.post(
-    "/iniciar", response_model=ActividadProgresoResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/iniciar", response_model=ActividadProgresoResponse)
 def iniciar_actividad(
     estado_data: ActividadProgresoCreate,
     db: Session = Depends(get_db),
     auth: AuthResult = Depends(require_auth),
 ):
     """
-    Iniciar una actividad dentro de un punto.
+    Iniciar una actividad dentro de un punto (IDEMPOTENTE).
 
     Crea un nuevo registro de progreso de actividad con estado 'en_progreso'.
     La fecha de inicio se registra automáticamente.
+
+    **Comportamiento Idempotente:**
+    - Si la actividad ya está en progreso → Devuelve el progreso existente (200 OK)
+    - Si la actividad no está iniciada → Crea nuevo progreso (201 Created)
+    - Si la actividad está completada → Crea nuevo intento (201 Created)
+
+    Esto permite que la app móvil pueda:
+    - Reintentar llamadas sin errores
+    - Cerrar y abrir la app sin perder el progreso_id
+    - Manejar reconexiones automáticamente
 
     - Con API Key: Puede iniciar actividades para cualquier partida
     - Con Token: Solo puede iniciar actividades para sus propias partidas
@@ -76,6 +84,7 @@ def iniciar_actividad(
             detail="La actividad especificada no existe o no pertenece a este punto",
         )
 
+    # Buscar si ya existe un progreso "en_progreso"
     progreso_existente = (
         db.query(ActividadProgreso)
         .filter(
@@ -86,12 +95,18 @@ def iniciar_actividad(
         .first()
     )
 
+    # Si ya existe en progreso, devolverlo (IDEMPOTENTE)
     if progreso_existente:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ya existe una actividad en progreso para este juego y actividad",
+        log_with_context(
+            "info",
+            "Actividad ya iniciada - Devolviendo progreso existente",
+            estado_id=progreso_existente.id,
+            punto_id=estado_data.id_punto,
+            is_retry=True,
         )
+        return progreso_existente
 
+    # Si no existe, crear uno nuevo
     nuevo_estado = ActividadProgreso(
         id=str(uuid.uuid4()),
         id_juego=estado_data.id_juego,
@@ -106,9 +121,10 @@ def iniciar_actividad(
 
     log_with_context(
         "info",
-        "Actividad iniciada",
+        "Actividad iniciada - Nuevo progreso creado",
         estado_id=nuevo_estado.id,
         punto_id=estado_data.id_punto,
+        is_retry=False,
     )
 
     return nuevo_estado

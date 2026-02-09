@@ -176,3 +176,14 @@ def get_usuario_stats_service(
     from app.services.usuario_stats_service import UsuarioStatsService
 
     return UsuarioStatsService(partida_repo, actividad_repo, punto_repo)
+
+
+def get_usuario_perfil_service(
+    db: Session = Depends(get_db),
+    usuario_repo=Depends(get_usuario_repository),
+    partida_repo=Depends(get_partida_repository),
+):
+    """Inyecta UsuarioPerfilService con repositorios necesarios."""
+    from app.services.usuario_perfil_service import UsuarioPerfilService
+
+    return UsuarioPerfilService(db, usuario_repo, partida_repo)

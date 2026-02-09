@@ -379,3 +379,166 @@ class UsuarioBulkResponse(BaseModel):
             ]
         }
     }
+
+
+# ============================================
+# Schemas para Perfil y Progreso Detallado (App Móvil)
+# ============================================
+
+
+class ActividadDetalle(BaseModel):
+    """Detalle de una actividad individual con su estado de progreso.
+
+    Attributes:
+        id_actividad: ID único de la actividad (UUID).
+        nombre_actividad: Nombre descriptivo de la actividad.
+        estado: Estado (no_iniciada, en_progreso, completada).
+        puntuacion: Puntuación obtenida (solo si completada).
+        fecha_completado: Fecha de completado (solo si completada).
+        duracion_segundos: Duración en segundos (solo si completada).
+    """
+
+    id_actividad: str = Field(..., description="ID único de la actividad")
+    nombre_actividad: str = Field(..., description="Nombre de la actividad")
+    estado: str = Field(
+        ..., description="Estado: no_iniciada, en_progreso, completada"
+    )
+    puntuacion: float | None = Field(None, description="Puntuación obtenida")
+    fecha_completado: datetime | None = Field(None, description="Fecha de completado")
+    duracion_segundos: int | None = Field(None, description="Duración en segundos")
+
+    model_config = {"from_attributes": True}
+
+
+class PuntoProgreso(BaseModel):
+    """Progreso de un punto/módulo educativo con todas sus actividades.
+
+    Attributes:
+        id_punto: ID único del punto (UUID).
+        nombre_punto: Nombre descriptivo del punto.
+        total_actividades: Número total de actividades en este punto.
+        actividades_completadas: Número de actividades completadas.
+        porcentaje_completado: Porcentaje de progreso (0-100).
+        puntos_obtenidos: Puntos totales obtenidos en este punto.
+        estado: Estado del punto (no_iniciado, en_progreso, completado).
+        actividades: Lista detallada de todas las actividades del punto.
+    """
+
+    id_punto: str = Field(..., description="ID único del punto")
+    nombre_punto: str = Field(..., description="Nombre del punto")
+    total_actividades: int = Field(..., description="Total de actividades")
+    actividades_completadas: int = Field(..., description="Actividades completadas")
+    porcentaje_completado: float = Field(..., description="Porcentaje (0-100)")
+    puntos_obtenidos: float = Field(..., description="Puntos obtenidos en este punto")
+    estado: str = Field(..., description="Estado: no_iniciado, en_progreso, completado")
+    actividades: list[ActividadDetalle] = Field(..., description="Lista de actividades")
+
+    model_config = {"from_attributes": True}
+
+
+class EstadisticasGenerales(BaseModel):
+    """Estadísticas generales del progreso del usuario.
+
+    Attributes:
+        total_actividades_disponibles: Actividades totales en el sistema.
+        actividades_completadas: Actividades completadas por el usuario.
+        porcentaje_progreso_global: Porcentaje de progreso global (0-100).
+        total_puntos_acumulados: Suma de todos los puntos obtenidos.
+        racha_dias: Días consecutivos de juego.
+        ultima_partida: Fecha de la última partida jugada.
+        puntos_completados: Número de puntos/módulos completados al 100%.
+        total_puntos_disponibles: Total de puntos/módulos en el sistema.
+    """
+
+    total_actividades_disponibles: int = Field(
+        ..., description="Total de actividades en el sistema"
+    )
+    actividades_completadas: int = Field(
+        ..., description="Actividades completadas por el usuario"
+    )
+    porcentaje_progreso_global: float = Field(
+        ..., description="Porcentaje de progreso global (0-100)"
+    )
+    total_puntos_acumulados: float = Field(
+        ..., description="Suma de todos los puntos obtenidos"
+    )
+    racha_dias: int = Field(..., description="Días consecutivos de juego")
+    ultima_partida: datetime | None = Field(
+        None, description="Fecha de la última partida"
+    )
+    puntos_completados: int = Field(
+        ..., description="Número de puntos/módulos completados al 100%"
+    )
+    total_puntos_disponibles: int = Field(
+        ..., description="Total de puntos/módulos en el sistema"
+    )
+
+
+class PerfilProgreso(BaseModel):
+    """Respuesta completa con perfil y progreso detallado del usuario para app móvil.
+
+    Incluye información del perfil, estadísticas generales y progreso detallado
+    de todas las actividades organizadas por punto/módulo.
+
+    Attributes:
+        usuario: Información básica del usuario.
+        estadisticas: Estadísticas generales de progreso.
+        puntos: Progreso detallado de cada punto/módulo.
+    """
+
+    usuario: UsuarioResponse = Field(..., description="Información del usuario")
+    estadisticas: EstadisticasGenerales = Field(
+        ..., description="Estadísticas generales"
+    )
+    puntos: list[PuntoProgreso] = Field(
+        ..., description="Progreso detallado por punto"
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "usuario": {
+                        "id": "550e8400-e29b-41d4-a716-446655440000",
+                        "username": "usuario123",
+                        "nombre": "Juan",
+                        "apellido": "Pérez",
+                        "id_clase": None,
+                        "creation": "2024-01-15T10:30:00",
+                        "top_score": 1000,
+                    },
+                    "estadisticas": {
+                        "total_actividades_disponibles": 25,
+                        "actividades_completadas": 15,
+                        "porcentaje_progreso_global": 60.0,
+                        "total_puntos_acumulados": 1850.5,
+                        "racha_dias": 5,
+                        "ultima_partida": "2024-01-20T15:30:00",
+                        "puntos_completados": 2,
+                        "total_puntos_disponibles": 5,
+                    },
+                    "puntos": [
+                        {
+                            "id_punto": "550e8400-e29b-41d4-a716-446655440002",
+                            "nombre_punto": "Árbol del Gernika",
+                            "total_actividades": 5,
+                            "actividades_completadas": 5,
+                            "porcentaje_completado": 100.0,
+                            "puntos_obtenidos": 475.5,
+                            "estado": "completado",
+                            "actividades": [
+                                {
+                                    "id_actividad": "550e8400-e29b-41d4-a716-446655440001",
+                                    "nombre_actividad": "Quiz del Árbol",
+                                    "estado": "completada",
+                                    "puntuacion": 95.5,
+                                    "fecha_completado": "2024-01-20T15:30:00",
+                                    "duracion_segundos": 120,
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+    }

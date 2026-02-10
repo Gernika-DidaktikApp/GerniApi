@@ -772,6 +772,7 @@ class TeacherDashboardService:
 
         Returns:
             List of student dictionaries, each containing:
+                - id: Student ID (UUID)
                 - nombre: Full name (first + last)
                 - username: Student username
                 - progreso: Progress percentage (0-100)
@@ -891,6 +892,7 @@ class TeacherDashboardService:
 
             students_data.append(
                 {
+                    "id": student.id,
                     "nombre": f"{student.nombre} {student.apellido}",
                     "username": student.username,
                     "progreso": round(progreso, 1),

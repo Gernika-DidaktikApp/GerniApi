@@ -208,7 +208,8 @@ function showLoading(chartId) {
     }
 }
 
-function showError(chartId, message = 'Error al cargar datos') {
+function showError(chartId, message = null) {
+    if (!message) message = t('dashboard.error_load_data');
     const container = document.getElementById(chartId);
     if (container) {
         container.innerHTML = `
@@ -226,7 +227,8 @@ function showError(chartId, message = 'Error al cargar datos') {
     }
 }
 
-function showEmpty(chartId, message = 'No hay datos disponibles') {
+function showEmpty(chartId, message = null) {
+    if (!message) message = t('dashboard.no_data');
     const container = document.getElementById(chartId);
     if (container) {
         container.innerHTML = `
@@ -299,14 +301,14 @@ async function initChartProgresoAlumno() {
 
     const apiData = await fetchStudentProgress();
     if (!apiData) {
-        showError(chartId, 'Error al cargar progreso de alumnos');
+        showError(chartId, t('dashboard.error_load_student_progress'));
         return;
     }
 
     const { students, progress } = apiData;
 
     if (!students || students.length === 0) {
-        showEmpty(chartId, 'No hay alumnos en esta clase');
+        showEmpty(chartId, t('dashboard.no_students'));
         return;
     }
 
@@ -369,14 +371,14 @@ async function initChartTiempoAlumno() {
 
     const apiData = await fetchStudentTime();
     if (!apiData) {
-        showError(chartId, 'Error al cargar tiempo de alumnos');
+        showError(chartId, t('dashboard.error_load_student_time'));
         return;
     }
 
     const { students, time } = apiData;
 
     if (!students || students.length === 0) {
-        showEmpty(chartId, 'No hay datos de tiempo disponibles');
+        showEmpty(chartId, t('dashboard.no_time_data'));
         return;
     }
 
@@ -432,14 +434,14 @@ async function initChartActividadesClase() {
 
     const apiData = await fetchActivitiesByClass();
     if (!apiData) {
-        showError(chartId, 'Error al cargar actividades');
+        showError(chartId, t('dashboard.error_load_activities'));
         return;
     }
 
     const { activities, completed, in_progress, not_started } = apiData;
 
     if (!activities || activities.length === 0) {
-        showEmpty(chartId, 'No hay actividades disponibles');
+        showEmpty(chartId, t('dashboard.no_activities'));
         return;
     }
 
@@ -502,14 +504,14 @@ async function initChartEvolucionClase() {
 
     const apiData = await fetchClassEvolution();
     if (!apiData) {
-        showError(chartId, 'Error al cargar evolución de clase');
+        showError(chartId, t('dashboard.error_load_evolution'));
         return;
     }
 
     const { dates, progress, grades } = apiData;
 
     if (!dates || dates.length === 0) {
-        showEmpty(chartId, 'No hay datos de evolución disponibles');
+        showEmpty(chartId, t('dashboard.no_evolution_data'));
         return;
     }
 
@@ -636,7 +638,7 @@ async function initFilters() {
 
     if (claseSelect && classes.length > 0) {
         // Clear existing options
-        claseSelect.innerHTML = '<option value="">Todas las clases</option>';
+        claseSelect.innerHTML = `<option value="">${t('dashboard.all_classes')}</option>`;
 
         // Add classes
         classes.forEach(clase => {
@@ -665,7 +667,7 @@ async function initFilters() {
                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.3"/>
                     <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="2"/>
                 </svg>
-                Aplicando...
+                ${t('dashboard.applying')}
             `;
 
             const claseSelect = document.getElementById('filterClase');
@@ -787,7 +789,7 @@ function renderStudentsTable(students) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="7" class="loading-message">
-                    No hay alumnos en esta clase
+                    ${t('dashboard.no_students')}
                 </td>
             </tr>
         `;
@@ -859,7 +861,7 @@ async function exportToCSV() {
         window.URL.revokeObjectURL(url);
     } catch (error) {
         console.error('Error exporting CSV:', error);
-        alert('Error al exportar CSV. Por favor, inténtalo de nuevo.');
+        alert(t('dashboard.error_export_csv'));
     }
 }
 
@@ -895,7 +897,7 @@ async function exportToExcel() {
         window.URL.revokeObjectURL(url);
     } catch (error) {
         console.error('Error exporting Excel:', error);
-        alert('Error al exportar Excel. Por favor, inténtalo de nuevo.');
+        alert(t('dashboard.error_export_excel'));
     }
 }
 

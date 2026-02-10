@@ -68,7 +68,7 @@ async function fetchClasses() {
         allClasses = await response.json();
         return allClasses;
     } catch (error) {
-        showNotification('Error al cargar las clases', 'error');
+        showNotification(t('dashboard_teacher.error_load_classes'), 'error');
         return [];
     }
 }
@@ -90,7 +90,7 @@ async function fetchStudents(claseId = null) {
         currentStudents = await response.json();
         return currentStudents;
     } catch (error) {
-        showNotification('Error al cargar los alumnos', 'error');
+        showNotification(t('dashboard_teacher.error_load_students'), 'error');
         return [];
     }
 }
@@ -122,7 +122,7 @@ async function createClass(nombre) {
         }
 
         const newClass = await response.json();
-        showNotification('Clase creada exitosamente', 'success');
+        showNotification(t('dashboard_teacher.class_created'), 'success');
         return newClass;
     } catch (error) {
         showNotification(error.message, 'error');
@@ -312,7 +312,7 @@ async function loadClasses(skipFetch = false) {
 
     // Solo hacer fetch si no se indica lo contrario
     if (!skipFetch) {
-        container.innerHTML = '<div class="loading-message">Cargando clases...</div>';
+        container.innerHTML = `<div class="loading-message">${t('dashboard_teacher.loading_classes')}</div>`;
         await fetchClasses();
     }
 
@@ -414,7 +414,7 @@ async function loadStudents(classId) {
 
     if (!tbody) return;
 
-    tbody.innerHTML = '<tr><td colspan="8" class="loading-message">Cargando alumnos...</td></tr>';
+    tbody.innerHTML = `<tr><td colspan="8" class="loading-message">${t('dashboard_teacher.loading_students')}</td></tr>`;
 
     const students = await fetchStudents(classId);
 
@@ -425,7 +425,7 @@ async function loadStudents(classId) {
     }
 
     if (students.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="loading-message">No hay alumnos en esta clase</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="7" class="loading-message">${t('dashboard_teacher.no_students')}</td></tr>`;
         return;
     }
 
@@ -594,7 +594,7 @@ async function handleCreateClass(e) {
     if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.dataset.originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Creando...';
+        submitBtn.textContent = t('dashboard_teacher.creating');
     }
 
     try {
@@ -626,14 +626,14 @@ async function handleImportStudents(e) {
     e.preventDefault();
 
     if (!selectedClassId) {
-        showNotification('Por favor selecciona una clase primero', 'error');
+        showNotification(t('dashboard_teacher.please_select_class'), 'error');
         return;
     }
 
     const csvFile = document.getElementById('csvFile')?.files[0];
 
     if (!csvFile) {
-        showNotification('Por favor selecciona un archivo CSV', 'error');
+        showNotification(t('dashboard_teacher.please_select_csv'), 'error');
         return;
     }
 
@@ -649,10 +649,10 @@ async function handleImportStudents(e) {
     if (progressContainer && progressBar && progressText && submitBtn) {
         progressContainer.style.display = 'block';
         progressBar.style.width = '0%';
-        progressText.textContent = 'Validando datos...';
+        progressText.textContent = t('dashboard_teacher.validating');
         submitBtn.disabled = true;
         submitBtn.dataset.originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Importando...';
+        submitBtn.textContent = t('dashboard_teacher.importing');
     }
 
     try {
@@ -664,13 +664,13 @@ async function handleImportStudents(e) {
 
         // Progreso de envío
         if (progressBar) progressBar.style.width = '60%';
-        if (progressText) progressText.textContent = 'Enviando datos al servidor...';
+        if (progressText) progressText.textContent = t('dashboard_teacher.sending');
 
         const results = await importStudentsFromCSV(csvText, selectedClassId);
 
         // Completado
         if (progressBar) progressBar.style.width = '100%';
-        if (progressText) progressText.textContent = 'Importación completada';
+        if (progressText) progressText.textContent = t('dashboard_teacher.import_completed');
 
         await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -692,7 +692,7 @@ async function handleImportStudents(e) {
         // Error en la importación
         if (progressBar) progressBar.style.width = '100%';
         if (progressBar) progressBar.style.background = '#FFCDD2';
-        if (progressText) progressText.textContent = 'Error en la importación';
+        if (progressText) progressText.textContent = t('dashboard_teacher.import_error');
 
         showNotification(error.message, 'error');
     } finally {
@@ -728,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnCreateClass')?.addEventListener('click', () => openModal('modalCreateClass'));
     document.getElementById('btnImportStudents')?.addEventListener('click', () => {
         if (!selectedClassId) {
-            showNotification('Por favor selecciona una clase primero', 'error');
+            showNotification(t('dashboard_teacher.please_select_class'), 'error');
             return;
         }
         openModal('modalImportStudents');
@@ -789,7 +789,7 @@ async function deleteClass(claseId) {
             throw new Error(error.detail || 'Error al eliminar la clase');
         }
 
-        showNotification('Clase eliminada exitosamente', 'success');
+        showNotification(t('dashboard_teacher.class_deleted'), 'success');
 
         // Limpiar cache y recargar
         await clearDashboardCache();
@@ -799,7 +799,7 @@ async function deleteClass(claseId) {
         if (selectedClassId === claseId) {
             selectedClassId = null;
             document.getElementById('selectedClassInfo').style.display = 'none';
-            document.getElementById('studentsTableBody').innerHTML = '<tr><td colspan="8" class="loading-message">Selecciona una clase</td></tr>';
+            document.getElementById('studentsTableBody').innerHTML = `<tr><td colspan="8" class="loading-message">${t('dashboard_teacher.select_class')}</td></tr>`;
         }
     } catch (error) {
         showNotification(error.message, 'error');
@@ -830,7 +830,7 @@ async function removeStudentFromClass(studentId) {
             throw new Error(error.detail || 'Error al remover alumno');
         }
 
-        showNotification('Alumno removido de la clase', 'success');
+        showNotification(t('dashboard_teacher.student_removed'), 'success');
 
         // Limpiar cache y recargar estudiantes
         await clearDashboardCache();

@@ -115,6 +115,17 @@ def gallery_wall_page():
     return render_template("gallery-wall.html", _=translate, current_lang=lang)
 
 
+@flask_app.route("/manuals")
+def manuals_page():
+    """Página de manuales y tutoriales.
+
+    Renderiza la página con manuales en PDF y video tutoriales
+    para profesores y estudiantes.
+    """
+    translate, lang = get_translator_flask()
+    return render_template("manuals.html", _=translate, current_lang=lang)
+
+
 # Health check para Flask
 @flask_app.route("/health")
 def health_check():

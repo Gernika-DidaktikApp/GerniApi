@@ -1,2 +1,0 @@
-redis>=5.0.0
-fastapi-limiter>=0.1.6

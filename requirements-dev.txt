@@ -1,4 +1,6 @@
-# Development dependencies
+# Include production dependencies
+-r requirements.txt
+
 # Linters and formatters
 black>=24.0.0
 ruff>=0.6.0

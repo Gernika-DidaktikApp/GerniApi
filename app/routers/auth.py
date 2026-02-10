@@ -24,7 +24,7 @@ from app.models.usuario import Usuario
 
 # from app.schemas.alumno import LoginRequest, Token, AlumnoResponse  # Comentado
 from app.schemas.usuario import LoginAppRequest, LoginAppResponse
-from app.utils.rate_limit import rate_limit_strict
+from app.utils.rate_limit import RATE_LIMIT_STRICT, limiter
 from app.utils.security import create_access_token, verify_password
 
 
@@ -105,7 +105,6 @@ def _extract_browser(user_agent: str | None) -> str | None:
     response_model=LoginAppResponse,
     summary="Login de usuario",
     description="Autenticar usuario con username y contraseña. Devuelve un token JWT válido por 30 minutos junto con los datos del usuario. **Rate limit: 5 intentos/minuto por IP**.",
-    dependencies=[Depends(rate_limit_strict)],
     responses={
         200: {
             "description": "Login exitoso",
@@ -130,6 +129,7 @@ def _extract_browser(user_agent: str | None) -> str | None:
         },
     },
 )
+@limiter.limit(RATE_LIMIT_STRICT)
 def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depends(get_db)):
     """
     ## Autenticar Usuario
@@ -230,7 +230,6 @@ def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depen
     response_model=LoginProfesorResponse,
     summary="Login de profesor",
     description="Autenticar profesor con username y contraseña. Devuelve un token JWT válido por 30 minutos junto con datos del profesor. **Rate limit: 5 intentos/minuto por IP**.",
-    dependencies=[Depends(rate_limit_strict)],
     responses={
         200: {
             "description": "Login exitoso",
@@ -255,6 +254,7 @@ def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depen
         },
     },
 )
+@limiter.limit(RATE_LIMIT_STRICT)
 def login_profesor(login_data: LoginAppRequest, request: Request, db: Session = Depends(get_db)):
     """
     ## Autenticar Profesor

@@ -6,6 +6,7 @@
       "classes": "Clases",
       "dashboard": "Tablero",
       "gallery": "Galería y Mural",
+      "manuals": "Manuales",
       "login": "Login",
       "logout": "Salir"
     },
@@ -399,6 +400,38 @@
         "cancel": "Cancelar",
         "submit": "Importar"
       }
+    }
+  },
+  "manuals": {
+    "meta": {
+      "title": "Manuales y Tutoriales - Gernibide",
+      "description": "Manuales en PDF y video tutoriales para profesores y estudiantes"
+    },
+    "page": {
+      "title": "Manuales y",
+      "highlight": "Tutoriales",
+      "description": "Encuentra guías completas y tutoriales en video para aprovechar al máximo Gernibide"
+    },
+    "sections": {
+      "manuals": "Manuales en PDF",
+      "videos": "Video Tutoriales"
+    },
+    "manuals_list": {
+      "user_manual": "Manual de Usuario",
+      "user_manual_desc": "Guía completa para usar todas las funcionalidades de Gernibide",
+      "installation_manual": "Manual de Instalación",
+      "installation_manual_desc": "Instrucciones paso a paso para instalar y configurar la aplicación",
+      "download": "Descargar PDF"
+    },
+    "videos_list": {
+      "web_tutorial": "Tutorial Web",
+      "web_tutorial_desc": "Aprende a usar el panel web del profesor y las estadísticas",
+      "app_tutorial": "Tutorial de la App",
+      "app_tutorial_desc": "Guía completa para usar la aplicación móvil de Gernibide"
+    },
+    "empty": {
+      "manuals": "Los manuales estarán disponibles próximamente",
+      "videos": "Los videos tutoriales estarán disponibles próximamente"
     }
   },
   "gallery": {

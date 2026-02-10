@@ -127,3 +127,17 @@ async def gallery_wall_page(request: Request):
     return templates.TemplateResponse(
         "gallery-wall.html", {"request": request, "_": translate, "current_lang": lang}
     )
+
+
+@router.get("/manuals", response_class=HTMLResponse, name="manuals_page")
+async def manuals_page(request: Request):
+    """
+    Render the manuals and tutorials page
+
+    Public page with PDF manuals and video tutorials for teachers and students
+    Includes downloadable PDF manuals in both languages and embedded tutorial videos
+    """
+    translate, lang = get_translator(request)
+    return templates.TemplateResponse(
+        "manuals.html", {"request": request, "_": translate, "current_lang": lang}
+    )

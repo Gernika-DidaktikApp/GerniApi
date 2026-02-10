@@ -6,6 +6,7 @@
       "classes": "Klaseak",
       "dashboard": "Aginte-panela",
       "gallery": "Galeria",
+      "manuals": "Eskuliburuak",
       "login": "Saioa hasi",
       "logout": "Irten"
     },
@@ -399,6 +400,38 @@
         "cancel": "Utzi",
         "submit": "Inportatu"
       }
+    }
+  },
+  "manuals": {
+    "meta": {
+      "title": "Eskuliburuak eta Tutorialak - Gernibide",
+      "description": "PDF eskuliburuak eta bideo tutorialak irakasle eta ikasleentzat"
+    },
+    "page": {
+      "title": "Eskuliburuak eta",
+      "highlight": "Tutorialak",
+      "description": "Aurkitu gida osoak eta bideo tutorialak Gernibide ahalik eta gehien aprobetxatzeko"
+    },
+    "sections": {
+      "manuals": "PDF Eskuliburuak",
+      "videos": "Bideo Tutorialak"
+    },
+    "manuals_list": {
+      "user_manual": "Erabiltzailearen Eskuliburua",
+      "user_manual_desc": "Gida osoa Gernibide-ren funtzionalitate guztiak erabiltzeko",
+      "installation_manual": "Instalazio Eskuliburua",
+      "installation_manual_desc": "Aplikazioa instalatu eta konfiguratzeko urratsak",
+      "download": "Deskargatu PDF"
+    },
+    "videos_list": {
+      "web_tutorial": "Web Tutoriala",
+      "web_tutorial_desc": "Ikasi irakaslearen web panela eta estatistikak erabiltzeko",
+      "app_tutorial": "Aplikazioaren Tutoriala",
+      "app_tutorial_desc": "Gida osoa Gernibide aplikazio mugikorra erabiltzeko"
+    },
+    "empty": {
+      "manuals": "Eskuliburuak laster eskuragarri egongo dira",
+      "videos": "Bideo tutorialak laster eskuragarri egongo dira"
     }
   },
   "gallery": {

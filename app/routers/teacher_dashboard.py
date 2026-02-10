@@ -338,6 +338,18 @@ def get_students_list(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
+    # Si se especifica clase_id, verificar que pertenece al profesor
+    if clase_id:
+        from app.repositories.clase_repository import ClaseRepository
+
+        clase_repo = ClaseRepository(db)
+        clase = clase_repo.get_by_id(clase_id)
+        if not clase or clase.id_profesor != profesor_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No tienes permisos para ver estudiantes de esta clase",
+            )
+
     students = TeacherDashboardService.get_students_list(db, profesor_id, clase_id)
 
     log_info(

@@ -80,7 +80,7 @@ async function fetchStudents(claseId = null) {
 /**
  * Crear nueva clase
  */
-async function createClass(nombre, descripcion = '') {
+async function createClass(nombre) {
     try {
         // Obtener profesor_id del localStorage (guardado como userId)
         const profesorId = localStorage.getItem('userId');
@@ -353,7 +353,7 @@ async function selectClass(classId) {
     if (selectedInfo) {
         selectedInfo.style.display = 'flex';
         document.getElementById('selectedClassName').textContent = selectedClass.nombre;
-        document.getElementById('selectedClassCode').textContent = selectedClass.id.substring(0, 8);
+        document.getElementById('selectedClassCode').textContent = selectedClass.codigo || selectedClass.id.substring(0, 8);
     }
 
     // Cargar alumnos
@@ -516,7 +516,6 @@ async function handleCreateClass(e) {
     e.preventDefault();
 
     const nombre = document.getElementById('className')?.value;
-    const descripcion = document.getElementById('classDescription')?.value;
 
     if (!nombre) {
         showNotification('Por favor ingresa un nombre para la clase', 'error');
@@ -524,7 +523,7 @@ async function handleCreateClass(e) {
     }
 
     try {
-        await createClass(nombre, descripcion);
+        await createClass(nombre);
         closeModal('modalCreateClass');
         await loadClasses();
     } catch (error) {

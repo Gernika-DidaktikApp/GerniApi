@@ -79,6 +79,26 @@ body {
     filter: drop-shadow(0 8px 16px rgba(74, 93, 35, 0.15));
 }
 
+.gernika-logo-container {
+    margin: var(--spacing-xl) 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gernika-logo {
+    max-width: 400px;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(74, 93, 35, 0.1));
+}
+
+@media (max-width: 768px) {
+    .gernika-logo {
+        max-width: 280px;
+    }
+}
+
 .hero-title {
     font-size: 2.75rem;
     font-weight: 800;

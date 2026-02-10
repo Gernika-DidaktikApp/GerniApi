@@ -104,11 +104,11 @@ RATE_LIMIT_PERMISSIVE = "60/minute"
 # ==================== Error Handler ====================
 
 
-def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+def rate_limit_handler(_request: Request, exc: RateLimitExceeded) -> JSONResponse:
     """Handler personalizado para errores de rate limiting.
 
     Args:
-        request: Request que excedió el límite.
+        _request: Request que excedió el límite (no usado actualmente).
         exc: Excepción de RateLimitExceeded.
 
     Returns:

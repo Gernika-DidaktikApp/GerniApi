@@ -28,8 +28,13 @@ def get_translator_flask():
     Returns:
         tuple: (función de traducción, código de idioma)
     """
-    # Obtener idioma de cookies o headers
-    lang = request.cookies.get("language", "es")
+    # Obtener idioma de cookies (con try/except por si no hay contexto de request)
+    try:
+        lang = request.cookies.get("language", "es")
+    except RuntimeError:
+        # No hay contexto de request, usar español por defecto
+        lang = "es"
+
     if lang not in ["es", "eu"]:
         lang = "es"
 

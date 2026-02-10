@@ -4,7 +4,6 @@ Configuración de fixtures para tests de GerniBide API
 
 # ruff: noqa: E402
 import os
-import sys
 import uuid
 
 import pytest

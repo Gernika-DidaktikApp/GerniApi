@@ -37,7 +37,6 @@ from app.routers import (
     usuarios,
 )
 from app.utils.rate_limit import close_rate_limiter, init_rate_limiter, limiter, rate_limit_handler
-from app.web import routes as web_routes
 from app.web.flask_app import flask_app
 
 app = FastAPI(
@@ -214,13 +213,15 @@ app.include_router(teacher_dashboard.router)  # Teacher dashboard doesn't use AP
 app.include_router(i18n.router)  # i18n language switching endpoint
 logger.info(f"Routers de API registrados en {settings.API_V1_PREFIX}")
 
-# Incluir router de interfaz web
-app.include_router(web_routes.router)
-logger.info("Router de interfaz web registrado")
+# Incluir router de interfaz web FastAPI (DESACTIVADO - ahora usa Flask)
+# app.include_router(web_routes.router)
+# logger.info("Router de interfaz web FastAPI registrado")
 
-# Montar aplicación Flask en prefijo /web para integración académica
-app.mount("/web", WSGIMiddleware(flask_app))
-logger.info("Aplicación Flask montada en /web con WSGIMiddleware")
+# Montar aplicación Flask para servir interfaz web (requisito académico)
+# Flask maneja: /, /login, /dashboard, /statistics, /gallery, etc.
+# FastAPI maneja: /api/v1/*, /health
+app.mount("/", WSGIMiddleware(flask_app))
+logger.info("Aplicación Flask montada en raíz para interfaz web")
 
 
 @app.on_event("startup")
@@ -269,15 +270,16 @@ async def shutdown_event():
     logger.info("Aplicación detenida")
 
 
-@app.get("/")
-def root():
-    """Endpoint raíz de la API.
-
-    Returns:
-        dict: Mensaje indicando que la API está funcionando correctamente.
-    """
-    logger.debug("Endpoint raíz accedido")
-    return {"message": "GerniBide API - Funcionando correctamente"}
+# Endpoint raíz ahora manejado por Flask
+# @app.get("/")
+# def root():
+#     """Endpoint raíz de la API.
+#
+#     Returns:
+#         dict: Mensaje indicando que la API está funcionando correctamente.
+#     """
+#     logger.debug("Endpoint raíz accedido")
+#     return {"message": "GerniBide API - Funcionando correctamente"}
 
 
 @app.get("/health")

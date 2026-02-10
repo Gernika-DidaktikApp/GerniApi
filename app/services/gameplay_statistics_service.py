@@ -157,6 +157,16 @@ class GameplayStatisticsService:
             db.query(ActividadProgreso).filter(ActividadProgreso.estado == "completado").count()
         )
 
+        # Tiempo total jugado (suma de todas las duraciones de ActividadProgreso completadas)
+        total_time_seconds = (
+            db.query(func.sum(ActividadProgreso.duracion))
+            .filter(
+                ActividadProgreso.duracion.isnot(None), ActividadProgreso.estado == "completado"
+            )
+            .scalar()
+            or 0
+        )
+
         return {
             "total_partidas": total_partidas,
             "partidas_completadas": completadas,
@@ -165,6 +175,7 @@ class GameplayStatisticsService:
                 round(avg_duration / 60, 1) if avg_duration else 0
             ),  # Convertir a minutos
             "actividades_completadas": actividades_completadas,
+            "tiempo_total_minutos": round(total_time_seconds / 60, 0),  # Tiempo total en minutos
         }
 
     @staticmethod

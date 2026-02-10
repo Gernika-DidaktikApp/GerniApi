@@ -45,6 +45,8 @@ def get_gameplay_summary(db: Session = Depends(get_db)) -> dict[str, Any]:
     - **partidas_completadas**: Number of completed games
     - **partidas_en_progreso**: Number of games in progress
     - **duracion_promedio**: Average duration of completed games (in minutes)
+    - **actividades_completadas**: Total number of completed activities
+    - **tiempo_total_minutos**: Total time played across all activities (in minutes)
 
     This endpoint is used by the gameplay statistics page summary cards.
     """

@@ -189,9 +189,10 @@ body {
    Videos Grid
    ============================================ */
 .videos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 3rem;
+    justify-content: center;
 }
 
 .video-card {
@@ -200,6 +201,11 @@ body {
     overflow: hidden;
     box-shadow: 0 2px 8px var(--color-shadow);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex: 0 1 500px;
+}
+
+.video-card:has(.video-container.vertical) {
+    flex: 0 0 350px;
 }
 
 .video-card:hover {
@@ -215,10 +221,12 @@ body {
 .video-container.vertical {
     aspect-ratio: 9 / 16;
     max-height: 600px;
+    width: 100%;
 }
 
 .video-container.horizontal {
     aspect-ratio: 16 / 9;
+    width: 100%;
 }
 
 .video-container video {

@@ -21,7 +21,7 @@
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="/static/css/navbar.css?v=5">
-    <link rel="stylesheet" href="/static/css/home.css?v=3">
+    <link rel="stylesheet" href="/static/css/home.css?v=4">
 </head>
 
 <body class="has-navbar">
@@ -148,7 +148,7 @@
 
                     <div class="download-badges">
                         <!-- Android APK Download Button -->
-                        <a href="#" class="badge-item" id="downloadApkBtn" title="{{ _('home.download.download_apk') }}">
+                        <div class="badge-item badge-disabled" style="cursor: default; opacity: 0.6;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"
@@ -156,26 +156,26 @@
                             </svg>
                             <div class="badge-text">
                                 <span class="badge-store">{{ _('home.download.download_apk') }}</span>
-                                <span class="badge-status">{{ _('home.download.available_now') }}</span>
+                                <span class="badge-status">{{ _('home.download.coming_soon') }}</span>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Help Link -->
+                    <div style="text-align: center; margin-top: 1.5rem;">
+                        <a href="/manuals" style="color: #6B7280; text-decoration: none; font-size: 0.875rem; transition: color 0.2s;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="vertical-align: middle; margin-right: 0.5rem;">
+                                <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>{{ _('home.download.help_manuals') }}</span>
                         </a>
                     </div>
                 </div>
             </section>
         </div>
     </main>
-
-    <!-- Download Confirmation Modal -->
-    <div id="downloadModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3 class="modal-title">{{ _('home.download.modal.title') }}</h3>
-            <p class="modal-description">{{ _('home.download.modal.description') }}</p>
-            <div class="modal-actions">
-                <button class="modal-btn modal-btn-cancel" id="cancelDownloadBtn">{{ _('home.download.modal.cancel') }}</button>
-                <button class="modal-btn modal-btn-confirm" id="confirmDownloadBtn">{{ _('home.download.modal.confirm') }}</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -187,7 +187,7 @@
     <!-- JavaScript -->
     <script src="/static/js/i18n.js?v=1"></script>
     <script src="/static/js/auth.js?v=5"></script>
-    <script src="/static/js/home.js?v=4" defer></script>
+    <script src="/static/js/home.js?v=5" defer></script>
 </body>
 
 </html>

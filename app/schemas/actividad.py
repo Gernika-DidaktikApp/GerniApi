@@ -6,6 +6,8 @@ operaciones relacionadas con actividades educativas del juego.
 Autor: Gernibide
 """
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -56,3 +58,33 @@ class ActividadResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class RespuestaPublica(BaseModel):
+    """Respuesta pública de un alumno en una actividad.
+
+    Attributes:
+        mensaje: Contenido de la respuesta del alumno.
+        fecha: Fecha y hora de completado.
+        usuario: Nombre del usuario (opcional, puede ser anónimo).
+    """
+
+    mensaje: str
+    fecha: datetime
+    usuario: str | None = None
+
+
+class RespuestasPublicasResponse(BaseModel):
+    """Respuesta con lista de respuestas públicas de una actividad.
+
+    Attributes:
+        actividad_id: ID de la actividad consultada.
+        actividad_nombre: Nombre de la actividad.
+        total_respuestas: Número total de respuestas disponibles.
+        respuestas: Lista de respuestas públicas.
+    """
+
+    actividad_id: str
+    actividad_nombre: str
+    total_respuestas: int
+    respuestas: list[RespuestaPublica]

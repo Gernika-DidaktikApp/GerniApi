@@ -8,15 +8,24 @@ Autor: Gernibide
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.logging import log_with_context
 from app.models.actividad import Actividad
+from app.models.actividad_progreso import ActividadProgreso
+from app.models.juego import Partida
 from app.models.punto import Punto
-from app.schemas.actividad import ActividadCreate, ActividadResponse, ActividadUpdate
-from app.utils.dependencies import require_api_key_only
+from app.models.usuario import Usuario
+from app.schemas.actividad import (
+    ActividadCreate,
+    ActividadResponse,
+    ActividadUpdate,
+    RespuestaPublica,
+    RespuestasPublicasResponse,
+)
+from app.utils.dependencies import require_api_key_only, require_auth
 
 router = APIRouter(prefix="/actividades", tags=["📝 Actividades"])
 
@@ -117,6 +126,98 @@ def actualizar_actividad(
     log_with_context("info", "Actividad actualizada", actividad_id=actividad.id)
 
     return actividad
+
+
+@router.get(
+    "/{actividad_id}/respuestas-publicas",
+    response_model=RespuestasPublicasResponse,
+    summary="Get public responses for an activity",
+    description="Returns public responses (messages) from students who completed the activity",
+)
+def obtener_respuestas_publicas(
+    actividad_id: str,
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of responses to return"),
+    db: Session = Depends(get_db),
+    auth=Depends(require_auth),
+):
+    """
+    ## Get Public Responses
+
+    Returns public responses from students who completed a specific activity.
+
+    ### Features
+    - ✅ Filters by specific activity ID
+    - ✅ Only returns completed responses
+    - ✅ Orders by most recent first
+    - ✅ Limits results (default: 20, max: 100)
+    - ✅ Requires authentication (students and teachers can access)
+    - ✅ Does not expose sensitive data
+
+    ### Parameters
+    - **actividad_id**: ID of the activity to get responses from
+    - **limit**: Maximum number of responses (default: 20, max: 100)
+
+    ### Response Format
+    Each response includes:
+    - **mensaje**: The text message/response content
+    - **fecha**: Completion date and time
+    - **usuario**: Student's first name (optional)
+
+    ### Use Cases
+    - Display "Message Wall" for activities like "Mi Mensaje para el Mundo"
+    - Show community responses to encourage participation
+    - Create public galleries of student work
+
+    ### Authentication
+    Requires valid JWT token (student or teacher login).
+    """
+    # Validate that activity exists
+    actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
+    if not actividad:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Actividad no encontrada",
+        )
+
+    # Get completed responses with user info
+    respuestas_query = (
+        db.query(ActividadProgreso, Usuario.nombre)
+        .join(Partida, ActividadProgreso.id_juego == Partida.id)
+        .join(Usuario, Partida.id_usuario == Usuario.id)
+        .filter(
+            ActividadProgreso.id_actividad == actividad_id,
+            ActividadProgreso.estado == "completado",
+            ActividadProgreso.respuesta_contenido.isnot(None),
+            ActividadProgreso.respuesta_contenido != "",
+        )
+        .order_by(ActividadProgreso.fecha_fin.desc())
+        .limit(limit)
+        .all()
+    )
+
+    # Format responses
+    respuestas = [
+        RespuestaPublica(
+            mensaje=progreso.respuesta_contenido,
+            fecha=progreso.fecha_fin,
+            usuario=nombre,
+        )
+        for progreso, nombre in respuestas_query
+    ]
+
+    log_with_context(
+        "info",
+        "Respuestas públicas consultadas",
+        actividad_id=actividad_id,
+        total_respuestas=len(respuestas),
+    )
+
+    return RespuestasPublicasResponse(
+        actividad_id=actividad_id,
+        actividad_nombre=actividad.nombre,
+        total_respuestas=len(respuestas),
+        respuestas=respuestas,
+    )
 
 
 @router.delete(

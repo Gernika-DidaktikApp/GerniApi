@@ -329,3 +329,113 @@ class TestValidaciones:
         response = admin_client.put(f"/api/v1/actividad-progreso/{estado_id}/completar", json={})
 
         assert response.status_code == 422
+
+
+class TestRespuestasPublicas:
+    """Tests para endpoint de respuestas públicas"""
+
+    def test_obtener_respuestas_publicas_exitoso(
+        self, admin_client, test_partida, test_punto, test_actividades
+    ):
+        """Test: Obtener respuestas públicas debe retornar mensajes completados"""
+        actividad = test_actividades[0]
+
+        # Iniciar y completar actividad con mensaje
+        init_response = admin_client.post(
+            "/api/v1/actividad-progreso/iniciar",
+            json={
+                "id_juego": test_partida.id,
+                "id_punto": test_punto.id,
+                "id_actividad": actividad.id,
+            },
+        )
+        estado_id = init_response.json()["id"]
+
+        # Completar con mensaje
+        admin_client.put(
+            f"/api/v1/actividad-progreso/{estado_id}/completar",
+            json={
+                "puntuacion": 10,
+                "respuesta_contenido": "Este es mi mensaje de paz para el mundo",
+            },
+        )
+
+        # Obtener respuestas públicas
+        response = admin_client.get(f"/api/v1/actividades/{actividad.id}/respuestas-publicas")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["actividad_id"] == actividad.id
+        assert data["actividad_nombre"] == actividad.nombre
+        assert data["total_respuestas"] >= 1
+        assert len(data["respuestas"]) >= 1
+
+        # Verificar formato de respuesta
+        respuesta = data["respuestas"][0]
+        assert "mensaje" in respuesta
+        assert "fecha" in respuesta
+        assert "usuario" in respuesta
+        assert respuesta["mensaje"] == "Este es mi mensaje de paz para el mundo"
+
+    def test_obtener_respuestas_publicas_sin_respuestas(self, admin_client, test_actividades):
+        """Test: Actividad sin respuestas debe retornar lista vacía"""
+        actividad = test_actividades[1]  # Actividad sin completar
+
+        response = admin_client.get(f"/api/v1/actividades/{actividad.id}/respuestas-publicas")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["actividad_id"] == actividad.id
+        assert data["total_respuestas"] == 0
+        assert len(data["respuestas"]) == 0
+
+    def test_obtener_respuestas_publicas_actividad_inexistente(self, admin_client):
+        """Test: Actividad inexistente debe retornar 404"""
+        import uuid
+
+        fake_id = str(uuid.uuid4())
+        response = admin_client.get(f"/api/v1/actividades/{fake_id}/respuestas-publicas")
+
+        assert response.status_code == 404
+
+    def test_obtener_respuestas_publicas_con_limite(
+        self, admin_client, test_partida, test_punto, test_actividades
+    ):
+        """Test: Parámetro limit debe limitar número de respuestas"""
+        actividad = test_actividades[0]
+
+        # Crear 3 respuestas
+        for i in range(3):
+            init_response = admin_client.post(
+                "/api/v1/actividad-progreso/iniciar",
+                json={
+                    "id_juego": test_partida.id,
+                    "id_punto": test_punto.id,
+                    "id_actividad": actividad.id,
+                },
+            )
+            estado_id = init_response.json()["id"]
+
+            admin_client.put(
+                f"/api/v1/actividad-progreso/{estado_id}/completar",
+                json={
+                    "puntuacion": 10,
+                    "respuesta_contenido": f"Mensaje {i+1}",
+                },
+            )
+
+        # Obtener solo 2 respuestas
+        response = admin_client.get(
+            f"/api/v1/actividades/{actividad.id}/respuestas-publicas?limit=2"
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["respuestas"]) <= 2
+
+    def test_obtener_respuestas_publicas_sin_autenticacion(self, client, test_actividades):
+        """Test: Endpoint requiere autenticación"""
+        actividad = test_actividades[0]
+        response = client.get(f"/api/v1/actividades/{actividad.id}/respuestas-publicas")
+
+        assert response.status_code == 401

@@ -294,30 +294,47 @@ def actualizar_usuario(
 @router.post("/{usuario_id}/remove-from-class", status_code=status.HTTP_204_NO_CONTENT)
 def remover_alumno_de_clase(
     usuario_id: str,
+    db: Session = Depends(get_db),
     auth: AuthResult = Depends(require_auth),
     usuario_service: UsuarioService = Depends(get_usuario_service),
+    clase_repo: ClaseRepository = Depends(get_clase_repository),
 ):
     """Remover alumno de su clase asignada (id_clase = NULL).
 
     Args:
         usuario_id: ID único del usuario.
+        db: Database session.
         auth: Resultado de autenticación.
         usuario_service: Servicio de usuarios.
+        clase_repo: Repositorio de clases.
 
     Raises:
-        HTTPException: Si el usuario no existe.
+        HTTPException: Si el usuario no existe o el profesor no tiene permisos.
 
     Note:
-        Solo accesible con API Key.
+        Accesible con API Key o JWT token de profesor (solo puede remover de sus propias clases).
     """
     from app.schemas.usuario import UsuarioUpdate
 
-    # Solo con API Key
+    # Si es JWT token (profesor), verificar que el alumno está en una de sus clases
     if not auth.is_api_key:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Esta operación requiere API Key",
-        )
+        # Obtener el alumno
+        alumno = usuario_service.obtener_usuario(usuario_id)
+
+        # Verificar que el alumno tiene clase asignada
+        if not alumno.id_clase:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El alumno no tiene clase asignada",
+            )
+
+        # Verificar que el profesor es dueño de la clase
+        clase = clase_repo.get_by_id(alumno.id_clase)
+        if not clase or clase.id_profesor != auth.user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No tienes permisos para remover alumnos de esta clase",
+            )
 
     # Actualizar usuario para quitar clase
     usuario_data = UsuarioUpdate(id_clase=None)

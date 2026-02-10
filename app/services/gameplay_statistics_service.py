@@ -149,7 +149,10 @@ class GameplayStatisticsService:
 
         # Duración promedio de partidas completadas (en minutos)
         avg_duration = (
-            db.query(func.avg(Partida.duracion)).filter(Partida.duracion.isnot(None)).scalar() or 0
+            db.query(func.avg(Partida.duracion))
+            .filter(Partida.estado == "completada", Partida.duracion.isnot(None))
+            .scalar()
+            or 0
         )
 
         # Actividades completadas

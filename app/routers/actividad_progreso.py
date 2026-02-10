@@ -181,6 +181,30 @@ def completar_actividad(
         duracion=estado.duracion,
     )
 
+    # Verificar si la partida debe marcarse como completada (19 actividades completadas)
+    total_completadas_partida = (
+        db.query(ActividadProgreso)
+        .filter(
+            ActividadProgreso.id_juego == estado.id_juego,
+            ActividadProgreso.estado == "completado",
+        )
+        .count()
+    )
+
+    if total_completadas_partida >= 19:
+        partida = db.query(Partida).filter(Partida.id == estado.id_juego).first()
+        if partida and partida.estado != "completada":
+            partida.estado = "completada"
+            partida.fecha_fin = datetime.now()
+            partida.duracion = int((partida.fecha_fin - partida.fecha_inicio).total_seconds())
+            db.commit()
+            log_with_context(
+                "info",
+                "Partida completada automáticamente",
+                partida_id=partida.id,
+                total_actividades=total_completadas_partida,
+            )
+
     # Verificar si se completaron TODOS los actividades del punto
     actividades_totales = (
         db.query(ActividadModel).filter(ActividadModel.id_punto == estado.id_punto).count()

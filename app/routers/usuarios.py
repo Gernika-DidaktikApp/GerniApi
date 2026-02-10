@@ -310,7 +310,6 @@ def remover_alumno_de_clase(
     Note:
         Solo accesible con API Key.
     """
-    from app.models.usuario import Usuario
     from app.schemas.usuario import UsuarioUpdate
 
     # Solo con API Key

@@ -418,6 +418,28 @@ sudo systemctl start postgresql
 
 ---
 
+## 📐 Diagramas
+
+### Arquitectura del Sistema
+
+Diagrama de capas de la arquitectura de GerniBide API, desde la capa cliente hasta la persistencia de datos y servicios externos.
+
+![Diagrama de Arquitectura](diagramas/arquitectura.png)
+
+### Casos de Uso
+
+Diagrama de casos de uso que muestra las interacciones de los distintos actores (Estudiante, Profesor, Administrador) con el sistema.
+
+![Diagrama de Casos de Uso](diagramas/casos_de_uso.png)
+
+### Modelo Entidad-Relación
+
+Diagrama entidad-relación que detalla las tablas de la base de datos (Profesor, Clase, Usuario, Juego, Puntos, Actividad, Actividad Progreso, Asset Log) y sus relaciones.
+
+![Diagrama Entidad-Relación](diagramas/entidad_relacion.png)
+
+---
+
 ## 🤝 Contribuir
 
 1. Fork el proyecto

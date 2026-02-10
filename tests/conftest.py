@@ -64,8 +64,29 @@ def client(db_session):
             pass
 
     app.dependency_overrides[get_db] = override_get_db
+
+    # Deshabilitar rate limiting en tests completamente
+    # Guardamos el limiter original y lo reemplazamos con uno deshabilitado
+    from slowapi import Limiter
+
+    from app.utils.rate_limit import get_remote_address
+
+    original_limiter = app.state.limiter
+    # Crear un limiter completamente deshabilitado para tests
+    # enabled=False hace que el limiter no aplique ningún límite
+    test_limiter = Limiter(
+        key_func=get_remote_address,
+        default_limits=[],
+        enabled=False,  # CRÍTICO: Deshabilitar completamente el rate limiting
+        swallow_errors=True,  # Ignorar cualquier error del limiter
+    )
+    app.state.limiter = test_limiter
+
     with TestClient(app) as test_client:
         yield test_client
+
+    # Restaurar el limiter original
+    app.state.limiter = original_limiter
     app.dependency_overrides.clear()
 
 

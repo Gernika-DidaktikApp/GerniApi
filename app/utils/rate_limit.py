@@ -89,16 +89,19 @@ limiter = Limiter(
 
 # ==================== Límites por categoría ====================
 
-# Rate limit por defecto (configurable desde settings)
-RATE_LIMIT_DEFAULT = (
-    f"{settings.RATE_LIMIT_PER_MINUTE if hasattr(settings, 'RATE_LIMIT_PER_MINUTE') else 10}/minute"
-)
-
-# Rate limit estricto para endpoints sensibles
-RATE_LIMIT_STRICT = "5/minute"
-
-# Rate limit permisivo para lectura
-RATE_LIMIT_PERMISSIVE = "60/minute"
+# Si rate limiting está deshabilitado, usar límites muy altos que nunca se alcancen
+if not settings.RATE_LIMIT_ENABLED:
+    # Límites extremadamente altos para efectivamente deshabilitar el rate limiting
+    RATE_LIMIT_DEFAULT = "100000/minute"
+    RATE_LIMIT_STRICT = "100000/minute"
+    RATE_LIMIT_PERMISSIVE = "100000/minute"
+else:
+    # Rate limit por defecto (configurable desde settings)
+    RATE_LIMIT_DEFAULT = f"{settings.RATE_LIMIT_PER_MINUTE if hasattr(settings, 'RATE_LIMIT_PER_MINUTE') else 10}/minute"
+    # Rate limit estricto para endpoints sensibles
+    RATE_LIMIT_STRICT = "5/minute"
+    # Rate limit permisivo para lectura
+    RATE_LIMIT_PERMISSIVE = "60/minute"
 
 
 # ==================== Error Handler ====================

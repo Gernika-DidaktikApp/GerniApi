@@ -34,8 +34,14 @@ from app.routers import (
     teacher_dashboard,
     usuarios,
 )
-from app.utils.rate_limit import close_rate_limiter, init_rate_limiter
+from app.utils.rate_limit import (
+    close_rate_limiter,
+    init_rate_limiter,
+    limiter,
+    rate_limit_handler,
+)
 from app.web import routes as web_routes
+from slowapi.errors import RateLimitExceeded
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -172,6 +178,10 @@ logger.info("Iniciando GerniBide API", extra={"extra_fields": {"version": "1.0.0
 
 # Registrar manejadores de excepciones globales
 register_exception_handlers(app)
+
+# Registrar slowapi state y error handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
 
 # Configurar middleware de logging (debe ir ANTES de otros middlewares)
 app.add_middleware(LoggingMiddleware)

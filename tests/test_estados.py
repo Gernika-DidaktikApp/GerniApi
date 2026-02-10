@@ -18,7 +18,7 @@ class TestActividadProgreso:
             },
         )
 
-        assert response.status_code == 201
+        assert response.status_code == 200  # Idempotente: 200 OK siempre
         data = response.json()
         assert data["id_juego"] == test_partida.id
         assert data["id_punto"] == test_punto.id
@@ -31,11 +31,11 @@ class TestActividadProgreso:
     def test_iniciar_evento_duplicado(
         self, admin_client, test_partida, test_punto, test_actividades
     ):
-        """Test: Iniciar actividad duplicado debe fallar"""
+        """Test: Iniciar actividad duplicado debe ser idempotente (devolver mismo progreso)"""
         actividad = test_actividades[0]
 
         # Primera vez
-        admin_client.post(
+        response1 = admin_client.post(
             "/api/v1/actividad-progreso/iniciar",
             json={
                 "id_juego": test_partida.id,
@@ -44,8 +44,8 @@ class TestActividadProgreso:
             },
         )
 
-        # Segunda vez (duplicado)
-        response = admin_client.post(
+        # Segunda vez (duplicado) - Debe devolver el mismo progreso
+        response2 = admin_client.post(
             "/api/v1/actividad-progreso/iniciar",
             json={
                 "id_juego": test_partida.id,
@@ -54,10 +54,16 @@ class TestActividadProgreso:
             },
         )
 
-        assert response.status_code == 400
-        data = response.json()
-        error_msg = data.get("detail", data.get("error", {}).get("message", ""))
-        assert "Ya existe una actividad en progreso" in error_msg
+        # Comportamiento idempotente: devuelve 200 OK con el mismo progreso
+        assert response1.status_code == 200
+        assert response2.status_code == 200
+
+        data1 = response1.json()
+        data2 = response2.json()
+
+        # Debe devolver el mismo ID de progreso
+        assert data1["id"] == data2["id"]
+        assert data2["estado"] == "en_progreso"
 
     def test_iniciar_evento_no_pertenece_actividad(
         self, admin_client, db_session, test_partida, test_punto, test_actividades

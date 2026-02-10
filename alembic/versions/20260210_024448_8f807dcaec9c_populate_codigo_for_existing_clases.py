@@ -8,18 +8,17 @@ Create Date: 2026-02-10 02:44:48.787500
 
 import random
 import string
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
-import sqlalchemy as sa
 from sqlalchemy import text
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "8f807dcaec9c"
-down_revision: Union[str, None] = "044f4718d481"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = "044f4718d481"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def generar_codigo_clase() -> str:
@@ -27,10 +26,9 @@ def generar_codigo_clase() -> str:
 
     Evita caracteres ambiguos: 0/O, 1/I/l
     """
-    caracteres = (
-        string.ascii_uppercase.replace("O", "").replace("I", "")
-        + string.digits.replace("0", "").replace("1", "")
-    )
+    caracteres = string.ascii_uppercase.replace("O", "").replace("I", "") + string.digits.replace(
+        "0", ""
+    ).replace("1", "")
     return "".join(random.choices(caracteres, k=6))
 
 
@@ -62,7 +60,10 @@ def upgrade() -> None:
             codigo = generar_codigo_clase()
 
         # Actualizar clase con código
-        conn.execute(text("UPDATE clase SET codigo = :codigo WHERE id = :id"), {"codigo": codigo, "id": clase_id})
+        conn.execute(
+            text("UPDATE clase SET codigo = :codigo WHERE id = :id"),
+            {"codigo": codigo, "id": clase_id},
+        )
         codigos_existentes.add(codigo)
         print(f"  ✓ Clase {clase_id[:8]}... → {codigo}")
 

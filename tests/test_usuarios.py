@@ -80,6 +80,41 @@ class TestUsuariosEndpoints:
         assert response.status_code == 404
         assert "clase" in response.json()["error"]["message"].lower()
 
+    def test_crear_usuario_con_codigo_clase(self, client, test_clase):
+        """Test: Crear usuario usando código de clase en lugar de UUID"""
+        response = client.post(
+            "/api/v1/usuarios",
+            json={
+                "username": "estudiante_codigo",
+                "nombre": "Estudiante",
+                "apellido": "Codigo",
+                "password": "password123",
+                "codigo_clase": test_clase.codigo,  # Usar código en lugar de UUID
+            },
+        )
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["id_clase"] == test_clase.id
+        assert data["username"] == "estudiante_codigo"
+
+    def test_crear_usuario_codigo_clase_inexistente(self, client):
+        """Test: Falla si se usa código de clase inexistente"""
+        response = client.post(
+            "/api/v1/usuarios",
+            json={
+                "username": "estudiante_nuevo",
+                "nombre": "Estudiante",
+                "apellido": "Nuevo",
+                "password": "password123",
+                "codigo_clase": "FAKE99",  # Código inexistente
+            },
+        )
+
+        assert response.status_code == 404
+        message = response.json()["error"]["message"].lower()
+        assert "codigo" in message or "código" in message or "clase" in message
+
     def test_listar_usuarios_requiere_api_key(self, client, test_usuario):
         """Test: Listar usuarios requiere API Key"""
         response = client.get("/api/v1/usuarios")

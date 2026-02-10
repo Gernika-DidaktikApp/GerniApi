@@ -40,6 +40,10 @@ class UsuarioCreate(BaseModel):
         apellido: Apellido del usuario (1-45 caracteres).
         password: Contraseña en texto plano (4-100 caracteres, será hasheada con bcrypt).
         id_clase: ID de la clase asignada (UUID), opcional.
+        codigo_clase: Código corto de la clase (6 caracteres, ej: A3X9K2), opcional.
+
+    Note:
+        Si se proporciona codigo_clase, se usará en lugar de id_clase.
     """
 
     username: str = Field(
@@ -72,8 +76,15 @@ class UsuarioCreate(BaseModel):
     )
     id_clase: str | None = Field(
         None,
-        description="ID de la clase asignada (opcional)",
+        description="ID de la clase asignada (opcional, usar codigo_clase es más fácil)",
         example="550e8400-e29b-41d4-a716-446655440000",
+    )
+    codigo_clase: str | None = Field(
+        None,
+        min_length=6,
+        max_length=6,
+        description="Código de la clase para unirse (6 caracteres, ej: A3X9K2)",
+        example="A3X9K2",
     )
 
     model_config = {

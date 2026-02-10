@@ -55,8 +55,25 @@ class UsuarioService:
                 detail="El username ya está en uso",
             )
 
-        # Validar que la clase existe
-        if usuario_data.id_clase and not self.clase_repo.exists(usuario_data.id_clase):
+        # Resolver id_clase desde codigo_clase si se proporciona
+        id_clase_final = usuario_data.id_clase
+
+        if usuario_data.codigo_clase:
+            # Si se proporciona codigo_clase, tiene prioridad
+            clase = self.clase_repo.get_by_codigo(usuario_data.codigo_clase)
+            if not clase:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"No existe ninguna clase con el código '{usuario_data.codigo_clase}'",
+                )
+            id_clase_final = clase.id
+
+        # Validar que la clase existe (si se proporcionó id_clase sin codigo_clase)
+        if (
+            id_clase_final
+            and not usuario_data.codigo_clase
+            and not self.clase_repo.exists(id_clase_final)
+        ):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="La clase especificada no existe",
@@ -69,7 +86,7 @@ class UsuarioService:
             nombre=usuario_data.nombre,
             apellido=usuario_data.apellido,
             password=hash_password(usuario_data.password),
-            id_clase=usuario_data.id_clase,
+            id_clase=id_clase_final,
         )
 
         # Persistir en BD

@@ -67,10 +67,16 @@ def get_profesor_classes(
 
     clases = TeacherDashboardService.get_profesor_classes(db, profesor_id)
 
+    # Log detallado para debug
+    from app.models.clase import Clase
+
+    clases_db = db.query(Clase).filter(Clase.id_profesor == profesor_id).all()
     log_info(
-        "Clases de profesor consultadas",
-        profesor_id=profesor_id,
-        total_clases=len(clases),
+        f"Clases de profesor consultadas - profesor_id={profesor_id}, "
+        f"total_clases={len(clases)}, "
+        f"clases_nombres={[c['nombre'] for c in clases]}, "
+        f"clases_ids={[c['id'] for c in clases]}, "
+        f"db_clases_count={len(clases_db)}"
     )
 
     return clases

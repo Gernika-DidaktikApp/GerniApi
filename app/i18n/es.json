@@ -41,8 +41,7 @@
     "download": {
       "title": "Lleva la historia en tu bolsillo",
       "description": "Descarga la aplicación móvil y disfruta de todas las actividades educativas de Gernibide.",
-      "app_store": "App Store",
-      "google_play": "Google Play",
+      "download_apk": "Descarga aquí el APK",
       "coming_soon": "Muy Pronto"
     }
   },

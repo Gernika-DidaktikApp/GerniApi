@@ -41,8 +41,7 @@
     "download": {
       "title": "Eraman historia zure poltsikoan",
       "description": "Deskargatu aplikazio mugikorra eta gozatu Gernibide-ren hezkuntza jarduera guztiekin.",
-      "app_store": "App Store",
-      "google_play": "Google Play",
+      "download_apk": "Deskargatu hemen APK",
       "coming_soon": "Laster"
     }
   },

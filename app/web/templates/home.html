@@ -147,34 +147,16 @@
                     </p>
 
                     <div class="download-badges">
-                        <!-- App Store Badge (iOS) - Deshabilitado temporalmente -->
-                        <a href="#" class="badge-item badge-disabled" title="Disponible próximamente">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M17.05 20.28C16.07 21.23 14.97 20.76 13.9 20.26C12.76 19.76 11.72 19.73 10.52 20.26C9.03999 20.95 8.26999 20.41 7.42999 20.28C4.29999 19.81 1.92999 17.19 1.92999 13.57C1.92999 9.94999 4.05999 8.18999 6.60999 8.05999C7.35999 8.05999 7.95999 8.38999 8.47999 8.67999C8.85999 8.88999 9.18999 9.07999 9.51999 9.07999C9.79999 9.07999 10.11 8.90999 10.45 8.72999C11.17 8.34999 12.01 7.90999 13.12 8.01999C14.61 8.15999 15.73 8.72999 16.46 9.72999C13.81 11.37 14.46 15.14 16.88 16.11C16.4 17.38 15.77 18.64 17.04 20.29L17.05 20.28ZM12.03 7.96999C11.88 5.83999 13.62 4.09999 15.63 3.92999C15.9 6.35999 13.35 8.16999 12.03 7.96999Z"
-                                    fill="currentColor" />
-                            </svg>
-                            <div class="badge-text">
-                                <span class="badge-store">{{ _('home.download.app_store') }}</span>
-                                <span class="badge-status">{{ _('home.download.coming_soon') }}</span>
-                            </div>
-                        </a>
-
-                        <!-- Android APK Badge - Deshabilitado hasta tener APK -->
+                        <!-- Android APK Download Button - Deshabilitado hasta tener APK -->
                         <!-- Para habilitar: quitar clase 'badge-disabled' y cambiar href="#" por href="/static/downloads/gernibide.apk" -->
                         <a href="#" class="badge-item badge-disabled" download="gernibide.apk" title="Disponible próximamente">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M3.609 2.48C3.429 2.65 3.329 2.95 3.329 3.35V20.65C3.329 21.04 3.429 21.35 3.609 21.52L3.669 21.58L13.049 12.2V12.01V11.81L3.669 2.42L3.609 2.48Z"
-                                    fill="currentColor" />
-                                <path
-                                    d="M16.189 15.34L13.049 12.2V12.01V11.81L16.199 8.66L16.269 8.7L19.909 10.77C20.939 11.35 20.939 12.36 19.909 12.95L16.269 15.02L16.189 15.34Z"
-                                    fill="currentColor" />
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                             <div class="badge-text">
-                                <span class="badge-store">{{ _('home.download.google_play') }}</span>
+                                <span class="badge-store">{{ _('home.download.download_apk') }}</span>
                                 <span class="badge-status">{{ _('home.download.coming_soon') }}</span>
                             </div>
                         </a>

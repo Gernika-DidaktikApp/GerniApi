@@ -4,12 +4,12 @@ Este directorio contiene los archivos APK de la aplicación Gernibide para desca
 
 ## Cómo habilitar la descarga del APK
 
-1. **Coloca el APK aquí**: 
+1. **Coloca el APK aquí**:
    - Añade el archivo `gernibide.apk` en este directorio
 
 2. **Habilita el link en home.html**:
    - Abre `app/web/templates/home.html`
-   - Busca el comentario `<!-- Android APK Badge -->`
+   - Busca el comentario `<!-- Android APK Download Button -->`
    - Cambia:
      ```html
      <a href="#" class="badge-item badge-disabled" ...>
@@ -23,5 +23,5 @@ Este directorio contiene los archivos APK de la aplicación Gernibide para desca
 
 ## Nota
 
-- El badge de iOS (App Store) permanecerá deshabilitado hasta que la app esté en la tienda
+- La página ahora muestra un único botón de descarga del APK (Android)
 - Puedes añadir múltiples versiones del APK con nombres diferentes (ej: `gernibide-v1.0.0.apk`)

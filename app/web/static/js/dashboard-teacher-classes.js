@@ -31,6 +31,24 @@ function getAuthHeaders() {
 // ============================================
 
 /**
+ * Limpiar cache del dashboard
+ */
+async function clearDashboardCache() {
+    try {
+        const response = await fetch(`${API_BASE}/cache/clear`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            logger.log('warn', 'No se pudo limpiar el cache del dashboard');
+        }
+    } catch (error) {
+        logger.log('warn', 'Error al limpiar cache del dashboard', error);
+    }
+}
+
+/**
  * Obtener todas las clases del profesor
  */
 async function fetchClasses() {
@@ -287,14 +305,18 @@ async function exportStudentsExcel(claseId = null) {
 /**
  * Cargar y renderizar clases en la barra lateral
  */
-async function loadClasses() {
+async function loadClasses(skipFetch = false) {
     const container = document.getElementById('classesListContainer');
 
     if (!container) return;
 
-    container.innerHTML = '<div class="loading-message">Cargando clases...</div>';
+    // Solo hacer fetch si no se indica lo contrario
+    if (!skipFetch) {
+        container.innerHTML = '<div class="loading-message">Cargando clases...</div>';
+        await fetchClasses();
+    }
 
-    const classes = await fetchClasses();
+    const classes = allClasses;
 
     if (classes.length === 0) {
         container.innerHTML = `
@@ -323,7 +345,7 @@ async function loadClasses() {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z" stroke-width="2"/>
                     </svg>
-                    <span class="stat-value" id="student-count-${cls.id}">...</span> alumnos
+                    <span class="stat-value" id="student-count-${cls.id}">0</span> alumnos
                 </div>
             </div>
         </div>
@@ -517,9 +539,26 @@ function openModal(modalId) {
 }
 
 function closeModal(modalId) {
-    document.getElementById(modalId)?.classList.remove('active');
-    // Reset forms
-    document.querySelector(`#${modalId} form`)?.reset();
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    modal.classList.remove('active');
+
+    // Reset form
+    const form = modal.querySelector('form');
+    if (form) {
+        form.reset();
+
+        // Reset submit button
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            // Restaurar texto original si existe en data-attribute
+            if (submitBtn.dataset.originalText) {
+                submitBtn.textContent = submitBtn.dataset.originalText;
+            }
+        }
+    }
 }
 
 // ============================================
@@ -530,28 +569,42 @@ async function handleCreateClass(e) {
     e.preventDefault();
 
     const nombre = document.getElementById('className')?.value;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
 
     if (!nombre) {
         showNotification('Por favor ingresa un nombre para la clase', 'error');
         return;
     }
 
+    // Deshabilitar botón para prevenir doble clic
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.dataset.originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Creando...';
+    }
+
     try {
         const newClass = await createClass(nombre);
         closeModal('modalCreateClass');
 
-        // Añadir la nueva clase a allClasses inmediatamente
-        allClasses.push(newClass);
+        // IMPORTANTE: Limpiar cache del dashboard antes de recargar
+        await clearDashboardCache();
 
-        // Renderizar la lista actualizada
+        // Recargar clases desde el servidor (ahora sin cache)
         await loadClasses();
 
         // Seleccionar la nueva clase automáticamente
         if (newClass && newClass.id) {
+            selectedClassId = newClass.id;
             await selectClass(newClass.id);
         }
     } catch (error) {
         // Error ya mostrado en createClass
+        // Rehabilitar botón en caso de error
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = submitBtn.dataset.originalText || 'Crear Clase';
+        }
     }
 }
 
@@ -584,6 +637,7 @@ async function handleImportStudents(e) {
         progressBar.style.width = '0%';
         progressText.textContent = 'Validando datos...';
         submitBtn.disabled = true;
+        submitBtn.dataset.originalText = submitBtn.textContent;
         submitBtn.textContent = 'Importando...';
     }
 
@@ -632,7 +686,7 @@ async function handleImportStudents(e) {
         setTimeout(() => {
             if (submitBtn) {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Importar';
+                submitBtn.textContent = submitBtn.dataset.originalText || 'Importar';
             }
             if (progressContainer) {
                 progressContainer.style.display = 'none';

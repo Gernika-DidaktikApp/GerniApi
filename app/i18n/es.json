@@ -42,7 +42,14 @@
       "title": "Lleva la historia en tu bolsillo",
       "description": "Descarga la aplicación móvil y disfruta de todas las actividades educativas de Gernibide.",
       "download_apk": "Descarga aquí el APK",
-      "coming_soon": "Muy Pronto"
+      "coming_soon": "Muy Pronto",
+      "available_now": "Disponible ahora",
+      "modal": {
+        "title": "Descargar Aplicación Gernibide",
+        "description": "Estás a punto de descargar el archivo APK de Gernibide. Asegúrate de tener habilitada la instalación de aplicaciones de fuentes desconocidas en tu dispositivo Android.",
+        "confirm": "Descargar",
+        "cancel": "Cancelar"
+      }
     }
   },
   "login": {
@@ -245,7 +252,33 @@
       "avg_grade": "Nota Media",
       "last_activity": "Última Actividad"
     },
-    "loading": "Cargando datos..."
+    "loading": "Cargando datos...",
+    "loading_states": {
+      "applying": "Aplicando..."
+    },
+    "empty_states": {
+      "no_students": "No hay alumnos en esta clase",
+      "no_data": "No hay datos disponibles",
+      "no_time_data": "No hay datos de tiempo disponibles",
+      "no_activities": "No hay actividades disponibles",
+      "no_evolution_data": "No hay datos de evolución disponibles"
+    },
+    "errors": {
+      "load_data": "Error al cargar datos",
+      "load_student_progress": "Error al cargar progreso de alumnos",
+      "load_student_time": "Error al cargar tiempo de alumnos",
+      "load_activities": "Error al cargar actividades",
+      "load_evolution": "Error al cargar evolución de clase",
+      "export_csv": "Error al exportar CSV. Por favor, inténtalo de nuevo.",
+      "export_excel": "Error al exportar Excel. Por favor, inténtalo de nuevo."
+    },
+    "chart_labels": {
+      "all_classes": "Todas las clases",
+      "students": "Alumnos",
+      "completed_hover": "Completadas: {count} alumnos",
+      "in_progress_hover": "En Progreso: {count} alumnos",
+      "not_started_hover": "Sin Empezar: {count} alumnos"
+    }
   },
   "dashboard_teacher": {
     "meta": {
@@ -283,10 +316,67 @@
       "total_time": "Tiempo Total",
       "avg_grade": "Nota Media",
       "last_activity": "Última Actividad",
-      "status": "Estado"
+      "status": "Estado",
+      "actions": "Acciones"
     },
     "loading_classes": "Cargando clases...",
+    "loading_students": "Cargando alumnos...",
     "select_class_prompt": "Selecciona una clase para ver los alumnos",
+    "empty_states": {
+      "no_classes": "No tienes clases asignadas",
+      "no_classes_hint": "Crea tu primera clase usando el botón \"Crear Clase\"",
+      "no_students": "No hay alumnos en esta clase",
+      "select_class": "Selecciona una clase"
+    },
+    "notifications": {
+      "class_created": "Clase creada exitosamente",
+      "class_deleted": "Clase eliminada exitosamente",
+      "student_removed": "Alumno removido de la clase",
+      "code_copied": "Código copiado al portapapeles",
+      "csv_downloaded": "CSV descargado exitosamente",
+      "excel_downloaded": "Excel descargado exitosamente",
+      "template_downloaded": "Plantilla descargada",
+      "please_select_class": "Por favor selecciona una clase primero",
+      "please_select_csv": "Por favor selecciona un archivo CSV",
+      "please_enter_name": "Por favor ingresa un nombre para la clase",
+      "import_success": "importado(s) exitosamente",
+      "import_errors": "error(es)"
+    },
+    "errors": {
+      "session_expired": "Sesión expirada",
+      "load_classes": "Error al cargar las clases",
+      "load_students": "Error al cargar los alumnos",
+      "create_class": "Error al crear la clase",
+      "delete_class": "Error al eliminar la clase",
+      "remove_student": "Error al remover alumno",
+      "export_csv": "Error al exportar CSV",
+      "export_excel": "Error al exportar Excel",
+      "import_students": "Error al importar alumnos",
+      "import_validation": "Error en la importación",
+      "clear_cache": "Error al limpiar cache del dashboard",
+      "no_teacher_info": "No se encontró información del profesor. Por favor, inicia sesión nuevamente.",
+      "csv_columns": "El CSV debe tener las columnas: nombre, apellido, username",
+      "csv_required_fields": "Todos los campos (nombre, apellido, username) son obligatorios",
+      "no_valid_users": "No se encontraron usuarios válidos en el CSV"
+    },
+    "loading_states": {
+      "creating": "Creando...",
+      "importing": "Importando...",
+      "validating": "Validando datos...",
+      "sending": "Enviando datos al servidor...",
+      "completed": "Importación completada"
+    },
+    "confirmations": {
+      "delete_class": "¿Estás seguro de que quieres eliminar la clase \"{name}\"?\n\nLos alumnos NO se eliminarán, solo quedarán sin clase asignada.",
+      "remove_student": "¿Remover a \"{name}\" de esta clase?\n\nEl alumno NO se eliminará, solo quedará sin clase asignado.",
+      "delete_button_title": "Eliminar clase",
+      "remove_button_title": "Remover de clase"
+    },
+    "labels": {
+      "students_singular": "alumno",
+      "students_plural": "alumnos",
+      "code": "Código:"
+    },
     "sidebar": {
       "my_classes": "Mis Clases"
     },

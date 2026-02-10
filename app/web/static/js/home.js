@@ -198,3 +198,53 @@ if (navbarToggle && navbarMenu) {
         }
     });
 }
+
+// ============================================
+// APK Download Confirmation Modal
+// ============================================
+const downloadApkBtn = document.getElementById('downloadApkBtn');
+const downloadModal = document.getElementById('downloadModal');
+const confirmDownloadBtn = document.getElementById('confirmDownloadBtn');
+const cancelDownloadBtn = document.getElementById('cancelDownloadBtn');
+
+if (downloadApkBtn && downloadModal) {
+    // Show modal when download button is clicked
+    downloadApkBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        downloadModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    });
+
+    // Hide modal when cancel is clicked
+    if (cancelDownloadBtn) {
+        cancelDownloadBtn.addEventListener('click', () => {
+            downloadModal.style.display = 'none';
+            document.body.style.overflow = ''; // Restore scrolling
+        });
+    }
+
+    // Start download when confirm is clicked
+    if (confirmDownloadBtn) {
+        confirmDownloadBtn.addEventListener('click', () => {
+            // Create temporary link to trigger download
+            const link = document.createElement('a');
+            link.href = '/static/downloads/gernibide.apk';
+            link.download = 'gernibide.apk';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Close modal
+            downloadModal.style.display = 'none';
+            document.body.style.overflow = '';
+        });
+    }
+
+    // Close modal when clicking outside
+    downloadModal.addEventListener('click', (e) => {
+        if (e.target === downloadModal) {
+            downloadModal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+}

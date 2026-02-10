@@ -42,7 +42,14 @@
       "title": "Eraman historia zure poltsikoan",
       "description": "Deskargatu aplikazio mugikorra eta gozatu Gernibide-ren hezkuntza jarduera guztiekin.",
       "download_apk": "Deskargatu hemen APK",
-      "coming_soon": "Laster"
+      "coming_soon": "Laster",
+      "available_now": "Orain eskuragarri",
+      "modal": {
+        "title": "Deskargatu Gernibide Aplikazioa",
+        "description": "Gernibide APK fitxategia deskargatzera zoaz. Ziurtatu zure Android gailuan iturburu ezezagunetako aplikazioak instalatzea gaituta duzula.",
+        "confirm": "Deskargatu",
+        "cancel": "Ezeztatu"
+      }
     }
   },
   "login": {
@@ -245,7 +252,33 @@
       "avg_grade": "Batez besteko Nota",
       "last_activity": "Azken Jarduera"
     },
-    "loading": "Datuak kargatzen..."
+    "loading": "Datuak kargatzen...",
+    "loading_states": {
+      "applying": "Aplikatzen..."
+    },
+    "empty_states": {
+      "no_students": "Ez dago ikaslerik klase honetan",
+      "no_data": "Ez dago daturik eskuragarri",
+      "no_time_data": "Ez dago denboraren daturik eskuragarri",
+      "no_activities": "Ez dago jarduerarik eskuragarri",
+      "no_evolution_data": "Ez dago bilakaerarako daturik eskuragarri"
+    },
+    "errors": {
+      "load_data": "Errorea datuak kargatzean",
+      "load_student_progress": "Errorea ikasleen aurrerapena kargatzean",
+      "load_student_time": "Errorea ikasleen denbora kargatzean",
+      "load_activities": "Errorea jarduerak kargatzean",
+      "load_evolution": "Errorea klasearen bilakaera kargatzean",
+      "export_csv": "Errorea CSV esportatzean. Mesedez, saiatu berriro.",
+      "export_excel": "Errorea Excel esportatzean. Mesedez, saiatu berriro."
+    },
+    "chart_labels": {
+      "all_classes": "Klase guztiak",
+      "students": "Ikasleak",
+      "completed_hover": "Bukatuta: {count} ikasle",
+      "in_progress_hover": "Abian: {count} ikasle",
+      "not_started_hover": "Hasi gabe: {count} ikasle"
+    }
   },
   "dashboard_teacher": {
     "meta": {
@@ -283,10 +316,67 @@
       "total_time": "Denbora Guztira",
       "avg_grade": "Batez besteko Nota",
       "last_activity": "Azken Jarduera",
-      "status": "Egoera"
+      "status": "Egoera",
+      "actions": "Ekintzak"
     },
     "loading_classes": "Klaseak kargatzen...",
+    "loading_students": "Ikasleak kargatzen...",
     "select_class_prompt": "Hautatu klasea ikasleak ikusteko",
+    "empty_states": {
+      "no_classes": "Ez dituzu klaseak esleituta",
+      "no_classes_hint": "Sortu zure lehen klasea \"Klasea Sortu\" botoia erabiliz",
+      "no_students": "Ez dago ikaslerik klase honetan",
+      "select_class": "Hautatu klase bat"
+    },
+    "notifications": {
+      "class_created": "Klasea ondo sortu da",
+      "class_deleted": "Klasea ondo ezabatu da",
+      "student_removed": "Ikaslea klasetik kendu da",
+      "code_copied": "Kodea arbelean kopiatu da",
+      "csv_downloaded": "CSV ondo deskargatu da",
+      "excel_downloaded": "Excel ondo deskargatu da",
+      "template_downloaded": "Txantiloia deskargatuta",
+      "please_select_class": "Mesedez, hautatu klase bat lehenik",
+      "please_select_csv": "Mesedez, hautatu CSV fitxategi bat",
+      "please_enter_name": "Mesedez, sartu klasearentzako izen bat",
+      "import_success": "ondo inportatuta",
+      "import_errors": "errore"
+    },
+    "errors": {
+      "session_expired": "Saioa iraungi da",
+      "load_classes": "Errorea klaseak kargatzean",
+      "load_students": "Errorea ikasleak kargatzean",
+      "create_class": "Errorea klasea sortzean",
+      "delete_class": "Errorea klasea ezabatzean",
+      "remove_student": "Errorea ikaslea kentzean",
+      "export_csv": "Errorea CSV esportatzean",
+      "export_excel": "Errorea Excel esportatzean",
+      "import_students": "Errorea ikasleak inportatzean",
+      "import_validation": "Errorea inportazioan",
+      "clear_cache": "Errorea aginte-panelaren cachea garbitzean",
+      "no_teacher_info": "Ez da irakaslearen informaziorik aurkitu. Mesedez, hasi saioa berriro.",
+      "csv_columns": "CSV fitxategiak honako zutabeak izan behar ditu: izena, abizena, erabiltzailea",
+      "csv_required_fields": "Eremu guztiak (izena, abizena, erabiltzailea) derrigorrezkoak dira",
+      "no_valid_users": "Ez da erabiltzaile baliozkorik aurkitu CSV fitxategian"
+    },
+    "loading_states": {
+      "creating": "Sortzen...",
+      "importing": "Inportatzen...",
+      "validating": "Datuak balidatzen...",
+      "sending": "Datuak zerbitzarira bidaltzen...",
+      "completed": "Inportazioa bukatuta"
+    },
+    "confirmations": {
+      "delete_class": "Ziur zaude \"{name}\" klasea ezabatu nahi duzula?\n\nIkasleak EZ dira ezabatuko, bakarrik klaserik gabe geratuko dira.",
+      "remove_student": "\"{name}\" klase honetatik kendu?\n\nIkaslea EZ da ezabatuko, bakarrik klaserik gabe geratuko da.",
+      "delete_button_title": "Klasea ezabatu",
+      "remove_button_title": "Klasetik kendu"
+    },
+    "labels": {
+      "students_singular": "ikasle",
+      "students_plural": "ikasle",
+      "code": "Kodea:"
+    },
     "sidebar": {
       "my_classes": "Nire Klaseak"
     },

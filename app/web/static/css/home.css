@@ -366,3 +366,111 @@ body {
 .bg-brown {
     background-color: #8B6F47;
 }
+
+/* ============================================ */
+/* Download Confirmation Modal */
+/* ============================================ */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: var(--color-cream);
+    border-radius: 16px;
+    padding: var(--spacing-2xl);
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-olive);
+    margin-bottom: var(--spacing-md);
+}
+
+.modal-description {
+    font-size: 1rem;
+    color: var(--color-dark-olive);
+    line-height: 1.6;
+    margin-bottom: var(--spacing-xl);
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+}
+
+.modal-btn {
+    padding: var(--spacing-md) var(--spacing-xl);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-btn-cancel {
+    background-color: transparent;
+    color: var(--color-olive);
+    border: 2px solid var(--color-olive);
+}
+
+.modal-btn-cancel:hover {
+    background-color: rgba(107, 142, 111, 0.1);
+}
+
+.modal-btn-confirm {
+    background-color: var(--color-olive);
+    color: var(--color-cream);
+}
+
+.modal-btn-confirm:hover {
+    background-color: var(--color-dark-olive);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(107, 142, 111, 0.3);
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        padding: var(--spacing-xl);
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .modal-btn {
+        width: 100%;
+    }
+}

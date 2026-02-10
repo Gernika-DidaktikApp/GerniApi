@@ -48,3 +48,8 @@ deploy_local.sh
 # Internal docs
 docs/claude_api.md
 scripts/migrate_complete_partidas
+
+# Mobile app builds
+*.apk
+*.ipa
+app/web/static/downloads/*.apk

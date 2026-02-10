@@ -84,6 +84,7 @@ La API utiliza un sistema de autenticación dual:
 | POST | `/api/v1/actividades` | Crear actividad | 🔑 |
 | GET | `/api/v1/actividades` | Listar actividades | 🔑🎫 |
 | GET | `/api/v1/actividades/{id}` | Obtener actividad | 🔑🎫 |
+| GET | `/api/v1/actividades/{id}/respuestas-publicas` | Obtener respuestas públicas (message wall) | 🎫 |
 | PUT | `/api/v1/actividades/{id}` | Actualizar actividad | 🔑 |
 | DELETE | `/api/v1/actividades/{id}` | Eliminar actividad | 🔑 |
 
@@ -381,6 +382,8 @@ console.log(data.status); // "healthy"
 
 Registra un nuevo usuario en el sistema. **Endpoint público** - no requiere autenticación.
 
+Puedes asignar al usuario a una clase usando **código de clase** (6 caracteres, ej: `A3X9K2`) o UUID.
+
 #### Request
 
 **Headers:**
@@ -395,6 +398,7 @@ Content-Type: application/json
   "nombre": "string",
   "apellido": "string",
   "password": "string",
+  "codigo_clase": "string (opcional, 6 chars)",
   "id_clase": "uuid (opcional)"
 }
 ```
@@ -405,7 +409,10 @@ Content-Type: application/json
 | `nombre` | string | sí | 1-45 caracteres |
 | `apellido` | string | sí | 1-45 caracteres |
 | `password` | string | sí | 4-100 caracteres |
+| `codigo_clase` | string | no | 6 caracteres (ej: A3X9K2) |
 | `id_clase` | string | no | UUID de clase existente |
+
+> **Nota:** Si se proporciona `codigo_clase`, tiene prioridad sobre `id_clase`. Esto facilita el registro de estudiantes que solo necesitan ingresar 6 caracteres en vez de un UUID largo.
 
 #### Response
 
@@ -444,7 +451,7 @@ Content-Type: application/json
 
 #### Ejemplos
 
-**curl:**
+**curl (sin clase):**
 ```bash
 curl -X POST "https://tu-api.up.railway.app/api/v1/usuarios" \
   -H "Content-Type: application/json" \
@@ -456,8 +463,22 @@ curl -X POST "https://tu-api.up.railway.app/api/v1/usuarios" \
   }'
 ```
 
+**curl (con código de clase):**
+```bash
+curl -X POST "https://tu-api.up.railway.app/api/v1/usuarios" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "nuevo_usuario",
+    "nombre": "Juan",
+    "apellido": "García",
+    "password": "password123",
+    "codigo_clase": "A3X9K2"
+  }'
+```
+
 **JavaScript/Fetch:**
 ```javascript
+// Registro sin clase
 const response = await fetch('https://tu-api.up.railway.app/api/v1/usuarios', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -469,9 +490,23 @@ const response = await fetch('https://tu-api.up.railway.app/api/v1/usuarios', {
   })
 });
 
+// Registro con código de clase (más fácil para estudiantes)
+const response = await fetch('https://tu-api.up.railway.app/api/v1/usuarios', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    username: 'estudiante1',
+    nombre: 'María',
+    apellido: 'López',
+    password: 'password123',
+    codigo_clase: 'A3X9K2'  // Código proporcionado por el profesor
+  })
+});
+
 if (response.status === 201) {
   const usuario = await response.json();
   console.log('Usuario creado:', usuario.id);
+  console.log('Asignado a clase:', usuario.id_clase);
 }
 ```
 
@@ -699,7 +734,9 @@ Todos los endpoints de clases **requieren API Key**.
 
 ### POST `/api/v1/clases`
 
-Crea una nueva clase.
+Crea una nueva clase y genera automáticamente un **código compartible** de 6 caracteres (ej: `A3X9K2`).
+
+Este código facilita que los estudiantes se registren sin necesitar el UUID largo.
 
 **Body:**
 ```json
@@ -713,10 +750,13 @@ Crea una nueva clase.
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
+  "codigo": "A3X9K2",
   "nombre": "4º ESO A",
   "id_profesor": "uuid-del-profesor"
 }
 ```
+
+> **Nota:** El campo `codigo` se genera automáticamente evitando caracteres ambiguos (0/O, 1/I/l) para facilitar su escritura.
 
 ---
 
@@ -942,6 +982,122 @@ const response = await fetch(`${API_BASE_URL}/api/v1/actividades/${actividadId}`
 Elimina una actividad. **Requiere API Key.**
 
 **Response: 204 No Content**
+
+---
+
+### GET `/api/v1/actividades/{actividad_id}/respuestas-publicas`
+
+Obtiene respuestas públicas de estudiantes que completaron una actividad específica. **Requiere autenticación JWT.**
+
+Ideal para crear "muros de mensajes" o galerías comunitarias donde los estudiantes pueden ver las respuestas de otros compañeros.
+
+#### Query Parameters
+
+| Parámetro | Tipo | Default | Descripción |
+|-----------|------|---------|-------------|
+| `limit` | int | 20 | Máximo de respuestas a retornar (max: 100) |
+
+#### Response
+
+**Status: 200 OK**
+```json
+{
+  "actividad_id": "9a5bbb72-827a-4b7e-bd3b-1e010dff191b",
+  "actividad_nombre": "Mi mensaje para el mundo",
+  "total_respuestas": 4,
+  "respuestas": [
+    {
+      "mensaje": "Hola desde Gernika!",
+      "fecha": "2026-02-10T01:35:08.272533",
+      "usuario": "Julieta"
+    },
+    {
+      "mensaje": "La paz es importante",
+      "fecha": "2026-02-10T01:27:39.923924",
+      "usuario": "Pablo"
+    }
+  ]
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `actividad_id` | string | UUID de la actividad |
+| `actividad_nombre` | string | Nombre de la actividad |
+| `total_respuestas` | int | Número total de respuestas públicas |
+| `respuestas` | array | Lista de respuestas (ordenadas por fecha desc) |
+| `respuestas[].mensaje` | string | Contenido de la respuesta del estudiante |
+| `respuestas[].fecha` | datetime | Fecha de completado |
+| `respuestas[].usuario` | string | Nombre del estudiante (opcional) |
+
+**Status: 404 Not Found**
+```json
+{
+  "success": false,
+  "error": {
+    "code": 404,
+    "message": "Actividad no encontrada",
+    "type": "http_error"
+  }
+}
+```
+
+**Status: 401 Unauthorized** (sin token)
+```json
+{
+  "success": false,
+  "error": {
+    "code": 401,
+    "message": "Autenticación requerida",
+    "type": "http_error"
+  }
+}
+```
+
+#### Ejemplos
+
+**curl:**
+```bash
+curl -X GET "https://gernibide.up.railway.app/api/v1/actividades/9a5bbb72.../respuestas-publicas?limit=10" \
+  -H "Authorization: Bearer <token>"
+```
+
+**JavaScript:**
+```javascript
+const response = await fetch(
+  `${API_URL}/api/v1/actividades/${actividadId}/respuestas-publicas?limit=20`,
+  {
+    headers: { 'Authorization': `Bearer ${token}` }
+  }
+);
+
+const data = await response.json();
+console.log(`${data.total_respuestas} mensajes públicos`);
+data.respuestas.forEach(r => {
+  console.log(`${r.usuario}: ${r.mensaje}`);
+});
+```
+
+**Flutter:**
+```dart
+final response = await http.get(
+  Uri.parse('$baseUrl/api/v1/actividades/$actividadId/respuestas-publicas?limit=20'),
+  headers: {'Authorization': 'Bearer $token'},
+);
+
+if (response.statusCode == 200) {
+  final data = jsonDecode(response.body);
+  for (var respuesta in data['respuestas']) {
+    print('${respuesta['usuario']}: ${respuesta['mensaje']}');
+  }
+}
+```
+
+**Caso de uso típico:**
+1. Usuario completa actividad "Mi mensaje para el mundo" escribiendo un mensaje
+2. El mensaje se guarda en el campo `respuesta_contenido` de ActividadProgreso
+3. Otros usuarios llaman a este endpoint para ver todos los mensajes públicos
+4. Se muestra un "muro de mensajes" con las contribuciones de la comunidad
 
 ---
 
@@ -2131,7 +2287,7 @@ Verifica que la API está corriendo: `GET /health`
 
 ---
 
-**Última actualización:** 7 de Febrero 2026
+**Última actualización:** 10 de Febrero 2026
 
 ---
 
@@ -2144,8 +2300,8 @@ Verifica que la API está corriendo: `GET /health`
 | Profesores | 5 |
 | Clases | 5 |
 | Puntos | 5 |
-| Actividades | 5 |
+| Actividades | 6 (+1 respuestas públicas) |
 | Partidas | 5 |
 | Progreso de Actividades | 8 |
 | Audit Logs (solo lectura) | 2 |
-| **Total** | **42 endpoints**
+| **Total** | **43 endpoints**

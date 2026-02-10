@@ -205,6 +205,7 @@ Verifica que la API está corriendo.
 
 ### Clase
 - `id` (UUID)
+- `codigo` (string, 6 caracteres únicos - para compartir fácilmente)
 - `id_profesor` (FK a Profesor)
 - `nombre`
 
@@ -632,13 +633,15 @@ pytest tests/test_*.py -v
 pytest tests/unit/ -v
 ```
 
-### Suite de Tests (77 tests)
+### Suite de Tests (84 tests)
 
 **Tests de Integración**:
 - ✅ Autenticación (login, tokens, errores)
 - ✅ CRUD de usuarios (crear, listar, actualizar, eliminar)
-- ✅ Importación masiva de usuarios (bulk import)
+- ✅ Registro con código de clase (codigo_clase)
+- ✅ Importación masiva de usuarios (bulk import transaccional)
 - ✅ Estadísticas de usuarios (racha de días, actividades, puntos)
+- ✅ Respuestas públicas de actividades (message wall)
 - ✅ Sistema de progreso de puntos y actividades
 - ✅ Auto-completado de puntos
 - ✅ Cálculo automático de duraciones
@@ -863,7 +866,10 @@ Este proyecto está bajo licencia MIT.
 ### Funcionalidades de Negocio
 - ✅ **Sistema de progreso** de puntos y actividades con cálculos automáticos
 - ✅ **Estadísticas de usuarios** (racha de días, puntos acumulados, módulos completados)
-- ✅ **Importación masiva** de usuarios con validaciones transaccionales
+- ✅ **Códigos de clase compartibles** (6 caracteres: ej. A3X9K2) - Facilita registro de estudiantes
+- ✅ **Registro con código de clase** - Estudiantes pueden unirse usando código corto
+- ✅ **Importación masiva** de usuarios con validaciones transaccionales (all-or-nothing)
+- ✅ **Respuestas públicas** - Endpoint para muros de mensajes y galerías comunitarias
 - ✅ **Dashboard web** para profesores con gestión de clases
 - ✅ **Auto-completado de puntos** cuando se completan todas las actividades
 - ✅ **Tracking de progreso** con puntuaciones y tiempos calculados automáticamente

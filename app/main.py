@@ -11,6 +11,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.wsgi import WSGIMiddleware
 from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 
@@ -37,6 +38,7 @@ from app.routers import (
 )
 from app.utils.rate_limit import close_rate_limiter, init_rate_limiter, limiter, rate_limit_handler
 from app.web import routes as web_routes
+from app.web.flask_app import flask_app
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -215,6 +217,10 @@ logger.info(f"Routers de API registrados en {settings.API_V1_PREFIX}")
 # Incluir router de interfaz web
 app.include_router(web_routes.router)
 logger.info("Router de interfaz web registrado")
+
+# Montar aplicación Flask en prefijo /web para integración académica
+app.mount("/web", WSGIMiddleware(flask_app))
+logger.info("Aplicación Flask montada en /web con WSGIMiddleware")
 
 
 @app.on_event("startup")

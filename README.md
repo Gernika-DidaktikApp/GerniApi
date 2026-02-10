@@ -16,6 +16,7 @@ API REST con FastAPI para la aplicación móvil Gernibide. Gestiona autenticaci�
 - [Quick Start](#-quick-start)
 - [Requisitos Previos](#-requisitos-previos)
 - [Instalación Local](#️-instalación-local)
+- [CLI Administrativo](#-cli-administrativo)
 - [Testing](#-testing)
 - [Endpoints Disponibles](#-endpoints-disponibles)
 - [Modelos de Base de Datos](#-modelos-de-base-de-datos)
@@ -788,6 +789,7 @@ sudo systemctl start postgresql
 
 ### Guías de Usuario
 - **[API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** - 📡 **Guía completa de uso de endpoints** (¡Empieza aquí!)
+- **[scripts/README.md](scripts/README.md)** - 🔧 **CLI Administrativo** - Gestión de usuarios y datos vía API
 - **[GerniBide.postman_collection.json](GerniBide.postman_collection.json)** - 📮 **Colección de Postman** - Importa y usa todos los endpoints
 - [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) - Guía completa de despliegue en Railway
 - [QUICKSTART.md](QUICKSTART.md) - Inicio rápido en 5 pasos
@@ -819,6 +821,121 @@ sudo systemctl start postgresql
    - Ejecuta "Login App" primero (guarda el token automáticamente)
    - Los demás endpoints usan el token guardado en `{{auth_token}}`
    - Copia IDs de las respuestas a las variables cuando sea necesario
+
+---
+
+## 🔧 CLI Administrativo
+
+GerniBide incluye un **CLI (Command Line Interface)** completo para gestión administrativa que usa **exclusivamente la API REST**.
+
+### ¿Por qué usar el CLI?
+
+✅ **Ventajas:**
+- **No requiere credenciales de BBDD** - Solo necesitas una API Key
+- **Seguro** - Toda operación pasa por la API con validación y auditoría
+- **Fácil de usar** - Comandos intuitivos con ayuda integrada
+- **Auditable** - Todas las acciones se registran en `audit_logs`
+- **Remoto** - Funciona desde cualquier máquina con acceso a la API
+
+### Instalación y Configuración
+
+```bash
+# 1. Instalar dependencias
+pip install -r requirements-dev.txt
+
+# 2. Configurar CLI
+cd scripts
+cp .env.example .env
+
+# 3. Editar .env con tu API Key
+# API_URL=https://gernibide.up.railway.app
+# API_KEY=tu-api-key
+
+# 4. Verificar conexión
+python cli.py users check-api
+```
+
+### Comandos Disponibles
+
+#### Gestión de Usuarios
+
+```bash
+# Listar usuarios
+python scripts/cli.py users list --limit 20
+
+# Crear profesor
+python scripts/cli.py users create-profesor
+
+# Crear estudiante
+python scripts/cli.py users create-usuario \
+  --username alumno01 \
+  --nombre Juan \
+  --apellido Pérez
+
+# Importar usuarios desde CSV
+python scripts/cli.py users import-csv alumnos.csv --clase ABC123
+```
+
+#### Exportación de Datos
+
+```bash
+# Exportar usuarios a CSV
+python scripts/cli.py export data usuarios --format csv
+
+# Exportar todos los modelos a JSON
+python scripts/cli.py export all --format json --output ./backup
+```
+
+#### Utilidades
+
+```bash
+# Ver configuración
+python scripts/cli.py config
+
+# Ver ayuda
+python scripts/cli.py --help
+python scripts/cli.py users --help
+```
+
+### Casos de Uso Comunes
+
+**Inicio de curso - Crear clase con 30 alumnos:**
+```bash
+# 1. Crear profesor
+python scripts/cli.py users create-profesor \
+  --username prof.garcia \
+  --nombre María \
+  --apellido García
+
+# 2. Profesor crea la clase en la web y obtiene código (ej: ABC123)
+
+# 3. Importar alumnos
+python scripts/cli.py users import-csv alumnos_1eso.csv --clase ABC123
+```
+
+**Backup de datos:**
+```bash
+# Exportar todo antes de cambios importantes
+python scripts/cli.py export all \
+  --format json \
+  --output ./backup-$(date +%Y%m%d)
+```
+
+### Documentación Completa
+
+Ver **[scripts/README.md](scripts/README.md)** para:
+- Guía completa de instalación
+- Todos los comandos con ejemplos
+- Casos de uso detallados
+- Troubleshooting
+- FAQ
+
+### Seguridad
+
+- ✅ Modo **solo-lectura** configurable para producción
+- ✅ Confirmaciones antes de operaciones destructivas
+- ✅ `.gitignore` protege archivos sensibles (API Keys)
+- ✅ Scripts legacy separados con advertencias
 
 ---
 

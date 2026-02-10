@@ -42,6 +42,7 @@ def get_storage_uri() -> str:
     """Determina el storage URI para rate limiting.
 
     Prioridad:
+    0. Si rate limiting está deshabilitado, usar memoria
     1. Variable de entorno REDIS_URL (Railway, producción)
     2. Redis local en desarrollo
     3. Fallback a memoria si Redis no está disponible
@@ -49,6 +50,11 @@ def get_storage_uri() -> str:
     Returns:
         URI de storage para slowapi.
     """
+    # 0. Si rate limiting está deshabilitado, usar memoria directamente
+    if not settings.RATE_LIMIT_ENABLED:
+        logger.info("Rate limiting deshabilitado, usando memoria")
+        return "memory://"
+
     # 1. Intentar usar REDIS_URL de entorno (producción)
     redis_url = settings.REDIS_URL if hasattr(settings, "REDIS_URL") else os.getenv("REDIS_URL")
     if redis_url:

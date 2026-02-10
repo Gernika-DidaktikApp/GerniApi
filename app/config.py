@@ -46,6 +46,9 @@ class Settings(BaseSettings):
         """Configuración de Pydantic Settings."""
 
         env_file = ".env"
+        # Variables de entorno del sistema tienen prioridad sobre .env
+        env_file_encoding = "utf-8"
+        case_sensitive = False
 
 
 settings = Settings()

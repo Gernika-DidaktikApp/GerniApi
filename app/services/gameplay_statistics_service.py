@@ -173,11 +173,11 @@ class GameplayStatisticsService:
         # Detectar si las duraciones están en milisegundos o segundos
         # Si el promedio es > 3600 (1 hora en segundos), probablemente está en milisegundos
         if avg_duration > 3600:
-            # Duraciones en milisegundos
-            duracion_promedio_seg = round(avg_duration / 1000, 1)
+            # Duraciones en milisegundos - convertir a minutos
+            duracion_promedio_min = round(avg_duration / 1000 / 60, 1)
         else:
-            # Duraciones en segundos
-            duracion_promedio_seg = round(avg_duration, 1) if avg_duration else 0
+            # Duraciones en segundos - convertir a minutos
+            duracion_promedio_min = round(avg_duration / 60, 1) if avg_duration else 0
 
         # Detectar para tiempo total
         if total_time_seconds > 3600000:  # > 1000 horas en segundos, probablemente milisegundos
@@ -189,7 +189,7 @@ class GameplayStatisticsService:
             "total_partidas": total_partidas,
             "partidas_completadas": completadas,
             "partidas_en_progreso": en_progreso,
-            "duracion_promedio": duracion_promedio_seg,
+            "duracion_promedio": duracion_promedio_min,
             "actividades_completadas": actividades_completadas,
             "tiempo_total_minutos": tiempo_total_min,
         }

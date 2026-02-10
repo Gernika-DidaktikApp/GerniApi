@@ -12,6 +12,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi.errors import RateLimitExceeded
 
 # Importar modelos para que SQLAlchemy los conozca
 import app.models  # noqa
@@ -34,14 +35,8 @@ from app.routers import (
     teacher_dashboard,
     usuarios,
 )
-from app.utils.rate_limit import (
-    close_rate_limiter,
-    init_rate_limiter,
-    limiter,
-    rate_limit_handler,
-)
+from app.utils.rate_limit import close_rate_limiter, init_rate_limiter, limiter, rate_limit_handler
 from app.web import routes as web_routes
-from slowapi.errors import RateLimitExceeded
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

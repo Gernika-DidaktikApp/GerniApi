@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime, timedelta
 
 # Add parent directory to path
-sys.path.insert(0, '/Users/warapacheco/Documents/DM25-26/DidaktikApp/API/GerniApi')
+sys.path.insert(0, "/Users/warapacheco/Documents/DM25-26/DidaktikApp/API/GerniApi")
 
 from app.database import SessionLocal
 from app.models.actividad import Actividad
@@ -23,31 +23,17 @@ from app.models.usuario import Usuario
 def crear_puntos_actividades(db):
     """Crea puntos y actividades si no existen"""
     puntos_data = [
-        ("Árbol del Gernika", [
-            "Ubicación del árbol",
-            "Historia del árbol",
-            "Significado simbólico"
-        ]),
-        ("Museo de la Paz", [
-            "Entrada al museo",
-            "Exposición principal",
-            "Sala audiovisual"
-        ]),
-        ("Refugio Antiaéreo", [
-            "Acceso al refugio",
-            "Recorrido interior",
-            "Historia del bombardeo"
-        ]),
-        ("Casa de Juntas", [
-            "Exterior del edificio",
-            "Sala de juntas",
-            "Árbol sagrado"
-        ]),
-        ("Parque de los Pueblos", [
-            "Entrada del parque",
-            "Esculturas",
-            "Zonas verdes"
-        ])
+        (
+            "Árbol del Gernika",
+            ["Ubicación del árbol", "Historia del árbol", "Significado simbólico"],
+        ),
+        ("Museo de la Paz", ["Entrada al museo", "Exposición principal", "Sala audiovisual"]),
+        (
+            "Refugio Antiaéreo",
+            ["Acceso al refugio", "Recorrido interior", "Historia del bombardeo"],
+        ),
+        ("Casa de Juntas", ["Exterior del edificio", "Sala de juntas", "Árbol sagrado"]),
+        ("Parque de los Pueblos", ["Entrada del parque", "Esculturas", "Zonas verdes"]),
     ]
 
     puntos = []
@@ -57,10 +43,7 @@ def crear_puntos_actividades(db):
         punto = db.query(Punto).filter(Punto.nombre == nombre_punto).first()
 
         if not punto:
-            punto = Punto(
-                id=str(uuid.uuid4()),
-                nombre=nombre_punto
-            )
+            punto = Punto(id=str(uuid.uuid4()), nombre=nombre_punto)
             db.add(punto)
             db.flush()
 
@@ -68,17 +51,14 @@ def crear_puntos_actividades(db):
 
         # Crear actividades para este punto
         for nombre_act in actividades_nombres:
-            actividad = db.query(Actividad).filter(
-                Actividad.nombre == nombre_act,
-                Actividad.id_punto == punto.id
-            ).first()
+            actividad = (
+                db.query(Actividad)
+                .filter(Actividad.nombre == nombre_act, Actividad.id_punto == punto.id)
+                .first()
+            )
 
             if not actividad:
-                actividad = Actividad(
-                    id=str(uuid.uuid4()),
-                    id_punto=punto.id,
-                    nombre=nombre_act
-                )
+                actividad = Actividad(id=str(uuid.uuid4()), id_punto=punto.id, nombre=nombre_act)
                 db.add(actividad)
 
     db.commit()
@@ -116,7 +96,7 @@ def generar_partidas_y_progreso(db, usuarios, puntos, dias=14):
                 id_usuario=usuario.id,
                 fecha_inicio=fecha_inicio,
                 duracion=duracion,
-                estado=estado_partida
+                estado=estado_partida,
             )
             db.add(partida)
             db.flush()
@@ -138,25 +118,33 @@ def generar_partidas_y_progreso(db, usuarios, puntos, dias=14):
                     # Estado del progreso (más probable completado si partida completada)
                     if estado_partida == "completada":
                         estado_progreso = random.choices(
-                            ["completado", "en_progreso", "abandonado"],
-                            weights=[0.8, 0.1, 0.1]
+                            ["completado", "en_progreso", "abandonado"], weights=[0.8, 0.1, 0.1]
                         )[0]
                     elif estado_partida == "en_progreso":
                         estado_progreso = random.choices(
-                            ["completado", "en_progreso", "abandonado"],
-                            weights=[0.4, 0.5, 0.1]
+                            ["completado", "en_progreso", "abandonado"], weights=[0.4, 0.5, 0.1]
                         )[0]
                     else:
                         estado_progreso = "abandonado"
 
                     # Duración de la actividad (2-10 minutos)
-                    duracion_actividad = random.randint(120, 600) if estado_progreso == "completado" else None
+                    duracion_actividad = (
+                        random.randint(120, 600) if estado_progreso == "completado" else None
+                    )
 
                     # Puntuación (5-10 si completado)
-                    puntuacion = round(random.uniform(5.0, 10.0), 1) if estado_progreso == "completado" else None
+                    puntuacion = (
+                        round(random.uniform(5.0, 10.0), 1)
+                        if estado_progreso == "completado"
+                        else None
+                    )
 
                     # Fecha fin
-                    fecha_fin = fecha_inicio + timedelta(seconds=duracion_actividad) if duracion_actividad else None
+                    fecha_fin = (
+                        fecha_inicio + timedelta(seconds=duracion_actividad)
+                        if duracion_actividad
+                        else None
+                    )
 
                     # Crear progreso de actividad
                     actividad_progreso = ActividadProgreso(
@@ -168,7 +156,7 @@ def generar_partidas_y_progreso(db, usuarios, puntos, dias=14):
                         duracion=duracion_actividad,
                         fecha_fin=fecha_fin,
                         estado=estado_progreso,
-                        puntuacion=puntuacion
+                        puntuacion=puntuacion,
                     )
                     db.add(actividad_progreso)
                     progreso_creado += 1
@@ -211,6 +199,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
         db.rollback()
         sys.exit(1)

@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime
 
 # Add parent directory to path to import app modules
-sys.path.insert(0, '/Users/warapacheco/Documents/DM25-26/DidaktikApp/API/GerniApi')
+sys.path.insert(0, "/Users/warapacheco/Documents/DM25-26/DidaktikApp/API/GerniApi")
 
 from app.database import SessionLocal
 from app.models.profesor import Profesor
@@ -20,7 +20,7 @@ def crear_profesor_prueba(
     username: str = "admin",
     password: str = "admin123",
     nombre: str = "Profesor",
-    apellido: str = "Admin"
+    apellido: str = "Admin",
 ):
     """
     Crea un profesor de prueba en la base de datos
@@ -47,7 +47,7 @@ def crear_profesor_prueba(
 
             # Preguntar si quiere actualizar la contraseña
             respuesta = input("\n¿Deseas actualizar la contraseña? (s/n): ")
-            if respuesta.lower() == 's':
+            if respuesta.lower() == "s":
                 existing.password = hash_password(password)
                 db.commit()
                 print(f"\n✅ Contraseña actualizada para '{username}'")
@@ -64,7 +64,7 @@ def crear_profesor_prueba(
             nombre=nombre,
             apellido=apellido,
             password=hash_password(password),
-            created=datetime.now()
+            created=datetime.now(),
         )
 
         db.add(profesor)
@@ -95,11 +95,17 @@ if __name__ == "__main__":
 
     # Verificar si se pasaron argumentos
     if len(sys.argv) > 1:
-        if sys.argv[1] in ['-h', '--help']:
+        if sys.argv[1] in ["-h", "--help"]:
             print("\nUso:")
-            print("  python scripts/crear_profesor.py                    # Crea profesor por defecto (admin/admin123)")
-            print("  python scripts/crear_profesor.py <username> <pass>  # Crea profesor con credenciales personalizadas")
-            print("  python scripts/crear_profesor.py <user> <pass> <nombre> <apellido>  # Completo")
+            print(
+                "  python scripts/crear_profesor.py                    # Crea profesor por defecto (admin/admin123)"
+            )
+            print(
+                "  python scripts/crear_profesor.py <username> <pass>  # Crea profesor con credenciales personalizadas"
+            )
+            print(
+                "  python scripts/crear_profesor.py <user> <pass> <nombre> <apellido>  # Completo"
+            )
             print("\nEjemplo:")
             print("  python scripts/crear_profesor.py teacher pass123")
             print("  python scripts/crear_profesor.py maria garcia123 María García")

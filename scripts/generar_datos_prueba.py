@@ -18,7 +18,11 @@ import requests
 BASE_URL = "http://localhost:8000"
 
 # Validación de seguridad: Asegurar que NUNCA apunte a producción
-if "railway" in BASE_URL.lower() or "heroku" in BASE_URL.lower() or "localhost" not in BASE_URL.lower():
+if (
+    "railway" in BASE_URL.lower()
+    or "heroku" in BASE_URL.lower()
+    or "localhost" not in BASE_URL.lower()
+):
     print("❌ ERROR DE SEGURIDAD")
     print("Este script solo puede ejecutarse contra localhost.")
     print(f"URL actual: {BASE_URL}")
@@ -47,10 +51,48 @@ print()
 # ============================================
 
 # Nombres para usuarios de prueba
-NOMBRES = ["Ana", "Juan", "María", "Pedro", "Laura", "Carlos", "Sofía", "Miguel", "Elena", "David",
-           "Lucía", "Javier", "Carmen", "Antonio", "Isabel", "Manuel", "Patricia", "José", "Rosa", "Francisco"]
-APELLIDOS = ["García", "Rodríguez", "Martínez", "López", "González", "Pérez", "Sánchez", "Ramírez",
-             "Torres", "Flores", "Rivera", "Gómez", "Díaz", "Cruz", "Morales", "Reyes", "Ortiz", "Gutiérrez"]
+NOMBRES = [
+    "Ana",
+    "Juan",
+    "María",
+    "Pedro",
+    "Laura",
+    "Carlos",
+    "Sofía",
+    "Miguel",
+    "Elena",
+    "David",
+    "Lucía",
+    "Javier",
+    "Carmen",
+    "Antonio",
+    "Isabel",
+    "Manuel",
+    "Patricia",
+    "José",
+    "Rosa",
+    "Francisco",
+]
+APELLIDOS = [
+    "García",
+    "Rodríguez",
+    "Martínez",
+    "López",
+    "González",
+    "Pérez",
+    "Sánchez",
+    "Ramírez",
+    "Torres",
+    "Flores",
+    "Rivera",
+    "Gómez",
+    "Díaz",
+    "Cruz",
+    "Morales",
+    "Reyes",
+    "Ortiz",
+    "Gutiérrez",
+]
 
 # IDs de actividades existentes
 ACTIVIDADES = {
@@ -117,7 +159,7 @@ def crear_partida_con_eventos(token, user_id, dias_atras=0):
     num_actividades = random.randint(1, len(ACTIVIDADES))
     actividades_seleccionadas = random.sample(list(ACTIVIDADES.items()), num_actividades)
 
-    for nombre_act, actividad_id in actividades_seleccionadas:
+    for _nombre_act, _actividad_id in actividades_seleccionadas:
         # Iniciar evento (simplificado - solo una actividad por ahora)
         # Nota: Este endpoint puede no existir aún, ajustar según tu API
         pass
@@ -151,7 +193,9 @@ def generar_datos_historicos():
         fecha = datetime.now() - timedelta(days=dias_atras)
 
         # Algunos usuarios juegan ese día (no todos)
-        usuarios_activos = random.sample(usuarios_creados, k=random.randint(5, len(usuarios_creados) // 2))
+        usuarios_activos = random.sample(
+            usuarios_creados, k=random.randint(5, len(usuarios_creados) // 2)
+        )
 
         partidas_dia = 0
         for usuario in usuarios_activos:
@@ -164,7 +208,9 @@ def generar_datos_historicos():
                     if partida:
                         partidas_dia += 1
 
-        print(f"  Día {fecha.strftime('%Y-%m-%d')}: {len(usuarios_activos)} usuarios, {partidas_dia} partidas")
+        print(
+            f"  Día {fecha.strftime('%Y-%m-%d')}: {len(usuarios_activos)} usuarios, {partidas_dia} partidas"
+        )
 
     print("\n" + "=" * 60)
     print("   ✓ DATOS GENERADOS EXITOSAMENTE")
@@ -192,7 +238,7 @@ def menu():
 
     if opcion == "1":
         confirmar = input("\n¿Confirmar generación de datos históricos? (s/n): ").strip().lower()
-        if confirmar == 's':
+        if confirmar == "s":
             generar_datos_historicos()
         else:
             print("Operación cancelada.")

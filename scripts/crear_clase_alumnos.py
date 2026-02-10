@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime
 
 # Add parent directory to path
-sys.path.insert(0, '/Users/warapacheco/Documents/DM25-26/DidaktikApp/API/GerniApi')
+sys.path.insert(0, "/Users/warapacheco/Documents/DM25-26/DidaktikApp/API/GerniApi")
 
 from app.database import SessionLocal
 from app.models.clase import Clase
@@ -35,17 +35,14 @@ def crear_clase_con_alumnos():
         print(f"   Profesor encontrado: {profesor.nombre} {profesor.apellido}")
 
         # Crear clase si no existe
-        clase = db.query(Clase).filter(
-            Clase.id_profesor == profesor.id,
-            Clase.nombre == "4º A - Primaria"
-        ).first()
+        clase = (
+            db.query(Clase)
+            .filter(Clase.id_profesor == profesor.id, Clase.nombre == "4º A - Primaria")
+            .first()
+        )
 
         if not clase:
-            clase = Clase(
-                id=str(uuid.uuid4()),
-                id_profesor=profesor.id,
-                nombre="4º A - Primaria"
-            )
+            clase = Clase(id=str(uuid.uuid4()), id_profesor=profesor.id, nombre="4º A - Primaria")
             db.add(clase)
             db.commit()
             db.refresh(clase)
@@ -84,7 +81,7 @@ def crear_clase_con_alumnos():
                     password=hash_password("alumno123"),
                     id_clase=clase.id,
                     creation=datetime.now(),
-                    top_score=0
+                    top_score=0,
                 )
                 db.add(alumno)
                 alumnos_creados += 1

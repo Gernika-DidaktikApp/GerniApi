@@ -47,4 +47,4 @@ deploy_local.sh
 
 # Internal docs
 docs/claude_api.md
-scripts/migrate_complete_partidas.py
+scripts/migrate_complete_partidas

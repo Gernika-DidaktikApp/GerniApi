@@ -56,9 +56,7 @@ def test_partida_unica():
 
     # 2. Intentar obtener partida activa (no debería existir)
     print("\n2. Intentando obtener partida activa...")
-    response = requests.get(
-        f"{BASE_URL}/partidas/activa/usuario/{usuario_id}", headers=headers
-    )
+    response = requests.get(f"{BASE_URL}/partidas/activa/usuario/{usuario_id}", headers=headers)
 
     if response.status_code == 404:
         print("✅ Confirmado: No hay partida activa (esperado)")
@@ -117,9 +115,7 @@ def test_partida_unica():
     # 6. Finalizar partida
     print("\n6. Finalizando partida activa...")
     update_data = {"estado": "completado"}
-    response = requests.put(
-        f"{BASE_URL}/partidas/{partida1_id}", json=update_data, headers=headers
-    )
+    response = requests.put(f"{BASE_URL}/partidas/{partida1_id}", json=update_data, headers=headers)
 
     if response.status_code == 200:
         print("✅ Partida finalizada")

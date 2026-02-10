@@ -50,14 +50,17 @@ def get_storage_uri() -> str:
         URI de storage para slowapi.
     """
     # 1. Intentar usar REDIS_URL de entorno (producción)
-    redis_url = settings.REDIS_URL if hasattr(settings, 'REDIS_URL') else os.getenv("REDIS_URL")
+    redis_url = settings.REDIS_URL if hasattr(settings, "REDIS_URL") else os.getenv("REDIS_URL")
     if redis_url:
-        logger.info(f"Rate limiting usando Redis: {redis_url.split('@')[0] if '@' in redis_url else 'redis'}@***")
+        logger.info(
+            f"Rate limiting usando Redis: {redis_url.split('@')[0] if '@' in redis_url else 'redis'}@***"
+        )
         return redis_url
 
     # 2. Intentar conectar a Redis local (desarrollo)
     try:
         import redis
+
         client = redis.Redis(host="localhost", port=6379, db=0, socket_connect_timeout=1)
         client.ping()
         logger.info("Rate limiting usando Redis local: redis://localhost:6379")
@@ -81,7 +84,9 @@ limiter = Limiter(
 # ==================== Límites por categoría ====================
 
 # Rate limit por defecto (configurable desde settings)
-RATE_LIMIT_DEFAULT = f"{settings.RATE_LIMIT_PER_MINUTE if hasattr(settings, 'RATE_LIMIT_PER_MINUTE') else 10}/minute"
+RATE_LIMIT_DEFAULT = (
+    f"{settings.RATE_LIMIT_PER_MINUTE if hasattr(settings, 'RATE_LIMIT_PER_MINUTE') else 10}/minute"
+)
 
 # Rate limit estricto para endpoints sensibles
 RATE_LIMIT_STRICT = "5/minute"
@@ -91,6 +96,7 @@ RATE_LIMIT_PERMISSIVE = "60/minute"
 
 
 # ==================== Error Handler ====================
+
 
 def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
     """Handler personalizado para errores de rate limiting.

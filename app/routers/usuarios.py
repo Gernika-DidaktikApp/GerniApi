@@ -316,6 +316,14 @@ def remover_alumno_de_clase(
     """
     from app.schemas.usuario import UsuarioUpdate
 
+    # Log de inicio ANTES de cualquier validación
+    log_info(
+        "=== INICIO remover_alumno_de_clase ===",
+        usuario_id=usuario_id,
+        is_api_key=auth.is_api_key,
+        profesor_id=auth.user_id if not auth.is_api_key else "N/A",
+    )
+
     # Si es JWT token (profesor), verificar que el alumno está en una de sus clases
     if not auth.is_api_key:
         # Obtener el alumno

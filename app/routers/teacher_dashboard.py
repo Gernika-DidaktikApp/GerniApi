@@ -390,3 +390,81 @@ def clear_teacher_dashboard_cache(
 
     TeacherDashboardService.clear_cache()
     return None
+
+
+@router.get(
+    "/gallery",
+    response_model=list[dict[str, Any]],
+    summary="Get student image gallery",
+    description="Returns images (Cloudinary URLs) from student activity responses",
+)
+def get_gallery(
+    clase_id: str = Query(None, description="Optional class ID to filter"),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user_from_token),
+) -> list[dict[str, Any]]:
+    """
+    ## Get Student Image Gallery
+
+    Returns all images (Cloudinary URLs) submitted by students in activities.
+
+    ### Response Format
+    Each image includes:
+    - **url**: Cloudinary image URL
+    - **alumno**: Student name
+    - **clase**: Class name
+    - **actividad**: Activity name
+    - **fecha**: Completion date
+
+    ### Parameters
+    - **clase_id**: Optional specific class ID (default: all classes)
+
+    ### Authentication
+    Requires valid JWT token from profesor login.
+    """
+    profesor_id = current_user.get("profesor_id")
+    if not profesor_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+        )
+
+    return TeacherDashboardService.get_gallery_images(db, profesor_id, clase_id)
+
+
+@router.get(
+    "/message-wall",
+    response_model=list[dict[str, Any]],
+    summary="Get student message wall",
+    description="Returns text messages from student activity responses",
+)
+def get_message_wall(
+    clase_id: str = Query(None, description="Optional class ID to filter"),
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user_from_token),
+) -> list[dict[str, Any]]:
+    """
+    ## Get Student Message Wall
+
+    Returns all text messages submitted by students in activities.
+
+    ### Response Format
+    Each message includes:
+    - **mensaje**: The text message
+    - **alumno**: Student name
+    - **clase**: Class name
+    - **actividad**: Activity name
+    - **fecha**: Completion date
+
+    ### Parameters
+    - **clase_id**: Optional specific class ID (default: all classes)
+
+    ### Authentication
+    Requires valid JWT token from profesor login.
+    """
+    profesor_id = current_user.get("profesor_id")
+    if not profesor_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+        )
+
+    return TeacherDashboardService.get_message_wall(db, profesor_id, clase_id)

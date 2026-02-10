@@ -112,3 +112,18 @@ async def dashboard_teacher_page(request: Request):
     return templates.TemplateResponse(
         "dashboard-teacher.html", {"request": request, "_": translate, "current_lang": lang}
     )
+
+
+@router.get("/gallery", response_class=HTMLResponse, name="gallery_wall_page")
+async def gallery_wall_page(request: Request):
+    """
+    Render the gallery and message wall page
+
+    Private page for teachers to view student images and messages from activities
+    Includes image gallery (Cloudinary uploads) and message wall (text responses)
+    Filterable by class
+    """
+    translate, lang = get_translator(request)
+    return templates.TemplateResponse(
+        "gallery-wall.html", {"request": request, "_": translate, "current_lang": lang}
+    )

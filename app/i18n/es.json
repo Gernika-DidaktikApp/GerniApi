@@ -5,6 +5,7 @@
       "statistics": "Estadísticas",
       "classes": "Clases",
       "dashboard": "Tablero",
+      "gallery": "Galería y Mural",
       "login": "Login",
       "logout": "Salir"
     },
@@ -309,6 +310,48 @@
         "cancel": "Cancelar",
         "submit": "Importar"
       }
+    }
+  },
+  "gallery": {
+    "meta": {
+      "title": "Galería y Mural - Gernibide",
+      "description": "Galería de Imágenes y Mural de Mensajes de Estudiantes"
+    },
+    "page": {
+      "title": "Galería y",
+      "highlight": "Mural de Estudiantes",
+      "description": "Explora las imágenes y mensajes compartidos por tus estudiantes"
+    },
+    "filter": {
+      "label": "Filtrar por clase:",
+      "all_classes": "Todas las clases"
+    },
+    "tabs": {
+      "gallery": "Galería de Imágenes",
+      "messages": "Mural de Mensajes"
+    },
+    "gallery_section": {
+      "title": "Galería de Imágenes",
+      "count_singular": "imagen",
+      "count_plural": "imágenes",
+      "loading": "Cargando galería...",
+      "empty_title": "No hay imágenes todavía",
+      "empty_description": "Las imágenes compartidas por los estudiantes aparecerán aquí",
+      "error_title": "Error al cargar la galería",
+      "error_description": "Por favor, intenta de nuevo más tarde"
+    },
+    "messages_section": {
+      "title": "Mural de Mensajes",
+      "count_singular": "mensaje",
+      "count_plural": "mensajes",
+      "loading": "Cargando mensajes...",
+      "empty_title": "No hay mensajes todavía",
+      "empty_description": "Los mensajes de los estudiantes aparecerán aquí",
+      "error_title": "Error al cargar los mensajes",
+      "error_description": "Por favor, intenta de nuevo más tarde"
+    },
+    "modal": {
+      "alt": "Imagen ampliada"
     }
   }
 }

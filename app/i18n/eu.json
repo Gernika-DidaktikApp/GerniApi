@@ -5,6 +5,7 @@
       "statistics": "Estatistikak",
       "classes": "Klaseak",
       "dashboard": "Aginte-panela",
+      "gallery": "Galeria eta Horma",
       "login": "Saioa hasi",
       "logout": "Irten"
     },
@@ -309,6 +310,48 @@
         "cancel": "Utzi",
         "submit": "Inportatu"
       }
+    }
+  },
+  "gallery": {
+    "meta": {
+      "title": "Galeria eta Horma - Gernibide",
+      "description": "Ikasleen Irudi Galeria eta Mezu Horma"
+    },
+    "page": {
+      "title": "Galeria eta",
+      "highlight": "Ikasleen Horma",
+      "description": "Esploratu ikasleek partekatutako irudiak eta mezuak"
+    },
+    "filter": {
+      "label": "Klasez iragazi:",
+      "all_classes": "Klase guztiak"
+    },
+    "tabs": {
+      "gallery": "Irudi Galeria",
+      "messages": "Mezu Horma"
+    },
+    "gallery_section": {
+      "title": "Irudi Galeria",
+      "count_singular": "irudi",
+      "count_plural": "irudi",
+      "loading": "Galeria kargatzen...",
+      "empty_title": "Oraindik ez dago irudirik",
+      "empty_description": "Ikasleek partekatutako irudiak hemen agertuko dira",
+      "error_title": "Errorea galeria kargatzean",
+      "error_description": "Mesedez, saiatu berriz geroago"
+    },
+    "messages_section": {
+      "title": "Mezu Horma",
+      "count_singular": "mezu",
+      "count_plural": "mezu",
+      "loading": "Mezuak kargatzen...",
+      "empty_title": "Oraindik ez dago mezurik",
+      "empty_description": "Ikasleen mezuak hemen agertuko dira",
+      "error_title": "Errorea mezuak kargatzean",
+      "error_description": "Mesedez, saiatu berriz geroago"
+    },
+    "modal": {
+      "alt": "Irudi handitua"
     }
   }
 }

@@ -1016,3 +1016,143 @@ class TeacherDashboardService:
         excel_buffer.seek(0)
 
         return excel_buffer.getvalue()
+
+    @staticmethod
+    def get_gallery_images(
+        db: Session, profesor_id: str, clase_id: str | None = None
+    ) -> list[dict[str, Any]]:
+        """Get image gallery from student activity responses.
+
+        Retrieves all image URLs (Cloudinary links) from student responses
+        organized by class.
+
+        Args:
+            db: Database session for querying.
+            profesor_id: ID of the professor.
+            clase_id: Optional specific class ID. If None, includes all classes.
+
+        Returns:
+            List of image dictionaries with metadata:
+            - url: Cloudinary image URL
+            - alumno: Student name
+            - clase: Class name
+            - actividad: Activity name
+            - fecha: Completion date
+        """
+        # Query student responses with images
+        query = (
+            db.query(
+                ActividadProgreso.respuesta_contenido,
+                Usuario.nombre,
+                Usuario.apellido,
+                Clase.nombre.label("clase_nombre"),
+                Actividad.nombre.label("actividad_nombre"),
+                ActividadProgreso.fecha_fin,
+            )
+            .join(Partida, ActividadProgreso.id_juego == Partida.id)
+            .join(Usuario, Partida.id_usuario == Usuario.id)
+            .join(Clase, Usuario.id_clase == Clase.id)
+            .join(Actividad, ActividadProgreso.id_actividad == Actividad.id)
+            .filter(
+                and_(
+                    Clase.id_profesor == profesor_id,
+                    ActividadProgreso.estado == "completado",
+                    ActividadProgreso.respuesta_contenido.isnot(None),
+                    ActividadProgreso.respuesta_contenido != "",
+                )
+            )
+        )
+
+        if clase_id:
+            query = query.filter(Clase.id == clase_id)
+
+        results = query.order_by(ActividadProgreso.fecha_fin.desc()).all()
+
+        images = []
+        for result in results:
+            content = result.respuesta_contenido
+            # Check if it's a Cloudinary URL
+            if content and ("cloudinary.com" in content or content.startswith("http")):
+                images.append(
+                    {
+                        "url": content.strip(),
+                        "alumno": f"{result.nombre} {result.apellido}",
+                        "clase": result.clase_nombre,
+                        "actividad": result.actividad_nombre,
+                        "fecha": (
+                            result.fecha_fin.strftime("%Y-%m-%d %H:%M") if result.fecha_fin else ""
+                        ),
+                    }
+                )
+
+        return images
+
+    @staticmethod
+    def get_message_wall(
+        db: Session, profesor_id: str, clase_id: str | None = None
+    ) -> list[dict[str, Any]]:
+        """Get message wall from student activity responses.
+
+        Retrieves all text messages (non-URL responses) from students
+        organized by class.
+
+        Args:
+            db: Database session for querying.
+            profesor_id: ID of the professor.
+            clase_id: Optional specific class ID. If None, includes all classes.
+
+        Returns:
+            List of message dictionaries:
+            - mensaje: The text message
+            - alumno: Student name
+            - clase: Class name
+            - actividad: Activity name
+            - fecha: Completion date
+        """
+        # Query student responses with messages
+        query = (
+            db.query(
+                ActividadProgreso.respuesta_contenido,
+                Usuario.nombre,
+                Usuario.apellido,
+                Clase.nombre.label("clase_nombre"),
+                Actividad.nombre.label("actividad_nombre"),
+                ActividadProgreso.fecha_fin,
+            )
+            .join(Partida, ActividadProgreso.id_juego == Partida.id)
+            .join(Usuario, Partida.id_usuario == Usuario.id)
+            .join(Clase, Usuario.id_clase == Clase.id)
+            .join(Actividad, ActividadProgreso.id_actividad == Actividad.id)
+            .filter(
+                and_(
+                    Clase.id_profesor == profesor_id,
+                    ActividadProgreso.estado == "completado",
+                    ActividadProgreso.respuesta_contenido.isnot(None),
+                    ActividadProgreso.respuesta_contenido != "",
+                )
+            )
+        )
+
+        if clase_id:
+            query = query.filter(Clase.id == clase_id)
+
+        results = query.order_by(ActividadProgreso.fecha_fin.desc()).all()
+
+        messages = []
+        for result in results:
+            content = result.respuesta_contenido
+            # Check if it's NOT a URL (text message)
+            if content and not content.startswith("http") and "cloudinary.com" not in content:
+                messages.append(
+                    {
+                        "mensaje": content.strip(),
+                        "alumno": f"{result.nombre} {result.apellido}",
+                        "clase": result.clase_nombre,
+                        "actividad": result.actividad_nombre,
+                        "fecha": (
+                            result.fecha_fin.strftime("%Y-%m-%d %H:%M") if result.fecha_fin else ""
+                        ),
+                    }
+                )
+
+        return messages

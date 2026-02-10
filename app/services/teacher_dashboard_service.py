@@ -727,6 +727,7 @@ class TeacherDashboardService:
             List of dictionaries, each containing:
                 - id: Class ID
                 - nombre: Class name
+                - codigo: Class code (6 characters)
         """
         cache_key = f"profesor_classes_{profesor_id}"
         return TeacherDashboardService._get_cached_or_fetch(
@@ -750,7 +751,9 @@ class TeacherDashboardService:
         """
         classes = db.query(Clase).filter(Clase.id_profesor == profesor_id).all()
 
-        return [{"id": clase.id, "nombre": clase.nombre} for clase in classes]
+        return [
+            {"id": clase.id, "nombre": clase.nombre, "codigo": clase.codigo} for clase in classes
+        ]
 
     @staticmethod
     def get_students_list(

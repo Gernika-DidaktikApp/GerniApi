@@ -315,7 +315,7 @@ async function loadClasses() {
                 <div class="class-card-icon">${cls.nombre.substring(0, 2).toUpperCase()}</div>
                 <div class="class-card-info">
                     <h3>${cls.nombre}</h3>
-                    <p>ID: ${cls.id.substring(0, 8)}...</p>
+                    <p>Código: ${cls.codigo || cls.id.substring(0, 8)}</p>
                 </div>
             </div>
             <div class="class-card-stats">
@@ -323,20 +323,23 @@ async function loadClasses() {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z" stroke-width="2"/>
                     </svg>
-                    <span class="stat-value" id="student-count-${cls.id}">-</span> alumnos
+                    <span class="stat-value" id="student-count-${cls.id}">...</span> alumnos
                 </div>
             </div>
         </div>
     `).join('');
 
-    // Actualizar contadores de estudiantes
-    classes.forEach(async (cls) => {
-        const students = await fetchStudents(cls.id);
-        const countElement = document.getElementById(`student-count-${cls.id}`);
-        if (countElement) {
-            countElement.textContent = students.length;
-        }
-    });
+    // Actualizar contadores de estudiantes solo si es necesario
+    if (classes.length > 0 && classes.length <= 10) {
+        // Solo actualizar contadores si hay pocas clases (para mejor performance)
+        classes.forEach(async (cls) => {
+            const students = await fetchStudents(cls.id);
+            const countElement = document.getElementById(`student-count-${cls.id}`);
+            if (countElement) {
+                countElement.textContent = students.length;
+            }
+        });
+    }
 }
 
 /**
@@ -359,8 +362,19 @@ async function selectClass(classId) {
     // Cargar alumnos
     await loadStudents(classId);
 
-    // Actualizar cards activas (se recargan todos para actualizar el estado)
-    loadClasses();
+    // Actualizar el estado visual de las cards activas
+    const container = document.getElementById('classesListContainer');
+    if (container) {
+        container.querySelectorAll('.class-card').forEach(card => {
+            if (card.classList.contains('active')) {
+                card.classList.remove('active');
+            }
+        });
+        const activeCard = container.querySelector(`[onclick="selectClass('${classId}')"]`);
+        if (activeCard) {
+            activeCard.classList.add('active');
+        }
+    }
 }
 
 /**
@@ -523,9 +537,19 @@ async function handleCreateClass(e) {
     }
 
     try {
-        await createClass(nombre);
+        const newClass = await createClass(nombre);
         closeModal('modalCreateClass');
+
+        // Añadir la nueva clase a allClasses inmediatamente
+        allClasses.push(newClass);
+
+        // Renderizar la lista actualizada
         await loadClasses();
+
+        // Seleccionar la nueva clase automáticamente
+        if (newClass && newClass.id) {
+            await selectClass(newClass.id);
+        }
     } catch (error) {
         // Error ya mostrado en createClass
     }

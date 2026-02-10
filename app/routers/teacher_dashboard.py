@@ -53,6 +53,7 @@ def get_profesor_classes(
     ### Returns
     - **id**: Class ID
     - **nombre**: Class name
+    - **codigo**: Class code (6 characters for easy sharing)
 
     ### Authentication
     Requires valid JWT token from profesor login.

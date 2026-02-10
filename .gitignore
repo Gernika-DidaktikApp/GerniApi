@@ -12,6 +12,17 @@ ENV/
 # FastAPI
 .env
 
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Linters
+.ruff_cache/
+.mypy_cache/
+.black_cache/
+
 # Logs
 logs/
 *.log
@@ -28,3 +39,17 @@ Thumbs.db
 
 # Local development
 deploy_local.sh
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Internal docs
+docs/claude_api.md
+scripts/migrate_complete_partidas
+
+# Mobile app builds
+*.apk
+*.ipa
+app/web/static/downloads/*.apk

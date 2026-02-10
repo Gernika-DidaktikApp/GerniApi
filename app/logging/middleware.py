@@ -1,14 +1,19 @@
-"""
-Middleware para logging de peticiones HTTP
-Registra todas las peticiones y respuestas con métricas de rendimiento
+"""Middleware para logging de peticiones HTTP.
+
+Registra todas las peticiones y respuestas con métricas de rendimiento,
+incluyendo duración, código de estado y información del cliente.
+
+Autor: Gernibide
 """
 
 import time
-from typing import Callable
+from collections.abc import Callable
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
-from .logger import logger, log_with_context
+
+from .logger import log_with_context, logger
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
@@ -27,10 +32,18 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         # Extraer información de la petición de forma segura
         try:
             method = request.method
-            path = str(request.url.path) if hasattr(request.url, 'path') else "unknown"
-            client_host = request.client.host if (hasattr(request, 'client') and request.client) else "unknown"
-            user_agent = request.headers.get("user-agent", "unknown") if hasattr(request, 'headers') else "unknown"
-            query_params = str(request.query_params) if hasattr(request, 'query_params') else ""
+            path = str(request.url.path) if hasattr(request.url, "path") else "unknown"
+            client_host = (
+                request.client.host
+                if (hasattr(request, "client") and request.client)
+                else "unknown"
+            )
+            user_agent = (
+                request.headers.get("user-agent", "unknown")
+                if hasattr(request, "headers")
+                else "unknown"
+            )
+            query_params = str(request.query_params) if hasattr(request, "query_params") else ""
         except Exception as e:
             # Si falla la extracción de información, usar valores por defecto
             method = "UNKNOWN"
@@ -44,13 +57,15 @@ class LoggingMiddleware(BaseHTTPMiddleware):
         try:
             logger.debug(
                 f"Petición entrante: {method} {path}",
-                extra={"extra_fields": {
-                    "http_method": method,
-                    "path": path,
-                    "client_ip": client_host,
-                    "user_agent": user_agent,
-                    "query_params": query_params
-                }}
+                extra={
+                    "extra_fields": {
+                        "http_method": method,
+                        "path": path,
+                        "client_ip": client_host,
+                        "user_agent": user_agent,
+                        "query_params": query_params,
+                    }
+                },
             )
         except Exception as e:
             # Si falla el logging, no detener la petición
@@ -81,7 +96,7 @@ class LoggingMiddleware(BaseHTTPMiddleware):
                 path=path,
                 status_code=status_code,
                 duration_ms=duration_ms,
-                client_ip=client_host
+                client_ip=client_host,
             )
 
             return response
@@ -95,14 +110,16 @@ class LoggingMiddleware(BaseHTTPMiddleware):
             logger.error(
                 f"Error procesando petición: {method} {path}",
                 exc_info=True,
-                extra={"extra_fields": {
-                    "http_method": method,
-                    "path": path,
-                    "client_ip": client_host,
-                    "duration_ms": duration_ms,
-                    "error_type": type(e).__name__,
-                    "error_message": str(e)
-                }}
+                extra={
+                    "extra_fields": {
+                        "http_method": method,
+                        "path": path,
+                        "client_ip": client_host,
+                        "duration_ms": duration_ms,
+                        "error_type": type(e).__name__,
+                        "error_message": str(e),
+                    }
+                },
             )
 
             # Re-lanzar la excepción para que FastAPI la maneje

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="{{ _('home.meta.description') }}">
+    <title>{{ _('home.meta.title') }}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" type="image/x-icon">
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/navbar.css?v=5">
+    <link rel="stylesheet" href="/static/css/home.css?v=3">
+</head>
+
+<body class="has-navbar">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-logo">
+                <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
+                <span>Gernibide</span>
+            </a>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li class="navbar-menu-item">
+                    <a href="/" class="navbar-menu-link active">{{ _('common.nav.home') }}</a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="/statistics" class="navbar-menu-link">{{ _('common.nav.statistics') }}</a>
+                </li>
+                <li class="navbar-menu-item navbar-admin-only hidden">
+                    <a href="/dashboard/teacher" class="navbar-menu-link">{{ _('common.nav.classes') }}</a>
+                </li>
+                <li class="navbar-menu-item navbar-admin-only hidden">
+                    <a href="/dashboard" class="navbar-menu-link">{{ _('common.nav.dashboard') }}</a>
+                </li>
+                <li class="navbar-menu-item navbar-admin-only hidden">
+                    <a href="/gallery" class="navbar-menu-link">{{ _('common.nav.gallery') }}</a>
+                </li>
+            </ul>
+
+            <div class="navbar-auth">
+                <span class="navbar-user-name hidden"></span>
+                <div class="language-selector">
+                    <select id="languageSelect" class="language-dropdown">
+                        <option value="es" {% if current_lang == 'es' %}selected{% endif %}>ES</option>
+                        <option value="eu" {% if current_lang == 'eu' %}selected{% endif %}>EU</option>
+                    </select>
+                </div>
+                <a href="/login" class="navbar-contact">{{ _('common.nav.login') }}</a>
+                <a href="#" class="navbar-logout hidden" id="logoutBtn">{{ _('common.nav.logout') }}</a>
+            </div>
+
+            <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
+                <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-icon">
+                    <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="hero-logo">
+                </div>
+
+                <div class="gernika-logo-container">
+                    <img src="/static/images/GernikaLogo.png" alt="Gernika" class="gernika-logo">
+                </div>
+
+                <h1 class="hero-title">{{ _('home.hero.title') }} <span class="highlight">{{ _('home.hero.highlight') }}</span></h1>
+
+                <p class="hero-description">
+                    {{ _('home.hero.description') }}
+                </p>
+            </section>
+
+            <!-- Stats Section -->
+            <section class="stats-section">
+                <h2 class="section-title">{{ _('home.stats.section_title') }}</h2>
+
+                <div class="stats-grid">
+                    <!-- Stat 1 -->
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon-box bg-green">
+                                <img src="/static/icons/users-icon.svg" alt="Usuarios" width="24" height="24">
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">{{ _('home.stats.total_users') }}</div>
+                            <div class="stat-number" data-target="12400">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 2 -->
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon-box bg-lime">
+                                <img src="/static/icons/clock-icon.svg" alt="Tiempo" width="24" height="24">
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">{{ _('home.stats.minutes_played') }}</div>
+                            <div class="stat-number" data-target="450000">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Stat 3 -->
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon-box bg-brown">
+                                <img src="/static/icons/check-icon.svg" alt="Eventos" width="24" height="24">
+                            </div>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-label">{{ _('home.stats.events_completed') }}</div>
+                            <div class="stat-number" data-target="8250">0</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Download Banner -->
+            <section class="download-section">
+                <div class="download-card">
+                    <h2 class="download-title">{{ _('home.download.title') }}</h2>
+                    <p class="download-description">
+                        {{ _('home.download.description') }}
+                    </p>
+
+                    <div class="download-badges">
+                        <!-- Android APK Download Button -->
+                        <a href="#" class="badge-item" id="downloadApkBtn" title="{{ _('home.download.download_apk') }}">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <div class="badge-text">
+                                <span class="badge-store">{{ _('home.download.download_apk') }}</span>
+                                <span class="badge-status">{{ _('home.download.available_now') }}</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Download Confirmation Modal -->
+    <div id="downloadModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3 class="modal-title">{{ _('home.download.modal.title') }}</h3>
+            <p class="modal-description">{{ _('home.download.modal.description') }}</p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" id="cancelDownloadBtn">{{ _('home.download.modal.cancel') }}</button>
+                <button class="modal-btn modal-btn-confirm" id="confirmDownloadBtn">{{ _('home.download.modal.confirm') }}</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">{{ _('common.footer.copyright') }}</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/static/js/i18n.js?v=1"></script>
+    <script src="/static/js/auth.js?v=5"></script>
+    <script src="/static/js/home.js?v=4" defer></script>
+</body>
+
+</html>

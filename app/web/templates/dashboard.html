@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ _('dashboard.meta.description') }}">
+    <title>{{ _('dashboard.meta.title') }}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" type="image/x-icon">
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/navbar.css?v=5">
+    <link rel="stylesheet" href="/static/css/dashboard-teacher.css?v=3">
+</head>
+
+<body class="has-navbar">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/dashboard" class="navbar-logo">
+                <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
+                <span>Gernibide</span>
+            </a>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li class="navbar-menu-item">
+                    <a href="/" class="navbar-menu-link">{{ _('common.nav.home') }}</a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="/statistics" class="navbar-menu-link">{{ _('common.nav.statistics') }}</a>
+                </li>
+                <li class="navbar-menu-item navbar-admin-only">
+                    <a href="/dashboard/teacher" class="navbar-menu-link">{{ _('common.nav.classes') }}</a>
+                </li>
+                <li class="navbar-menu-item navbar-admin-only">
+                    <a href="/dashboard" class="navbar-menu-link active">{{ _('common.nav.dashboard') }}</a>
+                </li>
+                <li class="navbar-menu-item navbar-admin-only">
+                    <a href="/gallery" class="navbar-menu-link">{{ _('common.nav.gallery') }}</a>
+                </li>
+            </ul>
+
+            <div class="navbar-auth">
+                <span class="navbar-user-name hidden"></span>
+                <div class="language-selector">
+                    <select id="languageSelect" class="language-dropdown">
+                        <option value="es" {% if current_lang == 'es' %}selected{% endif %}>ES</option>
+                        <option value="eu" {% if current_lang == 'eu' %}selected{% endif %}>EU</option>
+                    </select>
+                </div>
+                <a href="/login" class="navbar-contact">{{ _('common.nav.login') }}</a>
+                <a href="#" class="navbar-logout hidden" id="logoutBtn">{{ _('common.nav.logout') }}</a>
+            </div>
+
+            <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
+                <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-header">
+                    <div class="hero-icon-wrapper">
+                        <span class="hero-emoji">
+                            <svg width="48" height="48" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="currentColor" d="M505.837,180.418L279.265,76.124c-7.349-3.385-15.177-5.093-23.265-5.093c-8.088,0-15.914,1.708-23.265,5.093
+                                    L6.163,180.418C2.418,182.149,0,185.922,0,190.045s2.418,7.896,6.163,9.627l226.572,104.294c7.349,3.385,15.177,5.101,23.265,5.101
+                                    c8.088,0,15.916-1.716,23.267-5.101l178.812-82.306v82.881c-7.096,0.8-12.63,6.84-12.63,14.138c0,6.359,4.208,11.864,10.206,13.618
+                                    l-12.092,79.791h55.676l-12.09-79.791c5.996-1.754,10.204-7.259,10.204-13.618c0-7.298-5.534-13.338-12.63-14.138v-95.148
+                                    l21.116-9.721c3.744-1.731,6.163-5.504,6.163-9.627S509.582,182.149,505.837,180.418z"/>
+                                <path fill="currentColor" d="M256,346.831c-11.246,0-22.143-2.391-32.386-7.104L112.793,288.71v101.638
+                                    c0,22.314,67.426,50.621,143.207,50.621c75.782,0,143.209-28.308,143.209-50.621V288.71l-110.827,51.017
+                                    C278.145,344.44,267.25,346.831,256,346.831z"/>
+                            </svg>
+                        </span>
+                    </div>
+                    <div class="hero-text">
+                        <h1 class="hero-title">{{ _('dashboard.hero.title') }} <span class="highlight">{{ _('dashboard.hero.highlight') }}</span></h1>
+                        <p class="hero-description">
+                            {{ _('dashboard.hero.description') }}
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters Section -->
+            <section class="filters-section">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                    stroke="currentColor" stroke-width="2" />
+                                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            {{ _('dashboard.filters.class') }}
+                        </label>
+                        <select class="filter-select" id="filterClase">
+                            <option value="all">{{ _('dashboard.filters.all_classes') }}</option>
+                            <option value="4a" selected>4º A - Primaria</option>
+                            <option value="4b">4º B - Primaria</option>
+                            <option value="5a">5º A - Primaria</option>
+                            <option value="5b">5º B - Primaria</option>
+                            <option value="6a">6º A - Primaria</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor"
+                                    stroke-width="2" />
+                                <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            {{ _('dashboard.filters.date_range') }}
+                        </label>
+                        <select class="filter-select" id="filterFechas">
+                            <option value="7d" selected>{{ _('dashboard.date_options.7d') }}</option>
+                            <option value="14d">{{ _('dashboard.date_options.14d') }}</option>
+                            <option value="30d">{{ _('dashboard.date_options.30d') }}</option>
+                            <option value="trimestre">{{ _('dashboard.date_options.quarter') }}</option>
+                            <option value="curso">{{ _('dashboard.date_options.course') }}</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path
+                                    d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <path
+                                    d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z"
+                                    stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            {{ _('dashboard.filters.activity') }}
+                        </label>
+                        <select class="filter-select" id="filterActividad">
+                            <option value="all" selected>{{ _('dashboard.filters.all_activities') }}</option>
+                            <option value="bunkers">Búnkers</option>
+                            <option value="mercado">Mercado</option>
+                            <option value="fronton">Frontón</option>
+                            <option value="arbol">Árbol</option>
+                            <option value="picasso">Picasso</option>
+                        </select>
+                    </div>
+
+                    <button class="filter-apply-btn" id="applyFilters">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        {{ _('dashboard.filters.apply') }}
+                    </button>
+                </div>
+            </section>
+
+            <!-- Statistics Summary Cards -->
+            <section class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-icon gradient-green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                stroke="white" stroke-width="2" />
+                            <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">{{ _('dashboard.summary.students_in_class') }}</span>
+                        <span class="summary-value" id="alumnosValue">24</span>
+                        <span class="summary-trend neutral">4º A - Primaria</span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon gradient-lime">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.86"
+                                stroke="white" stroke-width="2" stroke-linecap="round" />
+                            <path d="M22 4L12 14.01L9 11.01" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">{{ _('dashboard.summary.avg_progress') }}</span>
+                        <span class="summary-value" id="progresoValue">68%</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            +8%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon gradient-brown">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" />
+                            <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">{{ _('dashboard.summary.avg_time') }}</span>
+                        <span class="summary-value" id="tiempoValue">32 min</span>
+                        <span class="summary-trend neutral">{{ _('dashboard.summary.per_session') }}</span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon gradient-dark-green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                                d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">{{ _('dashboard.summary.avg_grade') }}</span>
+                        <span class="summary-value" id="notaValue">7.4</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                            +0.6
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-section">
+                <h2 class="section-title">{{ _('dashboard.section_title') }}</h2>
+
+                <div class="charts-grid">
+                    <!-- Chart 1: Progreso por alumno - Barras -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>{{ _('dashboard.charts.student_progress') }}</h3>
+                                <span class="chart-type-tag">{{ _('dashboard.chart_types.bars') }}</span>
+                            </div>
+                            <div class="chart-actions">
+                                <button class="chart-action-btn" title="{{ _('dashboard.sort_button') }}">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M3 6H21M6 12H18M9 18H15" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container chart-container-tall" id="chartProgresoAlumno"></div>
+                    </div>
+
+                    <!-- Chart 2: Tiempo dedicado por alumno - Barras -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>{{ _('dashboard.charts.time_per_student') }}</h3>
+                                <span class="chart-type-tag">{{ _('dashboard.chart_types.bars') }}</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartTiempoAlumno"></div>
+                    </div>
+
+                    <!-- Chart 3: Actividades completadas por clase - Barras apiladas -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>{{ _('dashboard.charts.completed_activities') }}</h3>
+                                <span class="chart-type-tag">{{ _('dashboard.chart_types.stacked_bars') }}</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>{{ _('dashboard.legend.completed') }}</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>{{ _('dashboard.legend.in_progress') }}</span>
+                                <span class="legend-item"><span class="legend-color legend-color-yellow"></span>{{ _('dashboard.legend.not_started') }}</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartActividadesClase"></div>
+                    </div>
+
+                    <!-- Chart 4: Evolución de la clase - Línea -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>{{ _('dashboard.charts.class_evolution') }}</h3>
+                                <span class="chart-type-tag">{{ _('dashboard.chart_types.line') }}</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>{{ _('dashboard.legend.progress') }}</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>{{ _('dashboard.legend.avg_grade') }}</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartEvolucionClase"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students List Section -->
+            <section class="students-list-section">
+                <div class="section-header">
+                    <h2 class="section-title">{{ _('dashboard.students_list.title') }}</h2>
+                    <div class="export-buttons">
+                        <button class="export-btn" id="exportCSV" title="{{ _('dashboard.students_list.export_csv') }}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            CSV
+                        </button>
+                        <button class="export-btn" id="exportExcel" title="{{ _('dashboard.students_list.export_excel') }}">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            Excel
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="students-table" id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>{{ _('dashboard.table_headers.name') }}</th>
+                                <th>{{ _('dashboard.table_headers.username') }}</th>
+                                <th>{{ _('dashboard.table_headers.progress') }}</th>
+                                <th>{{ _('dashboard.table_headers.activities') }}</th>
+                                <th>{{ _('dashboard.table_headers.total_time') }}</th>
+                                <th>{{ _('dashboard.table_headers.avg_grade') }}</th>
+                                <th>{{ _('dashboard.table_headers.last_activity') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr>
+                                <td colspan="7" class="loading-message">
+                                    {{ _('dashboard.loading') }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">{{ _('common.footer.copyright') }}</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/static/js/i18n.js?v=1"></script>
+    <script src="/static/js/auth.js?v=5"></script>
+    <script src="/static/js/dashboard-teacher.js?v=5" defer></script>
+</body>
+
+</html>

@@ -1,5 +1,7 @@
 from sqlalchemy import Column, String
+
 from app.database import Base
+
 
 class Sesion(Base):
     __tablename__ = "sesion"

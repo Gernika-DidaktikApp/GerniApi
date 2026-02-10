@@ -1,0 +1,479 @@
+{
+  "common": {
+    "nav": {
+      "home": "Inicio",
+      "statistics": "Estadísticas",
+      "classes": "Clases",
+      "dashboard": "Tablero",
+      "gallery": "Galería y Mural",
+      "manuals": "Manuales",
+      "login": "Login",
+      "logout": "Salir"
+    },
+    "footer": {
+      "copyright": "GERNIBIDE EDUCACIÓN © 2024"
+    },
+    "buttons": {
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "close": "Cerrar",
+      "submit": "Enviar",
+      "back": "Volver"
+    }
+  },
+  "home": {
+    "meta": {
+      "title": "Gernibide - Inicio",
+      "description": "Descubre Gernibide - Explora actividades educativas naturales en el entorno educativo natural."
+    },
+    "hero": {
+      "title": "Descubre la historia de",
+      "highlight": "Gernibide",
+      "description": "Explora actividades educativas en entornos naturales, recorridos interactivos y estrategias pedagógicas en el entorno educativo natural."
+    },
+    "stats": {
+      "section_title": "Comunidad Gernibide",
+      "total_users": "Usuarios Totales",
+      "minutes_played": "Minutos Jugados",
+      "events_completed": "Eventos Finalizados"
+    },
+    "download": {
+      "title": "Lleva la historia en tu bolsillo",
+      "description": "Descarga la aplicación móvil y disfruta de todas las actividades educativas de Gernibide.",
+      "download_apk": "Descarga aquí el APK",
+      "coming_soon": "Muy Pronto",
+      "available_now": "Disponible ahora",
+      "modal": {
+        "title": "Descargar Aplicación Gernibide",
+        "description": "Estás a punto de descargar el archivo APK de Gernibide. Asegúrate de tener habilitada la instalación de aplicaciones de fuentes desconocidas en tu dispositivo Android.",
+        "confirm": "Descargar",
+        "cancel": "Cancelar"
+      }
+    }
+  },
+  "login": {
+    "meta": {
+      "title": "Entrar en Gernibide - Didaktik App",
+      "description": "Accede a tu cuenta para gestionar el entorno educativo natural de Gernibide"
+    },
+    "title": "Entrar en Gernibide",
+    "subtitle": "Accede a tu cuenta para gestionar el entorno educativo natural",
+    "username": "Usuario",
+    "password": "Password",
+    "submit": "Entrar",
+    "show_password": "Mostrar contraseña",
+    "hide_password": "Ocultar contraseña",
+    "errors": {
+      "username_required": "El nombre de usuario es obligatorio",
+      "password_required": "La contraseña es obligatoria",
+      "invalid_credentials": "Credenciales incorrectas",
+      "network_error": "Error de conexión. Por favor, inténtalo de nuevo"
+    }
+  },
+  "statistics": {
+    "meta": {
+      "title": "Estadísticas - Gernibide",
+      "description": "Visualiza métricas y estadísticas de uso de Gernibide"
+    },
+    "submenu": {
+      "users": "Usuarios y Actividad",
+      "gameplay": "Uso del Juego",
+      "learning": "Rendimiento y Aprendizaje"
+    },
+    "users": {
+      "title": "Usuarios y",
+      "highlight": "Actividad",
+      "description": "Análisis del comportamiento de usuarios: registros, actividad mensual y datos de sesiones.",
+      "section_title": "Análisis Detallado",
+      "summary": {
+        "active_users_dau": "Usuarios Activos (DAU)",
+        "new_users_today": "Nuevos Usuarios Hoy",
+        "active_ratio": "Ratio Activos/Totales",
+        "logins_today": "Logins Hoy"
+      },
+      "charts": {
+        "active_users_dau_wau_mau": "Usuarios Activos (DAU / WAU / MAU)",
+        "new_users_by_day": "Nuevos Usuarios por Día",
+        "active_ratio_chart": "Ratio Usuarios Activos / Totales",
+        "logins_by_day": "Logins por Día"
+      },
+      "chart_types": {
+        "line": "Línea",
+        "bars": "Barras",
+        "area": "Área",
+        "line_markers": "Línea + Marcadores"
+      }
+    },
+    "gameplay": {
+      "meta": {
+        "title": "Uso del Juego - Estadísticas - Gernibide",
+        "description": "Estadísticas de uso y juego de Gernibide"
+      },
+      "title": "Uso del",
+      "highlight": "Juego",
+      "description": "Métricas de gameplay: partidas, eventos y tasas de completación de las actividades educativas.",
+      "summary": {
+        "active_games": "Partidas Activas",
+        "completion_rate": "Tasa de Completación",
+        "events_completed": "Eventos Completados",
+        "avg_time": "Tiempo Promedio"
+      },
+      "section_title": "Análisis de Gameplay",
+      "charts": {
+        "partidas_by_day": "Partidas Creadas por Día",
+        "partidas_by_status": "Partidas Completadas vs Abandonadas",
+        "activities_timeline": "Eventos Iniciados vs Completados",
+        "most_played": "Actividades Más Jugadas"
+      },
+      "chart_types": {
+        "bars": "Barras",
+        "donut": "Donut",
+        "stacked_bars": "Barras Apiladas",
+        "horizontal_bars": "Barras Horizontales"
+      },
+      "legend": {
+        "completed": "Completados",
+        "in_progress": "En Progreso",
+        "abandoned": "Abandonados"
+      },
+      "info": {
+        "partidas_title": "Partidas",
+        "partidas_description": "Sesiones de juego individuales iniciadas por usuarios",
+        "eventos_title": "Eventos",
+        "eventos_description": "Actividades o puntos de interés dentro de cada partida",
+        "completion_rate_title": "Completion Rate",
+        "completion_rate_description": "Porcentaje de actividades finalizadas correctamente"
+      }
+    },
+    "learning": {
+      "meta": {
+        "title": "Rendimiento y Aprendizaje - Estadísticas - Gernibide",
+        "description": "Estadísticas de rendimiento y aprendizaje de Gernibide"
+      },
+      "title": "Rendimiento y",
+      "highlight": "Aprendizaje",
+      "description": "Análisis del progreso educativo: puntuaciones, distribución de resultados y tiempos de completación por actividad.",
+      "summary": {
+        "avg_score": "Puntuación Media",
+        "pass_rate": "Aprobados",
+        "avg_time": "Tiempo Medio",
+        "evaluated_activities": "Actividades Evaluadas"
+      },
+      "section_title": "Análisis de Rendimiento",
+      "charts": {
+        "most_played": "Actividades Más Jugadas",
+        "highest_scoring": "Actividades con Mayor Puntuación Media",
+        "class_performance": "Rendimiento Medio por Clase"
+      },
+      "chart_types": {
+        "horizontal_bars": "Barras Horizontales"
+      }
+    },
+    "filters": {
+      "7d": "7 días",
+      "30d": "30 días",
+      "90d": "90 días",
+      "1y": "1 año"
+    },
+    "info": {
+      "score_title": "Puntuación",
+      "score_description": "Calificación de 0-10 obtenida en cada actividad educativa",
+      "histogram_title": "Histograma",
+      "histogram_description": "Distribución de frecuencias de las puntuaciones obtenidas",
+      "boxplot_title": "Boxplot",
+      "boxplot_description": "Visualización de la dispersión del tiempo: mediana, cuartiles y valores atípicos"
+    }
+  },
+  "dashboard": {
+    "meta": {
+      "title": "Tablero - Gernibide",
+      "description": "Panel de administración de Gernibide"
+    },
+    "title": "Tablero de Administración",
+    "hero": {
+      "title": "Vista",
+      "highlight": "Profesor",
+      "description": "Seguimiento del progreso de tu clase: rendimiento por alumno, tiempo dedicado y evolución educativa."
+    },
+    "filters": {
+      "class": "Clase",
+      "all_classes": "Todas las clases",
+      "date_range": "Rango de Fechas",
+      "activity": "Actividad",
+      "all_activities": "Todas las actividades",
+      "apply": "Aplicar"
+    },
+    "date_options": {
+      "7d": "Últimos 7 días",
+      "14d": "Últimos 14 días",
+      "30d": "Últimos 30 días",
+      "quarter": "Este trimestre",
+      "course": "Todo el curso"
+    },
+    "summary": {
+      "students_in_class": "Alumnos en Clase",
+      "avg_progress": "Progreso Medio",
+      "avg_time": "Tiempo Promedio",
+      "avg_grade": "Nota Media Clase",
+      "per_session": "por sesión"
+    },
+    "section_title": "Análisis de la Clase",
+    "charts": {
+      "student_progress": "Progreso por Alumno",
+      "time_per_student": "Tiempo Dedicado por Alumno",
+      "completed_activities": "Actividades Completadas",
+      "class_evolution": "Evolución de la Clase"
+    },
+    "chart_types": {
+      "bars": "Barras",
+      "stacked_bars": "Barras Apiladas",
+      "line": "Línea"
+    },
+    "legend": {
+      "completed": "Completadas",
+      "in_progress": "En Progreso",
+      "not_started": "Sin Empezar",
+      "progress": "Progreso",
+      "avg_grade": "Nota Media"
+    },
+    "sort_button": "Ordenar",
+    "students_list": {
+      "title": "Lista de Alumnos",
+      "export_csv": "Descargar como CSV",
+      "export_excel": "Descargar como Excel"
+    },
+    "table_headers": {
+      "name": "Nombre",
+      "username": "Usuario",
+      "progress": "Progreso",
+      "activities": "Actividades",
+      "total_time": "Tiempo Total",
+      "avg_grade": "Nota Media",
+      "last_activity": "Última Actividad"
+    },
+    "loading": "Cargando datos...",
+    "loading_states": {
+      "applying": "Aplicando..."
+    },
+    "empty_states": {
+      "no_students": "No hay alumnos en esta clase",
+      "no_data": "No hay datos disponibles",
+      "no_time_data": "No hay datos de tiempo disponibles",
+      "no_activities": "No hay actividades disponibles",
+      "no_evolution_data": "No hay datos de evolución disponibles"
+    },
+    "errors": {
+      "load_data": "Error al cargar datos",
+      "load_student_progress": "Error al cargar progreso de alumnos",
+      "load_student_time": "Error al cargar tiempo de alumnos",
+      "load_activities": "Error al cargar actividades",
+      "load_evolution": "Error al cargar evolución de clase",
+      "export_csv": "Error al exportar CSV. Por favor, inténtalo de nuevo.",
+      "export_excel": "Error al exportar Excel. Por favor, inténtalo de nuevo."
+    },
+    "chart_labels": {
+      "all_classes": "Todas las clases",
+      "students": "Alumnos",
+      "completed_hover": "Completadas: {count} alumnos",
+      "in_progress_hover": "En Progreso: {count} alumnos",
+      "not_started_hover": "Sin Empezar: {count} alumnos"
+    }
+  },
+  "dashboard_teacher": {
+    "meta": {
+      "title": "Panel del Profesor - Gernibide",
+      "description": "Gestiona tus clases y estudiantes"
+    },
+    "title": "Panel del Profesor",
+    "my_classes": "Mis Clases",
+    "students": "Estudiantes",
+    "activities": "Actividades",
+    "performance": "Rendimiento",
+    "page": {
+      "title": "Gestión de",
+      "highlight": "Clases"
+    },
+    "buttons": {
+      "create_class": "Crear Clase",
+      "import_students": "Importar Alumnos"
+    },
+    "class_info": {
+      "select_class": "Selecciona una clase",
+      "code_label": "Código:",
+      "copy_code": "Copiar código",
+      "students_count": "alumnos"
+    },
+    "students_section": {
+      "title": "Alumnos de la Clase",
+      "export_csv": "CSV",
+      "export_excel": "Excel"
+    },
+    "table_headers": {
+      "student": "Alumno",
+      "progress": "Progreso",
+      "activities": "Actividades",
+      "total_time": "Tiempo Total",
+      "avg_grade": "Nota Media",
+      "last_activity": "Última Actividad",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "loading_classes": "Cargando clases...",
+    "loading_students": "Cargando alumnos...",
+    "select_class_prompt": "Selecciona una clase para ver los alumnos",
+    "empty_states": {
+      "no_classes": "No tienes clases asignadas",
+      "no_classes_hint": "Crea tu primera clase usando el botón \"Crear Clase\"",
+      "no_students": "No hay alumnos en esta clase",
+      "select_class": "Selecciona una clase"
+    },
+    "notifications": {
+      "class_created": "Clase creada exitosamente",
+      "class_deleted": "Clase eliminada exitosamente",
+      "student_removed": "Alumno removido de la clase",
+      "code_copied": "Código copiado al portapapeles",
+      "csv_downloaded": "CSV descargado exitosamente",
+      "excel_downloaded": "Excel descargado exitosamente",
+      "template_downloaded": "Plantilla descargada",
+      "please_select_class": "Por favor selecciona una clase primero",
+      "please_select_csv": "Por favor selecciona un archivo CSV",
+      "please_enter_name": "Por favor ingresa un nombre para la clase",
+      "import_success": "importado(s) exitosamente",
+      "import_errors": "error(es)"
+    },
+    "errors": {
+      "session_expired": "Sesión expirada",
+      "load_classes": "Error al cargar las clases",
+      "load_students": "Error al cargar los alumnos",
+      "create_class": "Error al crear la clase",
+      "delete_class": "Error al eliminar la clase",
+      "remove_student": "Error al remover alumno",
+      "export_csv": "Error al exportar CSV",
+      "export_excel": "Error al exportar Excel",
+      "import_students": "Error al importar alumnos",
+      "import_validation": "Error en la importación",
+      "clear_cache": "Error al limpiar cache del dashboard",
+      "no_teacher_info": "No se encontró información del profesor. Por favor, inicia sesión nuevamente.",
+      "csv_columns": "El CSV debe tener las columnas: nombre, apellido, username",
+      "csv_required_fields": "Todos los campos (nombre, apellido, username) son obligatorios",
+      "no_valid_users": "No se encontraron usuarios válidos en el CSV"
+    },
+    "loading_states": {
+      "creating": "Creando...",
+      "importing": "Importando...",
+      "validating": "Validando datos...",
+      "sending": "Enviando datos al servidor...",
+      "completed": "Importación completada"
+    },
+    "confirmations": {
+      "delete_class": "¿Estás seguro de que quieres eliminar la clase \"{name}\"?\n\nLos alumnos NO se eliminarán, solo quedarán sin clase asignada.",
+      "remove_student": "¿Remover a \"{name}\" de esta clase?\n\nEl alumno NO se eliminará, solo quedará sin clase asignado.",
+      "delete_button_title": "Eliminar clase",
+      "remove_button_title": "Remover de clase"
+    },
+    "labels": {
+      "students_singular": "alumno",
+      "students_plural": "alumnos",
+      "code": "Código:"
+    },
+    "sidebar": {
+      "my_classes": "Mis Clases"
+    },
+    "modals": {
+      "create_class": {
+        "title": "Crear Nueva Clase",
+        "name_label": "Nombre de la Clase",
+        "name_placeholder": "Ej: 4º A - Primaria",
+        "description_label": "Descripción (opcional)",
+        "description_placeholder": "Descripción de la clase...",
+        "cancel": "Cancelar",
+        "submit": "Crear Clase"
+      },
+      "import": {
+        "title": "Importar Alumnos",
+        "csv_label": "Archivo CSV",
+        "csv_instructions": "El archivo CSV debe tener las columnas: <strong>nombre, apellido, username</strong><br><strong>📌 Inicio de sesión:</strong> La contraseña de cada alumno será igual a su <strong>username</strong>.<br><em style=\"font-size: 0.8rem;\">Ejemplo: Si username es \"jperez\", la contraseña será \"jperez\"</em>",
+        "download_template": "Descargar Plantilla CSV",
+        "preparing": "Preparando importación...",
+        "cancel": "Cancelar",
+        "submit": "Importar"
+      }
+    }
+  },
+  "manuals": {
+    "meta": {
+      "title": "Manuales y Tutoriales - Gernibide",
+      "description": "Manuales en PDF y video tutoriales para profesores y estudiantes"
+    },
+    "page": {
+      "title": "Manuales y",
+      "highlight": "Tutoriales",
+      "description": "Encuentra guías completas y tutoriales en video para aprovechar al máximo Gernibide"
+    },
+    "sections": {
+      "manuals": "Manuales en PDF",
+      "videos": "Video Tutoriales"
+    },
+    "manuals_list": {
+      "user_manual": "Manual de Usuario",
+      "user_manual_desc": "Guía completa para usar todas las funcionalidades de Gernibide",
+      "installation_manual": "Manual de Instalación",
+      "installation_manual_desc": "Instrucciones paso a paso para instalar y configurar la aplicación",
+      "download": "Descargar PDF"
+    },
+    "videos_list": {
+      "web_tutorial": "Tutorial Web",
+      "web_tutorial_desc": "Aprende a usar el panel web del profesor y las estadísticas",
+      "app_tutorial": "Tutorial de la App",
+      "app_tutorial_desc": "Guía completa para usar la aplicación móvil de Gernibide"
+    },
+    "empty": {
+      "manuals": "Los manuales estarán disponibles próximamente",
+      "videos": "Los videos tutoriales estarán disponibles próximamente"
+    }
+  },
+  "gallery": {
+    "meta": {
+      "title": "Galería y Mural - Gernibide",
+      "description": "Galería de Imágenes y Mural de Mensajes de Estudiantes"
+    },
+    "page": {
+      "title": "Galería y",
+      "highlight": "Mural de Estudiantes",
+      "description": "Explora las imágenes y mensajes compartidos por tus estudiantes"
+    },
+    "filter": {
+      "label": "Filtrar por clase:",
+      "all_classes": "Todas las clases"
+    },
+    "tabs": {
+      "gallery": "Galería de Imágenes",
+      "messages": "Mural de Mensajes"
+    },
+    "gallery_section": {
+      "title": "Galería de Imágenes",
+      "count_singular": "imagen",
+      "count_plural": "imágenes",
+      "loading": "Cargando galería...",
+      "empty_title": "No hay imágenes todavía",
+      "empty_description": "Las imágenes compartidas por los estudiantes aparecerán aquí",
+      "error_title": "Error al cargar la galería",
+      "error_description": "Por favor, intenta de nuevo más tarde"
+    },
+    "messages_section": {
+      "title": "Mural de Mensajes",
+      "count_singular": "mensaje",
+      "count_plural": "mensajes",
+      "loading": "Cargando mensajes...",
+      "empty_title": "No hay mensajes todavía",
+      "empty_description": "Los mensajes de los estudiantes aparecerán aquí",
+      "error_title": "Error al cargar los mensajes",
+      "error_description": "Por favor, intenta de nuevo más tarde"
+    },
+    "modal": {
+      "alt": "Imagen ampliada"
+    }
+  }
+}

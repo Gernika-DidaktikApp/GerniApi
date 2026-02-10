@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="{{ current_lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ _('statistics.meta.description') }}">
+    <title>{{ _('statistics.meta.title') }}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/icons/favicon.ico" type="image/x-icon">
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/static/css/navbar.css?v=5">
+    <link rel="stylesheet" href="/static/css/statistics.css">
+</head>
+
+<body class="has-navbar">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="navbar-logo">
+                <img src="/static/icons/gernibide-logo.png" alt="Gernibide" class="navbar-logo-icon">
+                <span>Gernibide</span>
+            </a>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li class="navbar-menu-item">
+                    <a href="/" class="navbar-menu-link">{{ _('common.nav.home') }}</a>
+                </li>
+                <li class="navbar-menu-item">
+                    <a href="/statistics" class="navbar-menu-link active">{{ _('common.nav.statistics') }}</a>
+                </li>
+                <li class="navbar-menu-item navbar-admin-only hidden">
+                    <a href="/dashboard/teacher" class="navbar-menu-link">{{ _('common.nav.classes') }}</a>
+                </li>
+                <li class="navbar-menu-item navbar-admin-only hidden">
+                    <a href="/dashboard" class="navbar-menu-link">{{ _('common.nav.dashboard') }}</a>
+                </li>
+                <li class="navbar-menu-item navbar-admin-only hidden">
+                    <a href="/gallery" class="navbar-menu-link">{{ _('common.nav.gallery') }}</a>
+                </li>
+            </ul>
+
+            <div class="navbar-auth">
+                <span class="navbar-user-name hidden"></span>
+                <div class="language-selector">
+                    <select id="languageSelect" class="language-dropdown">
+                        <option value="es" {% if current_lang == 'es' %}selected{% endif %}>ES</option>
+                        <option value="eu" {% if current_lang == 'eu' %}selected{% endif %}>EU</option>
+                    </select>
+                </div>
+                <a href="/login" class="navbar-contact">{{ _('common.nav.login') }}</a>
+                <a href="#" class="navbar-logout hidden" id="logoutBtn">{{ _('common.nav.logout') }}</a>
+            </div>
+
+            <button class="navbar-toggle" id="navbarToggle" aria-label="Toggle menu">
+                <svg class="navbar-toggle-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Statistics Submenu -->
+            <nav class="stats-submenu">
+                <a href="/statistics" class="submenu-item active">
+                    <span class="submenu-icon">
+                        <img src="/static/images/usuariosyactividad-green.svg" alt="" width="20" height="20">
+                    </span>
+                    <span class="submenu-text">{{ _('statistics.submenu.users') }}</span>
+                </a>
+                <a href="/statistics/gameplay" class="submenu-item">
+                    <span class="submenu-icon">
+                        <img src="/static/images/Usodeljuego-green.svg" alt="" width="20" height="20">
+                    </span>
+                    <span class="submenu-text">{{ _('statistics.submenu.gameplay') }}</span>
+                </a>
+                <a href="/statistics/learning" class="submenu-item">
+                    <span class="submenu-icon">
+                        <img src="/static/images/RendimientoAprendizaje-green.svg" alt="" width="20" height="20">
+                    </span>
+                    <span class="submenu-text">{{ _('statistics.submenu.learning') }}</span>
+                </a>
+            </nav>
+
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-header">
+                    <div class="hero-icon-wrapper">
+                        <span class="hero-emoji">
+                            <img src="/static/images/usuariosyactividad.svg" alt="Usuarios y Actividad" width="48" height="48">
+                        </span>
+                    </div>
+                    <div class="hero-text">
+                        <h1 class="hero-title">{{ _('statistics.users.title') }} <span class="highlight">{{ _('statistics.users.highlight') }}</span></h1>
+                        <p class="hero-description">
+                            {{ _('statistics.users.description') }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Time Filter -->
+                <div class="time-filter">
+                    <button class="filter-btn active" data-range="7d">{{ _('statistics.filters.7d') }}</button>
+                    <button class="filter-btn" data-range="30d">{{ _('statistics.filters.30d') }}</button>
+                    <button class="filter-btn" data-range="90d">{{ _('statistics.filters.90d') }}</button>
+                    <button class="filter-btn" data-range="1y">{{ _('statistics.filters.1y') }}</button>
+                </div>
+            </section>
+
+            <!-- Statistics Summary Cards -->
+            <section class="stats-summary">
+                <div class="summary-card">
+                    <div class="summary-icon gradient-green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2" />
+                            <path
+                                d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">{{ _('statistics.users.summary.active_users_dau') }}</span>
+                        <span class="summary-value" id="dauValue">1,247</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            +12.5%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon gradient-lime">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M4 21H20" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path
+                                d="M4 21V12C4 11.4696 4.21071 10.9609 4.58579 10.5858C4.96086 10.2107 5.46957 10 6 10H8"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M20 21V12C20 11.4696 19.7893 10.9609 19.4142 10.5858C19.0391 10.2107 18.5304 10 18 10H16"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">{{ _('statistics.users.summary.new_users_today') }}</span>
+                        <span class="summary-value" id="newUsersValue">89</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            +8.3%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon gradient-brown">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2" />
+                            <path d="M12 6V12L16 14" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">{{ _('statistics.users.summary.active_ratio') }}</span>
+                        <span class="summary-value" id="ratioValue">32.4%</span>
+                        <span class="summary-trend positive">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            +2.1%
+                        </span>
+                    </div>
+                </div>
+
+                <div class="summary-card">
+                    <div class="summary-icon gradient-dark-green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9"
+                                stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M12 12L12 3" stroke="white" stroke-width="2" stroke-linecap="round" />
+                            <path d="M9 6L12 3L15 6" stroke="white" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="summary-content">
+                        <span class="summary-label">{{ _('statistics.users.summary.logins_today') }}</span>
+                        <span class="summary-value" id="loginsValue">2,156</span>
+                        <span class="summary-trend negative">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            -3.2%
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Grid -->
+            <section class="charts-section">
+                <h2 class="section-title">{{ _('statistics.users.section_title') }}</h2>
+
+                <div class="charts-grid">
+                    <!-- Chart 1: Usuarios activos (DAU / WAU / MAU) - Línea -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>{{ _('statistics.users.charts.active_users_dau_wau_mau') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.users.chart_types.line') }}</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-color legend-color-green"></span>DAU</span>
+                                <span class="legend-item"><span class="legend-color legend-color-lime"></span>WAU</span>
+                                <span class="legend-item"><span class="legend-color legend-color-dark-green"></span>MAU</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartActiveUsers"></div>
+                    </div>
+
+                    <!-- Chart 2: Nuevos usuarios por día - Barras -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>{{ _('statistics.users.charts.new_users_by_day') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.users.chart_types.bars') }}</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartNewUsers"></div>
+                    </div>
+
+                    <!-- Chart 3: Ratio usuarios activos / totales - Área -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>{{ _('statistics.users.charts.active_ratio_chart') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.users.chart_types.area') }}</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartRatio"></div>
+                    </div>
+
+                    <!-- Chart 4: Logins por día - Línea -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-header">
+                            <div class="chart-title-wrapper">
+                                <h3>{{ _('statistics.users.charts.logins_by_day') }}</h3>
+                                <span class="chart-type-tag">{{ _('statistics.users.chart_types.line_markers') }}</span>
+                            </div>
+                        </div>
+                        <div class="chart-container" id="chartLogins"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Info Section -->
+            <section class="info-section">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h4>DAU (Daily Active Users)</h4>
+                        <p>Usuarios únicos que acceden diariamente a la plataforma</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h4>WAU (Weekly Active Users)</h4>
+                        <p>Usuarios únicos activos en los últimos 7 días</p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="info-content">
+                        <h4>MAU (Monthly Active Users)</h4>
+                        <p>Usuarios únicos activos en los últimos 30 días</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">{{ _('common.footer.copyright') }}</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/static/js/i18n.js?v=1"></script>
+    <script src="/static/js/auth.js?v=5"></script>
+    <script src="/static/js/statistics.js?v=4" defer></script>
+</body>
+
+</html>

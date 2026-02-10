@@ -1,0 +1,333 @@
+/* ============================================
+   Navbar Styles - Clean Minimal Design
+   Inspirado en LYSET
+   ============================================ */
+
+:root {
+    --navbar-bg: #ffffff;
+    --navbar-height: 72px;
+    --navbar-border: #e8e8e8;
+    --navbar-text: #374151;
+    --navbar-text-hover: #111827;
+    --navbar-accent: #6B8E3A;
+    --navbar-accent-dark: #4A5D23;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--navbar-bg);
+    border-bottom: 1px solid var(--navbar-border);
+    padding: 0;
+    height: var(--navbar-height);
+}
+
+.navbar-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+/* Logo */
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--navbar-accent);
+    font-weight: 700;
+    font-size: 1.25rem;
+    transition: opacity 200ms ease;
+}
+
+.navbar-logo:hover {
+    opacity: 0.85;
+}
+
+.navbar-logo-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.navbar-logo span {
+    letter-spacing: -0.02em;
+    color: #1f2937;
+}
+
+/* Nav Menu */
+.navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-menu-item {
+    position: relative;
+}
+
+.navbar-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: var(--navbar-text);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: color 200ms ease;
+}
+
+.navbar-menu-link:hover {
+    color: var(--navbar-text-hover);
+}
+
+.navbar-menu-link.active {
+    color: var(--navbar-text-hover);
+    font-weight: 600;
+}
+
+/* Hide icons by default for clean look */
+.navbar-menu-icon {
+    display: none;
+}
+
+/* Contact/CTA Button - Pill style with dot indicator */
+.navbar-contact {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: transparent;
+    color: var(--navbar-accent);
+    text-decoration: none;
+    border: 2px solid var(--navbar-accent);
+    border-radius: 9999px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    transition: all 200ms ease;
+    white-space: nowrap;
+}
+
+.navbar-contact::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--navbar-accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.navbar-contact:hover {
+    background: var(--navbar-accent);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(107, 142, 58, 0.3);
+}
+
+.navbar-contact:hover::before {
+    background: white;
+}
+
+.navbar-contact:active {
+    transform: translateY(0);
+}
+
+/* Mobile Menu Toggle */
+.navbar-toggle {
+    display: none;
+    background: transparent;
+    border: 2px solid var(--navbar-border);
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--navbar-text);
+    border-radius: 0.5rem;
+    transition: all 200ms ease;
+}
+
+.navbar-toggle:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.navbar-toggle-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 0 1rem;
+    }
+
+    .navbar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .navbar-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--navbar-bg);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+        padding: 1rem;
+        border-top: 1px solid var(--navbar-border);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+        display: none;
+    }
+
+    .navbar-menu.active {
+        display: flex;
+    }
+
+    .navbar-menu-link {
+        padding: 0.875rem 1rem;
+        border-radius: 0.5rem;
+    }
+
+    .navbar-menu-link:hover {
+        background: #f3f4f6;
+    }
+
+    .navbar-contact {
+        margin-top: 0.5rem;
+        justify-content: center;
+        padding: 0.875rem 1.5rem;
+    }
+}
+
+/* Add padding to body when navbar is present */
+body.has-navbar {
+    padding-top: calc(var(--navbar-height) + 1rem);
+}
+
+@media (max-width: 768px) {
+    body.has-navbar {
+        padding-top: calc(var(--navbar-height) + 0.5rem);
+    }
+}
+
+/* User name and logout for authenticated pages */
+.navbar-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
+}
+
+.navbar-user-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--navbar-text);
+    white-space: nowrap;
+}
+
+/* Auth button wrapper - maintains position */
+.navbar-auth {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
+    min-width: fit-content;
+}
+
+/* Ensure both buttons occupy same space */
+.navbar-contact,
+.navbar-logout {
+    min-width: 100px;
+    justify-content: center;
+}
+
+.navbar-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background: transparent;
+    color: #dc2626;
+    text-decoration: none;
+    border: 2px solid #dc2626;
+    border-radius: 9999px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 200ms ease;
+    white-space: nowrap;
+}
+
+.navbar-logout::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #dc2626;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.navbar-logout:hover {
+    background: #dc2626;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.navbar-logout:hover::before {
+    background: white;
+}
+
+.navbar-logout:active {
+    transform: translateY(0);
+}
+
+/* Language Selector */
+.language-selector {
+    display: flex;
+    align-items: center;
+}
+
+.language-dropdown {
+    padding: 0.5rem 0.75rem;
+    border: 2px solid var(--navbar-border);
+    border-radius: 0.5rem;
+    background-color: white;
+    color: var(--navbar-text);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 200ms ease;
+    outline: none;
+    letter-spacing: 0.05em;
+}
+
+.language-dropdown:hover {
+    border-color: var(--navbar-accent);
+    background-color: #f9fafb;
+}
+
+.language-dropdown:focus {
+    border-color: var(--navbar-accent);
+    box-shadow: 0 0 0 3px rgba(107, 142, 58, 0.1);
+}
+
+/* Utility class for hiding elements */
+.hidden {
+    display: none !important;
+}

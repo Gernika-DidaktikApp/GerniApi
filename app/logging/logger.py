@@ -1,13 +1,16 @@
-"""
-Módulo de configuración de logging estructurado
-Proporciona logging con rotación de archivos y diferentes niveles
+"""Módulo de configuración de logging estructurado.
+
+Proporciona logging con rotación de archivos, diferentes niveles y
+formateadores personalizados para logs estructurados y legibles.
+
+Autor: Gernibide
 """
 
 import logging
 import sys
-from pathlib import Path
+from datetime import UTC, datetime
 from logging.handlers import RotatingFileHandler
-from datetime import datetime, timezone
+from pathlib import Path
 
 
 class StructuredFormatter(logging.Formatter):
@@ -18,7 +21,7 @@ class StructuredFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         # Formato base del log
-        timestamp = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+        timestamp = datetime.now(UTC).isoformat().replace("+00:00", "Z")
         base = f"[{timestamp}] [{record.levelname:8}] [{record.module}:{record.lineno}] - {record.getMessage()}"
 
         # Añadir campos extra si existen
@@ -44,28 +47,28 @@ class SimpleFormatter(logging.Formatter):
 
     # Colores ANSI para diferentes niveles
     COLORS = {
-        'DEBUG': '\033[36m',      # Cyan
-        'INFO': '\033[32m',       # Green
-        'WARNING': '\033[33m',    # Yellow
-        'ERROR': '\033[31m',      # Red
-        'CRITICAL': '\033[35m',   # Magenta
+        "DEBUG": "\033[36m",  # Cyan
+        "INFO": "\033[32m",  # Green
+        "WARNING": "\033[33m",  # Yellow
+        "ERROR": "\033[31m",  # Red
+        "CRITICAL": "\033[35m",  # Magenta
     }
-    RESET = '\033[0m'
-    BOLD = '\033[1m'
-    DIM = '\033[2m'
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
 
-    # Emojis para cada nivel
+    # Icons para cada nivel
     ICONS = {
-        'DEBUG': '🔍',
-        'INFO': '✓',
-        'WARNING': '⚠️ ',
-        'ERROR': '✗',
-        'CRITICAL': '🔥',
+        "DEBUG": "[D]",
+        "INFO": "[i]",
+        "WARNING": "[!]",
+        "ERROR": "[X]",
+        "CRITICAL": "[!!]",
     }
 
     def format(self, record: logging.LogRecord) -> str:
         # Obtener emoji
-        icon = self.ICONS.get(record.levelname, '•')
+        icon = self.ICONS.get(record.levelname, "•")
 
         # Añadir color al nivel de log
         levelname = record.levelname
@@ -83,7 +86,7 @@ class SimpleFormatter(logging.Formatter):
         # Mensaje
         message = record.getMessage()
 
-        # Formato final bonito: 🔍 14:23:45 INFO     auth:42 → Usuario autenticado
+        # Formato final bonito: [D] 14:23:45 INFO     auth:42 → Usuario autenticado
         return f"{icon} {self.DIM}{timestamp}{self.RESET} {colored_level} {location} → {message}"
 
 
@@ -147,7 +150,7 @@ def setup_logging(
                 app_log_file,
                 maxBytes=max_bytes,
                 backupCount=backup_count,
-                encoding="utf-8"
+                encoding="utf-8",
             )
             app_file_handler.setLevel(getattr(logging, file_level.upper()))
             app_file_handler.setFormatter(StructuredFormatter())
@@ -161,7 +164,7 @@ def setup_logging(
                 debug_log_file,
                 maxBytes=max_bytes,
                 backupCount=backup_count,
-                encoding="utf-8"
+                encoding="utf-8",
             )
             debug_file_handler.setLevel(getattr(logging, debug_level.upper()))
             debug_file_handler.setFormatter(StructuredFormatter())
@@ -175,19 +178,21 @@ def setup_logging(
                 error_log_file,
                 maxBytes=max_bytes,
                 backupCount=backup_count,
-                encoding="utf-8"
+                encoding="utf-8",
             )
             error_file_handler.setLevel(logging.ERROR)
             error_file_handler.setFormatter(StructuredFormatter())
             logger.addHandler(error_file_handler)
 
             logger.info(
-                f"Sistema de logging inicializado (desarrollo)",
-                extra={"extra_fields": {
-                    "log_dir": str(log_path),
-                    "max_file_size": f"{max_bytes / 1024 / 1024}MB",
-                    "backup_count": backup_count
-                }}
+                "Sistema de logging inicializado (desarrollo)",
+                extra={
+                    "extra_fields": {
+                        "log_dir": str(log_path),
+                        "max_file_size": f"{max_bytes / 1024 / 1024}MB",
+                        "backup_count": backup_count,
+                    }
+                },
             )
         except Exception as e:
             # Si falla la creación de archivos, solo usar consola
@@ -260,7 +265,7 @@ def log_request(method: str, path: str, status_code: int, duration_ms: float, **
         path=path,
         status_code=status_code,
         duration_ms=duration_ms,
-        **extra
+        **extra,
     )
 
 
@@ -272,7 +277,7 @@ def log_db_operation(operation: str, table: str, record_id: str = None, **extra)
         db_operation=operation,
         table=table,
         record_id=record_id,
-        **extra
+        **extra,
     )
 
 
@@ -285,5 +290,5 @@ def log_auth(event: str, username: str = None, success: bool = True, **extra):
         auth_event=event,
         username=username,
         success=success,
-        **extra
+        **extra,
     )

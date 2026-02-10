@@ -1,0 +1,479 @@
+{
+  "common": {
+    "nav": {
+      "home": "Hasiera",
+      "statistics": "Estatistikak",
+      "classes": "Klaseak",
+      "dashboard": "Aginte-panela",
+      "gallery": "Galeria",
+      "manuals": "Eskuliburuak",
+      "login": "Saioa hasi",
+      "logout": "Irten"
+    },
+    "footer": {
+      "copyright": "GERNIBIDE HEZKUNTZA © 2026"
+    },
+    "buttons": {
+      "save": "Gorde",
+      "cancel": "Utzi",
+      "delete": "Ezabatu",
+      "edit": "Editatu",
+      "close": "Itxi",
+      "submit": "Bidali",
+      "back": "Atzera"
+    }
+  },
+  "home": {
+    "meta": {
+      "title": "Gernibide - Hasiera",
+      "description": "Gernibide - Esploratu hezkuntza ingurune naturaletan."
+    },
+    "hero": {
+      "title": "Deskubritu",
+      "highlight": "Gernibide",
+      "description": "Esploratu hezkuntza ingurune naturaletan, ibilbide interaktiboak eta estrategia pedagogikoak ingurune natural hezitzailean."
+    },
+    "stats": {
+      "section_title": "Gernibide Komunitatea",
+      "total_users": "Erabiltzaile Kopurua",
+      "minutes_played": "Jolastutako Minutuak",
+      "events_completed": "Bukatutako jarduerak"
+    },
+    "download": {
+      "title": "Eraman historia zure poltsikoan",
+      "description": "Deskargatu aplikazio mugikorra eta gozatu Gernibide-ren hezkuntza jarduera guztiekin.",
+      "download_apk": "Deskargatu hemen APK",
+      "coming_soon": "Laster",
+      "available_now": "Orain eskuragarri",
+      "modal": {
+        "title": "Deskargatu Gernibide Aplikazioa",
+        "description": "Gernibide APK fitxategia deskargatzera zoaz. Ziurtatu zure Android gailuan iturburu ezezagunetako aplikazioak instalatzea gaituta duzula.",
+        "confirm": "Deskargatu",
+        "cancel": "Ezeztatu"
+      }
+    }
+  },
+  "login": {
+    "meta": {
+      "title": "Sartu Gernibide-n - Didaktik App",
+      "description": "Sartu zure kontuan ingurune natural hezitzailea kudeatzeko"
+    },
+    "title": "Sartu Gernibide-n",
+    "subtitle": "Sartu zure kontuan ingurune natural hezitzailea kudeatzeko",
+    "username": "Erabiltzailea",
+    "password": "Pasahitza",
+    "submit": "Sartu",
+    "show_password": "Erakutsi pasahitza",
+    "hide_password": "Ezkutatu pasahitza",
+    "errors": {
+      "username_required": "Erabiltzaile-izena beharrezkoa da",
+      "password_required": "Pasahitza beharrezkoa da",
+      "invalid_credentials": "Kredentzial okerrak",
+      "network_error": "Konexio errorea. Mesedez, saiatu berriz"
+    }
+  },
+  "statistics": {
+    "meta": {
+      "title": "Estatistikak - Gernibide",
+      "description": "Gernibide-ren erabilera metrikak eta estatistikak ikusi"
+    },
+    "submenu": {
+      "users": "Erabiltzaileak eta Jarduerak",
+      "gameplay": "Jokoaren Erabilera",
+      "learning": "Errendimendua eta Ikaskuntza"
+    },
+    "users": {
+      "title": "Erabiltzaileak eta",
+      "highlight": "Jarduera",
+      "description": "Erabiltzaileen portaeraren analisia: erregistroak, hilabeteko jarduera eta saio datuak.",
+      "section_title": "Azterketa Xehatua",
+      "summary": {
+        "active_users_dau": "Erabiltzaile Aktiboak (DAU)",
+        "new_users_today": "Gaurko Erabiltzaile Berriak",
+        "active_ratio": "Aktiboen/Guztirako Ratioa",
+        "logins_today": "Gaurko Saioak"
+      },
+      "charts": {
+        "active_users_dau_wau_mau": "Erabiltzaile Aktiboak (DAU / WAU / MAU)",
+        "new_users_by_day": "Erabiltzaile Berriak Eguneko",
+        "active_ratio_chart": "Erabiltzaile Aktiboen / Guztirako Ratioa",
+        "logins_by_day": "Saioak Eguneko"
+      },
+      "chart_types": {
+        "line": "Lerroa",
+        "bars": "Barrak",
+        "area": "Area",
+        "line_markers": "Lerroa + Markatzaileak"
+      }
+    },
+    "gameplay": {
+      "meta": {
+        "title": "Jokoaren Erabilera - Estatistikak - Gernibide",
+        "description": "Gernibide-ren erabilera eta joko estatistikak"
+      },
+      "title": "Jokoaren",
+      "highlight": "Erabilera",
+      "description": "Jokoaren metrikak: partidaketa hezkuntza jardueren amaierako puntuazioa.",
+      "summary": {
+        "active_games": "Partida Aktiboak",
+        "completion_rate": "Amaitzeko puntuazioa",
+        "events_completed": "Bukatutako Jarduerak",
+        "avg_time": "Batezbesteko denbora"
+      },
+      "section_title": "Jokoaren Analisia",
+      "charts": {
+        "partidas_by_day": "Sortutako Partidak Eguneko",
+        "partidas_by_status": "Bukatutako Partidak vs Utzitako Partidak",
+        "activities_timeline": "Hasitako Jarduera vs Bukatutako Jarduerak",
+        "most_played": "Gehien Jolastutako Jarduerak"
+      },
+      "chart_types": {
+        "bars": "Barrak",
+        "donut": "Donut",
+        "stacked_bars": "Barrak Pilatuak",
+        "horizontal_bars": "Barra Horizontalak"
+      },
+      "legend": {
+        "completed": "Bukatuta",
+        "in_progress": "Abian",
+        "abandoned": "Utzita"
+      },
+      "info": {
+        "partidas_title": "Partidak",
+        "partidas_description": "Erabiltzaileek hasitako joko-saio indibidualak",
+        "eventos_title": "Jarduerak",
+        "eventos_description": "Partida bakoitzeko jarduera edo intereseko puntuak",
+        "completion_rate_title": "Completion Rate",
+        "completion_rate_description": "Zuzen amaitutako jardueren ehunekoa"
+      }
+    },
+    "learning": {
+      "meta": {
+        "title": "Errendimendua eta Ikaskuntza - Estatistikak - Gernibide",
+        "description": "Gernibide-ren errendimendua eta ikaskuntza estatistikak"
+      },
+      "title": "Errendimendua eta",
+      "highlight": "Ikaskuntza",
+      "description": "Hezkuntza aurrerapenaren analisia: puntuazioak, emaitzen banaketa eta jarduera bakoitzeko amaitzeko denborak.",
+      "summary": {
+        "avg_score": "Batez besteko Puntuazioa",
+        "pass_rate": "Gaindituak",
+        "avg_time": "Batez besteko Denbora",
+        "evaluated_activities": "Ebaluatutako Jarduerak"
+      },
+      "section_title": "Errendimenduaren Analisia",
+      "charts": {
+        "most_played": "Gehien Jolastutako Jarduerak",
+        "highest_scoring": "Puntuazio Handieneko Jarduerak",
+        "class_performance": "Batez besteko Errendimendua Klaseka"
+      },
+      "chart_types": {
+        "horizontal_bars": "Barra Horizontalak"
+      }
+    },
+    "filters": {
+      "7d": "7 egun",
+      "30d": "30 egun",
+      "90d": "90 egun",
+      "1y": "1 urte"
+    },
+    "info": {
+      "score_title": "Puntuazioa",
+      "score_description": "Hezkuntza jarduera bakoitzean lortutako 0-10 kalifikazioa",
+      "histogram_title": "Histograma",
+      "histogram_description": "Lortutako puntuazioen maiztasun banaketa",
+      "boxplot_title": "Boxplot",
+      "boxplot_description": "Denboraren dispertsioaren bistaratze: mediana, kuartilak eta balio atipikoak"
+    }
+  },
+  "dashboard": {
+    "meta": {
+      "title": "Aginte-panela - Gernibide",
+      "description": "Gernibide-ren administrazio panela"
+    },
+    "title": "Administrazio Aginte-panela",
+    "hero": {
+      "title": "Irakaslearen",
+      "highlight": "Ikuspegia",
+      "description": "Zure klaseko aurrerapenaren jarraipena: ikaslearen errendimendua, dedikatutako denbora eta hezkuntza garapena."
+    },
+    "filters": {
+      "class": "Klasea",
+      "all_classes": "Klase guztiak",
+      "date_range": "Data Tartea",
+      "activity": "Jarduera",
+      "all_activities": "Jarduera guztiak",
+      "apply": "Aplikatu"
+    },
+    "date_options": {
+      "7d": "Azken 7 egunak",
+      "14d": "Azken 14 egunak",
+      "30d": "Azken 30 egunak",
+      "quarter": "Hiruhileko hau",
+      "course": "Ikasturtea osoa"
+    },
+    "summary": {
+      "students_in_class": "Klaseko Ikasleak",
+      "avg_progress": "Batez besteko Aurrerapena",
+      "avg_time": "Batez besteko Denbora",
+      "avg_grade": "Batez besteko Nota",
+      "per_session": "saio bakoitzeko"
+    },
+    "section_title": "Klasearen Analisia",
+    "charts": {
+      "student_progress": "Ikaslearen Aurrerapena",
+      "time_per_student": "Ikasleak Dedikatutako Denbora",
+      "completed_activities": "Bukatutako Jarduerak",
+      "class_evolution": "Klasearen Bilakaera"
+    },
+    "chart_types": {
+      "bars": "Barrak",
+      "stacked_bars": "Barrak Pilatuak",
+      "line": "Lerroa"
+    },
+    "legend": {
+      "completed": "Bukatuta",
+      "in_progress": "Abian",
+      "not_started": "Hasi gabe",
+      "progress": "Aurrerapena",
+      "avg_grade": "Batezbesteko puntuazioa"
+    },
+    "sort_button": "Ordenatu",
+    "students_list": {
+      "title": "Ikasleen Zerrenda",
+      "export_csv": "Deskargatu CSV gisa",
+      "export_excel": "Deskargatu Excel gisa"
+    },
+    "table_headers": {
+      "name": "Izena",
+      "username": "Erabiltzailea",
+      "progress": "Aurrerapena",
+      "activities": "Jarduerak",
+      "total_time": "Denbora Guztira",
+      "avg_grade": "Batez besteko Nota",
+      "last_activity": "Azken Jarduera"
+    },
+    "loading": "Datuak kargatzen...",
+    "loading_states": {
+      "applying": "Aplikatzen..."
+    },
+    "empty_states": {
+      "no_students": "Ez dago ikaslerik klase honetan",
+      "no_data": "Ez dago daturik eskuragarri",
+      "no_time_data": "Ez dago denboraren daturik eskuragarri",
+      "no_activities": "Ez dago jarduerarik eskuragarri",
+      "no_evolution_data": "Ez dago bilakaerarako daturik eskuragarri"
+    },
+    "errors": {
+      "load_data": "Errorea datuak kargatzean",
+      "load_student_progress": "Errorea ikasleen aurrerapena kargatzean",
+      "load_student_time": "Errorea ikasleen denbora kargatzean",
+      "load_activities": "Errorea jarduerak kargatzean",
+      "load_evolution": "Errorea klasearen bilakaera kargatzean",
+      "export_csv": "Errorea CSV esportatzean. Mesedez, saiatu berriro.",
+      "export_excel": "Errorea Excel esportatzean. Mesedez, saiatu berriro."
+    },
+    "chart_labels": {
+      "all_classes": "Klase guztiak",
+      "students": "Ikasleak",
+      "completed_hover": "Bukatuta: {count} ikasle",
+      "in_progress_hover": "Abian: {count} ikasle",
+      "not_started_hover": "Hasi gabe: {count} ikasle"
+    }
+  },
+  "dashboard_teacher": {
+    "meta": {
+      "title": "Irakaslearen Panela - Gernibide",
+      "description": "Kudeatu zure klaseak eta ikasleak"
+    },
+    "title": "Irakaslearen Panela",
+    "my_classes": "Nire Klaseak",
+    "students": "Ikasleak",
+    "activities": "Jarduerak",
+    "performance": "Errendimendua",
+    "page": {
+      "title": "Klaseen",
+      "highlight": "Kudeaketa"
+    },
+    "buttons": {
+      "create_class": "Klasea Sortu",
+      "import_students": "Ikasleak Inportatu"
+    },
+    "class_info": {
+      "select_class": "Hautatu klase bat",
+      "code_label": "Kodea:",
+      "copy_code": "Kopiatu kodea",
+      "students_count": "ikasle"
+    },
+    "students_section": {
+      "title": "Klaseko Ikasleak",
+      "export_csv": "CSV",
+      "export_excel": "Excel"
+    },
+    "table_headers": {
+      "student": "Ikaslea",
+      "progress": "Aurrerapena",
+      "activities": "Jarduerak",
+      "total_time": "Denbora Guztira",
+      "avg_grade": "Batez besteko Nota",
+      "last_activity": "Azken Jarduera",
+      "status": "Egoera",
+      "actions": "Ekintzak"
+    },
+    "loading_classes": "Klaseak kargatzen...",
+    "loading_students": "Ikasleak kargatzen...",
+    "select_class_prompt": "Hautatu klasea ikasleak ikusteko",
+    "empty_states": {
+      "no_classes": "Ez dituzu klaseak esleituta",
+      "no_classes_hint": "Sortu zure lehen klasea \"Klasea Sortu\" botoia erabiliz",
+      "no_students": "Ez dago ikaslerik klase honetan",
+      "select_class": "Hautatu klase bat"
+    },
+    "notifications": {
+      "class_created": "Klasea ondo sortu da",
+      "class_deleted": "Klasea ondo ezabatu da",
+      "student_removed": "Ikaslea klasetik kendu da",
+      "code_copied": "Kodea arbelean kopiatu da",
+      "csv_downloaded": "CSV ondo deskargatu da",
+      "excel_downloaded": "Excel ondo deskargatu da",
+      "template_downloaded": "Txantiloia deskargatuta",
+      "please_select_class": "Mesedez, hautatu klase bat lehenik",
+      "please_select_csv": "Mesedez, hautatu CSV fitxategi bat",
+      "please_enter_name": "Mesedez, sartu klasearentzako izen bat",
+      "import_success": "ondo inportatuta",
+      "import_errors": "errore"
+    },
+    "errors": {
+      "session_expired": "Saioa iraungi da",
+      "load_classes": "Errorea klaseak kargatzean",
+      "load_students": "Errorea ikasleak kargatzean",
+      "create_class": "Errorea klasea sortzean",
+      "delete_class": "Errorea klasea ezabatzean",
+      "remove_student": "Errorea ikaslea kentzean",
+      "export_csv": "Errorea CSV esportatzean",
+      "export_excel": "Errorea Excel esportatzean",
+      "import_students": "Errorea ikasleak inportatzean",
+      "import_validation": "Errorea inportazioan",
+      "clear_cache": "Errorea aginte-panelaren cachea garbitzean",
+      "no_teacher_info": "Ez da irakaslearen informaziorik aurkitu. Mesedez, hasi saioa berriro.",
+      "csv_columns": "CSV fitxategiak honako zutabeak izan behar ditu: izena, abizena, erabiltzailea",
+      "csv_required_fields": "Eremu guztiak (izena, abizena, erabiltzailea) derrigorrezkoak dira",
+      "no_valid_users": "Ez da erabiltzaile baliozkorik aurkitu CSV fitxategian"
+    },
+    "loading_states": {
+      "creating": "Sortzen...",
+      "importing": "Inportatzen...",
+      "validating": "Datuak balidatzen...",
+      "sending": "Datuak zerbitzarira bidaltzen...",
+      "completed": "Inportazioa bukatuta"
+    },
+    "confirmations": {
+      "delete_class": "Ziur zaude \"{name}\" klasea ezabatu nahi duzula?\n\nIkasleak EZ dira ezabatuko, bakarrik klaserik gabe geratuko dira.",
+      "remove_student": "\"{name}\" klase honetatik kendu?\n\nIkaslea EZ da ezabatuko, bakarrik klaserik gabe geratuko da.",
+      "delete_button_title": "Klasea ezabatu",
+      "remove_button_title": "Klasetik kendu"
+    },
+    "labels": {
+      "students_singular": "ikasle",
+      "students_plural": "ikasle",
+      "code": "Kodea:"
+    },
+    "sidebar": {
+      "my_classes": "Nire Klaseak"
+    },
+    "modals": {
+      "create_class": {
+        "title": "Klase Berria Sortu",
+        "name_label": "Klasearen Izena",
+        "name_placeholder": "Ad: 4. A - Lehen Hezkuntza",
+        "description_label": "Deskribapena (aukerakoa)",
+        "description_placeholder": "Klasearen deskribapena...",
+        "cancel": "Utzi",
+        "submit": "Klasea Sortu"
+      },
+      "import": {
+        "title": "Ikasleak Inportatu",
+        "csv_label": "CSV Fitxategia",
+        "csv_instructions": "CSV fitxategiak honako zutabeak izan behar ditu: <strong>izena, abizena, erabiltzailea</strong><br><strong>📌 Saioa hasteko:</strong> Ikasle bakoitzaren pasahitza bere <strong>erabiltzailea</strong> berdina izango da.<br><em style=\"font-size: 0.8rem;\">Adibidea: Erabiltzailea \"jperez\" bada, pasahitza \"jperez\" izango da</em>",
+        "download_template": "Deskargatu CSV Txantiloia",
+        "preparing": "Inportazioa prestatzen...",
+        "cancel": "Utzi",
+        "submit": "Inportatu"
+      }
+    }
+  },
+  "manuals": {
+    "meta": {
+      "title": "Eskuliburuak eta Tutorialak - Gernibide",
+      "description": "PDF eskuliburuak eta bideo tutorialak irakasle eta ikasleentzat"
+    },
+    "page": {
+      "title": "Eskuliburuak eta",
+      "highlight": "Tutorialak",
+      "description": "Aurkitu gida osoak eta bideo tutorialak Gernibide ahalik eta gehien aprobetxatzeko"
+    },
+    "sections": {
+      "manuals": "PDF Eskuliburuak",
+      "videos": "Bideo Tutorialak"
+    },
+    "manuals_list": {
+      "user_manual": "Erabiltzailearen Eskuliburua",
+      "user_manual_desc": "Gida osoa Gernibide-ren funtzionalitate guztiak erabiltzeko",
+      "installation_manual": "Instalazio Eskuliburua",
+      "installation_manual_desc": "Aplikazioa instalatu eta konfiguratzeko urratsak",
+      "download": "Deskargatu PDF"
+    },
+    "videos_list": {
+      "web_tutorial": "Web Tutoriala",
+      "web_tutorial_desc": "Ikasi irakaslearen web panela eta estatistikak erabiltzeko",
+      "app_tutorial": "Aplikazioaren Tutoriala",
+      "app_tutorial_desc": "Gida osoa Gernibide aplikazio mugikorra erabiltzeko"
+    },
+    "empty": {
+      "manuals": "Eskuliburuak laster eskuragarri egongo dira",
+      "videos": "Bideo tutorialak laster eskuragarri egongo dira"
+    }
+  },
+  "gallery": {
+    "meta": {
+      "title": "Galeria - Gernibide",
+      "description": "Ikasleen Irudi Galeria eta Mezu Horma"
+    },
+    "page": {
+      "title": "Galeria",
+      "highlight": "Ikasleen Horma",
+      "description": "Esploratu ikasleek partekatutako irudiak eta mezuak"
+    },
+    "filter": {
+      "label": "Klasez iragazi:",
+      "all_classes": "Klase guztiak"
+    },
+    "tabs": {
+      "gallery": "Irudi Galeria",
+      "messages": "Mezu Horma"
+    },
+    "gallery_section": {
+      "title": "Irudi Galeria",
+      "count_singular": "irudi",
+      "count_plural": "irudi",
+      "loading": "Galeria kargatzen...",
+      "empty_title": "Oraindik ez dago irudirik",
+      "empty_description": "Ikasleek partekatutako irudiak hemen agertuko dira",
+      "error_title": "Errorea galeria kargatzean",
+      "error_description": "Mesedez, saiatu berriz geroago"
+    },
+    "messages_section": {
+      "title": "Mezu Horma",
+      "count_singular": "mezu",
+      "count_plural": "mezu",
+      "loading": "Mezuak kargatzen...",
+      "empty_title": "Oraindik ez dago mezurik",
+      "empty_description": "Ikasleen mezuak hemen agertuko dira",
+      "error_title": "Errorea mezuak kargatzean",
+      "error_description": "Mesedez, saiatu berriz geroago"
+    },
+    "modal": {
+      "alt": "Irudi handitua"
+    }
+  }
+}

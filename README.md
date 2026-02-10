@@ -1,6 +1,28 @@
 # GerniBide API
 
-API REST con FastAPI para la aplicación móvil Gernibide. Gestiona autenticación de usuarios, juegos, actividades y sesiones.
+<div align="center">
+  <img src="app/web/static/images/GernikaLogo.png" alt="Gernibide Logo" width="300"/>
+</div>
+
+<br/>
+
+API REST con FastAPI para la aplicación móvil Gernibide. Gestiona autenticación de usuarios, juegos, puntos y actividades.
+
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+## 📑 Índice
+
+- [Quick Start](#-quick-start)
+- [Requisitos Previos](#-requisitos-previos)
+- [Instalación Local](#️-instalación-local)
+- [CLI Administrativo](#-cli-administrativo)
+- [Testing](#-testing)
+- [Endpoints Disponibles](#-endpoints-disponibles)
+- [Modelos de Base de Datos](#-modelos-de-base-de-datos)
+- [Estructura del Proyecto](#️-estructura-del-proyecto)
+- [Documentación Adicional](#-documentación-adicional)
+- [Características](#-características)
 
 ## 🚀 Quick Start
 
@@ -18,13 +40,32 @@ http://localhost:8000/docs
 
 Ver [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) para instrucciones completas de despliegue.
 
+### Para Desarrolladores
+
+```bash
+# 1. Ejecutar tests
+pytest tests/ -v
+
+# 2. Verificar linting
+black --check app/ tests/
+isort --check-only app/ tests/
+ruff check app/ tests/
+
+# 3. Formatear código automáticamente
+black app/ tests/
+isort app/ tests/
+```
+
+Ver [docs/TESTING.md](docs/TESTING.md) y [docs/LINTING.md](docs/LINTING.md) para guías completas.
+
 ---
 
 ## 📋 Requisitos Previos
 
-- Python 3.8+
+- Python 3.11+ (testeado en 3.11, 3.12, 3.13)
 - PostgreSQL 15+
 - Git
+- Redis (opcional, para rate limiting en producción)
 
 ---
 
@@ -124,6 +165,19 @@ curl -X POST "http://localhost:8000/api/v1/auth/login-app" \
   -d '{"username":"test_user","password":"test_password"}'
 ```
 
+### Estados de Puntos y Actividades
+
+#### POST `/api/v1/actividad-progreso/iniciar`
+Inicia una actividad para un jugador. Registra automáticamente fecha de inicio y establece estado "en_progreso".
+
+#### POST `/api/v1/punto-progreso/iniciar`
+Inicia un punto. (Nota: Esto podría necesitar revisión si el endpoint cambió).
+
+#### PUT `/api/v1/actividad-progreso/{id}/completar`
+Completa una actividad con su puntuación. **Calcula automáticamente la duración** y si es la última actividad, **completa el punto automáticamente** sumando todas las puntuaciones.
+
+**Ver [API_ENDPOINTS.md](docs/API_ENDPOINTS.md) para documentación completa de estos endpoints.**
+
 ### Health Check
 
 #### GET `/health`
@@ -152,6 +206,7 @@ Verifica que la API está corriendo.
 
 ### Clase
 - `id` (UUID)
+- `codigo` (string, 6 caracteres únicos - para compartir fácilmente)
 - `id_profesor` (FK a Profesor)
 - `nombre`
 
@@ -171,14 +226,35 @@ Verifica que la API está corriendo.
 - `duracion`
 - `estado` (en_progreso/finalizada)
 
-### Actividad
+### Punto
 - `id` (UUID)
 - `nombre`
 
-### Eventos
+### Actividad
 - `id` (UUID)
-- `id_actividad` (FK a Actividad)
+- `id_punto` (FK a Punto)
 - `nombre`
+
+### PuntoResumen (antes ActividadEstado)
+- `id` (UUID)
+- `id_juego` (FK a Partida)
+- `id_punto` (FK a Punto)
+- `fecha_inicio` (timestamp)
+- `fecha_fin` (timestamp, opcional)
+- `duracion` (segundos, calculado automáticamente)
+- `estado` (en_progreso/completado)
+- `puntuacion_total` (float, suma de puntuaciones de actividades)
+
+### ActividadProgreso (antes EventoEstado)
+- `id` (UUID)
+- `id_juego` (FK a Partida)
+- `id_punto` (FK a Punto)
+- `id_actividad` (FK a Actividad)
+- `fecha_inicio` (timestamp)
+- `fecha_fin` (timestamp, opcional)
+- `duracion` (segundos, calculado automáticamente)
+- `estado` (en_progreso/completado)
+- `puntuacion` (float, puntuación obtenida)
 
 ### Sesion
 - `id` (UUID)
@@ -190,40 +266,264 @@ Verifica que la API está corriendo.
 ```
 GerniApi/
 ├── app/
-│   ├── models/          # Modelos SQLAlchemy (ORM)
+│   ├── models/              # Modelos SQLAlchemy (ORM)
 │   │   ├── usuario.py
 │   │   ├── clase.py
 │   │   ├── profesor.py
-│   │   ├── juego.py
+│   │   ├── juego.py (Partida)
+│   │   ├── punto.py
 │   │   ├── actividad.py
-│   │   ├── eventos.py
-│   │   └── sesion.py
-│   ├── schemas/         # Esquemas Pydantic (validación)
+│   │   └── ...
+│   ├── schemas/             # Esquemas Pydantic (validación)
 │   │   ├── usuario.py
 │   │   └── ...
-│   ├── routers/         # Endpoints de la API
-│   │   └── auth.py
-│   ├── utils/           # Utilidades
-│   │   ├── security.py  # JWT, autenticación
-│   │   └── dependencies.py
-│   ├── logging/         # Sistema de logging
+│   ├── routers/             # Endpoints de la API
+│   │   ├── auth.py
+│   │   ├── usuarios.py
+│   │   ├── i18n.py          # Endpoint para cambiar idioma
+│   │   └── ...
+│   ├── services/            # Lógica de negocio (Clean Architecture)
+│   │   ├── usuario_service.py
+│   │   └── usuario_stats_service.py
+│   ├── repositories/        # Acceso a datos (Clean Architecture)
+│   │   ├── usuario_repository.py
+│   │   └── ...
+│   ├── utils/               # Utilidades
+│   │   ├── security.py      # JWT, autenticación
+│   │   ├── dependencies.py  # Dependency injection
+│   │   └── rate_limit.py    # Rate limiting con Redis
+│   ├── logging/             # Sistema de logging estructurado
 │   │   ├── logger.py
-│   │   └── middleware.py
-│   ├── config.py        # Configuración (Pydantic Settings)
-│   ├── database.py      # Conexión a PostgreSQL
-│   └── main.py          # Punto de entrada FastAPI
-├── logs/                # Logs (solo local)
-├── .env                 # Variables de entorno (NO subir a git)
-├── .env.example         # Ejemplo de variables
-├── requirements.txt     # Dependencias Python
-├── Procfile             # Comando de inicio (Railway)
-├── railway.json         # Configuración Railway
-├── create_tables.py     # Script para crear tablas
-├── deploy_local.sh      # Script de despliegue local
-├── README.md            # Este archivo
-├── RAILWAY_DEPLOY.md    # Guía de despliegue en Railway
-└── QUICKSTART.md        # Inicio rápido
+│   │   ├── middleware.py
+│   │   └── exceptions.py
+│   ├── i18n/                # Sistema de internacionalización
+│   │   ├── es.json          # Traducciones en español
+│   │   ├── eu.json          # Traducciones en euskera
+│   │   ├── loader.py        # Carga de traducciones con cache
+│   │   └── helpers.py       # Detección de idioma y helpers
+│   ├── web/                 # Dashboard web para profesores
+│   │   ├── static/          # CSS, JS
+│   │   │   ├── js/
+│   │   │   │   └── i18n.js  # Sistema de traducción JS
+│   │   │   └── css/
+│   │   └── templates/       # HTML templates (7 páginas traducidas)
+│   ├── config.py            # Configuración (Pydantic Settings)
+│   ├── database.py          # Conexión a PostgreSQL/SQLite
+│   └── main.py              # Punto de entrada FastAPI
+├── tests/
+│   ├── conftest.py          # Fixtures y configuración de tests
+│   ├── test_auth.py         # Tests de autenticación
+│   ├── test_usuarios.py     # Tests de usuarios
+│   ├── test_estados.py      # Tests de progreso
+│   ├── test_health.py       # Tests de health checks
+│   └── unit/                # Tests unitarios de servicios
+│       ├── test_usuario_service.py
+│       └── test_usuario_stats_service.py
+├── docs/                    # Documentación
+│   ├── TESTING.md           # Guía completa de testing
+│   ├── CI_CD.md             # CI/CD con GitHub Actions
+│   ├── LINTING.md           # Linting y formateo
+│   ├── API_ENDPOINTS.md     # Documentación de endpoints
+│   └── ...
+├── .github/
+│   └── workflows/
+│       ├── tests.yml        # CI: Tests automáticos
+│       └── lint.yml         # CI: Linting
+├── logs/                    # Logs (solo local, no en git)
+├── .env                     # Variables de entorno (NO subir a git)
+├── .env.example             # Ejemplo de variables
+├── requirements.txt         # Dependencias Python
+├── pyproject.toml           # Configuración de linters
+├── pytest.ini               # Configuración de pytest
+├── Procfile                 # Comando de inicio (Railway)
+├── railway.json             # Configuración Railway
+├── create_tables.py         # Script para crear tablas
+├── deploy_local.sh          # Script de despliegue local
+└── README.md                # Este archivo
 ```
+
+---
+
+## 🌐 Sistema de Internacionalización (i18n)
+
+La plataforma web para profesores está completamente traducida a **Español (ES)** y **Euskera (EU)**, cumpliendo con los requisitos educativos regionales del País Vasco.
+
+### Características i18n
+
+- ✅ **Sistema híbrido**: Backend (Jinja2) + Frontend (JavaScript)
+- ✅ **7 páginas traducidas**: Home, Login, Estadísticas (3 páginas), Dashboard (2 páginas)
+- ✅ **2 idiomas soportados**: Español (es) y Euskera (eu)
+- ✅ **Persistencia**: Preferencia guardada en cookies (1 año)
+- ✅ **Cache en memoria**: Traducciones cacheadas para mejor performance
+- ✅ **Selector de idioma**: Disponible en todas las páginas
+- ✅ **Detección automática**: Cookie → Query param → Accept-Language header
+- ✅ **Fácil extensión**: Agregar nuevos idiomas solo requiere crear archivo JSON
+
+### Arquitectura
+
+**Backend (Python):**
+```python
+# app/i18n/loader.py - Carga traducciones con cache
+def load_translations(lang: str) -> dict[str, Any]
+
+# app/i18n/helpers.py - Detección de idioma
+def get_language_from_request(request: Request) -> str
+def get_translator(request: Request) -> tuple[callable, str]
+
+# app/routers/i18n.py - Endpoint para cambiar idioma
+POST /api/set-language {"language": "es"|"eu"}
+```
+
+**Frontend (JavaScript):**
+```javascript
+// app/web/static/js/i18n.js
+function t(key) // Traduce claves (ej: t('errors.network'))
+function getCurrentLanguage() // Detecta idioma actual
+```
+
+**Templates (Jinja2):**
+```html
+<!-- Sintaxis de traducción -->
+<h1>{{ _('statistics.title') }}</h1>
+<p>{{ _('statistics.description') }}</p>
+```
+
+### Archivos de Traducción
+
+Las traducciones están organizadas jerárquicamente en JSON:
+
+```json
+// app/i18n/es.json
+{
+  "common": {
+    "nav": {
+      "home": "Inicio",
+      "statistics": "Estadísticas"
+    }
+  },
+  "statistics": {
+    "users": {
+      "summary": {
+        "active_users_dau": "Usuarios Activos (DAU)"
+      }
+    }
+  }
+}
+```
+
+### Usar el Sistema i18n
+
+**En templates HTML:**
+```html
+<!-- Traducir texto -->
+{{ _('common.nav.home') }}
+
+<!-- Con variables -->
+{{ _('welcome.message', name=user.nombre) }}
+
+<!-- Selector de idioma -->
+<select id="languageSelect">
+  <option value="es">ES</option>
+  <option value="eu">EU</option>
+</select>
+```
+
+**En JavaScript:**
+```javascript
+// Traducir mensaje de error
+alert(t('errors.network'));
+
+// Traducir labels de gráficos
+const chartData = {
+  labels: [t('charts.days'), t('charts.minutes')]
+};
+
+// Cambiar idioma (recarga la página)
+await fetch('/api/set-language', {
+  method: 'POST',
+  body: JSON.stringify({ language: 'eu' })
+});
+window.location.reload();
+```
+
+### Agregar Nuevo Idioma
+
+1. **Crear archivo de traducciones:**
+   ```bash
+   cp app/i18n/es.json app/i18n/fr.json
+   # Traducir el contenido a francés
+   ```
+
+2. **Actualizar helpers.py:**
+   ```python
+   SUPPORTED_LANGUAGES = ["es", "eu", "fr"]
+   ```
+
+3. **Agregar al selector:**
+   ```html
+   <option value="fr">FR</option>
+   ```
+
+### Páginas Traducidas
+
+1. **home.html** - Página de inicio con hero, stats, features
+2. **login.html** - Formulario de inicio de sesión
+3. **statistics.html** - Usuarios y Actividad
+4. **statistics-gameplay.html** - Uso del Juego
+5. **statistics-learning.html** - Rendimiento y Aprendizaje
+6. **dashboard.html** - Vista Profesor (análisis de clase)
+7. **dashboard-teacher.html** - Gestión de Clases
+
+---
+
+## 🎮 Sistema de Gestión de Progreso
+
+El sistema permite rastrear el progreso de puntos y actividades de los jugadores con **cálculos automáticos** de tiempos y puntuaciones.
+
+### Flujo de Juego
+
+1. **Iniciar Actividad**: `POST /api/v1/actividad-progreso/iniciar`
+   - Registra automáticamente la fecha de inicio de la actividad
+   - Establece el estado como "en_progreso"
+
+2. **Completar Actividad**: `PUT /api/v1/actividad-progreso/{id}/completar`
+   - Recibe la puntuación obtenida por el jugador
+   - **Calcula automáticamente** la duración (fecha_fin - fecha_inicio)
+   - Actualiza el estado a "completado"
+   - **Si es la última actividad** del punto:
+     - Completa automáticamente el punto
+     - **Suma todas las puntuaciones** de las actividades
+     - Calcula la duración total del punto
+
+### Ejemplo de Uso
+
+```javascript
+// 1. Iniciar actividad
+const actividad = await iniciarActividad(partidaId, actividadId);
+
+// 2. Para cada actividad del punto
+for (const actividad of actividades) {
+  // Iniciar actividad
+  const actividadProgreso = await iniciarActividad(partidaId, puntoId, actividad.id);
+
+  // Jugador completa la actividad
+  const puntuacion = await jugarActividad(actividad);
+
+  // Completar actividad (la API calcula duración automáticamente)
+  await completarActividad(actividadProgreso.id, puntuacion);
+}
+
+// 3. Al completar la última actividad, el punto se completa automáticamente
+// con la suma total de puntuaciones y duración calculada
+```
+
+### Características Automáticas
+
+- ✅ **Cálculo de duraciones**: Se calcula automáticamente en segundos
+- ✅ **Suma de puntuaciones**: El punto acumula puntos de todas las actividades
+- ✅ **Auto-completado**: El punto se marca como completado automáticamente
+- ✅ **Validaciones**: No se pueden duplicar actividades en progreso
+- ✅ **Relaciones verificadas**: Se valida que las actividades pertenezcan al punto
 
 ---
 
@@ -313,7 +613,104 @@ Ver [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) para guía completa.
 
 ## 🧪 Testing
 
-### Crear Usuario de Prueba
+El proyecto incluye una suite completa de tests automatizados con pytest y cobertura de código.
+
+### Ejecutar Tests
+
+```bash
+# Instalar dependencias (si no están instaladas)
+pip install -r requirements.txt
+
+# Ejecutar todos los tests
+pytest tests/ -v
+
+# Tests con reporte de cobertura
+pytest tests/ --cov=app --cov-report=html
+
+# Ejecutar solo tests de integración
+pytest tests/test_*.py -v
+
+# Ejecutar solo tests unitarios
+pytest tests/unit/ -v
+```
+
+### Suite de Tests (84 tests)
+
+**Tests de Integración**:
+- ✅ Autenticación (login, tokens, errores)
+- ✅ CRUD de usuarios (crear, listar, actualizar, eliminar)
+- ✅ Registro con código de clase (codigo_clase)
+- ✅ Importación masiva de usuarios (bulk import transaccional)
+- ✅ Estadísticas de usuarios (racha de días, actividades, puntos)
+- ✅ Respuestas públicas de actividades (message wall)
+- ✅ Sistema de progreso de puntos y actividades
+- ✅ Auto-completado de puntos
+- ✅ Cálculo automático de duraciones
+- ✅ Health checks y endpoints básicos
+
+**Tests Unitarios** (tests/unit/):
+- ✅ UsuarioService (lógica de negocio de usuarios)
+- ✅ UsuarioStatsService (cálculo de estadísticas)
+- ✅ Validaciones y casos edge
+
+### Compatibilidad Python 3.11+
+
+Los tests están configurados para funcionar en **Python 3.11, 3.12 y 3.13**:
+- Mock mejorado de `fastapi_limiter` compatible con dependency injection
+- Base de datos SQLite en memoria para tests (no requiere PostgreSQL)
+- Fixtures completas para todos los modelos
+
+Ver **[docs/TESTING.md](docs/TESTING.md)** para:
+- Guía completa de fixtures disponibles
+- Mejores prácticas de testing
+- Debugging y troubleshooting
+- Compatibilidad entre versiones de Python
+
+### Linting y Formateo
+
+El proyecto usa **Black**, **isort** y **Ruff** para mantener calidad de código:
+
+```bash
+# Verificar formato (sin modificar)
+black --check app/ tests/
+isort --check-only app/ tests/
+ruff check app/ tests/
+
+# Formatear automáticamente
+black app/ tests/
+isort app/ tests/
+
+# Arreglar errores de Ruff (cuando sea posible)
+ruff check --fix app/ tests/
+```
+
+Ver **[docs/LINTING.md](docs/LINTING.md)** para configuración detallada y solución de problemas.
+
+### CI/CD con GitHub Actions
+
+El proyecto incluye integración continua que ejecuta automáticamente:
+
+- ✅ **Tests en múltiples versiones** (Python 3.11, 3.12)
+- ✅ **Linting** (Black, isort, Ruff)
+- ✅ **Reporte de cobertura** generado automáticamente
+- ✅ **Cache de dependencias** para builds más rápidos
+- ✅ **Tests automáticos** en cada push a `main` y `develop`
+- ✅ **Tests en Pull Requests** antes de merge
+
+**Archivos de configuración**:
+- [.github/workflows/tests.yml](.github/workflows/tests.yml) - Tests
+- [.github/workflows/lint.yml](.github/workflows/lint.yml) - Linting
+- [pyproject.toml](pyproject.toml) - Configuración de linters
+
+Ver **[docs/CI_CD.md](docs/CI_CD.md)** para:
+- Configuración detallada del CI
+- Troubleshooting de errores comunes
+- Cómo ver reportes de cobertura
+- Variables de entorno en CI
+
+### Testing Manual
+
+#### Crear Usuario de Prueba
 
 ```sql
 INSERT INTO usuario (id, username, nombre, apellido, password, id_clase, creation, top_score)
@@ -329,7 +726,7 @@ VALUES (
 );
 ```
 
-### Probar Login
+#### Probar Login
 
 ```bash
 # Desde terminal
@@ -390,11 +787,20 @@ sudo systemctl start postgresql
 
 ## 📚 Documentación Adicional
 
-- **[API_ENDPOINTS.md](API_ENDPOINTS.md)** - 📡 **Guía completa de uso de endpoints** (¡Empieza aquí!)
+### Guías de Usuario
+- **[API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** - 📡 **Guía completa de uso de endpoints** (¡Empieza aquí!)
+- **[scripts/README.md](scripts/README.md)** - 🔧 **CLI Administrativo** - Gestión de usuarios y datos vía API
 - **[GerniBide.postman_collection.json](GerniBide.postman_collection.json)** - 📮 **Colección de Postman** - Importa y usa todos los endpoints
 - [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) - Guía completa de despliegue en Railway
 - [QUICKSTART.md](QUICKSTART.md) - Inicio rápido en 5 pasos
 - [DEPLOY_GUIDE.md](DEPLOY_GUIDE.md) - Guía detallada de despliegue
+
+### Documentación para Desarrolladores
+- **[docs/TESTING.md](docs/TESTING.md)** - 🧪 **Guía completa de testing** - Fixtures, compatibilidad Python 3.11+, mejores prácticas
+- **[docs/CI_CD.md](docs/CI_CD.md)** - 🚀 **Integración continua con GitHub Actions** - Configuración, troubleshooting
+- **[docs/LINTING.md](docs/LINTING.md)** - ✨ **Linting y formateo de código** - Black, isort, Ruff
+- [docs/RATE_LIMITING.md](docs/RATE_LIMITING.md) - Rate limiting con Redis
+- [tests/README.md](tests/README.md) - Documentación de tests
 
 ### 📮 Usando la Colección de Postman
 
@@ -440,13 +846,118 @@ Diagrama entidad-relación que detalla las tablas de la base de datos (Profesor,
 
 ---
 
-## 🤝 Contribuir
+## 🔧 CLI Administrativo
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+GerniBide incluye un **CLI (Command Line Interface)** completo para gestión administrativa que usa **exclusivamente la API REST**.
+
+### ¿Por qué usar el CLI?
+
+✅ **Ventajas:**
+- **No requiere credenciales de BBDD** - Solo necesitas una API Key
+- **Seguro** - Toda operación pasa por la API con validación y auditoría
+- **Fácil de usar** - Comandos intuitivos con ayuda integrada
+- **Auditable** - Todas las acciones se registran en `audit_logs`
+- **Remoto** - Funciona desde cualquier máquina con acceso a la API
+
+### Instalación y Configuración
+
+```bash
+# 1. Instalar dependencias
+pip install -r requirements-dev.txt
+
+# 2. Configurar CLI
+cd scripts
+cp .env.example .env
+
+# 3. Editar .env con tu API Key
+# API_URL=https://gernibide.up.railway.app
+# API_KEY=tu-api-key
+
+# 4. Verificar conexión
+python cli.py users check-api
+```
+
+### Comandos Disponibles
+
+#### Gestión de Usuarios
+
+```bash
+# Listar usuarios
+python scripts/cli.py users list --limit 20
+
+# Crear profesor
+python scripts/cli.py users create-profesor
+
+# Crear estudiante
+python scripts/cli.py users create-usuario \
+  --username alumno01 \
+  --nombre Juan \
+  --apellido Pérez
+
+# Importar usuarios desde CSV
+python scripts/cli.py users import-csv alumnos.csv --clase ABC123
+```
+
+#### Exportación de Datos
+
+```bash
+# Exportar usuarios a CSV
+python scripts/cli.py export data usuarios --format csv
+
+# Exportar todos los modelos a JSON
+python scripts/cli.py export all --format json --output ./backup
+```
+
+#### Utilidades
+
+```bash
+# Ver configuración
+python scripts/cli.py config
+
+# Ver ayuda
+python scripts/cli.py --help
+python scripts/cli.py users --help
+```
+
+### Casos de Uso Comunes
+
+**Inicio de curso - Crear clase con 30 alumnos:**
+```bash
+# 1. Crear profesor
+python scripts/cli.py users create-profesor \
+  --username prof.garcia \
+  --nombre María \
+  --apellido García
+
+# 2. Profesor crea la clase en la web y obtiene código (ej: ABC123)
+
+# 3. Importar alumnos
+python scripts/cli.py users import-csv alumnos_1eso.csv --clase ABC123
+```
+
+**Backup de datos:**
+```bash
+# Exportar todo antes de cambios importantes
+python scripts/cli.py export all \
+  --format json \
+  --output ./backup-$(date +%Y%m%d)
+```
+
+### Documentación Completa
+
+Ver **[scripts/README.md](scripts/README.md)** para:
+- Guía completa de instalación
+- Todos los comandos con ejemplos
+- Casos de uso detallados
+- Troubleshooting
+- FAQ
+
+### Seguridad
+
+- ✅ Modo **solo-lectura** configurable para producción
+- ✅ Confirmaciones antes de operaciones destructivas
+- ✅ `.gitignore` protege archivos sensibles (API Keys)
+- ✅ Scripts legacy separados con advertencias
 
 ---
 
@@ -467,19 +978,49 @@ Este proyecto está bajo licencia MIT.
 
 ## ✨ Características
 
-- ✅ **Autenticación JWT** con tokens seguros
-- ✅ **Bcrypt nativo** para hash de contraseñas
-- ✅ **PostgreSQL** con SQLAlchemy 2.0+
+### Backend & API
 - ✅ **FastAPI** con documentación automática (Swagger + ReDoc)
-- ✅ **Logging estructurado** con colores y niveles
-- ✅ **Compatible con Railway** (deploy automático)
-- ✅ **Pool de conexiones** optimizado
+- ✅ **Clean Architecture** - Separación en capas (Router → Service → Repository)
+- ✅ **PostgreSQL** con SQLAlchemy 2.0+ y migraciones con Alembic
+- ✅ **Autenticación JWT** con tokens seguros y bcrypt para passwords
+- ✅ **Rate Limiting** con Redis para protección contra abuso
 - ✅ **CORS configurable** para apps móviles
-- ✅ **Health check** y endpoints de test
-- ✅ **Manejo robusto de errores** con mensajes descriptivos
+- ✅ **Pool de conexiones** optimizado y compatible SQLite/PostgreSQL
+
+### Logging & Monitoreo
+- ✅ **Logging estructurado** con JSON, colores y niveles
+- ✅ **Audit logs** para acciones administrativas
+- ✅ **Manejo robusto de errores** con formato personalizado
+- ✅ **Health checks** y métricas
+
+### Desarrollo & Testing
+- ✅ **Suite de 77 tests** automatizados con pytest
+- ✅ **Tests unitarios** de servicios con mocks
+- ✅ **Tests de integración** de endpoints completos
+- ✅ **Cobertura de código** con reportes HTML
+- ✅ **Compatibilidad Python 3.11, 3.12, 3.13**
+- ✅ **Linting automático** (Black, isort, Ruff)
+- ✅ **CI/CD con GitHub Actions** (tests + linting automáticos)
+
+### Funcionalidades de Negocio
+- ✅ **Sistema de progreso** de puntos y actividades con cálculos automáticos
+- ✅ **Estadísticas de usuarios** (racha de días, puntos acumulados, módulos completados)
+- ✅ **Códigos de clase compartibles** (6 caracteres: ej. A3X9K2) - Facilita registro de estudiantes
+- ✅ **Registro con código de clase** - Estudiantes pueden unirse usando código corto
+- ✅ **Importación masiva** de usuarios con validaciones transaccionales (all-or-nothing)
+- ✅ **Respuestas públicas** - Endpoint para muros de mensajes y galerías comunitarias
+- ✅ **Dashboard web** para profesores con gestión de clases
+- ✅ **Auto-completado de puntos** cuando se completan todas las actividades
+- ✅ **Tracking de progreso** con puntuaciones y tiempos calculados automáticamente
+- ✅ **Internacionalización (i18n)** - Español y Euskera en toda la plataforma web
+- ✅ **7 páginas traducidas** (Home, Login, Estadísticas×3, Dashboard×2)
+- ✅ **Selector de idioma** con persistencia en cookies
+
+### DevOps & Deploy
+- ✅ **Compatible con Railway** (deploy automático)
+- ✅ **Variables de entorno** con Pydantic Settings
+- ✅ **Scripts de deployment** automatizados
 - ✅ **Colección de Postman** lista para importar
-- ✅ **Validación automática** con Pydantic schemas
+- ✅ **Documentación completa** para desarrolladores
 
 ---
-
-**Desarrollado con ❤️ usando FastAPI y PostgreSQL**

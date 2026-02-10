@@ -1,0 +1,476 @@
+/* Home Page - Organic/Natural Design */
+:root {
+    --color-olive-dark: #4A5D23;
+    --color-olive: #6B8E3A;
+    --color-olive-light: #8B9A46;
+    --color-lime: #A4B84C;
+    --color-beige: #F5F3E8;
+    --color-cream: #FFFEF9;
+    --color-white: #FFFFFF;
+    --color-text-primary: #2D3B1C;
+    --color-text-secondary: #6B7A5C;
+    --color-text-light: #9BA88E;
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    --spacing-3xl: 4rem;
+    --font-family: 'Open Sans', -apple-system, sans-serif;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --radius-2xl: 2rem;
+    --shadow-md: 0 4px 12px rgba(45, 59, 28, 0.08);
+    --shadow-lg: 0 12px 32px rgba(45, 59, 28, 0.12);
+    --shadow-xl: 0 24px 48px rgba(45, 59, 28, 0.16);
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: var(--font-family);
+    color: var(--color-text-primary);
+    background: linear-gradient(180deg, #F5F3E8 0%, #E8EFD8 50%, #FFFEF9 100%);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+}
+
+/* Main Content */
+.main-content {
+    padding-top: 72px;
+    min-height: calc(100vh - 60px);
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: var(--spacing-3xl) 0;
+    max-width: 800px;
+    margin: 0 auto;
+    animation: fadeInUp 0.6s ease;
+}
+
+.hero-icon {
+    margin-bottom: var(--spacing-xl);
+}
+
+.hero-logo {
+    width: 80px;
+    height: 80px;
+    filter: drop-shadow(0 8px 16px rgba(74, 93, 35, 0.15));
+}
+
+.gernika-logo-container {
+    margin: var(--spacing-lg) 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gernika-logo {
+    max-width: 250px;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 4px 8px rgba(74, 93, 35, 0.1));
+}
+
+@media (max-width: 768px) {
+    .gernika-logo {
+        max-width: 180px;
+    }
+}
+
+.hero-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.15;
+}
+
+.highlight {
+    background: linear-gradient(135deg, var(--color-olive) 0%, var(--color-lime) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-description {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Stats Section */
+.stats-section {
+    padding: var(--spacing-3xl) 0;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-xl);
+    padding-top: var(--spacing-xl);
+}
+
+.stat-card {
+    background: var(--color-white);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl) var(--spacing-xl) var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    position: relative;
+    margin-top: var(--spacing-xl);
+    transition: all var(--transition-base);
+    animation: fadeInUp 0.6s ease both;
+}
+
+.stat-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.stat-header {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.stat-icon-box {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    transition: transform var(--transition-base);
+}
+
+.stat-card:hover .stat-icon-box {
+    transform: scale(1.1);
+}
+
+.stat-content {
+    margin-top: var(--spacing-md);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--spacing-xs);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--color-text-primary);
+}
+
+/* Download Section */
+.download-section {
+    padding: var(--spacing-3xl) 0;
+}
+
+.download-card {
+    background: linear-gradient(135deg, var(--color-olive-dark) 0%, #3A4A1A 100%);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-3xl);
+    text-align: center;
+    box-shadow: var(--shadow-xl);
+}
+
+.download-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-white);
+    margin-bottom: var(--spacing-md);
+}
+
+.download-description {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: var(--spacing-xl);
+    max-width: 550px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.download-badges {
+    display: flex;
+    gap: var(--spacing-lg);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.badge-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    color: var(--color-white);
+    transition: all var(--transition-base);
+    cursor: pointer;
+}
+
+.badge-item:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-4px);
+}
+
+/* Badge deshabilitado (temporalmente hasta tener APK) */
+.badge-item.badge-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.badge-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.badge-store {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.badge-status {
+    font-size: 0.75rem;
+    color: var(--color-lime);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* Footer */
+.footer {
+    padding: var(--spacing-xl) 0;
+    text-align: center;
+}
+
+.footer-text {
+    font-size: 0.75rem;
+    color: var(--color-text-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .download-card {
+        padding: var(--spacing-xl);
+    }
+
+    .badge-item {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.5rem;
+    }
+
+    .hero-logo {
+        width: 60px;
+        height: 60px;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
+:focus-visible {
+    outline: 2px solid var(--color-olive);
+    outline-offset: 2px;
+}
+
+/* Utility Classes for Background Colors */
+.bg-green {
+    background-color: #6B8E6F;
+}
+
+.bg-lime {
+    background-color: #B8C74A;
+}
+
+.bg-brown {
+    background-color: #8B6F47;
+}
+
+/* ============================================ */
+/* Download Confirmation Modal */
+/* ============================================ */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: var(--color-cream);
+    border-radius: 16px;
+    padding: var(--spacing-2xl);
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-olive);
+    margin-bottom: var(--spacing-md);
+}
+
+.modal-description {
+    font-size: 1rem;
+    color: var(--color-dark-olive);
+    line-height: 1.6;
+    margin-bottom: var(--spacing-xl);
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+}
+
+.modal-btn {
+    padding: var(--spacing-md) var(--spacing-xl);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-btn-cancel {
+    background-color: transparent;
+    color: var(--color-olive);
+    border: 2px solid var(--color-olive);
+}
+
+.modal-btn-cancel:hover {
+    background-color: rgba(107, 142, 111, 0.1);
+}
+
+.modal-btn-confirm {
+    background-color: var(--color-olive);
+    color: var(--color-cream);
+}
+
+.modal-btn-confirm:hover {
+    background-color: var(--color-dark-olive);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(107, 142, 111, 0.3);
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        padding: var(--spacing-xl);
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+    }
+
+    .modal-actions {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .modal-btn {
+        width: 100%;
+    }
+}

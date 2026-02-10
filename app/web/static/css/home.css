@@ -261,6 +261,13 @@ body {
     transform: translateY(-4px);
 }
 
+/* Badge deshabilitado (temporalmente hasta tener APK) */
+.badge-item.badge-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .badge-text {
     display: flex;
     flex-direction: column;

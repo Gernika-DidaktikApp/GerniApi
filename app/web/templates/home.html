@@ -21,7 +21,7 @@
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="/static/css/navbar.css?v=5">
-    <link rel="stylesheet" href="/static/css/home.css?v=2">
+    <link rel="stylesheet" href="/static/css/home.css?v=3">
 </head>
 
 <body class="has-navbar">
@@ -147,7 +147,8 @@
                     </p>
 
                     <div class="download-badges">
-                        <div class="badge-item">
+                        <!-- App Store Badge (iOS) - Deshabilitado temporalmente -->
+                        <a href="#" class="badge-item badge-disabled" title="Disponible próximamente">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -158,9 +159,11 @@
                                 <span class="badge-store">{{ _('home.download.app_store') }}</span>
                                 <span class="badge-status">{{ _('home.download.coming_soon') }}</span>
                             </div>
-                        </div>
+                        </a>
 
-                        <div class="badge-item">
+                        <!-- Android APK Badge - Deshabilitado hasta tener APK -->
+                        <!-- Para habilitar: quitar clase 'badge-disabled' y cambiar href="#" por href="/static/downloads/gernibide.apk" -->
+                        <a href="#" class="badge-item badge-disabled" download="gernibide.apk" title="Disponible próximamente">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -174,7 +177,7 @@
                                 <span class="badge-store">{{ _('home.download.google_play') }}</span>
                                 <span class="badge-status">{{ _('home.download.coming_soon') }}</span>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </section>

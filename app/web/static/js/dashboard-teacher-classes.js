@@ -414,7 +414,7 @@ async function loadStudents(classId) {
 
     if (!tbody) return;
 
-    tbody.innerHTML = `<tr><td colspan="8" class="loading-message">${t('dashboard_teacher.loading_students')}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="loading-message">${t('dashboard_teacher.loading_students')}</td></tr>`;
 
     const students = await fetchStudents(classId);
 
@@ -464,13 +464,6 @@ async function loadStudents(classId) {
                     <span class="status-badge ${isActive ? 'status-active' : 'status-inactive'}">
                         ${isActive ? 'Activo' : 'Inactivo'}
                     </span>
-                </td>
-                <td>
-                    <button class="btn-remove-student" onclick="confirmRemoveStudent('${student.id}', '${student.nombre.replace(/'/g, "\\'")}');" title="Remover de clase">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
-                            <path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                    </button>
                 </td>
             </tr>
         `;
@@ -799,7 +792,7 @@ async function deleteClass(claseId) {
         if (selectedClassId === claseId) {
             selectedClassId = null;
             document.getElementById('selectedClassInfo').style.display = 'none';
-            document.getElementById('studentsTableBody').innerHTML = `<tr><td colspan="8" class="loading-message">${t('dashboard_teacher.select_class')}</td></tr>`;
+            document.getElementById('studentsTableBody').innerHTML = `<tr><td colspan="7" class="loading-message">${t('dashboard_teacher.select_class')}</td></tr>`;
         }
     } catch (error) {
         showNotification(error.message, 'error');

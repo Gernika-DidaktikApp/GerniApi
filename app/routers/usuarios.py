@@ -318,10 +318,8 @@ def remover_alumno_de_clase(
 
     # Log de inicio ANTES de cualquier validación
     log_info(
-        "=== INICIO remover_alumno_de_clase ===",
-        usuario_id=usuario_id,
-        is_api_key=auth.is_api_key,
-        profesor_id=auth.user_id if not auth.is_api_key else "N/A",
+        f"=== INICIO remover_alumno_de_clase === usuario_id={usuario_id}, "
+        f"is_api_key={auth.is_api_key}, profesor_id={auth.user_id if not auth.is_api_key else 'N/A'}"
     )
 
     # Si es JWT token (profesor), verificar que el alumno está en una de sus clases
@@ -331,11 +329,8 @@ def remover_alumno_de_clase(
 
         # Log de debug
         log_info(
-            "Intentando remover alumno de clase",
-            alumno_id=usuario_id,
-            alumno_clase_id=alumno.id_clase,
-            profesor_id=auth.user_id,
-            is_api_key=auth.is_api_key,
+            f"Intentando remover alumno - alumno_id={usuario_id}, "
+            f"clase_id={alumno.id_clase}, profesor_id={auth.user_id}"
         )
 
         # Verificar que el alumno tiene clase asignada
@@ -354,12 +349,10 @@ def remover_alumno_de_clase(
         clase = clase_repo.get_by_id(alumno.id_clase)
         if not clase or clase.id_profesor != auth.user_id:
             log_warning(
-                "Profesor sin permisos para remover alumno",
-                alumno_id=usuario_id,
-                alumno_clase_id=alumno.id_clase,
-                profesor_id=auth.user_id,
-                clase_profesor_id=clase.id_profesor if clase else None,
-                clase_existe=clase is not None,
+                f"Profesor sin permisos - alumno_id={usuario_id}, "
+                f"clase_id={alumno.id_clase}, profesor_id={auth.user_id}, "
+                f"clase_profesor_id={clase.id_profesor if clase else 'NULL'}, "
+                f"clase_existe={clase is not None}"
             )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

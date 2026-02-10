@@ -1080,11 +1080,27 @@ class TeacherDashboardService:
         images = []
         for result in results:
             content = result.respuesta_contenido
+            if not content:
+                continue
+
+            # Parse JSON if it's a JSON string
+            url = None
+            if content.startswith("{"):
+                try:
+                    import json
+
+                    parsed = json.loads(content)
+                    url = parsed.get("url")
+                except (json.JSONDecodeError, AttributeError):
+                    url = content.strip()
+            else:
+                url = content.strip()
+
             # Check if it's a Cloudinary URL
-            if content and ("cloudinary.com" in content or content.startswith("http")):
+            if url and ("cloudinary.com" in url or url.startswith("http")):
                 images.append(
                     {
-                        "url": content.strip(),
+                        "url": url,
                         "alumno": f"{result.nombre} {result.apellido}",
                         "clase": result.clase_nombre,
                         "actividad": result.actividad_nombre,

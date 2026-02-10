@@ -22,7 +22,7 @@ const modalBackdrop = document.getElementById('modalBackdrop');
 
 // Get JWT token
 function getAuthToken() {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem('authToken');
 }
 
 // Initialize
@@ -111,7 +111,7 @@ async function loadClasses() {
             classFilter.appendChild(option);
         });
     } catch (error) {
-        console.error('Error loading classes:', error);
+        // Error loading classes - silently fail
     }
 }
 
@@ -171,7 +171,7 @@ async function loadGallery() {
             });
         }
     } catch (error) {
-        console.error('Error loading gallery:', error);
+        // Error loading gallery - show error state
         galleryGrid.innerHTML = `
             <div class="empty-state">
                 <h3 class="empty-state-title">${window.i18n.gallery.error_title}</h3>
@@ -189,9 +189,28 @@ function createGalleryItem(image) {
             <div class="gallery-item-info">
                 <div class="gallery-item-student">${escapeHtml(image.alumno)}</div>
                 <div class="gallery-item-meta">
-                    <div class="gallery-item-class">📚 ${escapeHtml(image.clase)}</div>
-                    <div class="gallery-item-activity">📝 ${escapeHtml(image.actividad)}</div>
-                    <div class="gallery-item-date">📅 ${formatDate(image.fecha)}</div>
+                    <div class="gallery-item-class">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="vertical-align: middle; margin-right: 4px;">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        ${escapeHtml(image.clase)}
+                    </div>
+                    <div class="gallery-item-activity">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="vertical-align: middle; margin-right: 4px;">
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        ${escapeHtml(image.actividad)}
+                    </div>
+                    <div class="gallery-item-date">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="vertical-align: middle; margin-right: 4px;">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        ${formatDate(image.fecha)}
+                    </div>
                 </div>
             </div>
         </div>
@@ -247,7 +266,7 @@ async function loadMessages() {
             messagesWall.innerHTML = messages.map(msg => createMessageCard(msg)).join('');
         }
     } catch (error) {
-        console.error('Error loading messages:', error);
+        // Error loading messages - show error state
         messagesWall.innerHTML = `
             <div class="empty-state">
                 <h3 class="empty-state-title">${window.i18n.messages.error_title}</h3>
@@ -265,9 +284,28 @@ function createMessageCard(message) {
             <div class="message-footer">
                 <div class="message-student">— ${escapeHtml(message.alumno)}</div>
                 <div class="message-meta">
-                    <div>📚 ${escapeHtml(message.clase)}</div>
-                    <div>📝 ${escapeHtml(message.actividad)}</div>
-                    <div>📅 ${formatDate(message.fecha)}</div>
+                    <div>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="vertical-align: middle; margin-right: 4px;">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        ${escapeHtml(message.clase)}
+                    </div>
+                    <div>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="vertical-align: middle; margin-right: 4px;">
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        ${escapeHtml(message.actividad)}
+                    </div>
+                    <div>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="vertical-align: middle; margin-right: 4px;">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        ${formatDate(message.fecha)}
+                    </div>
                 </div>
             </div>
         </div>
@@ -281,11 +319,30 @@ function openModal(image) {
 
     modalInfo.innerHTML = `
         <div style="font-weight: 600; font-size: 1.125rem; margin-bottom: 0.5rem;">${escapeHtml(image.alumno)}</div>
-        <div style="color: #6B7A5C; margin-bottom: 0.75rem;">
-            📚 ${escapeHtml(image.clase)} • 📝 ${escapeHtml(image.actividad)}
+        <div style="color: #6B7A5C; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <span style="display: inline-flex; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-right: 4px;">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                ${escapeHtml(image.clase)}
+            </span>
+            <span>•</span>
+            <span style="display: inline-flex; align-items: center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-right: 4px;">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                ${escapeHtml(image.actividad)}
+            </span>
         </div>
-        <div style="font-size: 0.875rem; color: #9BA88E;">
-            📅 ${formatDate(image.fecha)}
+        <div style="font-size: 0.875rem; color: #9BA88E; display: flex; align-items: center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-right: 4px;">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            ${formatDate(image.fecha)}
         </div>
     `;
 

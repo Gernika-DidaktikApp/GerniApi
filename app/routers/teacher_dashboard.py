@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.dependencies import get_current_user_from_token
+from app.logging.logger import log_info, log_with_context
 from app.services.teacher_dashboard_service import TeacherDashboardService
 
 router = APIRouter(
@@ -64,7 +65,15 @@ def get_profesor_classes(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
-    return TeacherDashboardService.get_profesor_classes(db, profesor_id)
+    clases = TeacherDashboardService.get_profesor_classes(db, profesor_id)
+
+    log_info(
+        "Clases de profesor consultadas",
+        profesor_id=profesor_id,
+        total_clases=len(clases),
+    )
+
+    return clases
 
 
 @router.get(
@@ -102,7 +111,18 @@ def get_class_summary(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
-    return TeacherDashboardService.get_class_summary(db, profesor_id, clase_id, days)
+    summary = TeacherDashboardService.get_class_summary(db, profesor_id, clase_id, days)
+
+    log_with_context(
+        "info",
+        "Resumen de clase consultado",
+        profesor_id=profesor_id,
+        clase_id=clase_id or "todas",
+        days=days,
+        total_alumnos=summary.get("total_alumnos", 0),
+    )
+
+    return summary
 
 
 @router.get(
@@ -135,7 +155,16 @@ def get_student_progress(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
-    return TeacherDashboardService.get_student_progress(db, profesor_id, clase_id)
+    progress = TeacherDashboardService.get_student_progress(db, profesor_id, clase_id)
+
+    log_info(
+        "Progreso de alumnos consultado",
+        profesor_id=profesor_id,
+        clase_id=clase_id or "todas",
+        total_students=len(progress.get("students", [])),
+    )
+
+    return progress
 
 
 @router.get(
@@ -170,7 +199,17 @@ def get_student_time(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
-    return TeacherDashboardService.get_student_time(db, profesor_id, clase_id, days)
+    time_data = TeacherDashboardService.get_student_time(db, profesor_id, clase_id, days)
+
+    log_info(
+        "Tiempo de alumnos consultado",
+        profesor_id=profesor_id,
+        clase_id=clase_id or "todas",
+        days=days,
+        total_students=len(time_data.get("students", [])),
+    )
+
+    return time_data
 
 
 @router.get(
@@ -205,7 +244,16 @@ def get_activities_by_class(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
-    return TeacherDashboardService.get_activities_by_class(db, profesor_id, clase_id)
+    activities = TeacherDashboardService.get_activities_by_class(db, profesor_id, clase_id)
+
+    log_info(
+        "Actividades por clase consultadas",
+        profesor_id=profesor_id,
+        clase_id=clase_id or "todas",
+        total_activities=len(activities.get("activities", [])),
+    )
+
+    return activities
 
 
 @router.get(
@@ -241,7 +289,17 @@ def get_class_evolution(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
-    return TeacherDashboardService.get_class_evolution(db, profesor_id, clase_id, days)
+    evolution = TeacherDashboardService.get_class_evolution(db, profesor_id, clase_id, days)
+
+    log_info(
+        "Evolución de clase consultada",
+        profesor_id=profesor_id,
+        clase_id=clase_id or "todas",
+        days=days,
+        data_points=len(evolution.get("dates", [])),
+    )
+
+    return evolution
 
 
 @router.get(
@@ -259,6 +317,7 @@ def get_students_list(
     ## Get Students List
 
     Returns detailed information for each student:
+    - **id**: Student ID (UUID)
     - **nombre**: Student full name
     - **username**: Student username
     - **progreso**: Progress percentage (0-100)
@@ -279,7 +338,16 @@ def get_students_list(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
-    return TeacherDashboardService.get_students_list(db, profesor_id, clase_id)
+    students = TeacherDashboardService.get_students_list(db, profesor_id, clase_id)
+
+    log_info(
+        "Lista de alumnos consultada",
+        profesor_id=profesor_id,
+        clase_id=clase_id or "todas",
+        total_students=len(students),
+    )
+
+    return students
 
 
 @router.get(
@@ -315,6 +383,15 @@ def export_students_csv(
     from datetime import datetime
 
     filename = f"alumnos_{datetime.now().strftime('%Y%m%d')}.csv"
+
+    log_with_context(
+        "info",
+        "Exportación CSV de alumnos realizada",
+        profesor_id=profesor_id,
+        clase_id=clase_id or "todas",
+        filename=filename,
+        size_bytes=len(csv_content.encode("utf-8-sig")),
+    )
 
     return StreamingResponse(
         io.BytesIO(csv_content.encode("utf-8-sig")),
@@ -357,6 +434,15 @@ def export_students_excel(
 
     filename = f"alumnos_{datetime.now().strftime('%Y%m%d')}.xlsx"
 
+    log_with_context(
+        "info",
+        "Exportación Excel de alumnos realizada",
+        profesor_id=profesor_id,
+        clase_id=clase_id or "todas",
+        filename=filename,
+        size_bytes=len(excel_bytes),
+    )
+
     return StreamingResponse(
         io.BytesIO(excel_bytes),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -390,6 +476,12 @@ def clear_teacher_dashboard_cache(
         )
 
     TeacherDashboardService.clear_cache()
+
+    log_info(
+        "Cache del teacher dashboard limpiado",
+        profesor_id=profesor_id,
+    )
+
     return None
 
 
@@ -429,7 +521,16 @@ def get_gallery(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
-    return TeacherDashboardService.get_gallery_images(db, profesor_id, clase_id)
+    images = TeacherDashboardService.get_gallery_images(db, profesor_id, clase_id)
+
+    log_info(
+        "Galería de imágenes consultada",
+        profesor_id=profesor_id,
+        clase_id=clase_id or "todas",
+        total_images=len(images),
+    )
+
+    return images
 
 
 @router.get(
@@ -468,4 +569,13 @@ def get_message_wall(
             status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
         )
 
-    return TeacherDashboardService.get_message_wall(db, profesor_id, clase_id)
+    messages = TeacherDashboardService.get_message_wall(db, profesor_id, clase_id)
+
+    log_info(
+        "Muro de mensajes consultado",
+        profesor_id=profesor_id,
+        clase_id=clase_id or "todas",
+        total_messages=len(messages),
+    )
+
+    return messages

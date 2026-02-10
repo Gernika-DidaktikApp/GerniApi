@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.logging.logger import log_info, log_with_context
 from app.services.statistics_service import StatisticsService
 
 router = APIRouter(
@@ -42,7 +43,17 @@ def get_users_summary(db: Session = Depends(get_db)) -> dict[str, Any]:
 
     This endpoint is used by the statistics page summary cards.
     """
-    return StatisticsService.get_users_summary(db)
+    summary = StatisticsService.get_users_summary(db)
+
+    log_with_context(
+        "info",
+        "Resumen de estadísticas de usuarios consultado",
+        dau=summary.get("dau", 0),
+        total_users=summary.get("total_users", 0),
+        new_users_today=summary.get("new_users_today", 0),
+    )
+
+    return summary
 
 
 @router.get(
@@ -72,7 +83,15 @@ def get_active_users_timeline(
     - WAU: Unique users who started a game in the 7 days ending on that date
     - MAU: Unique users who started a game in the 30 days ending on that date
     """
-    return StatisticsService.get_active_users_timeline(db, days)
+    result = StatisticsService.get_active_users_timeline(db, days)
+
+    log_info(
+        "Timeline de usuarios activos consultado",
+        days=days,
+        data_points=len(result.get("dates", [])),
+    )
+
+    return result
 
 
 @router.get(
@@ -95,7 +114,15 @@ def get_new_users_by_day(
     ### Parameters
     - **days**: Number of days to retrieve (default: 30, max: 365)
     """
-    return StatisticsService.get_new_users_by_day(db, days)
+    result = StatisticsService.get_new_users_by_day(db, days)
+
+    log_info(
+        "Nuevos usuarios por día consultado",
+        days=days,
+        data_points=len(result.get("dates", [])),
+    )
+
+    return result
 
 
 @router.get(
@@ -123,7 +150,15 @@ def get_active_ratio_timeline(
     - Total users = all users registered up to that date
     - Ratio = (active users / total users) * 100
     """
-    return StatisticsService.get_active_ratio_timeline(db, days)
+    result = StatisticsService.get_active_ratio_timeline(db, days)
+
+    log_info(
+        "Ratio de usuarios activos consultado",
+        days=days,
+        data_points=len(result.get("dates", [])),
+    )
+
+    return result
 
 
 @router.get(
@@ -150,7 +185,15 @@ def get_logins_by_day(
     A "login" is counted as each time a user starts a new game session (partida).
     Multiple logins per user per day are counted separately.
     """
-    return StatisticsService.get_logins_by_day(db, days)
+    result = StatisticsService.get_logins_by_day(db, days)
+
+    log_info(
+        "Logins por día consultado",
+        days=days,
+        data_points=len(result.get("dates", [])),
+    )
+
+    return result
 
 
 @router.post(

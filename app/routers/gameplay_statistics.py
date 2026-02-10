@@ -19,6 +19,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.logging.logger import log_info, log_with_context
 from app.services.gameplay_statistics_service import GameplayStatisticsService
 
 router = APIRouter(
@@ -50,7 +51,17 @@ def get_gameplay_summary(db: Session = Depends(get_db)) -> dict[str, Any]:
 
     This endpoint is used by the gameplay statistics page summary cards.
     """
-    return GameplayStatisticsService.get_gameplay_summary(db)
+    summary = GameplayStatisticsService.get_gameplay_summary(db)
+
+    log_with_context(
+        "info",
+        "Resumen de estadísticas de gameplay consultado",
+        total_partidas=summary.get("total_partidas", 0),
+        partidas_completadas=summary.get("partidas_completadas", 0),
+        actividades_completadas=summary.get("actividades_completadas", 0),
+    )
+
+    return summary
 
 
 @router.get(
@@ -73,7 +84,15 @@ def get_partidas_by_day(
     ### Parameters
     - **days**: Number of days to retrieve (default: 30, max: 365)
     """
-    return GameplayStatisticsService.get_partidas_by_day(db, days)
+    result = GameplayStatisticsService.get_partidas_by_day(db, days)
+
+    log_info(
+        "Partidas por día consultadas",
+        days=days,
+        data_points=len(result.get("dates", [])),
+    )
+
+    return result
 
 
 @router.get(
@@ -94,7 +113,18 @@ def get_partidas_by_status(db: Session = Depends(get_db)) -> dict[str, Any]:
 
     This endpoint is used by the "Partidas Completadas vs Abandonadas" donut chart.
     """
-    return GameplayStatisticsService.get_partidas_by_status(db)
+    result = GameplayStatisticsService.get_partidas_by_status(db)
+
+    log_with_context(
+        "info",
+        "Partidas por estado consultadas",
+        completadas=result.get("completadas", 0),
+        abandonadas=result.get("abandonadas", 0),
+        en_progreso=result.get("en_progreso", 0),
+        total=result.get("total", 0),
+    )
+
+    return result
 
 
 @router.get(
@@ -119,7 +149,15 @@ def get_actividades_by_status_timeline(
     ### Parameters
     - **days**: Number of days to retrieve (default: 30, max: 365)
     """
-    return GameplayStatisticsService.get_actividades_by_status_timeline(db, days)
+    result = GameplayStatisticsService.get_actividades_by_status_timeline(db, days)
+
+    log_info(
+        "Timeline de actividades por estado consultado",
+        days=days,
+        data_points=len(result.get("dates", [])),
+    )
+
+    return result
 
 
 @router.get(
@@ -140,7 +178,14 @@ def get_completion_rate_by_punto(db: Session = Depends(get_db)) -> dict[str, Any
     Only puntos with at least one activity are included.
     Completion rate = (completed activities / total activities) * 100
     """
-    return GameplayStatisticsService.get_completion_rate_by_punto(db)
+    result = GameplayStatisticsService.get_completion_rate_by_punto(db)
+
+    log_info(
+        "Tasa de completado por punto consultada",
+        puntos=len(result.get("activities", [])),
+    )
+
+    return result
 
 
 @router.get(
@@ -166,7 +211,15 @@ def get_most_played_activities(
     ### Note
     Counts all actividad_progreso records regardless of status.
     """
-    return GameplayStatisticsService.get_most_played_activities(db, limit)
+    result = GameplayStatisticsService.get_most_played_activities(db, limit)
+
+    log_info(
+        "Actividades más jugadas consultadas",
+        limit=limit,
+        results=len(result.get("activities", [])),
+    )
+
+    return result
 
 
 @router.post(

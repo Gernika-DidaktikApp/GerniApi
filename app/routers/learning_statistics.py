@@ -18,6 +18,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.logging.logger import log_info, log_with_context
 from app.services.learning_statistics_service import LearningStatisticsService
 
 router = APIRouter(
@@ -47,7 +48,17 @@ def get_learning_summary(db: Session = Depends(get_db)) -> dict[str, Any]:
 
     This endpoint is used by the learning statistics page summary cards.
     """
-    return LearningStatisticsService.get_learning_summary(db)
+    summary = LearningStatisticsService.get_learning_summary(db)
+
+    log_with_context(
+        "info",
+        "Resumen de estadísticas de aprendizaje consultado",
+        puntuacion_media=summary.get("puntuacion_media", 0),
+        aprobados_porcentaje=summary.get("aprobados_porcentaje", 0),
+        actividades_evaluadas=summary.get("actividades_evaluadas", 0),
+    )
+
+    return summary
 
 
 @router.get(
@@ -66,7 +77,14 @@ def get_average_score_by_punto(db: Session = Depends(get_db)) -> dict[str, Any]:
 
     Puntos are ordered by score (descending).
     """
-    return LearningStatisticsService.get_average_score_by_punto(db)
+    result = LearningStatisticsService.get_average_score_by_punto(db)
+
+    log_info(
+        "Puntuación media por punto consultada",
+        puntos=len(result.get("activities", [])),
+    )
+
+    return result
 
 
 @router.get(
@@ -85,7 +103,15 @@ def get_score_distribution(db: Session = Depends(get_db)) -> dict[str, Any]:
 
     This endpoint is used by the histogram chart showing score frequency distribution.
     """
-    return LearningStatisticsService.get_score_distribution(db)
+    result = LearningStatisticsService.get_score_distribution(db)
+
+    log_info(
+        "Distribución de puntuaciones consultada",
+        total_scores=len(result.get("scores", [])),
+        mean=result.get("mean", 0),
+    )
+
+    return result
 
 
 @router.get(
@@ -105,7 +131,14 @@ def get_time_boxplot_by_punto(db: Session = Depends(get_db)) -> dict[str, Any]:
     Each time array contains all completion times for that punto.
     Only puntos with at least 5 completed activities are included.
     """
-    return LearningStatisticsService.get_time_boxplot_by_punto(db)
+    result = LearningStatisticsService.get_time_boxplot_by_punto(db)
+
+    log_info(
+        "Boxplot de tiempo por punto consultado",
+        puntos=len(result.get("activities", [])),
+    )
+
+    return result
 
 
 @router.get(
@@ -128,7 +161,15 @@ def get_most_played_activities(
     ### Note
     Counts all actividad_progreso records regardless of status.
     """
-    return LearningStatisticsService.get_most_played_activities(db, limit)
+    result = LearningStatisticsService.get_most_played_activities(db, limit)
+
+    log_info(
+        "Actividades más jugadas consultadas",
+        limit=limit,
+        results=len(result.get("activities", [])),
+    )
+
+    return result
 
 
 @router.get(
@@ -151,7 +192,15 @@ def get_highest_scoring_activities(
     ### Note
     Only includes activities with at least 3 completed attempts.
     """
-    return LearningStatisticsService.get_highest_scoring_activities(db, limit)
+    result = LearningStatisticsService.get_highest_scoring_activities(db, limit)
+
+    log_info(
+        "Actividades con mejor puntuación consultadas",
+        limit=limit,
+        results=len(result.get("activities", [])),
+    )
+
+    return result
 
 
 @router.get(
@@ -173,7 +222,14 @@ def get_class_performance(db: Session = Depends(get_db)) -> dict[str, Any]:
     Only includes classes with at least one completed activity.
     Ordered by score (descending).
     """
-    return LearningStatisticsService.get_class_performance(db)
+    result = LearningStatisticsService.get_class_performance(db)
+
+    log_info(
+        "Rendimiento por clase consultado",
+        classes=len(result.get("classes", [])),
+    )
+
+    return result
 
 
 @router.post(

@@ -8,6 +8,8 @@ Autor: Gernibide
 from fastapi import APIRouter, Response
 from pydantic import BaseModel
 
+from app.logging.logger import log_info
+
 router = APIRouter(prefix="/api", tags=["🌐 i18n"])
 
 
@@ -42,4 +44,10 @@ async def set_language(data: LanguageRequest, response: Response):
         httponly=False,  # Accessible from JS
         samesite="lax",
     )
+
+    log_info(
+        "Idioma cambiado",
+        language=data.language,
+    )
+
     return {"language": data.language}

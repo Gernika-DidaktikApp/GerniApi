@@ -18,8 +18,10 @@ from app.logging import log_info, log_warning
 from app.models.audit_log import AuditLogWeb
 from app.models.clase import Clase
 from app.models.profesor import Profesor
+from app.repositories.clase_repository import ClaseRepository
 from app.schemas.clase import ClaseCreate, ClaseResponse, ClaseUpdate
 from app.utils.dependencies import AuthResult, require_auth
+from app.utils.security import generar_codigo_clase
 
 router = APIRouter(prefix="/clases", tags=["🏫 Clases"])
 
@@ -56,9 +58,16 @@ def crear_clase(
             detail="El profesor especificado no existe",
         )
 
-    # Crear clase con UUID generado
+    # Generar código único para la clase
+    clase_repo = ClaseRepository(db)
+    codigo = generar_codigo_clase()
+    while clase_repo.exists_by_codigo(codigo):
+        codigo = generar_codigo_clase()
+
+    # Crear clase con UUID y código generados
     nueva_clase = Clase(
         id=str(uuid.uuid4()),
+        codigo=codigo,
         id_profesor=clase_data.id_profesor,
         nombre=clase_data.nombre,
     )
@@ -71,6 +80,7 @@ def crear_clase(
     log_info(
         "Clase creada exitosamente",
         clase_id=nueva_clase.id,
+        clase_codigo=nueva_clase.codigo,
         clase_nombre=nueva_clase.nombre,
         profesor_id=nueva_clase.id_profesor,
         profesor_nombre=f"{profesor.nombre} {profesor.apellido}",
@@ -83,7 +93,7 @@ def crear_clase(
         timestamp=datetime.now(),
         profesor_id=clase_data.id_profesor,
         accion="CREAR_CLASE",
-        detalles=f"Clase '{nueva_clase.nombre}' creada con ID {nueva_clase.id}",
+        detalles=f"Clase '{nueva_clase.nombre}' creada con código {nueva_clase.codigo}",
         tipo="web",
     )
     db.add(audit_log)

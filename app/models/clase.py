@@ -17,6 +17,7 @@ class Clase(Base):
 
     Attributes:
         id: ID único de la clase (UUID).
+        codigo: Código corto compartible de 6 caracteres (ej: "A3X9K2").
         id_profesor: ID del profesor que gestiona la clase.
         nombre: Nombre de la clase.
     """
@@ -24,5 +25,6 @@ class Clase(Base):
     __tablename__ = "clase"
 
     id = Column(String(36), primary_key=True, nullable=False)
+    codigo = Column(String(6), unique=True, nullable=True, index=True)
     id_profesor = Column(String(36), ForeignKey("profesor.id"), nullable=False)
     nombre = Column(String(100), nullable=False)

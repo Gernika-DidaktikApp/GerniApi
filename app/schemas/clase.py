@@ -45,11 +45,13 @@ class ClaseResponse(BaseModel):
 
     Attributes:
         id: ID único de la clase (UUID).
+        codigo: Código corto compartible de 6 caracteres (ej: "A3X9K2"), opcional.
         id_profesor: ID del profesor propietario de la clase (UUID).
         nombre: Nombre de la clase.
     """
 
     id: str
+    codigo: str | None = None
     id_profesor: str
     nombre: str
 

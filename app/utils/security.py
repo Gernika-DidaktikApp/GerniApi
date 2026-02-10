@@ -93,3 +93,29 @@ def decode_access_token(token: str) -> dict | None:
         return payload
     except InvalidTokenError:
         return None
+
+
+def generar_codigo_clase() -> str:
+    """Genera un código alfanumérico único de 6 caracteres para una clase.
+
+    El código es fácil de compartir y recordar (ej: "A3X9K2").
+    Usa caracteres alfanuméricos mayúsculas y dígitos para evitar ambigüedad.
+
+    Returns:
+        Código de 6 caracteres (A-Z, 0-9).
+
+    Examples:
+        >>> codigo = generar_codigo_clase()
+        >>> len(codigo)
+        6
+        >>> codigo.isupper()
+        True
+    """
+    import random
+    import string
+
+    # Solo mayúsculas y dígitos para evitar confusión (sin 0/O, 1/I/l)
+    caracteres = string.ascii_uppercase.replace("O", "").replace("I", "") + string.digits.replace(
+        "0", ""
+    ).replace("1", "")
+    return "".join(random.choices(caracteres, k=6))

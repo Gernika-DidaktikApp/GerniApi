@@ -39,7 +39,7 @@ from app.models.juego import Partida
 from app.models.profesor import Profesor
 from app.models.punto import Punto
 from app.models.usuario import Usuario
-from app.utils.security import hash_password
+from app.utils.security import generar_codigo_clase, hash_password
 
 # API Key para tests
 TEST_API_KEY = settings.API_KEY
@@ -136,7 +136,12 @@ def test_profesor(db_session):
 @pytest.fixture
 def test_clase(db_session, test_profesor):
     """Crea una clase de prueba"""
-    clase = Clase(id=str(uuid.uuid4()), id_profesor=test_profesor.id, nombre="1º ESO A")
+    clase = Clase(
+        id=str(uuid.uuid4()),
+        codigo=generar_codigo_clase(),
+        id_profesor=test_profesor.id,
+        nombre="1º ESO A",
+    )
     db_session.add(clase)
     db_session.commit()
     db_session.refresh(clase)

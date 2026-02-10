@@ -47,3 +47,25 @@ class ClaseRepository:
             True si existe, False si no.
         """
         return self.db.query(Clase).filter(Clase.id == clase_id).first() is not None
+
+    def exists_by_codigo(self, codigo: str) -> bool:
+        """Verifica si existe una clase con el código dado.
+
+        Args:
+            codigo: Código de la clase a verificar.
+
+        Returns:
+            True si existe, False si no.
+        """
+        return self.db.query(Clase).filter(Clase.codigo == codigo).first() is not None
+
+    def get_by_codigo(self, codigo: str) -> Clase | None:
+        """Obtiene una clase por su código.
+
+        Args:
+            codigo: Código de la clase.
+
+        Returns:
+            Clase si existe, None si no.
+        """
+        return self.db.query(Clase).filter(Clase.codigo == codigo).first()

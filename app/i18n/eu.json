@@ -5,12 +5,12 @@
       "statistics": "Estatistikak",
       "classes": "Klaseak",
       "dashboard": "Aginte-panela",
-      "gallery": "Galeria eta Horma",
+      "gallery": "Galeria",
       "login": "Saioa hasi",
       "logout": "Irten"
     },
     "footer": {
-      "copyright": "GERNIBIDE HEZKUNTZA © 2024"
+      "copyright": "GERNIBIDE HEZKUNTZA © 2026"
     },
     "buttons": {
       "save": "Gorde",
@@ -25,18 +25,18 @@
   "home": {
     "meta": {
       "title": "Gernibide - Hasiera",
-      "description": "Aurkitu Gernibide - Esploratu hezkuntza jarduerak ingurune naturaletan."
+      "description": "Gernibide - Esploratu hezkuntza ingurune naturaletan."
     },
     "hero": {
-      "title": "Aurkitu",
+      "title": "Deskubritu",
       "highlight": "Gernibide",
-      "description": "Esploratu hezkuntza jarduerak ingurune naturaletan, ibilbide interaktiboak eta estrategia pedagogikoak ingurune natural hezitzailean."
+      "description": "Esploratu hezkuntza ingurune naturaletan, ibilbide interaktiboak eta estrategia pedagogikoak ingurune natural hezitzailean."
     },
     "stats": {
       "section_title": "Gernibide Komunitatea",
-      "total_users": "Erabiltzaile Guztira",
-      "minutes_played": "Jolastu Minutuak",
-      "events_completed": "Bukatutako Gertaerak"
+      "total_users": "Erabiltzaile Kopurua",
+      "minutes_played": "Jolastutako Minutuak",
+      "events_completed": "Bukatutako jarduerak"
     },
     "download": {
       "title": "Eraman historia zure poltsikoan",
@@ -70,7 +70,7 @@
       "description": "Gernibide-ren erabilera metrikak eta estatistikak ikusi"
     },
     "submenu": {
-      "users": "Erabiltzaileak eta Jarduera",
+      "users": "Erabiltzaileak eta Jarduerak",
       "gameplay": "Jokoaren Erabilera",
       "learning": "Errendimendua eta Ikaskuntza"
     },
@@ -81,14 +81,14 @@
       "section_title": "Azterketa Xehatua",
       "summary": {
         "active_users_dau": "Erabiltzaile Aktiboak (DAU)",
-        "new_users_today": "Gaur Erabiltzaile Berriak",
-        "active_ratio": "Aktiboen/Guztiren Ratioa",
-        "logins_today": "Gaur Saioak"
+        "new_users_today": "Gaurko Erabiltzaile Berriak",
+        "active_ratio": "Aktiboen/Guztirako Ratioa",
+        "logins_today": "Gaurko Saioak"
       },
       "charts": {
         "active_users_dau_wau_mau": "Erabiltzaile Aktiboak (DAU / WAU / MAU)",
         "new_users_by_day": "Erabiltzaile Berriak Eguneko",
-        "active_ratio_chart": "Erabiltzaile Aktiboen / Guztiren Ratioa",
+        "active_ratio_chart": "Erabiltzaile Aktiboen / Guztirako Ratioa",
         "logins_by_day": "Saioak Eguneko"
       },
       "chart_types": {
@@ -105,19 +105,19 @@
       },
       "title": "Jokoaren",
       "highlight": "Erabilera",
-      "description": "Jokoaren metrikak: partidak, gertaerak eta hezkuntza jardueren amaitzeko tasak.",
+      "description": "Jokoaren metrikak: partidaketa hezkuntza jardueren amaierako puntuazioa.",
       "summary": {
         "active_games": "Partida Aktiboak",
-        "completion_rate": "Amaitzeko Tasa",
-        "events_completed": "Bukatutako Gertaerak",
-        "avg_time": "Batez besteko Denbora"
+        "completion_rate": "Amaitzeko puntuazioa",
+        "events_completed": "Bukatutako Jarduerak",
+        "avg_time": "Batezbesteko denbora"
       },
       "section_title": "Jokoaren Analisia",
       "charts": {
         "partidas_by_day": "Sortutako Partidak Eguneko",
-        "partidas_by_status": "Bukatutako Partidak vs Utzitakoak",
-        "activities_timeline": "Hasitako Gertaerak vs Bukatutakoak",
-        "most_played": "Gehien Jolastu Jarduerak"
+        "partidas_by_status": "Bukatutako Partidak vs Utzitako Partidak",
+        "activities_timeline": "Hasitako Jarduera vs Bukatutako Jarduerak",
+        "most_played": "Gehien Jolastutako Jarduerak"
       },
       "chart_types": {
         "bars": "Barrak",
@@ -133,7 +133,7 @@
       "info": {
         "partidas_title": "Partidak",
         "partidas_description": "Erabiltzaileek hasitako joko-saio indibidualak",
-        "eventos_title": "Gertaerak",
+        "eventos_title": "Jarduerak",
         "eventos_description": "Partida bakoitzeko jarduera edo intereseko puntuak",
         "completion_rate_title": "Completion Rate",
         "completion_rate_description": "Zuzen amaitutako jardueren ehunekoa"
@@ -155,7 +155,7 @@
       },
       "section_title": "Errendimenduaren Analisia",
       "charts": {
-        "most_played": "Gehien Jolastu Jarduerak",
+        "most_played": "Gehien Jolastutako Jarduerak",
         "highest_scoring": "Puntuazio Handieneko Jarduerak",
         "class_performance": "Batez besteko Errendimendua Klaseka"
       },
@@ -228,7 +228,7 @@
       "in_progress": "Abian",
       "not_started": "Hasi gabe",
       "progress": "Aurrerapena",
-      "avg_grade": "Batez besteko Nota"
+      "avg_grade": "Batezbesteko puntuazioa"
     },
     "sort_button": "Ordenatu",
     "students_list": {
@@ -313,11 +313,11 @@
   },
   "gallery": {
     "meta": {
-      "title": "Galeria eta Horma - Gernibide",
+      "title": "Galeria - Gernibide",
       "description": "Ikasleen Irudi Galeria eta Mezu Horma"
     },
     "page": {
-      "title": "Galeria eta",
+      "title": "Galeria",
       "highlight": "Ikasleen Horma",
       "description": "Esploratu ikasleek partekatutako irudiak eta mezuak"
     },

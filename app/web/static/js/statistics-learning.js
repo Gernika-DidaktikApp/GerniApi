@@ -285,6 +285,15 @@ async function initChartHighestScoring() {
         return;
     }
 
+    // Calcular máximo dinámicamente
+    const maxScore = Math.max(...scores, 0);
+    const maxScoreRounded = Math.ceil(maxScore * 1.1); // 10% más para espacio
+
+    // Umbrales proporcionales (80%, 60%, 50%)
+    const thresholdHigh = maxScoreRounded * 0.8;
+    const thresholdMed = maxScoreRounded * 0.6;
+    const thresholdLow = maxScoreRounded * 0.5;
+
     const data = [{
         y: activities,
         x: scores,
@@ -292,9 +301,9 @@ async function initChartHighestScoring() {
         orientation: 'h',
         marker: {
             color: scores.map(score => {
-                if (score >= 8) return COLORS.olive;
-                if (score >= 6) return COLORS.lime;
-                if (score >= 5) return COLORS.yellow;
+                if (score >= thresholdHigh) return COLORS.olive;
+                if (score >= thresholdMed) return COLORS.lime;
+                if (score >= thresholdLow) return COLORS.yellow;
                 return COLORS.brown;
             }),
             line: { width: 0 }
@@ -302,7 +311,7 @@ async function initChartHighestScoring() {
         text: scores.map(s => s.toFixed(1)),
         textposition: 'outside',
         textfont: { size: 11, color: COLORS.text, family: 'Inter, sans-serif' },
-        hovertemplate: '<b>%{y}</b><br>Puntuación: %{x:.1f}/10<br>(promedio)<extra></extra>'
+        hovertemplate: '<b>%{y}</b><br>Puntuación: %{x:.1f}<br>(promedio)<extra></extra>'
     }];
 
     const layout = {
@@ -311,8 +320,8 @@ async function initChartHighestScoring() {
         showlegend: false,
         xaxis: {
             ...commonLayout.xaxis,
-            title: { text: 'Puntuación Media (0-10)', font: { size: 12 } },
-            range: [0, 10]
+            title: { text: 'Puntuación Media', font: { size: 12 } },
+            range: [0, maxScoreRounded]
         },
         yaxis: {
             ...commonLayout.yaxis,
@@ -322,8 +331,8 @@ async function initChartHighestScoring() {
         shapes: [
             {
                 type: 'line',
-                x0: 5,
-                x1: 5,
+                x0: thresholdLow,
+                x1: thresholdLow,
                 y0: -0.5,
                 y1: activities.length - 0.5,
                 line: {
@@ -363,6 +372,15 @@ async function initChartClassPerformance() {
         return;
     }
 
+    // Calcular máximo dinámicamente
+    const maxScore = Math.max(...scores, 0);
+    const maxScoreRounded = Math.ceil(maxScore * 1.1); // 10% más para espacio
+
+    // Umbrales proporcionales (80%, 60%, 50%)
+    const thresholdHigh = maxScoreRounded * 0.8;
+    const thresholdMed = maxScoreRounded * 0.6;
+    const thresholdLow = maxScoreRounded * 0.5;
+
     const data = [{
         y: classes,
         x: scores,
@@ -370,9 +388,9 @@ async function initChartClassPerformance() {
         orientation: 'h',
         marker: {
             color: scores.map(score => {
-                if (score >= 8) return COLORS.olive;
-                if (score >= 6) return COLORS.lime;
-                if (score >= 5) return COLORS.yellow;
+                if (score >= thresholdHigh) return COLORS.olive;
+                if (score >= thresholdMed) return COLORS.lime;
+                if (score >= thresholdLow) return COLORS.yellow;
                 return COLORS.brown;
             }),
             line: { width: 0 }
@@ -381,7 +399,7 @@ async function initChartClassPerformance() {
         textposition: 'outside',
         textfont: { size: 11, color: COLORS.text, family: 'Inter, sans-serif' },
         customdata: student_counts,
-        hovertemplate: '<b>%{y}</b><br>Puntuación Media: %{x:.1f}/10<br>%{customdata} estudiantes<extra></extra>'
+        hovertemplate: '<b>%{y}</b><br>Puntuación Media: %{x:.1f}<br>%{customdata} estudiantes<extra></extra>'
     }];
 
     const layout = {
@@ -390,8 +408,8 @@ async function initChartClassPerformance() {
         showlegend: false,
         xaxis: {
             ...commonLayout.xaxis,
-            title: { text: 'Puntuación Media (0-10)', font: { size: 12 } },
-            range: [0, 10]
+            title: { text: 'Puntuación Media', font: { size: 12 } },
+            range: [0, maxScoreRounded]
         },
         yaxis: {
             ...commonLayout.yaxis,
@@ -401,8 +419,8 @@ async function initChartClassPerformance() {
         shapes: [
             {
                 type: 'line',
-                x0: 5,
-                x1: 5,
+                x0: thresholdLow,
+                x1: thresholdLow,
                 y0: -0.5,
                 y1: classes.length - 0.5,
                 line: {

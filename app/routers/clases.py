@@ -212,6 +212,8 @@ def eliminar_clase(
 ):
     """Eliminar una clase del sistema.
 
+    Los alumnos de la clase quedarán con id_clase = NULL (sin clase asignada).
+
     Args:
         clase_id: ID único de la clase a eliminar.
         db: Sesión de base de datos.
@@ -220,6 +222,8 @@ def eliminar_clase(
     Raises:
         HTTPException: Si la clase no existe.
     """
+    from app.models.usuario import Usuario
+
     clase = db.query(Clase).filter(Clase.id == clase_id).first()
     if not clase:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Clase no encontrada")
@@ -227,6 +231,12 @@ def eliminar_clase(
     clase_nombre = clase.nombre
     profesor_id = clase.id_profesor
 
+    # Actualizar alumnos: quitar clase asignada (id_clase = NULL)
+    alumnos_actualizados = (
+        db.query(Usuario).filter(Usuario.id_clase == clase_id).update({Usuario.id_clase: None})
+    )
+
+    # Eliminar la clase
     db.delete(clase)
     db.commit()
 
@@ -236,16 +246,21 @@ def eliminar_clase(
         clase_id=clase_id,
         clase_nombre=clase_nombre,
         profesor_id=profesor_id,
+        alumnos_actualizados=alumnos_actualizados,
         auth_type="api_key" if auth.is_api_key else "token",
     )
 
     # Audit log
+    detalles = f"Clase '{clase_nombre}' (ID: {clase_id}) eliminada"
+    if alumnos_actualizados > 0:
+        detalles += f". {alumnos_actualizados} alumno{'s' if alumnos_actualizados != 1 else ''} desasignado{'s' if alumnos_actualizados != 1 else ''}"
+
     audit_log = AuditLogWeb(
         id=str(uuid.uuid4()),
         timestamp=datetime.now(),
         profesor_id=profesor_id,
         accion="ELIMINAR_CLASE",
-        detalles=f"Clase '{clase_nombre}' (ID: {clase_id}) eliminada",
+        detalles=detalles,
         tipo="web",
     )
     db.add(audit_log)

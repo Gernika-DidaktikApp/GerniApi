@@ -291,6 +291,42 @@ def actualizar_usuario(
     return usuario_service.actualizar_usuario(usuario_id, usuario_data)
 
 
+@router.post("/{usuario_id}/remove-from-class", status_code=status.HTTP_204_NO_CONTENT)
+def remover_alumno_de_clase(
+    usuario_id: str,
+    auth: AuthResult = Depends(require_auth),
+    usuario_service: UsuarioService = Depends(get_usuario_service),
+):
+    """Remover alumno de su clase asignada (id_clase = NULL).
+
+    Args:
+        usuario_id: ID único del usuario.
+        auth: Resultado de autenticación.
+        usuario_service: Servicio de usuarios.
+
+    Raises:
+        HTTPException: Si el usuario no existe.
+
+    Note:
+        Solo accesible con API Key.
+    """
+    from app.models.usuario import Usuario
+    from app.schemas.usuario import UsuarioUpdate
+
+    # Solo con API Key
+    if not auth.is_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Esta operación requiere API Key",
+        )
+
+    # Actualizar usuario para quitar clase
+    usuario_data = UsuarioUpdate(id_clase=None)
+    usuario_service.actualizar_usuario(usuario_id, usuario_data)
+
+    return None
+
+
 @router.delete(
     "/{usuario_id}",
     status_code=status.HTTP_204_NO_CONTENT,

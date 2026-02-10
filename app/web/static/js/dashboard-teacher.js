@@ -513,8 +513,9 @@ async function initChartEvolucionClase() {
         return;
     }
 
-    // Normalize grades to percentage scale for dual axis
-    const gradesNormalized = grades.map(g => g * 10);
+    // Calcular el máximo de notas para ajustar el eje Y
+    const maxGrade = Math.max(...grades, 0);
+    const maxGradeRounded = Math.ceil(maxGrade * 1.1); // 10% más para espacio superior
 
     const data = [
         {
@@ -529,16 +530,14 @@ async function initChartEvolucionClase() {
         },
         {
             x: dates,
-            y: gradesNormalized,
+            y: grades,
             type: 'scatter',
             mode: 'lines+markers',
             name: 'Nota Media',
             yaxis: 'y2',
             line: { color: COLORS.brown, width: 3, dash: 'dot' },
             marker: { size: 6, color: COLORS.brown, symbol: 'square' },
-            hovertemplate: '<b>Nota Media</b><br>%{x}<br>' + grades.map(g => g.toFixed(1)).join(',') + '<extra></extra>',
-            customdata: grades,
-            hovertemplate: '<b>Nota Media</b><br>%{x}<br>%{customdata:.1f}/10<extra></extra>'
+            hovertemplate: '<b>Nota Media</b><br>%{x}<br>%{y:.1f}<extra></extra>'
         }
     ];
 
@@ -549,16 +548,14 @@ async function initChartEvolucionClase() {
         yaxis: {
             ...commonLayout.yaxis,
             title: { text: 'Progreso (%)', font: { size: 12 }, standoff: 10 },
-            range: [0, 100]
+            range: [0, 105]
         },
         yaxis2: {
-            title: { text: 'Nota (0-10)', font: { size: 12 }, standoff: 10 },
+            title: { text: 'Nota Media', font: { size: 12 }, standoff: 10 },
             overlaying: 'y',
             side: 'right',
-            range: [0, 100],
-            showgrid: false,
-            tickvals: [0, 25, 50, 75, 100],
-            ticktext: ['0', '2.5', '5', '7.5', '10']
+            range: [0, maxGradeRounded],
+            showgrid: false
         },
         xaxis: {
             ...commonLayout.xaxis,

@@ -332,22 +332,29 @@ async function loadClasses(skipFetch = false) {
     }
 
     container.innerHTML = classes.map(cls => `
-        <div class="class-card ${cls.id === selectedClassId ? 'active' : ''}" onclick="selectClass('${cls.id}')">
-            <div class="class-card-header">
-                <div class="class-card-icon">${cls.nombre.substring(0, 2).toUpperCase()}</div>
-                <div class="class-card-info">
-                    <h3>${cls.nombre}</h3>
-                    <p>Código: ${cls.codigo || cls.id.substring(0, 8)}</p>
+        <div class="class-card ${cls.id === selectedClassId ? 'active' : ''}">
+            <div onclick="selectClass('${cls.id}')" style="flex: 1; cursor: pointer;">
+                <div class="class-card-header">
+                    <div class="class-card-icon">${cls.nombre.substring(0, 2).toUpperCase()}</div>
+                    <div class="class-card-info">
+                        <h3>${cls.nombre}</h3>
+                        <p>Código: ${cls.codigo || cls.id.substring(0, 8)}</p>
+                    </div>
+                </div>
+                <div class="class-card-stats">
+                    <div class="stat-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z" stroke-width="2"/>
+                        </svg>
+                        <span class="stat-value" id="student-count-${cls.id}">0</span> alumnos
+                    </div>
                 </div>
             </div>
-            <div class="class-card-stats">
-                <div class="stat-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z" stroke-width="2"/>
-                    </svg>
-                    <span class="stat-value" id="student-count-${cls.id}">0</span> alumnos
-                </div>
-            </div>
+            <button class="btn-delete-class" onclick="event.stopPropagation(); confirmDeleteClass('${cls.id}', '${cls.nombre.replace(/'/g, "\\'")}');" title="Eliminar clase">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
         </div>
     `).join('');
 
@@ -457,6 +464,13 @@ async function loadStudents(classId) {
                     <span class="status-badge ${isActive ? 'status-active' : 'status-inactive'}">
                         ${isActive ? 'Activo' : 'Inactivo'}
                     </span>
+                </td>
+                <td>
+                    <button class="btn-remove-student" onclick="confirmRemoveStudent('${student.id}', '${student.nombre.replace(/'/g, "\\'")}');" title="Remover de clase">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
+                            <path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
                 </td>
             </tr>
         `;
@@ -747,5 +761,89 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// ============================================
+// Delete Class & Remove Student Functions
+// ============================================
+
+/**
+ * Confirmar eliminación de clase
+ */
+function confirmDeleteClass(claseId, claseNombre) {
+    if (confirm(`¿Estás seguro de que quieres eliminar la clase "${claseNombre}"?\n\nLos alumnos NO se eliminarán, solo quedarán sin clase asignada.`)) {
+        deleteClass(claseId);
+    }
+}
+
+/**
+ * Eliminar clase
+ */
+async function deleteClass(claseId) {
+    try {
+        const response = await fetch(`${CLASES_API}/${claseId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Error al eliminar la clase');
+        }
+
+        showNotification('Clase eliminada exitosamente', 'success');
+
+        // Limpiar cache y recargar
+        await clearDashboardCache();
+        await loadClasses();
+
+        // Si era la clase seleccionada, limpiar selección
+        if (selectedClassId === claseId) {
+            selectedClassId = null;
+            document.getElementById('selectedClassInfo').style.display = 'none';
+            document.getElementById('studentsTableBody').innerHTML = '<tr><td colspan="8" class="loading-message">Selecciona una clase</td></tr>';
+        }
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+}
+
+/**
+ * Confirmar remover alumno de clase
+ */
+function confirmRemoveStudent(studentId, studentName) {
+    if (confirm(`¿Remover a "${studentName}" de esta clase?\n\nEl alumno NO se eliminará, solo quedará sin clase asignada.`)) {
+        removeStudentFromClass(studentId);
+    }
+}
+
+/**
+ * Remover alumno de clase
+ */
+async function removeStudentFromClass(studentId) {
+    try {
+        const response = await fetch(`${USUARIOS_API}/${studentId}/remove-from-class`, {
+            method: 'POST',
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Error al remover alumno');
+        }
+
+        showNotification('Alumno removido de la clase', 'success');
+
+        // Limpiar cache y recargar estudiantes
+        await clearDashboardCache();
+        if (selectedClassId) {
+            await loadStudents(selectedClassId);
+            await loadClasses(); // Para actualizar el contador
+        }
+    } catch (error) {
+        showNotification(error.message, 'error');
+    }
+}
+
 // Exponer funciones globales necesarias
 window.selectClass = selectClass;
+window.confirmDeleteClass = confirmDeleteClass;
+window.confirmRemoveStudent = confirmRemoveStudent;

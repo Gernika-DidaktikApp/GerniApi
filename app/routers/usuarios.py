@@ -321,8 +321,22 @@ def remover_alumno_de_clase(
         # Obtener el alumno
         alumno = usuario_service.obtener_usuario(usuario_id)
 
+        # Log de debug
+        log_info(
+            "Intentando remover alumno de clase",
+            alumno_id=usuario_id,
+            alumno_clase_id=alumno.id_clase,
+            profesor_id=auth.user_id,
+            is_api_key=auth.is_api_key,
+        )
+
         # Verificar que el alumno tiene clase asignada
         if not alumno.id_clase:
+            log_warning(
+                "Intento de remover alumno sin clase asignada",
+                alumno_id=usuario_id,
+                profesor_id=auth.user_id,
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="El alumno no tiene clase asignada",
@@ -331,6 +345,14 @@ def remover_alumno_de_clase(
         # Verificar que el profesor es dueño de la clase
         clase = clase_repo.get_by_id(alumno.id_clase)
         if not clase or clase.id_profesor != auth.user_id:
+            log_warning(
+                "Profesor sin permisos para remover alumno",
+                alumno_id=usuario_id,
+                alumno_clase_id=alumno.id_clase,
+                profesor_id=auth.user_id,
+                clase_profesor_id=clase.id_profesor if clase else None,
+                clase_existe=clase is not None,
+            )
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="No tienes permisos para remover alumnos de esta clase",
@@ -339,6 +361,13 @@ def remover_alumno_de_clase(
     # Actualizar usuario para quitar clase
     usuario_data = UsuarioUpdate(id_clase=None)
     usuario_service.actualizar_usuario(usuario_id, usuario_data)
+
+    # Log de éxito
+    log_info(
+        "Alumno removido de clase exitosamente",
+        alumno_id=usuario_id,
+        profesor_id=auth.user_id if not auth.is_api_key else "api_key",
+    )
 
     return None
 

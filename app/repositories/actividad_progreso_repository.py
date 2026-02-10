@@ -102,14 +102,29 @@ class ActividadProgresoRepository:
             .all()
         )
 
-        # Crear dict con el progreso más reciente por actividad
+        # Crear dict con el progreso más relevante por actividad
+        # Prioridad: completado > en_progreso (por fecha más reciente)
         progresos_dict = {}
         for prog in progresos_query:
             if prog.id_actividad not in progresos_dict:
                 progresos_dict[prog.id_actividad] = prog
             else:
-                # Mantener el más reciente
-                if prog.fecha_inicio > progresos_dict[prog.id_actividad].fecha_inicio:
+                actual = progresos_dict[prog.id_actividad]
+
+                # Determinar si debemos reemplazar el progreso actual
+                debe_reemplazar = False
+
+                # Priorizar completado sobre en_progreso
+                if (
+                    prog.estado == "completado"
+                    and actual.estado != "completado"
+                    or prog.estado == actual.estado
+                    and prog.fecha_inicio > actual.fecha_inicio
+                ):
+                    debe_reemplazar = True
+                # Si actual es completado y nuevo es en_progreso, mantener completado
+
+                if debe_reemplazar:
                     progresos_dict[prog.id_actividad] = prog
 
         return progresos_dict

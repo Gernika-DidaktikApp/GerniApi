@@ -76,6 +76,13 @@ const translations = {
             students_singular: "alumno",
             students_plural: "alumnos"
         },
+        activities: {
+            "bunkers": "Búnkeres",
+            "mercado": "Mercado",
+            "fronton": "Frontón",
+            "arbol": "Árbol de Gernika",
+            "picasso": "Picasso Gernika"
+        },
         dashboard_teacher: {
             loading_classes: "Cargando clases...",
             loading_students: "Cargando alumnos...",
@@ -198,6 +205,13 @@ const translations = {
             students_singular: "ikasle",
             students_plural: "ikasle"
         },
+        activities: {
+            "bunkers": "Bunkerrak",
+            "mercado": "Merkatua",
+            "fronton": "Pilotalekua",
+            "arbol": "Gernikako Arbola",
+            "picasso": "Picasso Gernika"
+        },
         dashboard_teacher: {
             loading_classes: "Klaseak kargatzen...",
             loading_students: "Ikasleak kargatzen...",
@@ -282,6 +296,16 @@ function t(key) {
     }
 
     return value || key;
+}
+
+/**
+ * Translate activity name to the current language
+ * @param {string} activityName - Activity name (e.g., 'bunkers', 'arbol')
+ * @returns {string} Translated activity name or original if not found
+ */
+function translateActivity(activityName) {
+    const lang = getCurrentLanguage();
+    return translations[lang]?.activities?.[activityName] || activityName;
 }
 
 /**

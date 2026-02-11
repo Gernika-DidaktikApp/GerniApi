@@ -445,9 +445,12 @@ async function initChartActividadesClase() {
         return;
     }
 
+    // Translate activity names
+    const translatedActivities = activities.map(name => translateActivity(name));
+
     const data = [
         {
-            x: activities,
+            x: translatedActivities,
             y: completed,
             type: 'bar',
             name: 'Completadas',
@@ -455,7 +458,7 @@ async function initChartActividadesClase() {
             hovertemplate: '<b>%{x}</b><br>Completadas: %{y} alumnos<extra></extra>'
         },
         {
-            x: activities,
+            x: translatedActivities,
             y: in_progress,
             type: 'bar',
             name: 'En Progreso',
@@ -463,7 +466,7 @@ async function initChartActividadesClase() {
             hovertemplate: '<b>%{x}</b><br>En Progreso: %{y} alumnos<extra></extra>'
         },
         {
-            x: activities,
+            x: translatedActivities,
             y: not_started,
             type: 'bar',
             name: 'Sin Empezar',
@@ -921,6 +924,20 @@ if (navbarToggle && navbarMenu) {
 }
 
 // ============================================
+// Translate Activity Names in Dropdown
+// ============================================
+function translateActivityOptions() {
+    const activitySelect = document.getElementById('filterActividad');
+    if (activitySelect) {
+        const options = activitySelect.querySelectorAll('option[data-translate]');
+        options.forEach(option => {
+            const activityKey = option.getAttribute('data-translate');
+            option.textContent = translateActivity(activityKey);
+        });
+    }
+}
+
+// ============================================
 // Initialize
 // ============================================
 async function init() {
@@ -946,6 +963,9 @@ async function init() {
     if (userNameEl && userName) {
         userNameEl.textContent = `¡Hola ${userName}!`;
     }
+
+    // Translate activity options in dropdown
+    translateActivityOptions();
 
     // Initialize filters first
     await initFilters();

@@ -42,9 +42,7 @@ const API_BASE = '/api/teacher/dashboard';
 
 // Current filters
 let currentFilters = {
-    claseId: null,  // Will be set from dropdown
-    days: 7,
-    actividadId: null  // Will be set from dropdown
+    claseId: null  // Will be set from dropdown
 };
 
 // ============================================
@@ -81,14 +79,9 @@ async function fetchClasses() {
 
 async function fetchSummary() {
     try {
-        const params = new URLSearchParams({
-            days: currentFilters.days
-        });
+        const params = new URLSearchParams();
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
-        }
-        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
-            params.append('actividad_nombre', currentFilters.actividadId);
         }
 
         const response = await fetch(`${API_BASE}/summary?${params}`, {
@@ -108,9 +101,6 @@ async function fetchStudentProgress() {
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
         }
-        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
-            params.append('actividad_nombre', currentFilters.actividadId);
-        }
 
         const response = await fetch(`${API_BASE}/student-progress?${params}`, {
             headers: getAuthHeaders()
@@ -125,14 +115,9 @@ async function fetchStudentProgress() {
 
 async function fetchStudentTime() {
     try {
-        const params = new URLSearchParams({
-            days: currentFilters.days
-        });
+        const params = new URLSearchParams();
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
-        }
-        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
-            params.append('actividad_nombre', currentFilters.actividadId);
         }
 
         const response = await fetch(`${API_BASE}/student-time?${params}`, {
@@ -152,9 +137,6 @@ async function fetchActivitiesByClass() {
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
         }
-        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
-            params.append('actividad_nombre', currentFilters.actividadId);
-        }
 
         const response = await fetch(`${API_BASE}/activities-by-class?${params}`, {
             headers: getAuthHeaders()
@@ -169,14 +151,9 @@ async function fetchActivitiesByClass() {
 
 async function fetchClassEvolution() {
     try {
-        const params = new URLSearchParams({
-            days: 14  // Always 14 days for evolution chart
-        });
+        const params = new URLSearchParams();
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
-        }
-        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
-            params.append('actividad_nombre', currentFilters.actividadId);
         }
 
         const response = await fetch(`${API_BASE}/class-evolution?${params}`, {
@@ -674,27 +651,9 @@ async function initFilters() {
             `;
 
             const claseSelect = document.getElementById('filterClase');
-            const fechasSelect = document.getElementById('filterFechas');
-            const actividadSelect = document.getElementById('filterActividad');
 
             if (claseSelect) {
                 currentFilters.claseId = claseSelect.value || null;
-            }
-
-            if (fechasSelect) {
-                const value = fechasSelect.value;
-                const daysMap = {
-                    '7d': 7,
-                    '14d': 14,
-                    '30d': 30,
-                    'trimestre': 90,
-                    'curso': 365
-                };
-                currentFilters.days = daysMap[value] || 7;
-            }
-
-            if (actividadSelect) {
-                currentFilters.actividadId = actividadSelect.value || null;
             }
 
             console.log('Applying filters:', currentFilters);
@@ -768,9 +727,6 @@ async function fetchStudentsList() {
         const params = new URLSearchParams();
         if (currentFilters.claseId) {
             params.append('clase_id', currentFilters.claseId);
-        }
-        if (currentFilters.actividadId && currentFilters.actividadId !== 'all') {
-            params.append('actividad_nombre', currentFilters.actividadId);
         }
 
         const response = await fetch(`${API_BASE}/students-list?${params}`, {
@@ -924,20 +880,6 @@ if (navbarToggle && navbarMenu) {
 }
 
 // ============================================
-// Translate Activity Names in Dropdown
-// ============================================
-function translateActivityOptions() {
-    const activitySelect = document.getElementById('filterActividad');
-    if (activitySelect) {
-        const options = activitySelect.querySelectorAll('option[data-translate]');
-        options.forEach(option => {
-            const activityKey = option.getAttribute('data-translate');
-            option.textContent = translateActivity(activityKey);
-        });
-    }
-}
-
-// ============================================
 // Initialize
 // ============================================
 async function init() {
@@ -963,9 +905,6 @@ async function init() {
     if (userNameEl && userName) {
         userNameEl.textContent = `¡Hola ${userName}!`;
     }
-
-    // Translate activity options in dropdown
-    translateActivityOptions();
 
     // Initialize filters first
     await initFilters();

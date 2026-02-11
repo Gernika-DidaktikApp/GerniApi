@@ -126,47 +126,6 @@
                         </select>
                     </div>
 
-                    <div class="filter-group">
-                        <label class="filter-label">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor"
-                                    stroke-width="2" />
-                                <path d="M16 2V6M8 2V6M3 10H21" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" />
-                            </svg>
-                            {{ _('dashboard.filters.date_range') }}
-                        </label>
-                        <select class="filter-select" id="filterFechas">
-                            <option value="7d" selected>{{ _('dashboard.date_options.7d') }}</option>
-                            <option value="14d">{{ _('dashboard.date_options.14d') }}</option>
-                            <option value="30d">{{ _('dashboard.date_options.30d') }}</option>
-                            <option value="trimestre">{{ _('dashboard.date_options.quarter') }}</option>
-                            <option value="curso">{{ _('dashboard.date_options.course') }}</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-group">
-                        <label class="filter-label">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path
-                                    d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                                <path
-                                    d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z"
-                                    stroke="currentColor" stroke-width="2" />
-                            </svg>
-                            {{ _('dashboard.filters.activity') }}
-                        </label>
-                        <select class="filter-select" id="filterActividad">
-                            <option value="all" selected>{{ _('dashboard.filters.all_activities') }}</option>
-                            <option value="bunkers" data-translate="bunkers">Búnkeres</option>
-                            <option value="mercado" data-translate="mercado">Mercado</option>
-                            <option value="fronton" data-translate="fronton">Frontón</option>
-                            <option value="arbol" data-translate="arbol">Árbol de Gernika</option>
-                            <option value="picasso" data-translate="picasso">Picasso Gernika</option>
-                        </select>
-                    </div>
-
                     <button class="filter-apply-btn" id="applyFilters">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                             <path d="M22 3H2L10 12.46V19L14 21V12.46L22 3Z" stroke="currentColor" stroke-width="2"

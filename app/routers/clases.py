@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.logging import log_info, log_warning
+from app.logging import log_error, log_info, log_warning
 from app.models.audit_log import AuditLogWeb
 from app.models.clase import Clase
 from app.models.profesor import Profesor
@@ -231,24 +231,32 @@ def eliminar_clase(
     clase_nombre = clase.nombre
     profesor_id = clase.id_profesor
 
-    # Actualizar alumnos: quitar clase asignada (id_clase = NULL)
-    alumnos_actualizados = (
-        db.query(Usuario).filter(Usuario.id_clase == clase_id).update({Usuario.id_clase: None})
-    )
+    try:
+        # Actualizar alumnos: quitar clase asignada (id_clase = NULL)
+        alumnos_actualizados = (
+            db.query(Usuario).filter(Usuario.id_clase == clase_id).update({Usuario.id_clase: None})
+        )
 
-    # Eliminar la clase
-    db.delete(clase)
-    db.commit()
+        # Eliminar la clase
+        db.delete(clase)
+        db.commit()
 
-    # Log estructurado
-    log_info(
-        "Clase eliminada",
-        clase_id=clase_id,
-        clase_nombre=clase_nombre,
-        profesor_id=profesor_id,
-        alumnos_actualizados=alumnos_actualizados,
-        auth_type="api_key" if auth.is_api_key else "token",
-    )
+        # Log estructurado
+        log_info(
+            "Clase eliminada",
+            clase_id=clase_id,
+            clase_nombre=clase_nombre,
+            profesor_id=profesor_id,
+            alumnos_actualizados=alumnos_actualizados,
+            auth_type="api_key" if auth.is_api_key else "token",
+        )
+    except Exception as e:
+        db.rollback()
+        log_error("Error al eliminar clase", clase_id=clase_id, error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al eliminar la clase: {str(e)}",
+        )
 
     # Audit log
     detalles = f"Clase '{clase_nombre}' (ID: {clase_id}) eliminada"

@@ -185,7 +185,7 @@ app.add_middleware(LoggingMiddleware)
 # Configurar CORS para permitir peticiones desde la app móvil
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especifica los orígenes permitidos
+    allow_origins=settings.cors_origins_list,  # Configurable desde .env (CORS_ORIGINS)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

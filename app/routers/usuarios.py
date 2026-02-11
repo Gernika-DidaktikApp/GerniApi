@@ -20,7 +20,7 @@ Autor: Gernibide
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -49,6 +49,7 @@ from app.utils.dependencies import (
     require_auth,
     validate_user_ownership,
 )
+from app.utils.rate_limit import RATE_LIMIT_REGISTER, limiter
 
 router = APIRouter(
     prefix="/usuarios",
@@ -65,9 +66,11 @@ router = APIRouter(
     response_model=UsuarioResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Crear usuario",
-    description="Crea un nuevo usuario en el sistema. Endpoint público para registro.",
+    description="Crea un nuevo usuario en el sistema. Endpoint público con rate limit estricto (3 registros/hora) para prevenir spam.",
 )
+@limiter.limit(RATE_LIMIT_REGISTER)
 def crear_usuario(
+    request: Request,
     usuario_data: UsuarioCreate,
     usuario_service: UsuarioService = Depends(get_usuario_service),
 ):
@@ -75,6 +78,10 @@ def crear_usuario(
     ## Crear Nuevo Usuario (Registro)
 
     Endpoint público para registrar nuevos usuarios en el sistema.
+
+    ### Rate Limiting
+    - **Límite**: 3 registros por hora por IP
+    - **Propósito**: Prevenir creación masiva de cuentas falsas (spam)
 
     ### Validaciones
     - El username debe ser único

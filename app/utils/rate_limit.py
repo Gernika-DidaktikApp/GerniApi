@@ -95,6 +95,7 @@ if not settings.RATE_LIMIT_ENABLED:
     RATE_LIMIT_DEFAULT = "100000/minute"
     RATE_LIMIT_STRICT = "100000/minute"
     RATE_LIMIT_PERMISSIVE = "100000/minute"
+    RATE_LIMIT_REGISTER = "100000/minute"
 else:
     # Rate limit por defecto (configurable desde settings)
     RATE_LIMIT_DEFAULT = f"{settings.RATE_LIMIT_PER_MINUTE if hasattr(settings, 'RATE_LIMIT_PER_MINUTE') else 10}/minute"
@@ -102,6 +103,8 @@ else:
     RATE_LIMIT_STRICT = "5/minute"
     # Rate limit permisivo para lectura
     RATE_LIMIT_PERMISSIVE = "60/minute"
+    # Rate limit muy restrictivo para registro de usuarios (3 por hora por IP para prevenir spam)
+    RATE_LIMIT_REGISTER = "3/hour"
 
 
 # ==================== Error Handler ====================

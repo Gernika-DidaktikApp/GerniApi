@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
-from app.logging import log_auth, log_debug
+from app.logging import log_auth, log_debug, log_error
 from app.models.audit_log import AuditLogWeb
 from app.models.profesor import Profesor
 
@@ -24,8 +24,9 @@ from app.models.usuario import Usuario
 
 # from app.schemas.alumno import LoginRequest, Token, AlumnoResponse  # Comentado
 from app.schemas.usuario import LoginAppRequest, LoginAppResponse
+from app.utils.dependencies import AuthResult, require_auth
 from app.utils.rate_limit import RATE_LIMIT_STRICT, limiter
-from app.utils.security import create_access_token, verify_password
+from app.utils.security import add_token_to_blacklist, create_access_token, verify_password
 
 
 # Schema temporal para Token
@@ -293,17 +294,22 @@ def login_profesor(login_data: LoginAppRequest, request: Request, db: Session = 
         )
 
         # Crear audit log de fallo de login (Web)
-        audit_log_fallo = AuditLogWeb(
-            id=str(uuid.uuid4()),
-            profesor_id=None,  # No sabemos el ID si falló el login
-            accion="login_fallo",
-            detalles=f"Intento de login fallido para usuario '{login_data.username}'",
-            ip_address=client_ip,
-            user_agent=request.headers.get("user-agent"),
-            browser=_extract_browser(request.headers.get("user-agent")),
-        )
-        db.add(audit_log_fallo)
-        db.commit()
+        try:
+            audit_log_fallo = AuditLogWeb(
+                id=str(uuid.uuid4()),
+                profesor_id=None,  # No sabemos el ID si falló el login
+                accion="login_fallo",
+                detalles=f"Intento de login fallido para usuario '{login_data.username}'",
+                ip_address=client_ip,
+                user_agent=request.headers.get("user-agent"),
+                browser=_extract_browser(request.headers.get("user-agent")),
+            )
+            db.add(audit_log_fallo)
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            log_error("Error al guardar audit log de fallo", error=str(e))
+            # Continuamos con el raise del 401 aunque falle el audit log
 
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -328,17 +334,22 @@ def login_profesor(login_data: LoginAppRequest, request: Request, db: Session = 
     )
 
     # Crear audit log de login exitoso (Web)
-    audit_log_exito = AuditLogWeb(
-        id=str(uuid.uuid4()),
-        profesor_id=profesor.id,
-        accion="login_exitoso",
-        detalles=f"Login exitoso desde web para profesor '{profesor.username}'",
-        ip_address=client_ip,
-        user_agent=request.headers.get("user-agent"),
-        browser=_extract_browser(request.headers.get("user-agent")),
-    )
-    db.add(audit_log_exito)
-    db.commit()
+    try:
+        audit_log_exito = AuditLogWeb(
+            id=str(uuid.uuid4()),
+            profesor_id=profesor.id,
+            accion="login_exitoso",
+            detalles=f"Login exitoso desde web para profesor '{profesor.username}'",
+            ip_address=client_ip,
+            user_agent=request.headers.get("user-agent"),
+            browser=_extract_browser(request.headers.get("user-agent")),
+        )
+        db.add(audit_log_exito)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        log_error("Error al guardar audit log de éxito", error=str(e))
+        # Continuamos devolviendo el token aunque falle el audit log
 
     return {
         "access_token": access_token,
@@ -347,4 +358,71 @@ def login_profesor(login_data: LoginAppRequest, request: Request, db: Session = 
         "username": profesor.username,
         "nombre": profesor.nombre,
         "apellido": profesor.apellido,
+    }
+
+
+@router.post(
+    "/logout",
+    status_code=status.HTTP_200_OK,
+    summary="Logout (Revocar token)",
+    description="Invalida el token JWT actual añadiéndolo a una blacklist. El token no podrá ser usado nuevamente hasta su expiración natural.",
+)
+def logout(request: Request, auth: AuthResult = Depends(require_auth)):
+    """
+    ## Logout - Revocar Token JWT
+
+    Invalida el token JWT actual del usuario o profesor.
+
+    ### Funcionamiento
+    - El token se añade a una blacklist en Redis con TTL automático
+    - El TTL es igual al tiempo restante hasta la expiración del token
+    - Después del logout, el token ya no será aceptado en ningún endpoint protegido
+
+    ### Autenticación
+    - **Requiere**: Token JWT válido en header `Authorization: Bearer <token>`
+    - API Keys no necesitan logout (no expiran)
+
+    ### Casos de uso
+    - Usuario cierra sesión en la app
+    - Profesor cierra sesión en el dashboard
+    - Dispositivo comprometido (revocar token de seguridad)
+
+    ### Retorna
+    Mensaje de confirmación de logout exitoso
+    """
+    # Si autenticación es por API Key, no hay token para revocar
+    if auth.is_api_key:
+        return {
+            "success": True,
+            "message": "API Keys no requieren logout - no expiran",
+        }
+
+    # Obtener token del header Authorization
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No se encontró token en el header Authorization",
+        )
+
+    token = auth_header.replace("Bearer ", "")
+
+    # Añadir token a blacklist
+    success = add_token_to_blacklist(token)
+    if not success:
+        log_error("Error al añadir token a blacklist durante logout")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error al procesar el logout",
+        )
+
+    log_auth(
+        "logout_success",
+        user_id=auth.user_id if auth.user else "unknown",
+        success=True,
+    )
+
+    return {
+        "success": True,
+        "message": "Logout exitoso - token revocado",
     }

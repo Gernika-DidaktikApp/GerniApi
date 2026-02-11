@@ -8,8 +8,11 @@ Autor: Gernibide
 """
 
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, Field
+
+from app.schemas.enums import EstadoPunto
 
 
 class LoginAppRequest(BaseModel):
@@ -74,7 +77,7 @@ class UsuarioCreate(BaseModel):
         description="Contraseña (será hasheada con bcrypt)",
         example="password123",
     )
-    id_clase: str | None = Field(
+    id_clase: UUID | None = Field(
         None,
         description="ID de la clase asignada (opcional, usar codigo_clase es más fácil)",
         example="550e8400-e29b-41d4-a716-446655440000",
@@ -141,7 +144,7 @@ class UsuarioUpdate(BaseModel):
         description="Nueva contraseña",
         example="newpassword123",
     )
-    id_clase: str | None = Field(
+    id_clase: UUID | None = Field(
         None,
         description="Nueva clase asignada",
         example="550e8400-e29b-41d4-a716-446655440000",
@@ -213,7 +216,7 @@ class UsuarioResponse(BaseModel):
     username: str = Field(..., description="Nombre de usuario", example="usuario123")
     nombre: str = Field(..., description="Nombre", example="Juan")
     apellido: str = Field(..., description="Apellido", example="Pérez")
-    id_clase: str | None = Field(
+    id_clase: UUID | None = Field(
         None,
         description="ID de la clase asignada",
         example="550e8400-e29b-41d4-a716-446655440000",
@@ -312,7 +315,7 @@ class UsuarioBulkCreate(BaseModel):
         description="Lista de usuarios a crear",
         min_length=1,
     )
-    id_clase: str | None = Field(
+    id_clase: UUID | None = Field(
         None,
         description="ID de la clase para asignar a todos los usuarios (opcional)",
         example="550e8400-e29b-41d4-a716-446655440000",
@@ -411,7 +414,7 @@ class ActividadDetalle(BaseModel):
 
     id_actividad: str = Field(..., description="ID único de la actividad")
     nombre_actividad: str = Field(..., description="Nombre de la actividad")
-    estado: str = Field(..., description="Estado: no_iniciada, en_progreso, completada")
+    estado: EstadoPunto = Field(..., description="Estado: no_iniciado, en_progreso, completado")
     puntuacion: float | None = Field(None, description="Puntuación obtenida")
     fecha_completado: datetime | None = Field(None, description="Fecha de completado")
     duracion_segundos: int | None = Field(None, description="Duración en segundos")
@@ -439,7 +442,7 @@ class PuntoProgreso(BaseModel):
     actividades_completadas: int = Field(..., description="Actividades completadas")
     porcentaje_completado: float = Field(..., description="Porcentaje (0-100)")
     puntos_obtenidos: float = Field(..., description="Puntos obtenidos en este punto")
-    estado: str = Field(..., description="Estado: no_iniciado, en_progreso, completado")
+    estado: EstadoPunto = Field(..., description="Estado: no_iniciado, en_progreso, completado")
     actividades: list[ActividadDetalle] = Field(..., description="Lista de actividades")
 
     model_config = {"from_attributes": True}

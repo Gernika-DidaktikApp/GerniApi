@@ -10,6 +10,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from app.schemas.enums import EstadoActividad, EstadoPunto
+
 
 class ActividadProgresoCreate(BaseModel):
     """Datos para crear un nuevo registro de progreso de actividad.
@@ -44,7 +46,7 @@ class ActividadProgresoUpdate(BaseModel):
 
     duracion: int | None = None
     fecha_fin: datetime | None = None
-    estado: str | None = Field(None, max_length=20)
+    estado: EstadoActividad | None = Field(None, description="Estado de la actividad")
     puntuacion: float | None = None
     respuesta_contenido: str | None = Field(
         None, description="Texto largo o URL de imagen del usuario"
@@ -100,7 +102,7 @@ class ActividadProgresoResponse(BaseModel):
     fecha_inicio: datetime
     duracion: int | None = None
     fecha_fin: datetime | None = None
-    estado: str
+    estado: EstadoActividad
     puntuacion: float | None = None
     respuesta_contenido: str | None = None
 
@@ -138,4 +140,4 @@ class PuntoResumen(BaseModel):
     duracion_total: int | None = None
     fecha_inicio: datetime | None = None
     fecha_fin: datetime | None = None
-    estado: str  # "no_iniciada", "en_progreso", "completada"
+    estado: EstadoPunto  # "no_iniciado", "en_progreso", "completado"

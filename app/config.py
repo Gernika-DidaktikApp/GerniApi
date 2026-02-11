@@ -42,6 +42,32 @@ class Settings(BaseSettings):
     RATE_LIMIT_ENABLED: bool = True
     RATE_LIMIT_PER_MINUTE: int = 10
 
+    # CORS configuration
+    CORS_ORIGINS: str = "*"  # Default para desarrollo - en producción usar dominios específicos
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        """Convierte CORS_ORIGINS string a lista.
+
+        Si CORS_ORIGINS es "*", retorna ["*"] para permitir todos los orígenes (desarrollo).
+        Si contiene dominios separados por comas, los convierte a lista.
+
+        Returns:
+            Lista de orígenes permitidos para CORS.
+
+        Examples:
+            >>> settings.CORS_ORIGINS = "*"
+            >>> settings.cors_origins_list
+            ["*"]
+
+            >>> settings.CORS_ORIGINS = "https://example.com,https://www.example.com"
+            >>> settings.cors_origins_list
+            ["https://example.com", "https://www.example.com"]
+        """
+        if self.CORS_ORIGINS == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+
     class Config:
         """Configuración de Pydantic Settings."""
 

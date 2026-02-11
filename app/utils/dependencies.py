@@ -8,7 +8,7 @@ from app.config import settings
 from app.database import get_db
 from app.models.juego import Partida
 from app.models.usuario import Usuario
-from app.utils.security import decode_access_token
+from app.utils.security import decode_access_token, is_token_blacklisted
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login-app", auto_error=False)
 
@@ -34,8 +34,18 @@ def verify_api_key(
 def get_current_user(
     token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> Usuario | None:
-    """Obtiene el usuario actual del token JWT."""
+    """Obtiene el usuario actual del token JWT.
+
+    Verifica que el token:
+    1. Esté presente
+    2. Sea válido (no expirado, firma correcta)
+    3. No esté en la blacklist (revocado por logout)
+    """
     if not token:
+        return None
+
+    # Verificar si el token fue revocado (logout)
+    if is_token_blacklisted(token):
         return None
 
     payload = decode_access_token(token)

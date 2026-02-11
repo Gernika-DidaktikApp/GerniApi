@@ -9,6 +9,7 @@ Autor: Gernibide
 import csv
 import io
 import time
+from collections import OrderedDict
 from collections.abc import Callable
 from datetime import datetime, timedelta
 from typing import Any
@@ -68,15 +69,17 @@ class TeacherDashboardService:
     more current information.
 
     Attributes:
-        _cache: Class-level cache storage for computed statistics.
+        _cache: Class-level cache storage (LRU) for computed statistics.
         CACHE_TTL: Default cache time-to-live in seconds (120 = 2 minutes).
+        MAX_CACHE_SIZE: Maximum cache entries (100) to prevent unbounded memory growth.
     """
 
-    # Cache storage
-    _cache: dict[str, CacheEntry] = {}
+    # Cache storage (LRU - Least Recently Used with size limit)
+    _cache: OrderedDict[str, Any] = OrderedDict()
 
-    # Cache TTL in seconds (2 minutes for teacher dashboard)
-    CACHE_TTL = 120
+    # Cache configuration
+    CACHE_TTL = 120  # TTL in seconds (2 minutes for teacher dashboard)
+    MAX_CACHE_SIZE = 100  # Maximum number of cache entries
 
     @classmethod
     def _get_cached_or_fetch(
@@ -97,12 +100,22 @@ class TeacherDashboardService:
         if cache_key in cls._cache:
             entry = cls._cache[cache_key]
             if not entry.is_expired():
+                # Move to end (mark as recently used in LRU)
+                cls._cache.move_to_end(cache_key)
                 return entry.data
+            else:
+                # Remove expired entry
+                del cls._cache[cache_key]
 
         # Cache miss or expired - fetch new data
         data = fetch_func(*args)
 
-        # Store in cache
+        # Enforce cache size limit (LRU eviction)
+        if len(cls._cache) >= cls.MAX_CACHE_SIZE:
+            # Remove oldest entry (first item in OrderedDict)
+            cls._cache.popitem(last=False)
+
+        # Store in cache (will be at the end = most recently used)
         ttl_seconds = ttl if ttl is not None else cls.CACHE_TTL
         cls._cache[cache_key] = CacheEntry(data, ttl_seconds)
 

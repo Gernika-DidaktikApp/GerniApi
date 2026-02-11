@@ -714,7 +714,7 @@ async function initFilters() {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2"/>
                     </svg>
-                    Aplicado
+                    ${t('dashboard.applied')}
                 `;
                 setTimeout(() => {
                     applyBtn.innerHTML = originalText;

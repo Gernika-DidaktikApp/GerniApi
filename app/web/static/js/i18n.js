@@ -58,6 +58,7 @@ const translations = {
         },
         dashboard: {
             applying: "Aplicando...",
+            applied: "Aplicado",
             all_classes: "Todas las clases",
             no_students: "No hay alumnos en esta clase",
             no_data: "No hay datos disponibles",
@@ -179,6 +180,7 @@ const translations = {
         },
         dashboard: {
             applying: "Aplikatzen...",
+            applied: "Aplikatuta",
             all_classes: "Klase guztiak",
             no_students: "Ez dago ikaslerik klase honetan",
             no_data: "Ez dago daturik eskuragarri",

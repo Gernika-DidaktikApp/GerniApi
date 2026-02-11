@@ -18,11 +18,7 @@ from app.database import get_db
 from app.logging import log_auth, log_debug, log_error
 from app.models.audit_log import AuditLogWeb
 from app.models.profesor import Profesor
-
-# from app.models.alumno import Alumno  # Comentado - modelo no existe
 from app.models.usuario import Usuario
-
-# from app.schemas.alumno import LoginRequest, Token, AlumnoResponse  # Comentado
 from app.schemas.usuario import LoginAppRequest, LoginAppResponse
 from app.utils.dependencies import AuthResult, require_auth
 from app.utils.rate_limit import RATE_LIMIT_STRICT, limiter
@@ -165,33 +161,19 @@ def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depen
     log_debug("Buscando usuario en BD", username=login_data.username)
     usuario = db.query(Usuario).filter(Usuario.username == login_data.username).first()
 
-    # Verificar que el usuario existe
-    if not usuario:
+    # Verificar que el usuario existe y la contraseña coincide
+    # Usar mensaje genérico para prevenir enumeración de usuarios
+    if not usuario or not verify_password(login_data.password, usuario.password):
         log_auth(
             "login_failed",
             username=login_data.username,
             success=False,
-            reason="Usuario no encontrado",
+            reason="Credenciales inválidas",
             client_ip=client_ip,
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="El usuario no existe",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    # Verificar que la contraseña es correcta
-    if not verify_password(login_data.password, usuario.password):
-        log_auth(
-            "login_failed",
-            username=login_data.username,
-            success=False,
-            reason="Contraseña incorrecta",
-            client_ip=client_ip,
-        )
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Contraseña incorrecta",
+            detail="Credenciales inválidas",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -219,11 +201,6 @@ def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depen
         "nombre": usuario.nombre,
         "apellido": usuario.apellido,
     }
-
-
-# Comentado temporalmente - requiere modelo Alumno
-# @router.get("/me", response_model=AlumnoResponse)
-# def get_current_alumno(...):
 
 
 @router.post(

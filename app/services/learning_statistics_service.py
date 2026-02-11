@@ -341,32 +341,35 @@ class LearningStatisticsService:
         Returns:
             Dictionary with time distribution data per punto.
         """
-        # Get puntos
-        puntos = db.query(Punto).all()
+        # Get puntos with their durations (optimized to avoid N+1)
+        # Use a single query with join instead of iterating
+        puntos_with_durations = (
+            db.query(
+                Punto.id,
+                Punto.nombre,
+                func.array_agg(ActividadProgreso.duracion).label("duraciones"),
+            )
+            .join(ActividadProgreso, ActividadProgreso.id_punto == Punto.id)
+            .filter(
+                and_(
+                    ActividadProgreso.duracion.isnot(None),
+                    ActividadProgreso.estado == "completado",
+                )
+            )
+            .group_by(Punto.id, Punto.nombre)
+            .all()
+        )
 
         punto_names = []
         punto_times = []
 
-        for punto in puntos:
-            # Get all durations for this punto (in minutes)
-            times_query = (
-                db.query(ActividadProgreso.duracion)
-                .filter(
-                    and_(
-                        ActividadProgreso.id_punto == punto.id,
-                        ActividadProgreso.duracion.isnot(None),
-                        ActividadProgreso.estado == "completado",
-                    )
-                )
-                .all()
-            )
-
+        for _punto_id, punto_nombre, duraciones in puntos_with_durations:
             # Duraciones siempre están en segundos - convertir a minutos
-            times = [round(t[0] / 60, 1) for t in times_query if t[0]]
+            times = [round(d / 60, 1) for d in duraciones if d]
 
             # Only include puntos with at least 5 data points
             if len(times) >= 5:
-                punto_names.append(punto.nombre)
+                punto_names.append(punto_nombre)
                 punto_times.append(times)
 
         return {"activities": punto_names, "times": punto_times}

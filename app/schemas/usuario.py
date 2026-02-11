@@ -77,7 +77,7 @@ class UsuarioCreate(BaseModel):
         description="Contraseña (será hasheada con bcrypt)",
         example="password123",
     )
-    id_clase: UUID | None = Field(
+    id_clase: str | None = Field(
         None,
         description="ID de la clase asignada (opcional, usar codigo_clase es más fácil)",
         example="550e8400-e29b-41d4-a716-446655440000",
@@ -144,7 +144,7 @@ class UsuarioUpdate(BaseModel):
         description="Nueva contraseña",
         example="newpassword123",
     )
-    id_clase: UUID | None = Field(
+    id_clase: str | None = Field(
         None,
         description="Nueva clase asignada",
         example="550e8400-e29b-41d4-a716-446655440000",
@@ -216,7 +216,7 @@ class UsuarioResponse(BaseModel):
     username: str = Field(..., description="Nombre de usuario", example="usuario123")
     nombre: str = Field(..., description="Nombre", example="Juan")
     apellido: str = Field(..., description="Apellido", example="Pérez")
-    id_clase: UUID | None = Field(
+    id_clase: str | None = Field(
         None,
         description="ID de la clase asignada",
         example="550e8400-e29b-41d4-a716-446655440000",
@@ -315,7 +315,7 @@ class UsuarioBulkCreate(BaseModel):
         description="Lista de usuarios a crear",
         min_length=1,
     )
-    id_clase: UUID | None = Field(
+    id_clase: str | None = Field(
         None,
         description="ID de la clase para asignar a todos los usuarios (opcional)",
         example="550e8400-e29b-41d4-a716-446655440000",

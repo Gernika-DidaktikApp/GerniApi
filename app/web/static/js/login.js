@@ -296,10 +296,12 @@ function init() {
 
     // Check if user is already logged in
     const authToken = localStorage.getItem('authToken');
-    if (authToken) {
-        // Verify token validity
-        // TODO: Implement token verification
-        console.log('User already has token, verifying...');
+    const userId = localStorage.getItem('userId');
+
+    if (authToken && userId) {
+        // Token exists - redirect to appropriate dashboard
+        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        window.location.href = isAdmin ? '/dashboard/teacher' : '/dashboard';
     }
 }
 

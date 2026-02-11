@@ -23,9 +23,9 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.dependencies import get_current_user_from_token
 from app.logging.logger import log_info, log_with_context
 from app.services.teacher_dashboard_service import TeacherDashboardService
+from app.utils.dependencies import get_current_user
 
 router = APIRouter(
     prefix="/api/teacher/dashboard",
@@ -44,7 +44,7 @@ router = APIRouter(
 )
 def get_profesor_classes(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ) -> list[dict[str, str]]:
     """
     ## Get Profesor's Classes
@@ -92,7 +92,7 @@ def get_class_summary(
     clase_id: str = Query(None, description="Optional class ID (if None, aggregates all classes)"),
     days: int = Query(7, ge=1, le=365, description="Number of days to look back"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     """
     ## Get Class Summary
@@ -140,7 +140,7 @@ def get_class_summary(
 def get_student_progress(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ) -> dict[str, list]:
     """
     ## Get Student Progress
@@ -183,7 +183,7 @@ def get_student_time(
     clase_id: str = Query(None, description="Optional class ID"),
     days: int = Query(7, ge=1, le=365, description="Number of days to look back"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ) -> dict[str, list]:
     """
     ## Get Student Time
@@ -227,7 +227,7 @@ def get_student_time(
 def get_activities_by_class(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     """
     ## Get Activities by Class
@@ -272,7 +272,7 @@ def get_class_evolution(
     clase_id: str = Query(None, description="Optional class ID"),
     days: int = Query(14, ge=1, le=365, description="Number of days to retrieve"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     """
     ## Get Class Evolution
@@ -317,7 +317,7 @@ def get_class_evolution(
 def get_students_list(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ) -> list[dict[str, Any]]:
     """
     ## Get Students List
@@ -376,7 +376,7 @@ def get_students_list(
 def export_students_csv(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     ## Export Students List to CSV
@@ -426,7 +426,7 @@ def export_students_csv(
 def export_students_excel(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     ## Export Students List to Excel
@@ -475,7 +475,7 @@ def export_students_excel(
     description="Clears all cached teacher dashboard data",
 )
 def clear_teacher_dashboard_cache(
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     ## Clear Teacher Dashboard Cache
@@ -512,7 +512,7 @@ def clear_teacher_dashboard_cache(
 def get_gallery(
     clase_id: str = Query(None, description="Optional class ID to filter"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ) -> list[dict[str, Any]]:
     """
     ## Get Student Image Gallery
@@ -560,7 +560,7 @@ def get_gallery(
 def get_message_wall(
     clase_id: str = Query(None, description="Optional class ID to filter"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user_from_token),
+    current_user: dict = Depends(get_current_user),
 ) -> list[dict[str, Any]]:
     """
     ## Get Student Message Wall

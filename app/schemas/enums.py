@@ -39,11 +39,11 @@ class EstadoPunto(str, Enum):
     """Estado de progreso de un punto/módulo del mapa.
 
     Valores posibles:
-    - NO_INICIADO: Usuario no ha comenzado el punto
+    - NO_INICIADA: Usuario no ha comenzado el punto
     - EN_PROGRESO: Punto parcialmente completado
-    - COMPLETADO: Punto completado al 100%
+    - COMPLETADA: Punto completado al 100%
     """
 
-    NO_INICIADO = "no_iniciado"
+    NO_INICIADA = "no_iniciada"
     EN_PROGRESO = "en_progreso"
-    COMPLETADO = "completado"
+    COMPLETADA = "completada"

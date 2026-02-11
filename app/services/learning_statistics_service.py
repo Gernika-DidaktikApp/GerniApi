@@ -198,12 +198,8 @@ class LearningStatisticsService:
             or 0
         )
 
-        # Detectar si las duraciones están en milisegundos o segundos
-        # Si el promedio es > 3600 (1 hora en segundos), probablemente está en milisegundos
-        if avg_time and avg_time > 3600:
-            tiempo_medio_min = round(avg_time / 60000, 0)  # milisegundos a minutos
-        else:
-            tiempo_medio_min = round(avg_time / 60, 0) if avg_time else 0  # segundos a minutos
+        # Duraciones siempre están en segundos - convertir a minutos
+        tiempo_medio_min = round(avg_time / 60, 0) if avg_time else 0
 
         return {
             "puntuacion_media": round(avg_score, 1),
@@ -365,13 +361,8 @@ class LearningStatisticsService:
                 .all()
             )
 
-            # Detectar si está en milisegundos o segundos basándose en el primer valor
-            if times_query and times_query[0][0] and times_query[0][0] > 3600:
-                # Milisegundos a minutos
-                times = [round(t[0] / 60000, 1) for t in times_query if t[0]]
-            else:
-                # Segundos a minutos
-                times = [round(t[0] / 60, 1) for t in times_query if t[0]]
+            # Duraciones siempre están en segundos - convertir a minutos
+            times = [round(t[0] / 60, 1) for t in times_query if t[0]]
 
             # Only include puntos with at least 5 data points
             if len(times) >= 5:

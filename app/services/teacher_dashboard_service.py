@@ -859,13 +859,8 @@ class TeacherDashboardService:
                 or 0
             )
 
-            # Detectar si está en milisegundos o segundos
-            if total_time > 3600:
-                tiempo_minutos = round(total_time / 60000, 0)  # milisegundos a minutos
-            else:
-                tiempo_minutos = (
-                    round(total_time / 60, 0) if total_time else 0
-                )  # segundos a minutos
+            # Duracion siempre está en segundos - convertir a minutos
+            tiempo_minutos = round(total_time / 60, 0) if total_time else 0
 
             # Calculate average grade
             avg_grade = (

@@ -60,9 +60,9 @@ async function fetchClasses() {
         if (!response.ok) {
             if (response.status === 401 || response.status === 403) {
                 handleLogout();
-                throw new Error(t('dashboard_teacher.errors.session_expired'));
+                throw new Error(t('dashboard_teacher.session_expired'));
             }
-            throw new Error(t('dashboard_teacher.errors.load_classes'));
+            throw new Error(t('dashboard_teacher.error_load_classes'));
         }
 
         allClasses = await response.json();
@@ -84,7 +84,7 @@ async function fetchStudents(claseId = null) {
         });
 
         if (!response.ok) {
-            throw new Error(t('dashboard_teacher.errors.load_students'));
+            throw new Error(t('dashboard_teacher.error_load_students'));
         }
 
         currentStudents = await response.json();
@@ -104,7 +104,7 @@ async function createClass(nombre) {
         const profesorId = localStorage.getItem('userId');
 
         if (!profesorId) {
-            throw new Error(t('dashboard_teacher.errors.no_teacher_info'));
+            throw new Error(t('dashboard_teacher.error_no_teacher_info'));
         }
 
         const response = await fetch(CLASES_API, {
@@ -143,7 +143,7 @@ async function importStudentsFromCSV(csvData, claseId) {
         const hasAllHeaders = requiredHeaders.every(h => headers.includes(h));
 
         if (!hasAllHeaders) {
-            throw new Error(t('dashboard_teacher.errors.csv_columns'));
+            throw new Error(t('dashboard_teacher.error_csv_columns'));
         }
 
         // Procesar todas las líneas
@@ -160,7 +160,7 @@ async function importStudentsFromCSV(csvData, claseId) {
 
             // Validar que los campos requeridos no estén vacíos
             if (!student.nombre || !student.apellido || !student.username) {
-                throw new Error(`Línea ${i + 1}: ${t('dashboard_teacher.errors.csv_required_fields')}`);
+                throw new Error(`Línea ${i + 1}: ${t('dashboard_teacher.error_csv_required_fields')}`);
             }
 
             usuarios.push({
@@ -172,7 +172,7 @@ async function importStudentsFromCSV(csvData, claseId) {
         }
 
         if (usuarios.length === 0) {
-            throw new Error(t('dashboard_teacher.errors.no_valid_users'));
+            throw new Error(t('dashboard_teacher.error_no_valid_users'));
         }
 
         // Enviar bulk request (transaccional: todo o nada)
@@ -188,7 +188,7 @@ async function importStudentsFromCSV(csvData, claseId) {
         if (!response.ok) {
             const error = await response.json();
             // Formatear mensaje de error de forma legible
-            let errorMessage = t('dashboard_teacher.errors.import_students');
+            let errorMessage = t('dashboard_teacher.error_import_students');
             if (error.detail) {
                 if (typeof error.detail === 'string') {
                     errorMessage = error.detail;
@@ -235,7 +235,7 @@ NOTA: La columna 'password' es OPCIONAL
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-    showNotification(t('dashboard_teacher.notifications.template_downloaded'), 'success');
+    showNotification(t('dashboard_teacher.template_downloaded'), 'success');
 }
 
 /**
@@ -262,9 +262,9 @@ async function exportStudentsCSV(claseId = null) {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        showNotification(t('dashboard_teacher.notifications.csv_downloaded'), 'success');
+        showNotification(t('dashboard_teacher.csv_downloaded'), 'success');
     } catch (error) {
-        showNotification(t('dashboard_teacher.notifications.csv_export_error'), 'error');
+        showNotification(t('dashboard_teacher.csv_export_error'), 'error');
     }
 }
 
@@ -292,9 +292,9 @@ async function exportStudentsExcel(claseId = null) {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        showNotification(t('dashboard_teacher.notifications.excel_downloaded'), 'success');
+        showNotification(t('dashboard_teacher.excel_downloaded'), 'success');
     } catch (error) {
-        showNotification(t('dashboard_teacher.notifications.excel_export_error'), 'error');
+        showNotification(t('dashboard_teacher.excel_export_error'), 'error');
     }
 }
 
@@ -324,8 +324,8 @@ async function loadClasses(skipFetch = false) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M12 6.5v6M12 16.5h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <p>${t('dashboard_teacher.empty_states.no_classes')}</p>
-                <p style="font-size: 0.875rem;">${t('dashboard_teacher.empty_states.no_classes_hint')}</p>
+                <p>${t('dashboard_teacher.no_classes')}</p>
+                <p style="font-size: 0.875rem;">${t('dashboard_teacher.no_classes_hint')}</p>
             </div>
         `;
         return;
@@ -346,7 +346,7 @@ async function loadClasses(skipFetch = false) {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z" stroke-width="2"/>
                         </svg>
-                        <span class="stat-value" id="student-count-${cls.id}">0</span> ${t('dashboard_teacher.labels.students_plural')}
+                        <span class="stat-value" id="student-count-${cls.id}">0</span> ${t('dashboard_teacher.students_plural')}
                     </div>
                 </div>
             </div>
@@ -422,8 +422,8 @@ async function loadStudents(classId) {
     const countBadge = document.getElementById('studentCountBadge');
     if (countBadge) {
         const studentLabel = students.length === 1
-            ? t('dashboard_teacher.labels.students_singular')
-            : t('dashboard_teacher.labels.students_plural');
+            ? t('dashboard_teacher.students_singular')
+            : t('dashboard_teacher.students_plural');
         countBadge.textContent = `${students.length} ${studentLabel}`;
     }
 
@@ -439,7 +439,7 @@ async function loadStudents(classId) {
         // Formatear fecha
         const lastActivity = student.ultima_actividad && student.ultima_actividad !== 'Nunca'
             ? new Date(student.ultima_actividad).toLocaleDateString('es-ES')
-            : t('dashboard_teacher.labels.no_activity');
+            : t('dashboard_teacher.no_activity');
 
         // Determinar estado
         const isActive = student.ultima_actividad && student.ultima_actividad !== 'Nunca' &&
@@ -465,7 +465,7 @@ async function loadStudents(classId) {
                 <td>${lastActivity}</td>
                 <td>
                     <span class="status-badge ${isActive ? 'status-active' : 'status-inactive'}">
-                        ${isActive ? t('dashboard_teacher.labels.status_active') : t('dashboard_teacher.labels.status_inactive')}
+                        ${isActive ? t('dashboard_teacher.status_active') : t('dashboard_teacher.status_inactive')}
                     </span>
                 </td>
             </tr>
@@ -526,7 +526,7 @@ function copyClassCode() {
     const code = document.getElementById('selectedClassCode')?.textContent;
     if (code) {
         navigator.clipboard.writeText(code).then(() => {
-            showNotification(t('dashboard_teacher.notifications.code_copied'), 'success');
+            showNotification(t('dashboard_teacher.code_copied'), 'success');
         });
     }
 }
@@ -582,7 +582,7 @@ async function handleCreateClass(e) {
     const submitBtn = e.target.querySelector('button[type="submit"]');
 
     if (!nombre) {
-        showNotification(t('dashboard_teacher.notifications.please_enter_name'), 'error');
+        showNotification(t('dashboard_teacher.please_enter_name'), 'error');
         return;
     }
 
@@ -672,14 +672,14 @@ async function handleImportStudents(e) {
 
         // Mensaje de éxito
         const successKey = results.total === 1
-            ? 'dashboard_teacher.notifications.import_success_singular'
-            : 'dashboard_teacher.notifications.import_success_plural';
+            ? 'dashboard_teacher.import_success_singular'
+            : 'dashboard_teacher.import_success_plural';
         let message = t(successKey).replace('{count}', results.total);
 
         if (results.errors && results.errors.length > 0) {
             const errorKey = results.errors.length === 1
-                ? 'dashboard_teacher.notifications.import_with_errors_singular'
-                : 'dashboard_teacher.notifications.import_with_errors_plural';
+                ? 'dashboard_teacher.import_with_errors_singular'
+                : 'dashboard_teacher.import_with_errors_plural';
             message += `\n${t(errorKey).replace('{count}', results.errors.length)}: ${results.errors.join(', ')}`;
         }
 
@@ -772,7 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
  * Confirmar eliminación de clase
  */
 function confirmDeleteClass(claseId, claseNombre) {
-    if (confirm(t('dashboard_teacher.confirmations.delete_class').replace('{name}', claseNombre))) {
+    if (confirm(t('dashboard_teacher.confirm_delete_class').replace('{name}', claseNombre))) {
         deleteClass(claseId);
     }
 }
@@ -813,7 +813,7 @@ async function deleteClass(claseId) {
  * Confirmar remover alumno de clase
  */
 function confirmRemoveStudent(studentId, studentName) {
-    if (confirm(t('dashboard_teacher.confirmations.remove_student').replace('{name}', studentName))) {
+    if (confirm(t('dashboard_teacher.confirm_remove_student').replace('{name}', studentName))) {
         removeStudentFromClass(studentId);
     }
 }

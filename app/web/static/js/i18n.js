@@ -114,7 +114,18 @@ const translations = {
             error_csv_required_fields: "Todos los campos (nombre, apellido, username) son obligatorios",
             error_no_valid_users: "No se encontraron usuarios válidos en el CSV",
             confirm_delete_class: "¿Estás seguro de que quieres eliminar la clase \"{name}\"?\n\nLos alumnos NO se eliminarán, solo quedarán sin clase asignada.",
-            confirm_remove_student: "¿Remover a \"{name}\" de esta clase?\n\nEl alumno NO se eliminará, solo quedará sin clase asignado."
+            confirm_remove_student: "¿Remover a \"{name}\" de esta clase?\n\nEl alumno NO se eliminará, solo quedará sin clase asignado.",
+            csv_export_error: "Error al exportar CSV",
+            excel_export_error: "Error al exportar Excel",
+            import_success_singular: "✓ {count} alumno importado exitosamente",
+            import_success_plural: "✓ {count} alumnos importados exitosamente",
+            import_with_errors_singular: "⚠ {count} error",
+            import_with_errors_plural: "⚠ {count} errores",
+            students_singular: "alumno",
+            students_plural: "alumnos",
+            status_active: "Activo",
+            status_inactive: "Inactivo",
+            no_activity: "Sin actividad"
         }
     },
     eu: {
@@ -224,7 +235,18 @@ const translations = {
             error_csv_required_fields: "Eremu guztiak (izena, abizena, erabiltzailea) derrigorrezkoak dira",
             error_no_valid_users: "Ez da erabiltzaile baliozkorik aurkitu CSV fitxategian",
             confirm_delete_class: "Ziur zaude \"{name}\" klasea ezabatu nahi duzula?\n\nIkasleak EZ dira ezabatuko, bakarrik klaserik gabe geratuko dira.",
-            confirm_remove_student: "\"{name}\" klase honetatik kendu?\n\nIkaslea EZ da ezabatuko, bakarrik klaserik gabe geratuko da."
+            confirm_remove_student: "\"{name}\" klase honetatik kendu?\n\nIkaslea EZ da ezabatuko, bakarrik klaserik gabe geratuko da.",
+            csv_export_error: "Errorea CSV esportatzean",
+            excel_export_error: "Errorea Excel esportatzean",
+            import_success_singular: "✓ {count} ikasle ondo inportatuta",
+            import_success_plural: "✓ {count} ikasle ondo inportatuta",
+            import_with_errors_singular: "⚠ {count} errore",
+            import_with_errors_plural: "⚠ {count} errore",
+            students_singular: "ikasle",
+            students_plural: "ikasle",
+            status_active: "Aktiboa",
+            status_inactive: "Inaktiboa",
+            no_activity: "Jarduerarik gabe"
         }
     }
 };

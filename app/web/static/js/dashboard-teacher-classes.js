@@ -60,9 +60,9 @@ async function fetchClasses() {
         if (!response.ok) {
             if (response.status === 401 || response.status === 403) {
                 handleLogout();
-                throw new Error('Sesión expirada');
+                throw new Error(t('dashboard_teacher.errors.session_expired'));
             }
-            throw new Error('Error al cargar clases');
+            throw new Error(t('dashboard_teacher.errors.load_classes'));
         }
 
         allClasses = await response.json();
@@ -84,7 +84,7 @@ async function fetchStudents(claseId = null) {
         });
 
         if (!response.ok) {
-            throw new Error('Error al cargar alumnos');
+            throw new Error(t('dashboard_teacher.errors.load_students'));
         }
 
         currentStudents = await response.json();
@@ -104,7 +104,7 @@ async function createClass(nombre) {
         const profesorId = localStorage.getItem('userId');
 
         if (!profesorId) {
-            throw new Error('No se encontró información del profesor. Por favor, inicia sesión nuevamente.');
+            throw new Error(t('dashboard_teacher.errors.no_teacher_info'));
         }
 
         const response = await fetch(CLASES_API, {
@@ -143,7 +143,7 @@ async function importStudentsFromCSV(csvData, claseId) {
         const hasAllHeaders = requiredHeaders.every(h => headers.includes(h));
 
         if (!hasAllHeaders) {
-            throw new Error(`El CSV debe tener las columnas: ${requiredHeaders.join(', ')}`);
+            throw new Error(t('dashboard_teacher.errors.csv_columns'));
         }
 
         // Procesar todas las líneas
@@ -160,7 +160,7 @@ async function importStudentsFromCSV(csvData, claseId) {
 
             // Validar que los campos requeridos no estén vacíos
             if (!student.nombre || !student.apellido || !student.username) {
-                throw new Error(`Línea ${i + 1}: Todos los campos (nombre, apellido, username) son obligatorios`);
+                throw new Error(`Línea ${i + 1}: ${t('dashboard_teacher.errors.csv_required_fields')}`);
             }
 
             usuarios.push({
@@ -172,7 +172,7 @@ async function importStudentsFromCSV(csvData, claseId) {
         }
 
         if (usuarios.length === 0) {
-            throw new Error('No se encontraron usuarios válidos en el CSV');
+            throw new Error(t('dashboard_teacher.errors.no_valid_users'));
         }
 
         // Enviar bulk request (transaccional: todo o nada)
@@ -188,7 +188,7 @@ async function importStudentsFromCSV(csvData, claseId) {
         if (!response.ok) {
             const error = await response.json();
             // Formatear mensaje de error de forma legible
-            let errorMessage = 'Error al importar alumnos';
+            let errorMessage = t('dashboard_teacher.errors.import_students');
             if (error.detail) {
                 if (typeof error.detail === 'string') {
                     errorMessage = error.detail;
@@ -235,7 +235,7 @@ NOTA: La columna 'password' es OPCIONAL
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 
-    showNotification('Plantilla descargada', 'success');
+    showNotification(t('dashboard_teacher.notifications.template_downloaded'), 'success');
 }
 
 /**
@@ -262,9 +262,9 @@ async function exportStudentsCSV(claseId = null) {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        showNotification('CSV descargado exitosamente', 'success');
+        showNotification(t('dashboard_teacher.notifications.csv_downloaded'), 'success');
     } catch (error) {
-        showNotification('Error al exportar CSV', 'error');
+        showNotification(t('dashboard_teacher.notifications.csv_export_error'), 'error');
     }
 }
 
@@ -292,9 +292,9 @@ async function exportStudentsExcel(claseId = null) {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-        showNotification('Excel descargado exitosamente', 'success');
+        showNotification(t('dashboard_teacher.notifications.excel_downloaded'), 'success');
     } catch (error) {
-        showNotification('Error al exportar Excel', 'error');
+        showNotification(t('dashboard_teacher.notifications.excel_export_error'), 'error');
     }
 }
 
@@ -324,8 +324,8 @@ async function loadClasses(skipFetch = false) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M12 6.5v6M12 16.5h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <p>No tienes clases asignadas</p>
-                <p style="font-size: 0.875rem;">Crea tu primera clase usando el botón "Crear Clase"</p>
+                <p>${t('dashboard_teacher.empty_states.no_classes')}</p>
+                <p style="font-size: 0.875rem;">${t('dashboard_teacher.empty_states.no_classes_hint')}</p>
             </div>
         `;
         return;
@@ -346,7 +346,7 @@ async function loadClasses(skipFetch = false) {
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8z" stroke-width="2"/>
                         </svg>
-                        <span class="stat-value" id="student-count-${cls.id}">0</span> alumnos
+                        <span class="stat-value" id="student-count-${cls.id}">0</span> ${t('dashboard_teacher.labels.students_plural')}
                     </div>
                 </div>
             </div>
@@ -421,7 +421,10 @@ async function loadStudents(classId) {
     // Actualizar contador
     const countBadge = document.getElementById('studentCountBadge');
     if (countBadge) {
-        countBadge.textContent = `${students.length} alumno${students.length !== 1 ? 's' : ''}`;
+        const studentLabel = students.length === 1
+            ? t('dashboard_teacher.labels.students_singular')
+            : t('dashboard_teacher.labels.students_plural');
+        countBadge.textContent = `${students.length} ${studentLabel}`;
     }
 
     if (students.length === 0) {
@@ -436,7 +439,7 @@ async function loadStudents(classId) {
         // Formatear fecha
         const lastActivity = student.ultima_actividad && student.ultima_actividad !== 'Nunca'
             ? new Date(student.ultima_actividad).toLocaleDateString('es-ES')
-            : 'Sin actividad';
+            : t('dashboard_teacher.labels.no_activity');
 
         // Determinar estado
         const isActive = student.ultima_actividad && student.ultima_actividad !== 'Nunca' &&
@@ -462,7 +465,7 @@ async function loadStudents(classId) {
                 <td>${lastActivity}</td>
                 <td>
                     <span class="status-badge ${isActive ? 'status-active' : 'status-inactive'}">
-                        ${isActive ? 'Activo' : 'Inactivo'}
+                        ${isActive ? t('dashboard_teacher.labels.status_active') : t('dashboard_teacher.labels.status_inactive')}
                     </span>
                 </td>
             </tr>
@@ -523,7 +526,7 @@ function copyClassCode() {
     const code = document.getElementById('selectedClassCode')?.textContent;
     if (code) {
         navigator.clipboard.writeText(code).then(() => {
-            showNotification('Código copiado al portapapeles', 'success');
+            showNotification(t('dashboard_teacher.notifications.code_copied'), 'success');
         });
     }
 }
@@ -579,7 +582,7 @@ async function handleCreateClass(e) {
     const submitBtn = e.target.querySelector('button[type="submit"]');
 
     if (!nombre) {
-        showNotification('Por favor ingresa un nombre para la clase', 'error');
+        showNotification(t('dashboard_teacher.notifications.please_enter_name'), 'error');
         return;
     }
 
@@ -668,9 +671,16 @@ async function handleImportStudents(e) {
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // Mensaje de éxito
-        let message = `✓ ${results.total} alumno${results.total !== 1 ? 's' : ''} importado${results.total !== 1 ? 's' : ''} exitosamente`;
+        const successKey = results.total === 1
+            ? 'dashboard_teacher.notifications.import_success_singular'
+            : 'dashboard_teacher.notifications.import_success_plural';
+        let message = t(successKey).replace('{count}', results.total);
+
         if (results.errors && results.errors.length > 0) {
-            message += `\n⚠ ${results.errors.length} error${results.errors.length !== 1 ? 'es' : ''}: ${results.errors.join(', ')}`;
+            const errorKey = results.errors.length === 1
+                ? 'dashboard_teacher.notifications.import_with_errors_singular'
+                : 'dashboard_teacher.notifications.import_with_errors_plural';
+            message += `\n${t(errorKey).replace('{count}', results.errors.length)}: ${results.errors.join(', ')}`;
         }
 
         showNotification(message, results.errors && results.errors.length > 0 ? 'error' : 'success');
@@ -762,7 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
  * Confirmar eliminación de clase
  */
 function confirmDeleteClass(claseId, claseNombre) {
-    if (confirm(`¿Estás seguro de que quieres eliminar la clase "${claseNombre}"?\n\nLos alumnos NO se eliminarán, solo quedarán sin clase asignada.`)) {
+    if (confirm(t('dashboard_teacher.confirmations.delete_class').replace('{name}', claseNombre))) {
         deleteClass(claseId);
     }
 }
@@ -803,7 +813,7 @@ async function deleteClass(claseId) {
  * Confirmar remover alumno de clase
  */
 function confirmRemoveStudent(studentId, studentName) {
-    if (confirm(`¿Remover a "${studentName}" de esta clase?\n\nEl alumno NO se eliminará, solo quedará sin clase asignada.`)) {
+    if (confirm(t('dashboard_teacher.confirmations.remove_student').replace('{name}', studentName))) {
         removeStudentFromClass(studentId);
     }
 }

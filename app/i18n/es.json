@@ -342,7 +342,13 @@
       "please_select_csv": "Por favor selecciona un archivo CSV",
       "please_enter_name": "Por favor ingresa un nombre para la clase",
       "import_success": "importado(s) exitosamente",
-      "import_errors": "error(es)"
+      "import_errors": "error(es)",
+      "csv_export_error": "Error al exportar CSV",
+      "excel_export_error": "Error al exportar Excel",
+      "import_success_singular": "✓ {count} alumno importado exitosamente",
+      "import_success_plural": "✓ {count} alumnos importados exitosamente",
+      "import_with_errors_singular": "⚠ {count} error",
+      "import_with_errors_plural": "⚠ {count} errores"
     },
     "errors": {
       "session_expired": "Sesión expirada",
@@ -377,7 +383,10 @@
     "labels": {
       "students_singular": "alumno",
       "students_plural": "alumnos",
-      "code": "Código:"
+      "code": "Código:",
+      "status_active": "Activo",
+      "status_inactive": "Inactivo",
+      "no_activity": "Sin actividad"
     },
     "sidebar": {
       "my_classes": "Mis Clases"

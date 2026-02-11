@@ -342,7 +342,13 @@
       "please_select_csv": "Mesedez, hautatu CSV fitxategi bat",
       "please_enter_name": "Mesedez, sartu klasearentzako izen bat",
       "import_success": "ondo inportatuta",
-      "import_errors": "errore"
+      "import_errors": "errore",
+      "csv_export_error": "Errorea CSV esportatzean",
+      "excel_export_error": "Errorea Excel esportatzean",
+      "import_success_singular": "✓ {count} ikasle ondo inportatuta",
+      "import_success_plural": "✓ {count} ikasle ondo inportatuta",
+      "import_with_errors_singular": "⚠ {count} errore",
+      "import_with_errors_plural": "⚠ {count} errore"
     },
     "errors": {
       "session_expired": "Saioa iraungi da",
@@ -377,7 +383,10 @@
     "labels": {
       "students_singular": "ikasle",
       "students_plural": "ikasle",
-      "code": "Kodea:"
+      "code": "Kodea:",
+      "status_active": "Aktiboa",
+      "status_inactive": "Inaktiboa",
+      "no_activity": "Jarduerarik gabe"
     },
     "sidebar": {
       "my_classes": "Nire Klaseak"

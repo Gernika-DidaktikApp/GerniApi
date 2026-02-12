@@ -194,16 +194,27 @@ def completar_actividad(
     if total_completadas_partida >= 19:
         partida = db.query(Partida).filter(Partida.id == estado.id_juego).first()
         if partida and partida.estado != "completada":
-            partida.estado = "completada"
-            partida.fecha_fin = datetime.now()
-            partida.duracion = int((partida.fecha_fin - partida.fecha_inicio).total_seconds())
-            db.commit()
-            log_with_context(
-                "info",
-                "Partida completada automáticamente",
-                partida_id=partida.id,
-                total_actividades=total_completadas_partida,
-            )
+            try:
+                partida.estado = "completada"
+                partida.fecha_fin = datetime.now()
+                partida.duracion = int((partida.fecha_fin - partida.fecha_inicio).total_seconds())
+                db.commit()
+                log_with_context(
+                    "info",
+                    "Partida completada automáticamente",
+                    partida_id=partida.id,
+                    total_actividades=total_completadas_partida,
+                )
+            except Exception as e:
+                db.rollback()
+                log_with_context(
+                    "error",
+                    "Error al auto-completar partida",
+                    partida_id=estado.id_juego,
+                    error=str(e),
+                    actividad_completada=estado.id,
+                )
+                # No lanzar excepción: la actividad YA está completada exitosamente
 
     # Verificar si se completaron TODOS los actividades del punto
     actividades_totales = (

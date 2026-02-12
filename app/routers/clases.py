@@ -20,10 +20,26 @@ from app.models.clase import Clase
 from app.models.profesor import Profesor
 from app.repositories.clase_repository import ClaseRepository
 from app.schemas.clase import ClaseCreate, ClaseResponse, ClaseUpdate
-from app.utils.dependencies import AuthResult, require_auth
+from app.utils.dependencies import AuthResult, get_current_profesor, require_auth
 from app.utils.security import generar_codigo_clase
 
 router = APIRouter(prefix="/clases", tags=["🏫 Clases"])
+
+
+def validate_clase_ownership(auth: AuthResult, clase: Clase, profesor: Profesor | None) -> None:
+    """
+    Valida que el profesor autenticado es dueño de la clase.
+    API Key tiene acceso total, Token solo a sus propias clases.
+    """
+    if auth.is_api_key:
+        return  # API Key tiene acceso total
+
+    # Para tokens de profesor, verificar ownership
+    if not profesor or clase.id_profesor != profesor.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permiso para acceder a esta clase",
+        )
 
 
 @router.post("", response_model=ClaseResponse, status_code=status.HTTP_201_CREATED)
@@ -31,6 +47,7 @@ def crear_clase(
     clase_data: ClaseCreate,
     db: Session = Depends(get_db),
     auth: AuthResult = Depends(require_auth),
+    current_profesor: Profesor | None = Depends(get_current_profesor),
 ):
     """Crear una nueva clase.
 
@@ -38,13 +55,27 @@ def crear_clase(
         clase_data: Datos de la clase a crear.
         db: Sesión de base de datos.
         auth: Resultado de autenticación.
+        current_profesor: Profesor autenticado (si aplica).
 
     Returns:
         Datos de la clase creada.
 
     Raises:
         HTTPException: Si el profesor especificado no existe.
+        HTTPException: Si intenta crear clase para otro profesor (sin API Key).
     """
+    # Con token de profesor: solo puede crear clases para sí mismo
+    if not auth.is_api_key and current_profesor and clase_data.id_profesor != current_profesor.id:
+        log_warning(
+            "Intento de crear clase para otro profesor",
+            profesor_autenticado=current_profesor.id,
+            profesor_solicitado=clase_data.id_profesor,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo puedes crear clases para ti mismo",
+        )
+
     # Validar que el profesor existe
     profesor = db.query(Profesor).filter(Profesor.id == clase_data.id_profesor).first()
     if not profesor:
@@ -108,6 +139,7 @@ def listar_clases(
     limit: int = 100,
     db: Session = Depends(get_db),
     auth: AuthResult = Depends(require_auth),
+    current_profesor: Profesor | None = Depends(get_current_profesor),
 ):
     """Obtener lista paginada de clases.
 
@@ -116,11 +148,18 @@ def listar_clases(
         limit: Número máximo de registros a retornar.
         db: Sesión de base de datos.
         auth: Resultado de autenticación.
+        current_profesor: Profesor autenticado (si aplica).
 
     Returns:
-        Lista de clases.
+        Lista de clases (filtrada por profesor si no es API Key).
     """
-    clases = db.query(Clase).offset(skip).limit(limit).all()
+    query = db.query(Clase)
+
+    # Con token de profesor: solo retornar sus propias clases
+    if not auth.is_api_key and current_profesor:
+        query = query.filter(Clase.id_profesor == current_profesor.id)
+
+    clases = query.offset(skip).limit(limit).all()
     return clases
 
 
@@ -129,6 +168,7 @@ def obtener_clase(
     clase_id: str,
     db: Session = Depends(get_db),
     auth: AuthResult = Depends(require_auth),
+    current_profesor: Profesor | None = Depends(get_current_profesor),
 ):
     """Obtener una clase por ID.
 
@@ -136,16 +176,23 @@ def obtener_clase(
         clase_id: ID único de la clase.
         db: Sesión de base de datos.
         auth: Resultado de autenticación.
+        current_profesor: Profesor autenticado (si aplica).
 
     Returns:
         Datos de la clase.
 
     Raises:
         HTTPException: Si la clase no existe.
+        HTTPException: Si intenta acceder a clase de otro profesor (sin API Key).
     """
-    clase = db.query(Clase).filter(Clase.id == clase_id).first()
+    clase_repo = ClaseRepository(db)
+    clase = clase_repo.get_by_id(clase_id)
     if not clase:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Clase no encontrada")
+
+    # Validar ownership
+    validate_clase_ownership(auth, clase, current_profesor)
+
     return clase
 
 
@@ -155,14 +202,42 @@ def actualizar_clase(
     clase_data: ClaseUpdate,
     db: Session = Depends(get_db),
     auth: AuthResult = Depends(require_auth),
+    current_profesor: Profesor | None = Depends(get_current_profesor),
 ):
-    """Actualizar una clase existente."""
-    clase = db.query(Clase).filter(Clase.id == clase_id).first()
+    """Actualizar una clase existente.
+
+    Args:
+        clase_id: ID de la clase a actualizar.
+        clase_data: Datos a actualizar.
+        db: Sesión de base de datos.
+        auth: Resultado de autenticación.
+        current_profesor: Profesor autenticado (si aplica).
+
+    Raises:
+        HTTPException: Si la clase no existe.
+        HTTPException: Si intenta actualizar clase de otro profesor (sin API Key).
+    """
+    clase_repo = ClaseRepository(db)
+    clase = clase_repo.get_by_id(clase_id)
     if not clase:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Clase no encontrada")
 
+    # Validar ownership
+    validate_clase_ownership(auth, clase, current_profesor)
+
     # Validar profesor si se proporciona
     if clase_data.id_profesor:
+        # Con token de profesor: no puede reasignar la clase a otro profesor
+        if (
+            not auth.is_api_key
+            and current_profesor
+            and clase_data.id_profesor != current_profesor.id
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No puedes reasignar la clase a otro profesor",
+            )
+
         profesor = db.query(Profesor).filter(Profesor.id == clase_data.id_profesor).first()
         if not profesor:
             raise HTTPException(
@@ -209,6 +284,7 @@ def eliminar_clase(
     clase_id: str,
     db: Session = Depends(get_db),
     auth: AuthResult = Depends(require_auth),
+    current_profesor: Profesor | None = Depends(get_current_profesor),
 ):
     """Eliminar una clase del sistema.
 
@@ -218,15 +294,21 @@ def eliminar_clase(
         clase_id: ID único de la clase a eliminar.
         db: Sesión de base de datos.
         auth: Resultado de autenticación.
+        current_profesor: Profesor autenticado (si aplica).
 
     Raises:
         HTTPException: Si la clase no existe.
+        HTTPException: Si intenta eliminar clase de otro profesor (sin API Key).
     """
     from app.models.usuario import Usuario
 
-    clase = db.query(Clase).filter(Clase.id == clase_id).first()
+    clase_repo = ClaseRepository(db)
+    clase = clase_repo.get_by_id(clase_id)
     if not clase:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Clase no encontrada")
+
+    # Validar ownership
+    validate_clase_ownership(auth, clase, current_profesor)
 
     clase_nombre = clase.nombre
     profesor_id = clase.id_profesor

@@ -20,20 +20,7 @@ function handleLogout() {
     window.location.href = '/login';
 }
 
-// ============================================
-// Color Palette (matching the organic/natural design)
-// ============================================
-const COLORS = {
-    olive: '#6B8E3A',
-    oliveDark: '#4A5D23',
-    lime: '#B8C74A',
-    limeLight: '#D4E15A',
-    brown: '#8B6F47',
-    yellow: '#E8C74A',
-    beige: '#F5F3E8',
-    text: '#2D3B1C',
-    textSecondary: '#6B7A5C'
-};
+// Color palette loaded from plotly-utils.js (window.CHART_COLORS)
 
 // ============================================
 // API Configuration
@@ -48,19 +35,12 @@ let currentFilters = {
 // ============================================
 // API Helper Functions
 // ============================================
-
-function getAuthHeaders() {
-    const token = localStorage.getItem('authToken');
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    };
-}
+// getAuthHeaders() loaded from api-utils.js
 
 async function fetchClasses() {
     try {
         const response = await fetch(`${API_BASE}/classes`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
         if (!response.ok) {
             if (response.status === 401) {
@@ -72,7 +52,7 @@ async function fetchClasses() {
         }
         return await response.json();
     } catch (error) {
-        console.error('Error fetching classes:', error);
+        logger.log('error', 'Error fetching classes', error);
         return [];
     }
 }
@@ -85,12 +65,12 @@ async function fetchSummary() {
         }
 
         const response = await fetch(`${API_BASE}/summary?${params}`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
         if (!response.ok) throw new Error('Failed to fetch summary');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching summary:', error);
+        logger.log('error', 'Error fetching summary', error);
         return null;
     }
 }
@@ -103,12 +83,12 @@ async function fetchStudentProgress() {
         }
 
         const response = await fetch(`${API_BASE}/student-progress?${params}`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
         if (!response.ok) throw new Error('Failed to fetch student progress');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching student progress:', error);
+        logger.log('error', 'Error fetching student progress', error);
         return null;
     }
 }
@@ -121,12 +101,12 @@ async function fetchStudentTime() {
         }
 
         const response = await fetch(`${API_BASE}/student-time?${params}`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
         if (!response.ok) throw new Error('Failed to fetch student time');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching student time:', error);
+        logger.log('error', 'Error fetching student time', error);
         return null;
     }
 }
@@ -139,12 +119,12 @@ async function fetchActivitiesByClass() {
         }
 
         const response = await fetch(`${API_BASE}/activities-by-class?${params}`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
         if (!response.ok) throw new Error('Failed to fetch activities');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching activities:', error);
+        logger.log('error', 'Error fetching activities', error);
         return null;
     }
 }
@@ -157,12 +137,12 @@ async function fetchClassEvolution() {
         }
 
         const response = await fetch(`${API_BASE}/class-evolution?${params}`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
         if (!response.ok) throw new Error('Failed to fetch class evolution');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching class evolution:', error);
+        logger.log('error', 'Error fetching class evolution', error);
         return null;
     }
 }
@@ -170,122 +150,30 @@ async function fetchClassEvolution() {
 // ============================================
 // Loading State Management
 // ============================================
-
-function showLoading(chartId) {
-    const container = document.getElementById(chartId);
-    if (container) {
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
-                <div style="text-align: center;">
-                    <div style="border: 4px solid #f3f3f3; border-top: 4px solid #6B8E3A; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-                    <p style="color: #6B7A5C; margin-top: 1rem; font-size: 0.875rem;">Cargando datos...</p>
-                </div>
-            </div>
-        `;
-    }
-}
-
-function showError(chartId, message = null) {
-    if (!message) message = t('dashboard.error_load_data');
-    const container = document.getElementById(chartId);
-    if (container) {
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
-                <div style="text-align: center; color: #dc2626;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto;">
-                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                        <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"/>
-                    </svg>
-                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
-                </div>
-            </div>
-        `;
-    }
-}
-
-function showEmpty(chartId, message = null) {
-    if (!message) message = t('dashboard.no_data');
-    const container = document.getElementById(chartId);
-    if (container) {
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
-                <div style="text-align: center; color: #6B7A5C;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto; opacity: 0.5;">
-                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                        <line x1="8" y1="12" x2="16" y2="12" stroke-width="2"/>
-                    </svg>
-                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
-                </div>
-            </div>
-        `;
-    }
-}
-
-// Add spinner animation
-if (!document.getElementById('spinner-style')) {
-    const style = document.createElement('style');
-    style.id = 'spinner-style';
-    style.textContent = `
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(style);
-}
+// showLoading(), showError(), showEmpty() loaded from ui-utils.js
 
 // ============================================
 // Plotly Chart Configuration
 // ============================================
-
-const commonLayout = {
-    margin: { t: 20, r: 30, b: 50, l: 120 },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {
-        family: 'Inter, sans-serif',
-        color: COLORS.text
-    },
-    xaxis: {
-        gridcolor: 'rgba(107, 142, 58, 0.08)',
-        linecolor: 'rgba(107, 142, 58, 0.15)',
-        tickfont: { size: 11 }
-    },
-    yaxis: {
-        gridcolor: 'rgba(107, 142, 58, 0.08)',
-        linecolor: 'rgba(107, 142, 58, 0.15)',
-        tickfont: { size: 11 }
-    },
-    hoverlabel: {
-        bgcolor: '#FFFFFF',
-        bordercolor: COLORS.olive,
-        font: { family: 'Inter, sans-serif', color: COLORS.text }
-    }
-};
-
-const commonConfig = {
-    responsive: true,
-    displayModeBar: false
-};
+// commonLayout, commonConfig, COLORS loaded from plotly-utils.js
 
 // ============================================
 // Chart 1: Progreso por alumno - Barras horizontales
 // ============================================
 async function initChartProgresoAlumno() {
     const chartId = 'chartProgresoAlumno';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchStudentProgress();
     if (!apiData) {
-        showError(chartId, t('dashboard.error_load_student_progress'));
+        window.showError(chartId, t('dashboard.error_load_student_progress'));
         return;
     }
 
     const { students, progress } = apiData;
 
     if (!students || students.length === 0) {
-        showEmpty(chartId, t('dashboard.no_students'));
+        window.showEmpty(chartId, t('dashboard.no_students'));
         return;
     }
 
@@ -303,40 +191,33 @@ async function initChartProgresoAlumno() {
         orientation: 'h',
         marker: {
             color: sortedProgress.map(p => {
-                if (p >= 75) return COLORS.olive;
-                if (p >= 50) return COLORS.lime;
-                if (p >= 30) return COLORS.yellow;
-                return COLORS.brown;
+                if (p >= 75) return window.CHART_COLORS.olive;
+                if (p >= 50) return window.CHART_COLORS.lime;
+                if (p >= 30) return window.CHART_COLORS.yellow;
+                return window.CHART_COLORS.brown;
             }),
             line: { width: 0 }
         },
         text: sortedProgress.map(p => `${p}%`),
         textposition: 'outside',
-        textfont: { size: 10, color: COLORS.text },
+        textfont: { size: 10, color: window.CHART_COLORS.text },
         hovertemplate: '<b>%{y}</b><br>Progreso: %{x}%<extra></extra>'
     }];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         margin: { t: 10, r: 50, b: 40, l: 140 },
         showlegend: false,
         xaxis: {
-            ...commonLayout.xaxis,
             title: { text: 'Progreso (%)', font: { size: 12 } },
             range: [0, 105]
         },
         yaxis: {
-            ...commonLayout.yaxis,
             automargin: true,
             tickfont: { size: 10 }
         }
-    };
+    });
 
-    // Clear loading spinner before rendering
-    const container = document.getElementById(chartId);
-    if (container) container.innerHTML = '';
-
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    window.createPlotlyChart(chartId, data, layout);
 }
 
 // ============================================
@@ -344,18 +225,18 @@ async function initChartProgresoAlumno() {
 // ============================================
 async function initChartTiempoAlumno() {
     const chartId = 'chartTiempoAlumno';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchStudentTime();
     if (!apiData) {
-        showError(chartId, t('dashboard.error_load_student_time'));
+        window.showError(chartId, t('dashboard.error_load_student_time'));
         return;
     }
 
     const { students, time } = apiData;
 
     if (!students || students.length === 0) {
-        showEmpty(chartId, t('dashboard.no_time_data'));
+        window.showEmpty(chartId, t('dashboard.no_time_data'));
         return;
     }
 
@@ -381,25 +262,18 @@ async function initChartTiempoAlumno() {
         hovertemplate: '<b>%{x}</b><br>Tiempo: %{y} min<extra></extra>'
     }];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         margin: { t: 20, r: 20, b: 60, l: 50 },
         showlegend: false,
         yaxis: {
-            ...commonLayout.yaxis,
             title: { text: 'Minutos', font: { size: 12 } }
         },
         xaxis: {
-            ...commonLayout.xaxis,
             tickangle: -45
         }
-    };
+    });
 
-    // Clear loading spinner before rendering
-    const container = document.getElementById(chartId);
-    if (container) container.innerHTML = '';
-
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    window.createPlotlyChart(chartId, data, layout);
 }
 
 // ============================================
@@ -407,18 +281,18 @@ async function initChartTiempoAlumno() {
 // ============================================
 async function initChartActividadesClase() {
     const chartId = 'chartActividadesClase';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchActivitiesByClass();
     if (!apiData) {
-        showError(chartId, t('dashboard.error_load_activities'));
+        window.showError(chartId, t('dashboard.error_load_activities'));
         return;
     }
 
     const { activities, completed, in_progress, not_started } = apiData;
 
     if (!activities || activities.length === 0) {
-        showEmpty(chartId, t('dashboard.no_activities'));
+        window.showEmpty(chartId, t('dashboard.no_activities'));
         return;
     }
 
@@ -431,7 +305,7 @@ async function initChartActividadesClase() {
             y: completed,
             type: 'bar',
             name: 'Completadas',
-            marker: { color: COLORS.olive },
+            marker: { color: window.CHART_COLORS.olive },
             hovertemplate: '<b>%{x}</b><br>Completadas: %{y} alumnos<extra></extra>'
         },
         {
@@ -439,7 +313,7 @@ async function initChartActividadesClase() {
             y: in_progress,
             type: 'bar',
             name: 'En Progreso',
-            marker: { color: COLORS.lime },
+            marker: { color: window.CHART_COLORS.lime },
             hovertemplate: '<b>%{x}</b><br>En Progreso: %{y} alumnos<extra></extra>'
         },
         {
@@ -447,32 +321,25 @@ async function initChartActividadesClase() {
             y: not_started,
             type: 'bar',
             name: 'Sin Empezar',
-            marker: { color: COLORS.yellow },
+            marker: { color: window.CHART_COLORS.yellow },
             hovertemplate: '<b>%{x}</b><br>Sin Empezar: %{y} alumnos<extra></extra>'
         }
     ];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         margin: { t: 20, r: 20, b: 80, l: 50 },
         barmode: 'stack',
         showlegend: false,
         yaxis: {
-            ...commonLayout.yaxis,
             title: { text: 'Alumnos', font: { size: 12 } }
         },
         xaxis: {
-            ...commonLayout.xaxis,
             tickangle: -30,
             tickfont: { size: 9 }
         }
-    };
+    });
 
-    // Clear loading spinner before rendering
-    const container = document.getElementById(chartId);
-    if (container) container.innerHTML = '';
-
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    window.createPlotlyChart(chartId, data, layout);
 }
 
 // ============================================
@@ -480,18 +347,18 @@ async function initChartActividadesClase() {
 // ============================================
 async function initChartEvolucionClase() {
     const chartId = 'chartEvolucionClase';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchClassEvolution();
     if (!apiData) {
-        showError(chartId, t('dashboard.error_load_evolution'));
+        window.showError(chartId, t('dashboard.error_load_evolution'));
         return;
     }
 
     const { dates, progress, grades } = apiData;
 
     if (!dates || dates.length === 0) {
-        showEmpty(chartId, t('dashboard.no_evolution_data'));
+        window.showEmpty(chartId, t('dashboard.no_evolution_data'));
         return;
     }
 
@@ -506,8 +373,8 @@ async function initChartEvolucionClase() {
             type: 'scatter',
             mode: 'lines+markers',
             name: 'Progreso (%)',
-            line: { color: COLORS.olive, width: 3 },
-            marker: { size: 6, color: COLORS.olive },
+            line: { color: window.CHART_COLORS.olive, width: 3 },
+            marker: { size: 6, color: window.CHART_COLORS.olive },
             hovertemplate: '<b>Progreso</b><br>%{x}<br>%{y:.1f}%<extra></extra>'
         },
         {
@@ -517,18 +384,16 @@ async function initChartEvolucionClase() {
             mode: 'lines+markers',
             name: 'Nota Media',
             yaxis: 'y2',
-            line: { color: COLORS.brown, width: 3, dash: 'dot' },
-            marker: { size: 6, color: COLORS.brown, symbol: 'square' },
+            line: { color: window.CHART_COLORS.brown, width: 3, dash: 'dot' },
+            marker: { size: 6, color: window.CHART_COLORS.brown, symbol: 'square' },
             hovertemplate: '<b>Nota Media</b><br>%{x}<br>%{y:.1f}<extra></extra>'
         }
     ];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         margin: { t: 20, r: 60, b: 60, l: 60 },
         showlegend: false,
         yaxis: {
-            ...commonLayout.yaxis,
             title: { text: 'Progreso (%)', font: { size: 12 }, standoff: 10 },
             range: [0, 105]
         },
@@ -540,64 +405,34 @@ async function initChartEvolucionClase() {
             showgrid: false
         },
         xaxis: {
-            ...commonLayout.xaxis,
             tickangle: -45,
             tickformat: '%d %b'
         }
-    };
+    });
 
-    // Clear loading spinner before rendering
-    const container = document.getElementById(chartId);
-    if (container) container.innerHTML = '';
-
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    window.createPlotlyChart(chartId, data, layout);
 }
 
 // ============================================
 // Update Summary Cards
 // ============================================
-function animateValue(element, start, end, duration, suffix = '', isFloat = false) {
-    const startTime = performance.now();
-
-    function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-
-        let current;
-        if (isFloat) {
-            current = (start + (end - start) * eased).toFixed(1);
-        } else {
-            current = Math.floor(start + (end - start) * eased);
-        }
-
-        if (element) {
-            element.textContent = current + suffix;
-        }
-
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        }
-    }
-
-    requestAnimationFrame(update);
-}
+// animateValue() loaded from core-utils.js
 
 async function updateSummaryCards() {
     const summary = await fetchSummary();
     if (!summary) return;
 
     const alumnosEl = document.getElementById('alumnosValue');
-    if (alumnosEl) animateValue(alumnosEl, 0, summary.total_alumnos, 1200);
+    if (alumnosEl) window.animateValue(alumnosEl, 0, summary.total_alumnos, 1200);
 
     const progresoEl = document.getElementById('progresoValue');
-    if (progresoEl) animateValue(progresoEl, 0, summary.progreso_medio, 1300, '%', true);
+    if (progresoEl) window.animateValue(progresoEl, 0, summary.progreso_medio, 1300, '%', true);
 
     const tiempoEl = document.getElementById('tiempoValue');
-    if (tiempoEl) animateValue(tiempoEl, 0, summary.tiempo_promedio, 1400, ' min');
+    if (tiempoEl) window.animateValue(tiempoEl, 0, summary.tiempo_promedio, 1400, ' min');
 
     const notaEl = document.getElementById('notaValue');
-    if (notaEl) animateValue(notaEl, 0, summary.nota_media, 1500, '', true);
+    if (notaEl) window.animateValue(notaEl, 0, summary.nota_media, 1500, '', true);
 
     // Update class name in the summary
     const trendEl = document.querySelector('#alumnosValue').parentElement.querySelector('.summary-trend');
@@ -683,7 +518,7 @@ async function initFilters() {
                     applyBtn.disabled = false;
                 }, 1500);
             } catch (error) {
-                console.error('Error applying filters:', error);
+                logger.log('error', 'Error applying filters', error);
                 applyBtn.innerHTML = originalText;
                 applyBtn.disabled = false;
             }
@@ -694,6 +529,8 @@ async function initFilters() {
 // ============================================
 // Window Resize Handler
 // ============================================
+// debounce() loaded from core-utils.js
+
 function handleResize() {
     const charts = ['chartProgresoAlumno', 'chartTiempoAlumno', 'chartActividadesClase', 'chartEvolucionClase'];
     charts.forEach(chartId => {
@@ -702,18 +539,6 @@ function handleResize() {
             Plotly.Plots.resize(chartEl);
         }
     });
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
 }
 
 // ============================================
@@ -730,12 +555,12 @@ async function fetchStudentsList() {
         }
 
         const response = await fetch(`${API_BASE}/students-list?${params}`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
         if (!response.ok) throw new Error('Failed to fetch students list');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching students list:', error);
+        logger.log('error', 'Error fetching students list', error);
         return [];
     }
 }
@@ -789,95 +614,37 @@ function renderStudentsTable(students) {
 }
 
 async function exportToCSV() {
-    try {
-        const params = new URLSearchParams();
-        if (currentFilters.claseId) {
-            params.append('clase_id', currentFilters.claseId);
-        }
-
-        const token = localStorage.getItem('authToken');
-        const response = await fetch(`${API_BASE}/export-students-csv?${params}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to export CSV');
-        }
-
-        // Get the blob from response
-        const blob = await response.blob();
-
-        // Create download link
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `alumnos_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    } catch (error) {
-        console.error('Error exporting CSV:', error);
-        alert(t('dashboard.error_export_csv'));
+    const params = new URLSearchParams();
+    if (currentFilters.claseId) {
+        params.append('clase_id', currentFilters.claseId);
     }
+
+    const filename = `alumnos_${new Date().toISOString().split('T')[0]}.csv`;
+    await window.downloadFile(
+        `${API_BASE}/export-students-csv?${params}`,
+        filename,
+        t('dashboard.error_export_csv')
+    );
 }
 
 async function exportToExcel() {
-    try {
-        const params = new URLSearchParams();
-        if (currentFilters.claseId) {
-            params.append('clase_id', currentFilters.claseId);
-        }
-
-        const token = localStorage.getItem('authToken');
-        const response = await fetch(`${API_BASE}/export-students-excel?${params}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to export Excel');
-        }
-
-        // Get the blob from response
-        const blob = await response.blob();
-
-        // Create download link
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `alumnos_${new Date().toISOString().split('T')[0]}.xlsx`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-    } catch (error) {
-        console.error('Error exporting Excel:', error);
-        alert(t('dashboard.error_export_excel'));
+    const params = new URLSearchParams();
+    if (currentFilters.claseId) {
+        params.append('clase_id', currentFilters.claseId);
     }
+
+    const filename = `alumnos_${new Date().toISOString().split('T')[0]}.xlsx`;
+    await window.downloadFile(
+        `${API_BASE}/export-students-excel?${params}`,
+        filename,
+        t('dashboard.error_export_excel')
+    );
 }
 
 // ============================================
 // Navbar Mobile Menu Toggle
 // ============================================
-const navbarToggle = document.getElementById('navbarToggle');
-const navbarMenu = document.getElementById('navbarMenu');
-
-if (navbarToggle && navbarMenu) {
-    navbarToggle.addEventListener('click', () => {
-        navbarMenu.classList.toggle('active');
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', (event) => {
-        if (!event.target.closest('.navbar')) {
-            navbarMenu.classList.remove('active');
-        }
-    });
-}
+// Navbar toggle initialized automatically in ui-utils.js
 
 // ============================================
 // Initialize
@@ -937,7 +704,7 @@ async function init() {
         console.error('Plotly is not loaded');
     }
 
-    window.addEventListener('resize', debounce(handleResize, 250));
+    window.addEventListener('resize', window.debounce(handleResize, 250));
 }
 
 if (document.readyState === 'loading') {

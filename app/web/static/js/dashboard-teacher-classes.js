@@ -18,13 +18,7 @@ let currentStudents = [];
 // ============================================
 // Authentication Helper
 // ============================================
-function getAuthHeaders() {
-    const token = localStorage.getItem('authToken');
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    };
-}
+// window.getAuthHeaders() loaded from api-utils.js
 
 // ============================================
 // API Calls
@@ -37,7 +31,7 @@ async function clearDashboardCache() {
     try {
         const response = await fetch(`${API_BASE}/cache/clear`, {
             method: 'POST',
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
 
         if (!response.ok) {
@@ -54,7 +48,7 @@ async function clearDashboardCache() {
 async function fetchClasses() {
     try {
         const response = await fetch(`${API_BASE}/classes`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
 
         if (!response.ok) {
@@ -80,7 +74,7 @@ async function fetchStudents(claseId = null) {
     try {
         const params = claseId ? `?clase_id=${claseId}` : '';
         const response = await fetch(`${API_BASE}/students-list${params}`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
 
         if (!response.ok) {
@@ -109,7 +103,7 @@ async function createClass(nombre) {
 
         const response = await fetch(CLASES_API, {
             method: 'POST',
-            headers: getAuthHeaders(),
+            headers: window.getAuthHeaders(),
             body: JSON.stringify({
                 nombre: nombre,
                 id_profesor: profesorId
@@ -178,7 +172,7 @@ async function importStudentsFromCSV(csvData, claseId) {
         // Enviar bulk request (transaccional: todo o nada)
         const response = await fetch(`${USUARIOS_API}/bulk`, {
             method: 'POST',
-            headers: getAuthHeaders(),
+            headers: window.getAuthHeaders(),
             body: JSON.stringify({
                 usuarios: usuarios,
                 id_clase: claseId || null
@@ -245,7 +239,7 @@ async function exportStudentsCSV(claseId = null) {
     try {
         const params = claseId ? `?clase_id=${claseId}` : '';
         const response = await fetch(`${API_BASE}/export-students-csv${params}`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
 
         if (!response.ok) {
@@ -275,7 +269,7 @@ async function exportStudentsExcel(claseId = null) {
     try {
         const params = claseId ? `?clase_id=${claseId}` : '';
         const response = await fetch(`${API_BASE}/export-students-excel${params}`, {
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
 
         if (!response.ok) {
@@ -434,7 +428,7 @@ async function loadStudents(classId) {
 
     tbody.innerHTML = students.map(student => {
         // Formatear tiempo
-        const timeFormatted = formatTime(student.tiempo_total || 0);
+        const timeFormatted = window.formatTime(student.tiempo_total || 0);
 
         // Formatear fecha
         const lastActivity = student.ultima_actividad && student.ultima_actividad !== 'Nunca'
@@ -473,19 +467,7 @@ async function loadStudents(classId) {
     }).join('');
 }
 
-/**
- * Formatear tiempo en minutos a formato legible
- */
-function formatTime(minutes) {
-    if (!minutes || minutes === 0) return '0 min';
-
-    const hours = Math.floor(minutes / 60);
-    const mins = Math.floor(minutes % 60);
-
-    if (hours === 0) return `${mins} min`;
-    if (mins === 0) return `${hours}h`;
-    return `${hours}h ${mins}min`;
-}
+// formatTime() loaded from core-utils.js
 
 /**
  * Mostrar notificación
@@ -784,7 +766,7 @@ async function deleteClass(claseId) {
     try {
         const response = await fetch(`${CLASES_API}/${claseId}`, {
             method: 'DELETE',
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
 
         if (!response.ok) {
@@ -825,7 +807,7 @@ async function removeStudentFromClass(studentId) {
     try {
         const response = await fetch(`${USUARIOS_API}/${studentId}/remove-from-class`, {
             method: 'POST',
-            headers: getAuthHeaders()
+            headers: window.getAuthHeaders()
         });
 
         if (!response.ok) {

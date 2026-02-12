@@ -47,3 +47,19 @@ class EstadoPunto(str, Enum):
     NO_INICIADA = "no_iniciada"
     EN_PROGRESO = "en_progreso"
     COMPLETADA = "completada"
+
+
+class DeviceType(str, Enum):
+    """Tipo de dispositivo desde el cual se realiza una acción.
+
+    Valores posibles:
+    - IOS: Dispositivos iPhone/iPad
+    - ANDROID: Dispositivos Android
+    - WEB: Navegador web (desktop/mobile)
+    - UNKNOWN: Tipo desconocido o no especificado
+    """
+
+    IOS = "iOS"
+    ANDROID = "Android"
+    WEB = "Web"
+    UNKNOWN = "Unknown"

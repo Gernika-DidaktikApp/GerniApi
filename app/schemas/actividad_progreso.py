@@ -10,7 +10,7 @@ from datetime import datetime
 
 from pydantic import UUID4, BaseModel, Field
 
-from app.schemas.enums import EstadoActividad, EstadoPunto
+from app.schemas.enums import DeviceType, EstadoActividad, EstadoPunto
 
 
 class ActividadProgresoCreate(BaseModel):
@@ -62,7 +62,7 @@ class ActividadProgresoCompletar(BaseModel):
     Attributes:
         puntuacion: Puntuación obtenida en la actividad.
         respuesta_contenido: Respuesta del usuario (texto o URL de imagen), opcional.
-        device_type: Tipo de dispositivo (iOS, Android, máximo 50 caracteres), opcional.
+        device_type: Tipo de dispositivo (iOS, Android, Web, Unknown), opcional.
         app_version: Versión de la aplicación (máximo 20 caracteres), opcional.
     """
 
@@ -70,9 +70,7 @@ class ActividadProgresoCompletar(BaseModel):
     respuesta_contenido: str | None = Field(
         None, max_length=5000, description="Respuesta del usuario (texto o URL de imagen)"
     )
-    device_type: str | None = Field(
-        None, max_length=50, description="Tipo de dispositivo (iOS, Android)"
-    )
+    device_type: DeviceType | None = Field(None, description="Tipo de dispositivo")
     app_version: str | None = Field(None, max_length=20, description="Versión de la aplicación")
 
 

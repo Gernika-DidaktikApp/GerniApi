@@ -140,6 +140,7 @@ def actualizar_actividad(
 )
 def obtener_respuestas_publicas(
     actividad_id: str,
+    skip: int = Query(0, ge=0, description="Number of responses to skip (for pagination)"),
     limit: int = Query(20, ge=1, le=100, description="Maximum number of responses to return"),
     db: Session = Depends(get_db),
     auth=Depends(require_auth),
@@ -153,13 +154,22 @@ def obtener_respuestas_publicas(
     - ✅ Filters by specific activity ID
     - ✅ Only returns completed responses
     - ✅ Orders by most recent first
-    - ✅ Limits results (default: 20, max: 100)
+    - ✅ Full pagination support (skip + limit)
+    - ✅ Returns total count for pagination metadata
     - ✅ Requires authentication (students and teachers can access)
     - ✅ Does not expose sensitive data
 
     ### Parameters
     - **actividad_id**: ID of the activity to get responses from
+    - **skip**: Number of responses to skip (default: 0, for pagination)
     - **limit**: Maximum number of responses (default: 20, max: 100)
+
+    ### Pagination Example
+    ```
+    Page 1: GET /actividades/{id}/respuestas-publicas?skip=0&limit=20
+    Page 2: GET /actividades/{id}/respuestas-publicas?skip=20&limit=20
+    Page 3: GET /actividades/{id}/respuestas-publicas?skip=40&limit=20
+    ```
 
     ### Response Format
     Each response includes:
@@ -184,7 +194,19 @@ def obtener_respuestas_publicas(
             detail="Actividad no encontrada",
         )
 
-    # Get completed responses with user info
+    # Get total count for pagination metadata
+    total_count = (
+        db.query(ActividadProgreso)
+        .filter(
+            ActividadProgreso.id_actividad == actividad_id,
+            ActividadProgreso.estado == "completado",
+            ActividadProgreso.respuesta_contenido.isnot(None),
+            ActividadProgreso.respuesta_contenido != "",
+        )
+        .count()
+    )
+
+    # Get completed responses with user info (paginated)
     respuestas_query = (
         db.query(ActividadProgreso, Usuario.nombre)
         .join(Partida, ActividadProgreso.id_juego == Partida.id)
@@ -196,6 +218,7 @@ def obtener_respuestas_publicas(
             ActividadProgreso.respuesta_contenido != "",
         )
         .order_by(ActividadProgreso.fecha_fin.desc())
+        .offset(skip)
         .limit(limit)
         .all()
     )
@@ -214,13 +237,16 @@ def obtener_respuestas_publicas(
         "info",
         "Respuestas públicas consultadas",
         actividad_id=actividad_id,
-        total_respuestas=len(respuestas),
+        total_respuestas=total_count,
+        returned_respuestas=len(respuestas),
+        skip=skip,
+        limit=limit,
     )
 
     return RespuestasPublicasResponse(
         actividad_id=actividad_id,
         actividad_nombre=actividad.nombre,
-        total_respuestas=len(respuestas),
+        total_respuestas=total_count,
         respuestas=respuestas,
     )
 

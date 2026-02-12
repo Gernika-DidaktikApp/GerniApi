@@ -11,6 +11,8 @@ from typing import Literal
 
 from pydantic import UUID4, BaseModel, Field
 
+from app.schemas.enums import DeviceType
+
 
 # Schemas base
 class AuditLogBase(BaseModel):
@@ -58,14 +60,12 @@ class AuditLogAppCreate(AuditLogBase):
     móvil de estudiantes.
 
     Attributes:
-        device_type: Tipo de dispositivo móvil (iOS, Android, máximo 50 caracteres), opcional.
+        device_type: Tipo de dispositivo móvil (iOS, Android, Web, Unknown), opcional.
         app_version: Versión de la aplicación (máximo 20 caracteres), opcional.
         device_id: Identificador único del dispositivo (máximo 100 caracteres), opcional.
     """
 
-    device_type: str | None = Field(
-        None, max_length=50, description="Tipo de dispositivo (iOS, Android)"
-    )
+    device_type: DeviceType | None = Field(None, description="Tipo de dispositivo")
     app_version: str | None = Field(None, max_length=20, description="Versión de la aplicación")
     device_id: str | None = Field(None, max_length=100, description="Identificador del dispositivo")
 
@@ -105,7 +105,7 @@ class AuditLogResponse(BaseModel):
     ip_address: str | None = None
     user_agent: str | None = None
     browser: str | None = None
-    device_type: str | None = None
+    device_type: DeviceType | None = None
     app_version: str | None = None
     device_id: str | None = None
 

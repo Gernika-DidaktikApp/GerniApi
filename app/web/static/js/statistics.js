@@ -8,7 +8,7 @@
 // ============================================
 // API Configuration
 // ============================================
-const API_BASE = '/api/statistics/users';
+const API_BASE = '/api/v1/statistics/users';
 
 // Current time range (days)
 let currentDays = 7;

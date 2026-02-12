@@ -196,7 +196,7 @@ STATIC_DIR = Path(__file__).parent / "web" / "static"
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 logger.info(f"Archivos estáticos montados en /static desde {STATIC_DIR}")
 
-# Incluir routers de API
+# Incluir routers de API - Todos bajo /api/v1/ para versionado consistente
 app.include_router(auth.router, prefix=settings.API_V1_PREFIX)
 app.include_router(usuarios.router, prefix=settings.API_V1_PREFIX)
 app.include_router(profesores.router, prefix=settings.API_V1_PREFIX)
@@ -206,11 +206,15 @@ app.include_router(actividades.router, prefix=settings.API_V1_PREFIX)
 app.include_router(partidas.router, prefix=settings.API_V1_PREFIX)
 app.include_router(actividad_progreso.router, prefix=settings.API_V1_PREFIX)
 app.include_router(audit_logs.router, prefix=settings.API_V1_PREFIX)
-app.include_router(statistics.router)  # Statistics doesn't use API_V1_PREFIX
-app.include_router(gameplay_statistics.router)  # Gameplay statistics doesn't use API_V1_PREFIX
-app.include_router(learning_statistics.router)  # Learning statistics doesn't use API_V1_PREFIX
-app.include_router(teacher_dashboard.router)  # Teacher dashboard doesn't use API_V1_PREFIX
-app.include_router(i18n.router)  # i18n language switching endpoint
+app.include_router(statistics.router)  # Includes /api/v1/statistics prefix internally
+app.include_router(
+    gameplay_statistics.router
+)  # Includes /api/v1/statistics/gameplay prefix internally
+app.include_router(
+    learning_statistics.router
+)  # Includes /api/v1/statistics/learning prefix internally
+app.include_router(teacher_dashboard.router)  # Includes /api/v1/teacher/dashboard prefix internally
+app.include_router(i18n.router)  # Includes /api/v1/i18n prefix internally
 logger.info(f"Routers de API registrados en {settings.API_V1_PREFIX}")
 
 # Incluir router de interfaz web FastAPI (DESACTIVADO - ahora usa Flask)

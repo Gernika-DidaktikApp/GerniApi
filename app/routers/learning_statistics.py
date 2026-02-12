@@ -22,7 +22,7 @@ from app.logging.logger import log_info, log_with_context
 from app.services.learning_statistics_service import LearningStatisticsService
 
 router = APIRouter(
-    prefix="/api/statistics/learning",
+    prefix="/api/v1/statistics/learning",
     tags=["📊 Statistics - Learning"],
     responses={
         422: {"description": "Error de validación"},

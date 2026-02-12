@@ -23,7 +23,7 @@ from app.logging.logger import log_info, log_with_context
 from app.services.gameplay_statistics_service import GameplayStatisticsService
 
 router = APIRouter(
-    prefix="/api/statistics/gameplay",
+    prefix="/api/v1/statistics/gameplay",
     tags=["📊 Statistics - Gameplay"],
     responses={
         422: {"description": "Error de validación"},

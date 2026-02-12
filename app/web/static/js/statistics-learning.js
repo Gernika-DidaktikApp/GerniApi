@@ -11,7 +11,7 @@
 // ============================================
 // API Configuration
 // ============================================
-const API_BASE = '/api/statistics/learning';
+const API_BASE = '/api/v1/statistics/learning';
 
 // ============================================
 // API Functions

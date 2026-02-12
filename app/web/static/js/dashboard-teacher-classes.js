@@ -6,7 +6,7 @@
 // ============================================
 // Configuration
 // ============================================
-const API_BASE = '/api/teacher/dashboard';
+const API_BASE = '/api/v1/teacher/dashboard';
 const CLASES_API = '/api/v1/clases';
 const USUARIOS_API = '/api/v1/usuarios';
 

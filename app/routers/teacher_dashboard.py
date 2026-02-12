@@ -29,7 +29,7 @@ from app.services.teacher_dashboard_service import TeacherDashboardService
 from app.utils.dependencies import get_current_profesor
 
 router = APIRouter(
-    prefix="/api/teacher/dashboard",
+    prefix="/api/v1/teacher/dashboard",
     tags=["👨‍🏫 Teacher Dashboard"],
     responses={
         422: {"description": "Error de validación"},

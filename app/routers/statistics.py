@@ -16,7 +16,7 @@ from app.logging.logger import log_info, log_with_context
 from app.services.statistics_service import StatisticsService
 
 router = APIRouter(
-    prefix="/api/statistics",
+    prefix="/api/v1/statistics",
     tags=["📊 Statistics"],
     responses={
         422: {"description": "Error de validación"},

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from app.logging.logger import log_info
 
-router = APIRouter(prefix="/api", tags=["🌐 i18n"])
+router = APIRouter(prefix="/api/v1", tags=["🌐 i18n"])
 
 
 class LanguageRequest(BaseModel):

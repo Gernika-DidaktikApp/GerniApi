@@ -25,7 +25,7 @@ function handleLogout() {
 // ============================================
 // API Configuration
 // ============================================
-const API_BASE = '/api/teacher/dashboard';
+const API_BASE = '/api/v1/teacher/dashboard';
 
 // Current filters
 let currentFilters = {

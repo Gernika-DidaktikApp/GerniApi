@@ -3,7 +3,7 @@
  * Handles loading and displaying student images and messages
  */
 
-const API_BASE = '/api/teacher/dashboard';
+const API_BASE = '/api/v1/teacher/dashboard';
 let currentClassFilter = '';
 
 // DOM Elements

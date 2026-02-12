@@ -28,12 +28,12 @@ let statsData = {
 async function fetchRealStats() {
     try {
         // Fetch user statistics
-        const userStatsResponse = await fetch('/api/statistics/users/summary');
+        const userStatsResponse = await fetch('/api/v1/statistics/users/summary');
         if (!userStatsResponse.ok) throw new Error('Failed to fetch user stats');
         const userStats = await userStatsResponse.json();
 
         // Fetch gameplay statistics (includes tiempo_total_minutos)
-        const gameplayStatsResponse = await fetch('/api/statistics/gameplay/summary');
+        const gameplayStatsResponse = await fetch('/api/v1/statistics/gameplay/summary');
         if (!gameplayStatsResponse.ok) throw new Error('Failed to fetch gameplay stats');
         const gameplayStats = await gameplayStatsResponse.json();
 

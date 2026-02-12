@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.logging import log_with_context
 from app.models.punto import Punto
+from app.repositories.punto_repository import PuntoRepository
 from app.schemas.punto import PuntoCreate, PuntoResponse, PuntoUpdate
 from app.utils.dependencies import require_api_key_only
 
@@ -30,9 +31,8 @@ def crear_punto(punto_data: PuntoCreate, db: Session = Depends(get_db)):
     """Crear un nuevo punto. Requiere API Key."""
     nuevo_punto = Punto(id=str(uuid.uuid4()), nombre=punto_data.nombre)
 
-    db.add(nuevo_punto)
-    db.commit()
-    db.refresh(nuevo_punto)
+    punto_repo = PuntoRepository(db)
+    nuevo_punto = punto_repo.create(nuevo_punto)
 
     log_with_context(
         "info",
@@ -55,7 +55,8 @@ def listar_puntos(
     db: Session = Depends(get_db),
 ):
     """Obtener lista de puntos. Requiere API Key."""
-    puntos = db.query(Punto).offset(skip).limit(limit).all()
+    punto_repo = PuntoRepository(db)
+    puntos = punto_repo.get_all(skip, limit)
     return puntos
 
 
@@ -69,7 +70,8 @@ def obtener_punto(
     db: Session = Depends(get_db),
 ):
     """Obtener un punto por ID. Requiere API Key."""
-    punto = db.query(Punto).filter(Punto.id == punto_id).first()
+    punto_repo = PuntoRepository(db)
+    punto = punto_repo.get_by_id(punto_id)
     if not punto:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Punto no encontrado")
     return punto
@@ -82,7 +84,8 @@ def obtener_punto(
 )
 def actualizar_punto(punto_id: str, punto_data: PuntoUpdate, db: Session = Depends(get_db)):
     """Actualizar un punto existente. Requiere API Key."""
-    punto = db.query(Punto).filter(Punto.id == punto_id).first()
+    punto_repo = PuntoRepository(db)
+    punto = punto_repo.get_by_id(punto_id)
     if not punto:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Punto no encontrado")
 
@@ -90,8 +93,7 @@ def actualizar_punto(punto_id: str, punto_data: PuntoUpdate, db: Session = Depen
     for field, value in update_data.items():
         setattr(punto, field, value)
 
-    db.commit()
-    db.refresh(punto)
+    punto = punto_repo.update(punto)
 
     log_with_context("info", "Punto actualizado", punto_id=punto.id)
 
@@ -105,11 +107,11 @@ def actualizar_punto(punto_id: str, punto_data: PuntoUpdate, db: Session = Depen
 )
 def eliminar_punto(punto_id: str, db: Session = Depends(get_db)):
     """Eliminar un punto. Requiere API Key."""
-    punto = db.query(Punto).filter(Punto.id == punto_id).first()
+    punto_repo = PuntoRepository(db)
+    punto = punto_repo.get_by_id(punto_id)
     if not punto:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Punto no encontrado")
 
-    db.delete(punto)
-    db.commit()
+    punto_repo.delete(punto)
 
     log_with_context("info", "Punto eliminado", punto_id=punto_id)

@@ -19,6 +19,7 @@ from app.models.audit_log import AuditLogWeb
 from app.models.clase import Clase
 from app.models.profesor import Profesor
 from app.repositories.clase_repository import ClaseRepository
+from app.repositories.profesor_repository import ProfesorRepository
 from app.schemas.clase import ClaseCreate, ClaseResponse, ClaseUpdate
 from app.utils.dependencies import AuthResult, get_current_profesor, require_auth
 from app.utils.security import generar_codigo_clase
@@ -77,7 +78,8 @@ def crear_clase(
         )
 
     # Validar que el profesor existe
-    profesor = db.query(Profesor).filter(Profesor.id == clase_data.id_profesor).first()
+    profesor_repo = ProfesorRepository(db)
+    profesor = profesor_repo.get_by_id(clase_data.id_profesor)
     if not profesor:
         log_warning(
             "Intento de crear clase con profesor inexistente",
@@ -103,9 +105,7 @@ def crear_clase(
         nombre=clase_data.nombre,
     )
 
-    db.add(nueva_clase)
-    db.commit()
-    db.refresh(nueva_clase)
+    nueva_clase = clase_repo.create(nueva_clase)
 
     # Log estructurado
     log_info(
@@ -153,13 +153,15 @@ def listar_clases(
     Returns:
         Lista de clases (filtrada por profesor si no es API Key).
     """
-    query = db.query(Clase)
+    clase_repo = ClaseRepository(db)
 
     # Con token de profesor: solo retornar sus propias clases
     if not auth.is_api_key and current_profesor:
-        query = query.filter(Clase.id_profesor == current_profesor.id)
+        clases = clase_repo.get_by_profesor(current_profesor.id, skip, limit)
+    else:
+        # API Key: retornar todas las clases
+        clases = clase_repo.get_all(skip, limit)
 
-    clases = query.offset(skip).limit(limit).all()
     return clases
 
 
@@ -238,7 +240,8 @@ def actualizar_clase(
                 detail="No puedes reasignar la clase a otro profesor",
             )
 
-        profesor = db.query(Profesor).filter(Profesor.id == clase_data.id_profesor).first()
+        profesor_repo = ProfesorRepository(db)
+        profesor = profesor_repo.get_by_id(clase_data.id_profesor)
         if not profesor:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -252,8 +255,7 @@ def actualizar_clase(
     for field, value in update_data.items():
         setattr(clase, field, value)
 
-    db.commit()
-    db.refresh(clase)
+    clase = clase_repo.update(clase)
 
     # Log estructurado
     log_info(
@@ -315,11 +317,13 @@ def eliminar_clase(
 
     try:
         # Actualizar alumnos: quitar clase asignada (id_clase = NULL)
+        # Nota: Mantenemos query directa aquí por ser parte de transacción
         alumnos_actualizados = (
             db.query(Usuario).filter(Usuario.id_clase == clase_id).update({Usuario.id_clase: None})
         )
 
-        # Eliminar la clase
+        # Eliminar la clase usando repository
+        # Nota: No usar clase_repo.delete() porque ya hizo commit en update de usuarios
         db.delete(clase)
         db.commit()
 

@@ -12,9 +12,9 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.logging import log_with_context
-from app.models.audit_log import AuditLog
 from app.models.profesor import Profesor
 from app.models.usuario import Usuario
+from app.repositories.audit_log_repository import AuditLogRepository
 from app.schemas.audit_log import AuditLogResponse
 from app.utils.dependencies import AuthResult, get_current_profesor, get_current_user, require_auth
 
@@ -47,42 +47,44 @@ def listar_audit_logs(
     Demuestra polimorfismo: La query retorna instancias polimórficas (AuditLogWeb o AuditLogApp)
     según el discriminador 'tipo'.
     """
-    query = db.query(AuditLog)
+    audit_repo = AuditLogRepository(db)
 
     # Filtrar por ownership si NO es API Key
     if not auth.is_api_key:
         if current_profesor:
-            # Profesor: solo sus propios logs
-            query = query.filter(AuditLog.profesor_id == current_profesor.id)
+            # Profesor: solo sus propios logs (filtros adicionales se aplican en repository)
+            logs = audit_repo.get_all_filtered(
+                skip=skip,
+                limit=limit,
+                tipo=tipo,
+                accion=accion,
+                profesor_id=current_profesor.id,
+            )
         elif current_user:
             # Usuario: solo sus propios logs
-            query = query.filter(AuditLog.usuario_id == current_user.id)
+            logs = audit_repo.get_all_filtered(
+                skip=skip,
+                limit=limit,
+                tipo=tipo,
+                accion=accion,
+                usuario_id=current_user.id,
+            )
         else:
             # Token inválido (no debería llegar aquí por require_auth)
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="No tienes permiso para acceder a los audit logs",
             )
-
-    # Aplicar filtros adicionales (solo si no entran en conflicto con ownership)
-    if tipo:
-        query = query.filter(AuditLog.tipo == tipo)
-    if accion:
-        query = query.filter(AuditLog.accion == accion)
-
-    # Con API Key: permitir filtrar por cualquier usuario/profesor
-    # Sin API Key: los filtros ya están aplicados por ownership
-    if auth.is_api_key:
-        if usuario_id:
-            query = query.filter(AuditLog.usuario_id == usuario_id)
-        if profesor_id:
-            query = query.filter(AuditLog.profesor_id == profesor_id)
-
-    # Ordenar por timestamp descendente (más recientes primero)
-    query = query.order_by(AuditLog.timestamp.desc())
-
-    # Aplicar paginación
-    logs = query.offset(skip).limit(limit).all()
+    else:
+        # API Key: acceso total con todos los filtros opcionales
+        logs = audit_repo.get_all_filtered(
+            skip=skip,
+            limit=limit,
+            tipo=tipo,
+            accion=accion,
+            usuario_id=usuario_id,
+            profesor_id=profesor_id,
+        )
 
     return logs
 
@@ -104,7 +106,8 @@ def obtener_audit_log(
 
     Demuestra polimorfismo: Retorna AuditLogWeb o AuditLogApp según el tipo.
     """
-    audit_log = db.query(AuditLog).filter(AuditLog.id == log_id).first()
+    audit_repo = AuditLogRepository(db)
+    audit_log = audit_repo.get_by_id(log_id)
     if not audit_log:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Audit log no encontrado")
 

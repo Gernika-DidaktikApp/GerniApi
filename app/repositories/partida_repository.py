@@ -62,3 +62,80 @@ class PartidaRepository:
             .first()
         )
         return ultima_partida_obj[0] if ultima_partida_obj else None
+
+    def get_by_id(self, partida_id: str) -> Partida | None:
+        """Obtiene una partida por ID.
+
+        Args:
+            partida_id: ID de la partida.
+
+        Returns:
+            Partida si existe, None si no.
+        """
+        return self.db.query(Partida).filter(Partida.id == partida_id).first()
+
+    def get_all(self, skip: int = 0, limit: int = 100) -> list[Partida]:
+        """Obtiene lista paginada de partidas.
+
+        Args:
+            skip: Número de registros a saltar.
+            limit: Número máximo de registros.
+
+        Returns:
+            Lista de partidas.
+        """
+        return self.db.query(Partida).offset(skip).limit(limit).all()
+
+    def get_activa_by_user(self, usuario_id: str) -> Partida | None:
+        """Obtiene la partida activa de un usuario.
+
+        Args:
+            usuario_id: ID del usuario.
+
+        Returns:
+            Partida activa (estado='en_progreso') o None si no existe.
+        """
+        return (
+            self.db.query(Partida)
+            .filter(
+                Partida.id_usuario == usuario_id,
+                Partida.estado == "en_progreso",
+            )
+            .first()
+        )
+
+    def create(self, partida: Partida) -> Partida:
+        """Crea una nueva partida.
+
+        Args:
+            partida: Instancia de Partida a crear.
+
+        Returns:
+            Partida creada con datos actualizados.
+        """
+        self.db.add(partida)
+        self.db.commit()
+        self.db.refresh(partida)
+        return partida
+
+    def update(self, partida: Partida) -> Partida:
+        """Actualiza una partida existente.
+
+        Args:
+            partida: Instancia de Partida a actualizar.
+
+        Returns:
+            Partida actualizada.
+        """
+        self.db.commit()
+        self.db.refresh(partida)
+        return partida
+
+    def delete(self, partida: Partida) -> None:
+        """Elimina una partida.
+
+        Args:
+            partida: Instancia de Partida a eliminar.
+        """
+        self.db.delete(partida)
+        self.db.commit()

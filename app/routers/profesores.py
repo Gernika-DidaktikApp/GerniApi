@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.logging import log_with_context
 from app.models.profesor import Profesor
+from app.repositories.profesor_repository import ProfesorRepository
 from app.schemas.profesor import ProfesorCreate, ProfesorResponse, ProfesorUpdate
 from app.utils.dependencies import require_api_key_only
 from app.utils.security import hash_password
@@ -40,9 +41,10 @@ def crear_profesor(profesor_data: ProfesorCreate, db: Session = Depends(get_db))
     Raises:
         HTTPException: Si el username ya está en uso.
     """
+    profesor_repo = ProfesorRepository(db)
+
     # Validar que el username no exista
-    existe = db.query(Profesor).filter(Profesor.username == profesor_data.username).first()
-    if existe:
+    if profesor_repo.exists_by_username(profesor_data.username):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="El username ya está en uso"
         )
@@ -56,9 +58,7 @@ def crear_profesor(profesor_data: ProfesorCreate, db: Session = Depends(get_db))
         password=hash_password(profesor_data.password),
     )
 
-    db.add(nuevo_profesor)
-    db.commit()
-    db.refresh(nuevo_profesor)
+    nuevo_profesor = profesor_repo.create(nuevo_profesor)
 
     log_with_context(
         "info",
@@ -82,7 +82,8 @@ def listar_profesores(skip: int = 0, limit: int = 100, db: Session = Depends(get
     Returns:
         Lista de profesores.
     """
-    profesores = db.query(Profesor).offset(skip).limit(limit).all()
+    profesor_repo = ProfesorRepository(db)
+    profesores = profesor_repo.get_all(skip, limit)
     return profesores
 
 
@@ -100,7 +101,8 @@ def obtener_profesor(profesor_id: str, db: Session = Depends(get_db)):
     Raises:
         HTTPException: Si el profesor no existe.
     """
-    profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
+    profesor_repo = ProfesorRepository(db)
+    profesor = profesor_repo.get_by_id(profesor_id)
     if not profesor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado")
     return profesor
@@ -123,18 +125,21 @@ def actualizar_profesor(
     Raises:
         HTTPException: Si el profesor no existe o el username ya está en uso.
     """
-    profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
+    profesor_repo = ProfesorRepository(db)
+    profesor = profesor_repo.get_by_id(profesor_id)
     if not profesor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado")
 
     # Validar username único si se está actualizando
-    if profesor_data.username and profesor_data.username != profesor.username:
-        existe = db.query(Profesor).filter(Profesor.username == profesor_data.username).first()
-        if existe:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El username ya está en uso",
-            )
+    if (
+        profesor_data.username
+        and profesor_data.username != profesor.username
+        and profesor_repo.exists_by_username(profesor_data.username)
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El username ya está en uso",
+        )
 
     # Actualizar campos proporcionados
     update_data = profesor_data.model_dump(exclude_unset=True)
@@ -144,8 +149,7 @@ def actualizar_profesor(
     for field, value in update_data.items():
         setattr(profesor, field, value)
 
-    db.commit()
-    db.refresh(profesor)
+    profesor = profesor_repo.update(profesor)
 
     log_with_context("info", "Profesor actualizado", profesor_id=profesor.id)
 
@@ -163,11 +167,11 @@ def eliminar_profesor(profesor_id: str, db: Session = Depends(get_db)):
     Raises:
         HTTPException: Si el profesor no existe.
     """
-    profesor = db.query(Profesor).filter(Profesor.id == profesor_id).first()
+    profesor_repo = ProfesorRepository(db)
+    profesor = profesor_repo.get_by_id(profesor_id)
     if not profesor:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profesor no encontrado")
 
-    db.delete(profesor)
-    db.commit()
+    profesor_repo.delete(profesor)
 
     log_with_context("info", "Profesor eliminado", profesor_id=profesor_id)

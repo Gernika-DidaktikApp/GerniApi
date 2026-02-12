@@ -16,8 +16,9 @@ from app.logging import log_with_context
 from app.models.actividad import Actividad
 from app.models.actividad_progreso import ActividadProgreso
 from app.models.juego import Partida
-from app.models.punto import Punto
 from app.models.usuario import Usuario
+from app.repositories.actividad_repository import ActividadRepository
+from app.repositories.punto_repository import PuntoRepository
 from app.schemas.actividad import (
     ActividadCreate,
     ActividadResponse,
@@ -38,7 +39,8 @@ router = APIRouter(prefix="/actividades", tags=["📝 Actividades"])
 )
 def crear_actividad(actividad_data: ActividadCreate, db: Session = Depends(get_db)):
     """Crear una nueva actividad. Requiere API Key."""
-    punto = db.query(Punto).filter(Punto.id == actividad_data.id_punto).first()
+    punto_repo = PuntoRepository(db)
+    punto = punto_repo.get_by_id(actividad_data.id_punto)
     if not punto:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -51,9 +53,8 @@ def crear_actividad(actividad_data: ActividadCreate, db: Session = Depends(get_d
         nombre=actividad_data.nombre,
     )
 
-    db.add(nueva_actividad)
-    db.commit()
-    db.refresh(nueva_actividad)
+    actividad_repo = ActividadRepository(db)
+    nueva_actividad = actividad_repo.create(nueva_actividad)
 
     log_with_context(
         "info", "Actividad creada", actividad_id=nueva_actividad.id, nombre=nueva_actividad.nombre
@@ -73,7 +74,8 @@ def listar_actividades(
     db: Session = Depends(get_db),
 ):
     """Obtener lista de actividades. Requiere API Key."""
-    actividades = db.query(Actividad).offset(skip).limit(limit).all()
+    actividad_repo = ActividadRepository(db)
+    actividades = actividad_repo.get_all(skip, limit)
     return actividades
 
 
@@ -87,7 +89,8 @@ def obtener_actividad(
     db: Session = Depends(get_db),
 ):
     """Obtener una actividad por ID. Requiere API Key."""
-    actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
+    actividad_repo = ActividadRepository(db)
+    actividad = actividad_repo.get_by_id(actividad_id)
     if not actividad:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada")
     return actividad
@@ -104,12 +107,14 @@ def actualizar_actividad(
     db: Session = Depends(get_db),
 ):
     """Actualizar una actividad existente. Requiere API Key."""
-    actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
+    actividad_repo = ActividadRepository(db)
+    actividad = actividad_repo.get_by_id(actividad_id)
     if not actividad:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada")
 
     if actividad_data.id_punto:
-        punto = db.query(Punto).filter(Punto.id == actividad_data.id_punto).first()
+        punto_repo = PuntoRepository(db)
+        punto = punto_repo.get_by_id(actividad_data.id_punto)
         if not punto:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -120,8 +125,7 @@ def actualizar_actividad(
     for field, value in update_data.items():
         setattr(actividad, field, value)
 
-    db.commit()
-    db.refresh(actividad)
+    actividad = actividad_repo.update(actividad)
 
     log_with_context("info", "Actividad actualizada", actividad_id=actividad.id)
 
@@ -172,7 +176,8 @@ def obtener_respuestas_publicas(
     Requires valid JWT token (student or teacher login).
     """
     # Validate that activity exists
-    actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
+    actividad_repo = ActividadRepository(db)
+    actividad = actividad_repo.get_by_id(actividad_id)
     if not actividad:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -227,11 +232,11 @@ def obtener_respuestas_publicas(
 )
 def eliminar_actividad(actividad_id: str, db: Session = Depends(get_db)):
     """Eliminar una actividad. Requiere API Key."""
-    actividad = db.query(Actividad).filter(Actividad.id == actividad_id).first()
+    actividad_repo = ActividadRepository(db)
+    actividad = actividad_repo.get_by_id(actividad_id)
     if not actividad:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Actividad no encontrada")
 
-    db.delete(actividad)
-    db.commit()
+    actividad_repo.delete(actividad)
 
     log_with_context("info", "Actividad eliminada", actividad_id=actividad_id)

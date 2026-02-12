@@ -69,3 +69,81 @@ class ClaseRepository:
             Clase si existe, None si no.
         """
         return self.db.query(Clase).filter(Clase.codigo == codigo).first()
+
+    def get_all(self, skip: int = 0, limit: int = 100) -> list[Clase]:
+        """Obtiene lista paginada de clases.
+
+        Args:
+            skip: Número de registros a saltar.
+            limit: Número máximo de registros.
+
+        Returns:
+            Lista de clases.
+        """
+        return self.db.query(Clase).offset(skip).limit(limit).all()
+
+    def get_by_profesor(self, profesor_id: str, skip: int = 0, limit: int = 100) -> list[Clase]:
+        """Obtiene lista paginada de clases de un profesor.
+
+        Args:
+            profesor_id: ID del profesor.
+            skip: Número de registros a saltar.
+            limit: Número máximo de registros.
+
+        Returns:
+            Lista de clases del profesor.
+        """
+        return (
+            self.db.query(Clase)
+            .filter(Clase.id_profesor == profesor_id)
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+    def create(self, clase: Clase) -> Clase:
+        """Crea una nueva clase.
+
+        Args:
+            clase: Instancia de Clase a crear.
+
+        Returns:
+            Clase creada con datos actualizados.
+        """
+        self.db.add(clase)
+        self.db.commit()
+        self.db.refresh(clase)
+        return clase
+
+    def update(self, clase: Clase) -> Clase:
+        """Actualiza una clase existente.
+
+        Args:
+            clase: Instancia de Clase a actualizar.
+
+        Returns:
+            Clase actualizada.
+        """
+        self.db.commit()
+        self.db.refresh(clase)
+        return clase
+
+    def delete(self, clase: Clase) -> None:
+        """Elimina una clase.
+
+        Args:
+            clase: Instancia de Clase a eliminar.
+        """
+        self.db.delete(clase)
+        self.db.commit()
+
+    def count_by_profesor(self, profesor_id: str) -> int:
+        """Cuenta el número de clases de un profesor.
+
+        Args:
+            profesor_id: ID del profesor.
+
+        Returns:
+            Número de clases del profesor.
+        """
+        return self.db.query(Clase).filter(Clase.id_profesor == profesor_id).count()

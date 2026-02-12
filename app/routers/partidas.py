@@ -14,7 +14,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.logging import log_with_context
 from app.models.juego import Partida
-from app.models.usuario import Usuario
+from app.repositories.partida_repository import PartidaRepository
+from app.repositories.usuario_repository import UsuarioRepository
 from app.schemas.partida import PartidaCreate, PartidaResponse, PartidaUpdate
 from app.utils.dependencies import (
     AuthResult,
@@ -42,21 +43,16 @@ def obtener_partida_activa(
     """
     validate_user_ownership(auth, usuario_id)
 
-    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    usuario_repo = UsuarioRepository(db)
+    usuario = usuario_repo.get_by_id(usuario_id)
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="El usuario especificado no existe",
         )
 
-    partida_activa = (
-        db.query(Partida)
-        .filter(
-            Partida.id_usuario == usuario_id,
-            Partida.estado == "en_progreso",
-        )
-        .first()
-    )
+    partida_repo = PartidaRepository(db)
+    partida_activa = partida_repo.get_activa_by_user(usuario_id)
 
     if not partida_activa:
         raise HTTPException(
@@ -84,7 +80,8 @@ def obtener_o_crear_partida_activa(
     """
     validate_user_ownership(auth, usuario_id)
 
-    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    usuario_repo = UsuarioRepository(db)
+    usuario = usuario_repo.get_by_id(usuario_id)
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -92,14 +89,8 @@ def obtener_o_crear_partida_activa(
         )
 
     # Buscar partida activa
-    partida_activa = (
-        db.query(Partida)
-        .filter(
-            Partida.id_usuario == usuario_id,
-            Partida.estado == "en_progreso",
-        )
-        .first()
-    )
+    partida_repo = PartidaRepository(db)
+    partida_activa = partida_repo.get_activa_by_user(usuario_id)
 
     if partida_activa:
         log_with_context(
@@ -112,10 +103,7 @@ def obtener_o_crear_partida_activa(
 
     # Si no existe, crear nueva partida
     nueva_partida = Partida(id=str(uuid.uuid4()), id_usuario=usuario_id)
-
-    db.add(nueva_partida)
-    db.commit()
-    db.refresh(nueva_partida)
+    nueva_partida = partida_repo.create(nueva_partida)
 
     log_with_context(
         "info",
@@ -141,7 +129,8 @@ def crear_partida(
 
     Restricción: Un usuario solo puede tener una partida activa a la vez.
     """
-    usuario = db.query(Usuario).filter(Usuario.id == partida_data.id_usuario).first()
+    usuario_repo = UsuarioRepository(db)
+    usuario = usuario_repo.get_by_id(partida_data.id_usuario)
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -151,14 +140,8 @@ def crear_partida(
     validate_user_ownership(auth, partida_data.id_usuario)
 
     # Verificar si el usuario ya tiene una partida activa
-    partida_activa = (
-        db.query(Partida)
-        .filter(
-            Partida.id_usuario == partida_data.id_usuario,
-            Partida.estado == "en_progreso",
-        )
-        .first()
-    )
+    partida_repo = PartidaRepository(db)
+    partida_activa = partida_repo.get_activa_by_user(partida_data.id_usuario)
 
     if partida_activa:
         raise HTTPException(
@@ -167,10 +150,7 @@ def crear_partida(
         )
 
     nueva_partida = Partida(id=str(uuid.uuid4()), id_usuario=partida_data.id_usuario)
-
-    db.add(nueva_partida)
-    db.commit()
-    db.refresh(nueva_partida)
+    nueva_partida = partida_repo.create(nueva_partida)
 
     log_with_context(
         "info",
@@ -189,7 +169,8 @@ def crear_partida(
 )
 def listar_partidas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """Obtener lista de todas las partidas. Requiere API Key."""
-    partidas = db.query(Partida).offset(skip).limit(limit).all()
+    partida_repo = PartidaRepository(db)
+    partidas = partida_repo.get_all(skip, limit)
     return partidas
 
 
@@ -205,7 +186,8 @@ def obtener_partida(
     - Con API Key: Puede ver cualquier partida
     - Con Token: Solo puede ver sus propias partidas
     """
-    partida = db.query(Partida).filter(Partida.id == partida_id).first()
+    partida_repo = PartidaRepository(db)
+    partida = partida_repo.get_by_id(partida_id)
     if not partida:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Partida no encontrada")
 
@@ -227,7 +209,8 @@ def actualizar_partida(
     - Con API Key: Puede actualizar cualquier partida
     - Con Token: Solo puede actualizar sus propias partidas
     """
-    partida = db.query(Partida).filter(Partida.id == partida_id).first()
+    partida_repo = PartidaRepository(db)
+    partida = partida_repo.get_by_id(partida_id)
     if not partida:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Partida no encontrada")
 
@@ -248,8 +231,7 @@ def actualizar_partida(
     for field, value in update_data.items():
         setattr(partida, field, value)
 
-    db.commit()
-    db.refresh(partida)
+    partida = partida_repo.update(partida)
 
     log_with_context("info", "Partida actualizada", partida_id=partida.id)
 
@@ -263,11 +245,11 @@ def actualizar_partida(
 )
 def eliminar_partida(partida_id: str, db: Session = Depends(get_db)):
     """Eliminar una partida. Requiere API Key."""
-    partida = db.query(Partida).filter(Partida.id == partida_id).first()
+    partida_repo = PartidaRepository(db)
+    partida = partida_repo.get_by_id(partida_id)
     if not partida:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Partida no encontrada")
 
-    db.delete(partida)
-    db.commit()
+    partida_repo.delete(partida)
 
     log_with_context("info", "Partida eliminada", partida_id=partida_id)

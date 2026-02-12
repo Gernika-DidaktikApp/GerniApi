@@ -339,9 +339,20 @@
     </footer>
 
     <!-- JavaScript -->
+    <!-- 1. Internacionalización (i18n PRIMERO) -->
     <script src="/static/js/i18n.js?v=1"></script>
+
+    <!-- 2. Autenticación (auth SEGUNDO) -->
     <script src="/static/js/auth.js?v=5"></script>
-    <script src="/static/js/statistics.js?v=4" defer></script>
+
+    <!-- 3. Utilidades compartidas (ANTES del script de página) -->
+    <script src="/static/js/utils/core-utils.js?v=1"></script>
+    <script src="/static/js/utils/api-utils.js?v=1"></script>
+    <script src="/static/js/utils/ui-utils.js?v=1"></script>
+    <script src="/static/js/utils/plotly-utils.js?v=1"></script>
+
+    <!-- 4. Script específico de la página (ÚLTIMO) -->
+    <script src="/static/js/statistics.js?v=5" defer></script>
 </body>
 
 </html>

@@ -1,22 +1,9 @@
 /**
  * Statistics Gameplay Page JavaScript
  * Handles Plotly charts for game usage metrics with real API data
+ *
+ * Dependencies: core-utils.js, api-utils.js, ui-utils.js, plotly-utils.js
  */
-
-// ============================================
-// Color Palette (matching the organic/natural design)
-// ============================================
-const COLORS = {
-    olive: '#6B8E3A',
-    oliveDark: '#4A5D23',
-    lime: '#B8C74A',
-    limeLight: '#D4E15A',
-    brown: '#8B6F47',
-    yellow: '#E8C74A',
-    beige: '#F5F3E8',
-    text: '#2D3B1C',
-    textSecondary: '#6B7A5C'
-};
 
 // ============================================
 // API Configuration
@@ -25,94 +12,6 @@ const API_BASE = '/api/statistics/gameplay';
 
 // Current time range (days)
 let currentDays = 7;
-
-// ============================================
-// Navbar Mobile Menu Toggle
-// ============================================
-const navbarToggle = document.getElementById('navbarToggle');
-const navbarMenu = document.getElementById('navbarMenu');
-
-if (navbarToggle && navbarMenu) {
-    navbarToggle.addEventListener('click', () => {
-        navbarMenu.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (event) => {
-        if (!event.target.closest('.navbar')) {
-            navbarMenu.classList.remove('active');
-        }
-    });
-}
-
-// ============================================
-// Loading State Management
-// ============================================
-
-function showLoading(chartId) {
-    const container = document.getElementById(chartId);
-    if (container) {
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
-                <div style="text-align: center;">
-                    <div style="border: 4px solid #f3f3f3; border-top: 4px solid #6B8E3A; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-                    <p style="color: #6B7A5C; margin-top: 1rem; font-size: 0.875rem;">Cargando datos...</p>
-                </div>
-            </div>
-        `;
-    }
-}
-
-function showError(chartId, message = 'Error al cargar datos') {
-    const container = document.getElementById(chartId);
-    if (container) {
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
-                <div style="text-align: center; color: #dc2626;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto;">
-                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                        <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"/>
-                    </svg>
-                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
-                    <button onclick="location.reload()" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #6B8E3A; color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
-                        Reintentar
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-}
-
-function showEmpty(chartId, message = 'No hay datos disponibles') {
-    const container = document.getElementById(chartId);
-    if (container) {
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
-                <div style="text-align: center; color: #6B7A5C;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto; opacity: 0.5;">
-                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                        <path d="M12 8V12M12 16H12.01" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
-                    <p style="margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.7;">Genera datos de prueba para ver estadísticas</p>
-                </div>
-            </div>
-        `;
-    }
-}
-
-// Add spinner animation
-if (!document.getElementById('spinner-style')) {
-    const style = document.createElement('style');
-    style.id = 'spinner-style';
-    style.textContent = `
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(style);
-}
 
 // ============================================
 // API Functions
@@ -124,7 +23,7 @@ async function fetchSummary() {
         if (!response.ok) throw new Error('Failed to fetch summary');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching summary:', error);
+        logger.log('error', 'Error fetching summary:', error);
         showErrorInSummaryCards();
         return null;
     }
@@ -143,7 +42,7 @@ async function fetchPartidasByDay(days = 30) {
         if (!response.ok) throw new Error('Failed to fetch partidas by day');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching partidas by day:', error);
+        logger.log('error', 'Error fetching partidas by day:', error);
         return null;
     }
 }
@@ -154,7 +53,7 @@ async function fetchPartidasByStatus() {
         if (!response.ok) throw new Error('Failed to fetch partidas by status');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching partidas by status:', error);
+        logger.log('error', 'Error fetching partidas by status:', error);
         return null;
     }
 }
@@ -165,7 +64,7 @@ async function fetchActividadesByStatusTimeline(days = 30) {
         if (!response.ok) throw new Error('Failed to fetch actividades timeline');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching actividades timeline:', error);
+        logger.log('error', 'Error fetching actividades timeline:', error);
         return null;
     }
 }
@@ -181,56 +80,22 @@ async function fetchMostPlayedActivities() {
 }
 
 // ============================================
-// Plotly Chart Configuration
-// ============================================
-
-const commonLayout = {
-    margin: { t: 20, r: 30, b: 50, l: 60 },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {
-        family: 'Inter, sans-serif',
-        color: COLORS.text
-    },
-    xaxis: {
-        gridcolor: 'rgba(107, 142, 58, 0.08)',
-        linecolor: 'rgba(107, 142, 58, 0.15)',
-        tickfont: { size: 11 }
-    },
-    yaxis: {
-        gridcolor: 'rgba(107, 142, 58, 0.08)',
-        linecolor: 'rgba(107, 142, 58, 0.15)',
-        tickfont: { size: 11 }
-    },
-    hoverlabel: {
-        bgcolor: '#FFFFFF',
-        bordercolor: COLORS.olive,
-        font: { family: 'Inter, sans-serif', color: COLORS.text }
-    }
-};
-
-const commonConfig = {
-    responsive: true,
-    displayModeBar: false
-};
-
-// ============================================
 // Chart 1: Partidas creadas por día - Barras
 // ============================================
 async function initChartPartidasDia() {
     const chartId = 'chartPartidasDia';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchPartidasByDay(currentDays);
     if (!apiData) {
-        showError(chartId, 'Error al cargar partidas');
+        window.showError(chartId, 'Error al cargar partidas');
         return;
     }
 
     const { dates, counts } = apiData;
 
     if (!dates || dates.length === 0) {
-        showEmpty(chartId, 'No hay datos de partidas');
+        window.showEmpty(chartId, 'No hay datos de partidas');
         return;
     }
 
@@ -249,25 +114,24 @@ async function initChartPartidasDia() {
         hovertemplate: '<b>Partidas Creadas</b><br>%{x}<br>%{y} partidas<extra></extra>'
     }];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         showlegend: false,
         bargap: 0.35,
         yaxis: {
-            ...commonLayout.yaxis,
+            
             title: { text: 'Partidas', font: { size: 12 } }
         },
         xaxis: {
-            ...commonLayout.xaxis,
+            
             tickformat: '%d %b'
         }
-    };
+    });
 
     // Clear loading spinner before rendering
     const container = document.getElementById(chartId);
     if (container) container.innerHTML = '';
 
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    Plotly.newPlot(chartId, data, layout, window.getCommonPlotlyConfig());
 }
 
 // ============================================
@@ -275,18 +139,18 @@ async function initChartPartidasDia() {
 // ============================================
 async function initChartPartidasDonut() {
     const chartId = 'chartPartidasDonut';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchPartidasByStatus();
     if (!apiData) {
-        showError(chartId, 'Error al cargar estados');
+        window.showError(chartId, 'Error al cargar estados');
         return;
     }
 
     const { completadas, abandonadas, en_progreso, total } = apiData;
 
     if (total === 0) {
-        showEmpty(chartId, 'No hay partidas registradas');
+        window.showEmpty(chartId, 'No hay partidas registradas');
         return;
     }
 
@@ -296,7 +160,7 @@ async function initChartPartidasDonut() {
         type: 'pie',
         hole: 0.6,
         marker: {
-            colors: [COLORS.olive, COLORS.brown, COLORS.lime]
+            colors: [window.CHART_COLORS.olive, window.CHART_COLORS.brown, window.CHART_COLORS.lime]
         },
         textinfo: 'percent',
         textposition: 'outside',
@@ -312,7 +176,7 @@ async function initChartPartidasDonut() {
         paper_bgcolor: 'rgba(0,0,0,0)',
         font: {
             family: 'Inter, sans-serif',
-            color: COLORS.text
+            color: window.CHART_COLORS.text
         },
         showlegend: true,
         legend: {
@@ -324,7 +188,7 @@ async function initChartPartidasDonut() {
         },
         annotations: [{
             text: `<b>${total}</b><br>Total`,
-            font: { size: 16, color: COLORS.text },
+            font: { size: 16, color: window.CHART_COLORS.text },
             showarrow: false,
             x: 0.5,
             y: 0.5
@@ -335,7 +199,7 @@ async function initChartPartidasDonut() {
     const container = document.getElementById(chartId);
     if (container) container.innerHTML = '';
 
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    Plotly.newPlot(chartId, data, layout, window.getCommonPlotlyConfig());
 }
 
 // ============================================
@@ -343,18 +207,18 @@ async function initChartPartidasDonut() {
 // ============================================
 async function initChartEventosStack() {
     const chartId = 'chartEventosStack';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchActividadesByStatusTimeline(currentDays);
     if (!apiData) {
-        showError(chartId, 'Error al cargar actividades');
+        window.showError(chartId, 'Error al cargar actividades');
         return;
     }
 
     const { dates, completados, en_progreso, abandonados } = apiData;
 
     if (!dates || dates.length === 0) {
-        showEmpty(chartId, 'No hay datos de actividades');
+        window.showEmpty(chartId, 'No hay datos de actividades');
         return;
     }
 
@@ -364,7 +228,7 @@ async function initChartEventosStack() {
             y: completados,
             type: 'bar',
             name: 'Completados',
-            marker: { color: COLORS.olive },
+            marker: { color: window.CHART_COLORS.olive },
             hovertemplate: '<b>Completados</b><br>%{x}<br>%{y} actividades<extra></extra>'
         },
         {
@@ -372,7 +236,7 @@ async function initChartEventosStack() {
             y: en_progreso,
             type: 'bar',
             name: 'En Progreso',
-            marker: { color: COLORS.lime },
+            marker: { color: window.CHART_COLORS.lime },
             hovertemplate: '<b>En Progreso</b><br>%{x}<br>%{y} actividades<extra></extra>'
         },
         {
@@ -380,30 +244,29 @@ async function initChartEventosStack() {
             y: abandonados,
             type: 'bar',
             name: 'Abandonados',
-            marker: { color: COLORS.yellow },
+            marker: { color: window.CHART_COLORS.yellow },
             hovertemplate: '<b>Abandonados</b><br>%{x}<br>%{y} actividades<extra></extra>'
         }
     ];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         barmode: 'stack',
         showlegend: false,
         yaxis: {
-            ...commonLayout.yaxis,
+            
             title: { text: 'Actividades', font: { size: 12 } }
         },
         xaxis: {
-            ...commonLayout.xaxis,
+            
             tickformat: '%d %b'
         }
-    };
+    });
 
     // Clear loading spinner before rendering
     const container = document.getElementById(chartId);
     if (container) container.innerHTML = '';
 
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    Plotly.newPlot(chartId, data, layout, window.getCommonPlotlyConfig());
 }
 
 // ============================================
@@ -411,18 +274,18 @@ async function initChartEventosStack() {
 // ============================================
 async function initChartMostPlayed() {
     const chartId = 'chartMostPlayed';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchMostPlayedActivities();
     if (!apiData) {
-        showError(chartId, 'Error al cargar actividades más jugadas');
+        window.showError(chartId, 'Error al cargar actividades más jugadas');
         return;
     }
 
     const { activities, counts } = apiData;
 
     if (!activities || activities.length === 0) {
-        showEmpty(chartId, 'No hay datos de actividades jugadas');
+        window.showEmpty(chartId, 'No hay datos de actividades jugadas');
         return;
     }
 
@@ -438,10 +301,10 @@ async function initChartMostPlayed() {
         marker: {
             color: counts.map(count => {
                 const ratio = count / maxCount;
-                if (ratio >= 0.8) return COLORS.olive;
-                if (ratio >= 0.6) return COLORS.lime;
-                if (ratio >= 0.4) return COLORS.yellow;
-                return COLORS.brown;
+                if (ratio >= 0.8) return window.CHART_COLORS.olive;
+                if (ratio >= 0.6) return window.CHART_COLORS.lime;
+                if (ratio >= 0.4) return window.CHART_COLORS.yellow;
+                return window.CHART_COLORS.brown;
             }),
             line: { width: 0 }
         },
@@ -450,31 +313,30 @@ async function initChartMostPlayed() {
         textfont: {
             family: 'Inter, sans-serif',
             size: 11,
-            color: COLORS.text
+            color: window.CHART_COLORS.text
         },
         hovertemplate: '<b>%{y}</b><br>%{x} veces jugada<extra></extra>'
     }];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         showlegend: false,
         margin: { t: 20, r: 60, b: 50, l: 180 },
         xaxis: {
-            ...commonLayout.xaxis,
+            
             title: { text: 'Veces Jugadas', font: { size: 12 } }
         },
         yaxis: {
-            ...commonLayout.yaxis,
+            
             automargin: true
         },
         height: 400
-    };
+    });
 
     // Clear loading spinner before rendering
     const container = document.getElementById(chartId);
     if (container) container.innerHTML = '';
 
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    Plotly.newPlot(chartId, data, layout, window.getCommonPlotlyConfig());
 }
 
 // ============================================
@@ -509,49 +371,28 @@ function initTimeFilter() {
 }
 
 // ============================================
-// Animate Summary Values
+// Update Summary Cards
 // ============================================
-function animateValue(element, start, end, duration, suffix = '') {
-    const startTime = performance.now();
-
-    function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const current = Math.floor(start + (end - start) * eased);
-
-        if (element) {
-            element.textContent = current.toLocaleString() + suffix;
-        }
-
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        }
-    }
-
-    requestAnimationFrame(update);
-}
-
 async function updateSummaryCards() {
     const summary = await fetchSummary();
     if (!summary) return;
 
     const partidasActivasEl = document.getElementById('partidasActivasValue');
-    if (partidasActivasEl) animateValue(partidasActivasEl, 0, summary.partidas_en_progreso, 1500);
+    if (partidasActivasEl) window.animateValue(partidasActivasEl, 0, summary.partidas_en_progreso, 1500);
 
     const completionRateEl = document.getElementById('completionRateValue');
     if (completionRateEl) {
         const rate = summary.partidas_completadas && summary.total_partidas
             ? (summary.partidas_completadas / summary.total_partidas * 100).toFixed(1)
             : 0;
-        animateValue(completionRateEl, 0, parseFloat(rate), 1200, '%');
+        window.animateValue(completionRateEl, 0, parseFloat(rate), 1200, '%');
     }
 
     const eventosEl = document.getElementById('eventosCompletadosValue');
-    if (eventosEl) animateValue(eventosEl, 0, summary.eventos_completados || 0, 1300);
+    if (eventosEl) window.animateValue(eventosEl, 0, summary.eventos_completados || 0, 1300);
 
     const tiempoPromedioEl = document.getElementById('tiempoPromedioValue');
-    if (tiempoPromedioEl) animateValue(tiempoPromedioEl, 0, summary.duracion_promedio, 1400, ' min');
+    if (tiempoPromedioEl) window.animateValue(tiempoPromedioEl, 0, summary.duracion_promedio, 1400, ' min');
 }
 
 // ============================================
@@ -565,18 +406,6 @@ function handleResize() {
             Plotly.Plots.resize(chartEl);
         }
     });
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
 }
 
 // ============================================
@@ -593,12 +422,12 @@ async function init() {
             initChartMostPlayed()
         ]);
     } else {
-        console.error('Plotly is not loaded');
+        logger.log('error', 'Plotly is not loaded');
     }
 
     initTimeFilter();
     await updateSummaryCards();
-    window.addEventListener('resize', debounce(handleResize, 250));
+    window.addEventListener('resize', window.debounce(handleResize, 250));
 }
 
 if (document.readyState === 'loading') {

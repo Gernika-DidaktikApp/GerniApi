@@ -1,20 +1,9 @@
 /**
  * Statistics Page JavaScript
- * Handles navbar toggle and Plotly chart initialization for user activity metrics
+ * Handles Plotly chart initialization for user activity metrics
+ *
+ * Dependencies: core-utils.js, api-utils.js, ui-utils.js, plotly-utils.js
  */
-
-// ============================================
-// Color Palette (matching the organic/natural design)
-// ============================================
-const COLORS = {
-    olive: '#6B8E3A',
-    oliveDark: '#4A5D23',
-    lime: '#B8C74A',
-    brown: '#8B6F47',
-    beige: '#F5F3E8',
-    text: '#2D3B1C',
-    textSecondary: '#6B7A5C'
-};
 
 // ============================================
 // API Configuration
@@ -25,105 +14,7 @@ const API_BASE = '/api/statistics/users';
 let currentDays = 7;
 
 // ============================================
-// Navbar Mobile Menu Toggle
-// ============================================
-const navbarToggle = document.getElementById('navbarToggle');
-const navbarMenu = document.getElementById('navbarMenu');
-
-if (navbarToggle && navbarMenu) {
-    navbarToggle.addEventListener('click', () => {
-        navbarMenu.classList.toggle('active');
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', (event) => {
-        if (!event.target.closest('.navbar')) {
-            navbarMenu.classList.remove('active');
-        }
-    });
-}
-
-// ============================================
-// Loading State Management
-// ============================================
-
-/**
- * Show loading spinner on a chart container
- */
-function showLoading(chartId) {
-    const container = document.getElementById(chartId);
-    if (container) {
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
-                <div style="text-align: center;">
-                    <div style="border: 4px solid #f3f3f3; border-top: 4px solid #6B8E3A; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-                    <p style="color: #6B7A5C; margin-top: 1rem; font-size: 0.875rem;">Cargando datos...</p>
-                </div>
-            </div>
-        `;
-    }
-}
-
-/**
- * Show error message on a chart container
- */
-function showError(chartId, message = 'Error al cargar datos') {
-    const container = document.getElementById(chartId);
-    if (container) {
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
-                <div style="text-align: center; color: #dc2626;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto;">
-                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                        <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="2"/>
-                    </svg>
-                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
-                    <button onclick="location.reload()" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #6B8E3A; color: white; border: none; border-radius: 0.5rem; cursor: pointer;">
-                        Reintentar
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-}
-
-/**
- * Show empty state message on a chart container
- */
-function showEmpty(chartId, message = 'No hay datos disponibles') {
-    const container = document.getElementById(chartId);
-    if (container) {
-        container.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; min-height: 300px;">
-                <div style="text-align: center; color: #6B7A5C;">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin: 0 auto; opacity: 0.5;">
-                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                        <path d="M12 8V12M12 16H12.01" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    <p style="margin-top: 1rem; font-size: 0.875rem;">${message}</p>
-                    <p style="margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.7;">Genera datos de prueba para ver estadísticas</p>
-                </div>
-            </div>
-        `;
-    }
-}
-
-// Add spinner animation to the page
-if (!document.getElementById('spinner-style')) {
-    const style = document.createElement('style');
-    style.id = 'spinner-style';
-    style.textContent = `
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-// ============================================
-// API Functions with Loading States
+// API Functions
 // ============================================
 
 /**
@@ -135,7 +26,7 @@ async function fetchSummary() {
         if (!response.ok) throw new Error('Failed to fetch summary');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching summary:', error);
+        logger.log('error', 'Error fetching summary', { error: error.message });
         // Show error in summary cards
         showErrorInSummaryCards();
         return null;
@@ -158,7 +49,7 @@ async function fetchActiveUsersTimeline(days = 30) {
         if (!response.ok) throw new Error('Failed to fetch active users timeline');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching active users timeline:', error);
+        logger.log('error', 'Error fetching active users timeline', { error: error.message });
         return null;
     }
 }
@@ -172,7 +63,7 @@ async function fetchNewUsersByDay(days = 30) {
         if (!response.ok) throw new Error('Failed to fetch new users');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching new users:', error);
+        logger.log('error', 'Error fetching new users', { error: error.message });
         return null;
     }
 }
@@ -186,7 +77,7 @@ async function fetchActiveRatioTimeline(days = 30) {
         if (!response.ok) throw new Error('Failed to fetch ratio timeline');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching ratio timeline:', error);
+        logger.log('error', 'Error fetching ratio timeline', { error: error.message });
         return null;
     }
 }
@@ -200,62 +91,28 @@ async function fetchLoginsByDay(days = 30) {
         if (!response.ok) throw new Error('Failed to fetch logins');
         return await response.json();
     } catch (error) {
-        console.error('Error fetching logins:', error);
+        logger.log('error', 'Error fetching logins', { error: error.message });
         return null;
     }
 }
-
-// ============================================
-// Plotly Chart Configuration
-// ============================================
-
-const commonLayout = {
-    margin: { t: 20, r: 30, b: 50, l: 60 },
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {
-        family: 'Inter, sans-serif',
-        color: COLORS.text
-    },
-    xaxis: {
-        gridcolor: 'rgba(107, 142, 58, 0.08)',
-        linecolor: 'rgba(107, 142, 58, 0.15)',
-        tickfont: { size: 11 }
-    },
-    yaxis: {
-        gridcolor: 'rgba(107, 142, 58, 0.08)',
-        linecolor: 'rgba(107, 142, 58, 0.15)',
-        tickfont: { size: 11 }
-    },
-    hoverlabel: {
-        bgcolor: '#FFFFFF',
-        bordercolor: COLORS.olive,
-        font: { family: 'Inter, sans-serif', color: COLORS.text }
-    }
-};
-
-const commonConfig = {
-    responsive: true,
-    displayModeBar: false
-};
 
 // ============================================
 // Chart 1: Usuarios Activos (DAU / WAU / MAU) - Línea
 // ============================================
 async function initChartActiveUsers() {
     const chartId = 'chartActiveUsers';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchActiveUsersTimeline(currentDays);
     if (!apiData) {
-        showError(chartId, 'Error al cargar usuarios activos');
+        window.showError(chartId, 'Error al cargar usuarios activos');
         return;
     }
 
     const { dates, dau, wau, mau } = apiData;
 
     if (!dates || dates.length === 0) {
-        showEmpty(chartId, 'No hay datos de usuarios activos');
+        window.showEmpty(chartId, 'No hay datos de usuarios activos');
         return;
     }
 
@@ -267,7 +124,7 @@ async function initChartActiveUsers() {
             mode: 'lines',
             name: 'DAU',
             line: {
-                color: COLORS.olive,
+                color: window.CHART_COLORS.olive,
                 width: 3,
                 shape: 'spline'
             },
@@ -280,7 +137,7 @@ async function initChartActiveUsers() {
             mode: 'lines',
             name: 'WAU',
             line: {
-                color: COLORS.lime,
+                color: window.CHART_COLORS.lime,
                 width: 3,
                 shape: 'spline'
             },
@@ -293,7 +150,7 @@ async function initChartActiveUsers() {
             mode: 'lines',
             name: 'MAU',
             line: {
-                color: COLORS.oliveDark,
+                color: window.CHART_COLORS.oliveDark,
                 width: 3,
                 shape: 'spline'
             },
@@ -301,24 +158,21 @@ async function initChartActiveUsers() {
         }
     ];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         showlegend: false,
         yaxis: {
-            ...commonLayout.yaxis,
             title: { text: 'Usuarios', font: { size: 12 } }
         },
         xaxis: {
-            ...commonLayout.xaxis,
             tickformat: '%d %b'
         }
-    };
+    });
 
     // Clear loading spinner before rendering
     const container = document.getElementById(chartId);
     if (container) container.innerHTML = '';
 
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    Plotly.newPlot(chartId, data, layout, window.getCommonPlotlyConfig());
 }
 
 // ============================================
@@ -326,18 +180,18 @@ async function initChartActiveUsers() {
 // ============================================
 async function initChartNewUsers() {
     const chartId = 'chartNewUsers';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchNewUsersByDay(currentDays);
     if (!apiData) {
-        showError(chartId, 'Error al cargar nuevos usuarios');
+        window.showError(chartId, 'Error al cargar nuevos usuarios');
         return;
     }
 
     const { dates, counts } = apiData;
 
     if (!dates || dates.length === 0) {
-        showEmpty(chartId, 'No hay datos de nuevos usuarios');
+        window.showEmpty(chartId, 'No hay datos de nuevos usuarios');
         return;
     }
 
@@ -352,32 +206,29 @@ async function initChartNewUsers() {
                 return `rgba(107, 142, 58, ${0.6 + ratio * 0.4})`;
             }),
             line: {
-                color: COLORS.oliveDark,
+                color: window.CHART_COLORS.oliveDark,
                 width: 0
             }
         },
         hovertemplate: '<b>Nuevos Usuarios</b><br>%{x}<br>%{y} nuevos<extra></extra>'
     }];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         showlegend: false,
         bargap: 0.3,
         yaxis: {
-            ...commonLayout.yaxis,
             title: { text: 'Nuevos Usuarios', font: { size: 12 } }
         },
         xaxis: {
-            ...commonLayout.xaxis,
             tickformat: '%d %b'
         }
-    };
+    });
 
     // Clear loading spinner before rendering
     const container = document.getElementById(chartId);
     if (container) container.innerHTML = '';
 
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    Plotly.newPlot(chartId, data, layout, window.getCommonPlotlyConfig());
 }
 
 // ============================================
@@ -385,18 +236,18 @@ async function initChartNewUsers() {
 // ============================================
 async function initChartRatio() {
     const chartId = 'chartRatio';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchActiveRatioTimeline(currentDays);
     if (!apiData) {
-        showError(chartId, 'Error al cargar ratio de usuarios');
+        window.showError(chartId, 'Error al cargar ratio de usuarios');
         return;
     }
 
     const { dates, ratios } = apiData;
 
     if (!dates || dates.length === 0) {
-        showEmpty(chartId, 'No hay datos de ratio de usuarios');
+        window.showEmpty(chartId, 'No hay datos de ratio de usuarios');
         return;
     }
 
@@ -409,32 +260,29 @@ async function initChartRatio() {
         fill: 'tozeroy',
         fillcolor: 'rgba(184, 199, 74, 0.25)',
         line: {
-            color: COLORS.lime,
+            color: window.CHART_COLORS.lime,
             width: 2.5,
             shape: 'spline'
         },
         hovertemplate: '<b>Ratio Activos/Totales</b><br>%{x}<br>%{y:.1f}%<extra></extra>'
     }];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         showlegend: false,
         yaxis: {
-            ...commonLayout.yaxis,
             title: { text: 'Ratio (%)', font: { size: 12 } },
             ticksuffix: '%'
         },
         xaxis: {
-            ...commonLayout.xaxis,
             tickformat: '%d %b'
         }
-    };
+    });
 
     // Clear loading spinner before rendering
     const container = document.getElementById(chartId);
     if (container) container.innerHTML = '';
 
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    Plotly.newPlot(chartId, data, layout, window.getCommonPlotlyConfig());
 }
 
 // ============================================
@@ -442,18 +290,18 @@ async function initChartRatio() {
 // ============================================
 async function initChartLogins() {
     const chartId = 'chartLogins';
-    showLoading(chartId);
+    window.showLoading(chartId);
 
     const apiData = await fetchLoginsByDay(currentDays);
     if (!apiData) {
-        showError(chartId, 'Error al cargar logins');
+        window.showError(chartId, 'Error al cargar logins');
         return;
     }
 
     const { dates, counts } = apiData;
 
     if (!dates || dates.length === 0) {
-        showEmpty(chartId, 'No hay datos de logins');
+        window.showEmpty(chartId, 'No hay datos de logins');
         return;
     }
 
@@ -464,12 +312,12 @@ async function initChartLogins() {
         mode: 'lines+markers',
         name: 'Logins',
         line: {
-            color: COLORS.brown,
+            color: window.CHART_COLORS.brown,
             width: 2.5,
             shape: 'spline'
         },
         marker: {
-            color: COLORS.brown,
+            color: window.CHART_COLORS.brown,
             size: 6,
             line: {
                 color: '#FFFFFF',
@@ -479,24 +327,21 @@ async function initChartLogins() {
         hovertemplate: '<b>Logins</b><br>%{x}<br>%{y:,} sesiones<extra></extra>'
     }];
 
-    const layout = {
-        ...commonLayout,
+    const layout = window.getCommonPlotlyLayout({
         showlegend: false,
         yaxis: {
-            ...commonLayout.yaxis,
             title: { text: 'Número de Logins', font: { size: 12 } }
         },
         xaxis: {
-            ...commonLayout.xaxis,
             tickformat: '%d %b'
         }
-    };
+    });
 
     // Clear loading spinner before rendering
     const container = document.getElementById(chartId);
     if (container) container.innerHTML = '';
 
-    Plotly.newPlot(chartId, data, layout, commonConfig);
+    Plotly.newPlot(chartId, data, layout, window.getCommonPlotlyConfig());
 }
 
 // ============================================
@@ -536,50 +381,27 @@ function initTimeFilter() {
 }
 
 // ============================================
-// Animate Summary Values
+// Update Summary Cards
 // ============================================
-function animateValue(element, start, end, duration, suffix = '') {
-    const startTime = performance.now();
-
-    function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        // Easing function (ease-out-cubic)
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const current = Math.floor(start + (end - start) * eased);
-
-        if (element) {
-            element.textContent = current.toLocaleString() + suffix;
-        }
-
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        }
-    }
-
-    requestAnimationFrame(update);
-}
-
 async function updateSummaryCards() {
     const summary = await fetchSummary();
     if (!summary) return;
 
     // Animate DAU value
     const dauEl = document.getElementById('dauValue');
-    if (dauEl) animateValue(dauEl, 0, summary.dau, 1500);
+    if (dauEl) window.animateValue(dauEl, 0, summary.dau, 1500);
 
     // Animate New Users value
     const newUsersEl = document.getElementById('newUsersValue');
-    if (newUsersEl) animateValue(newUsersEl, 0, summary.new_users_today, 1200);
+    if (newUsersEl) window.animateValue(newUsersEl, 0, summary.new_users_today, 1200);
 
     // Animate Ratio value
     const ratioEl = document.getElementById('ratioValue');
-    if (ratioEl) animateValue(ratioEl, 0, summary.ratio_active_total, 1300, '%');
+    if (ratioEl) window.animateValue(ratioEl, 0, summary.ratio_active_total, 1300, '%');
 
     // Animate Logins value
     const loginsEl = document.getElementById('loginsValue');
-    if (loginsEl) animateValue(loginsEl, 0, summary.logins_today, 1400);
+    if (loginsEl) window.animateValue(loginsEl, 0, summary.logins_today, 1400);
 }
 
 // ============================================
@@ -594,19 +416,6 @@ function handleResize() {
             Plotly.Plots.resize(chartEl);
         }
     });
-}
-
-// Debounce function for resize
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
 }
 
 // ============================================
@@ -634,7 +443,7 @@ async function init() {
     await updateSummaryCards();
 
     // Add resize listener
-    window.addEventListener('resize', debounce(handleResize, 250));
+    window.addEventListener('resize', window.debounce(handleResize, 250));
 }
 
 // Run initialization when DOM is ready

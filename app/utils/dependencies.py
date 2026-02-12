@@ -60,6 +60,41 @@ def get_current_user(
     return usuario
 
 
+def get_current_profesor(token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    """Obtiene el profesor actual del token JWT.
+
+    Verifica que el token:
+    1. Esté presente
+    2. Sea válido (no expirado, firma correcta)
+    3. No esté en la blacklist (revocado por logout)
+    4. Tenga el claim type="profesor"
+    5. El profesor exista en la BD
+    """
+    if not token:
+        return None
+
+    # Verificar si el token fue revocado (logout)
+    if is_token_blacklisted(token):
+        return None
+
+    payload = decode_access_token(token)
+    if payload is None:
+        return None
+
+    # Verificar que sea un token de profesor
+    if payload.get("type") != "profesor":
+        return None
+
+    username: str = payload.get("sub")
+    if username is None:
+        return None
+
+    from app.models.profesor import Profesor
+
+    profesor = db.query(Profesor).filter(Profesor.username == username).first()
+    return profesor
+
+
 def require_api_key_only(api_key: str | None = Depends(verify_api_key)) -> str:
     """Requiere API Key válida. Rechaza cualquier otro tipo de autenticación."""
     if not api_key:

@@ -24,8 +24,9 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.logging.logger import log_info, log_with_context
+from app.models.profesor import Profesor
 from app.services.teacher_dashboard_service import TeacherDashboardService
-from app.utils.dependencies import get_current_user
+from app.utils.dependencies import get_current_profesor
 
 router = APIRouter(
     prefix="/api/teacher/dashboard",
@@ -44,7 +45,7 @@ router = APIRouter(
 )
 def get_profesor_classes(
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ) -> list[dict[str, str]]:
     """
     ## Get Profesor's Classes
@@ -59,11 +60,11 @@ def get_profesor_classes(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     clases = TeacherDashboardService.get_profesor_classes(db, profesor_id)
 
@@ -92,7 +93,7 @@ def get_class_summary(
     clase_id: str = Query(None, description="Optional class ID (if None, aggregates all classes)"),
     days: int = Query(7, ge=1, le=365, description="Number of days to look back"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ) -> dict[str, Any]:
     """
     ## Get Class Summary
@@ -111,11 +112,11 @@ def get_class_summary(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     summary = TeacherDashboardService.get_class_summary(db, profesor_id, clase_id, days)
 
@@ -140,7 +141,7 @@ def get_class_summary(
 def get_student_progress(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ) -> dict[str, list]:
     """
     ## Get Student Progress
@@ -155,11 +156,11 @@ def get_student_progress(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     progress = TeacherDashboardService.get_student_progress(db, profesor_id, clase_id)
 
@@ -183,7 +184,7 @@ def get_student_time(
     clase_id: str = Query(None, description="Optional class ID"),
     days: int = Query(7, ge=1, le=365, description="Number of days to look back"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ) -> dict[str, list]:
     """
     ## Get Student Time
@@ -199,11 +200,11 @@ def get_student_time(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     time_data = TeacherDashboardService.get_student_time(db, profesor_id, clase_id, days)
 
@@ -227,7 +228,7 @@ def get_student_time(
 def get_activities_by_class(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ) -> dict[str, Any]:
     """
     ## Get Activities by Class
@@ -244,11 +245,11 @@ def get_activities_by_class(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     activities = TeacherDashboardService.get_activities_by_class(db, profesor_id, clase_id)
 
@@ -272,7 +273,7 @@ def get_class_evolution(
     clase_id: str = Query(None, description="Optional class ID"),
     days: int = Query(14, ge=1, le=365, description="Number of days to retrieve"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ) -> dict[str, Any]:
     """
     ## Get Class Evolution
@@ -289,11 +290,11 @@ def get_class_evolution(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     evolution = TeacherDashboardService.get_class_evolution(db, profesor_id, clase_id, days)
 
@@ -317,7 +318,7 @@ def get_class_evolution(
 def get_students_list(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ) -> list[dict[str, Any]]:
     """
     ## Get Students List
@@ -338,11 +339,11 @@ def get_students_list(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     # Si se especifica clase_id, verificar que pertenece al profesor
     if clase_id:
@@ -376,7 +377,7 @@ def get_students_list(
 def export_students_csv(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ):
     """
     ## Export Students List to CSV
@@ -389,11 +390,11 @@ def export_students_csv(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     csv_content = TeacherDashboardService.export_students_csv(db, profesor_id, clase_id)
 
@@ -426,7 +427,7 @@ def export_students_csv(
 def export_students_excel(
     clase_id: str = Query(None, description="Optional class ID"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ):
     """
     ## Export Students List to Excel
@@ -439,11 +440,11 @@ def export_students_excel(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     excel_bytes = TeacherDashboardService.export_students_excel(db, profesor_id, clase_id)
 
@@ -475,7 +476,7 @@ def export_students_excel(
     description="Clears all cached teacher dashboard data",
 )
 def clear_teacher_dashboard_cache(
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ):
     """
     ## Clear Teacher Dashboard Cache
@@ -487,11 +488,11 @@ def clear_teacher_dashboard_cache(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     TeacherDashboardService.clear_cache()
 
@@ -512,7 +513,7 @@ def clear_teacher_dashboard_cache(
 def get_gallery(
     clase_id: str = Query(None, description="Optional class ID to filter"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ) -> list[dict[str, Any]]:
     """
     ## Get Student Image Gallery
@@ -533,11 +534,11 @@ def get_gallery(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     images = TeacherDashboardService.get_gallery_images(db, profesor_id, clase_id)
 
@@ -560,7 +561,7 @@ def get_gallery(
 def get_message_wall(
     clase_id: str = Query(None, description="Optional class ID to filter"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user),
+    current_profesor: Profesor = Depends(get_current_profesor),
 ) -> list[dict[str, Any]]:
     """
     ## Get Student Message Wall
@@ -581,11 +582,11 @@ def get_message_wall(
     ### Authentication
     Requires valid JWT token from profesor login.
     """
-    profesor_id = current_user.get("profesor_id")
-    if not profesor_id:
+    if not current_profesor:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Only profesores can access this endpoint"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Profesor authentication required"
         )
+    profesor_id = current_profesor.id
 
     messages = TeacherDashboardService.get_message_wall(db, profesor_id, clase_id)
 

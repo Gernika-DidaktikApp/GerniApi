@@ -17,11 +17,19 @@ is_sqlite = settings.DATABASE_URL.startswith("sqlite")
 # Configurar engine según el tipo de base de datos
 if is_sqlite:
     # SQLite: sin pool de conexiones (no soporta los parámetros de PostgreSQL)
-    engine = create_engine(
-        settings.DATABASE_URL,
-        connect_args={"check_same_thread": False},  # Permitir múltiples threads en SQLite
-        echo=False,
-    )
+    # Para SQLite en memoria (tests), usar StaticPool para compartir la misma BD entre conexiones
+    from sqlalchemy.pool import StaticPool
+
+    engine_kwargs = {
+        "connect_args": {"check_same_thread": False},
+        "echo": False,
+    }
+
+    # SQLite en memoria requiere StaticPool para tests
+    if settings.DATABASE_URL == "sqlite:///:memory:":
+        engine_kwargs["poolclass"] = StaticPool
+
+    engine = create_engine(settings.DATABASE_URL, **engine_kwargs)
 else:
     # PostgreSQL: con pool de conexiones optimizado
     engine = create_engine(

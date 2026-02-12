@@ -62,9 +62,14 @@ def iniciar_actividad(
     - Con API Key: Puede iniciar actividades para cualquier partida
     - Con Token: Solo puede iniciar actividades para sus propias partidas
     """
-    validate_partida_ownership(auth, estado_data.id_juego, db)
+    # Convertir UUIDs a strings para queries (el schema usa UUID4 pero la BD usa String)
+    id_juego = str(estado_data.id_juego)
+    id_punto = str(estado_data.id_punto)
+    id_actividad = str(estado_data.id_actividad)
 
-    punto = db.query(Punto).filter(Punto.id == estado_data.id_punto).first()
+    validate_partida_ownership(auth, id_juego, db)
+
+    punto = db.query(Punto).filter(Punto.id == id_punto).first()
     if not punto:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -74,8 +79,8 @@ def iniciar_actividad(
     actividad = (
         db.query(ActividadModel)
         .filter(
-            ActividadModel.id == estado_data.id_actividad,
-            ActividadModel.id_punto == estado_data.id_punto,
+            ActividadModel.id == id_actividad,
+            ActividadModel.id_punto == id_punto,
         )
         .first()
     )
@@ -89,8 +94,8 @@ def iniciar_actividad(
     progreso_existente = (
         db.query(ActividadProgreso)
         .filter(
-            ActividadProgreso.id_juego == estado_data.id_juego,
-            ActividadProgreso.id_actividad == estado_data.id_actividad,
+            ActividadProgreso.id_juego == id_juego,
+            ActividadProgreso.id_actividad == id_actividad,
             ActividadProgreso.estado == "en_progreso",
         )
         .first()
@@ -110,9 +115,9 @@ def iniciar_actividad(
     # Si no existe, crear uno nuevo
     nuevo_estado = ActividadProgreso(
         id=str(uuid.uuid4()),
-        id_juego=estado_data.id_juego,
-        id_punto=estado_data.id_punto,
-        id_actividad=estado_data.id_actividad,
+        id_juego=id_juego,
+        id_punto=id_punto,
+        id_actividad=id_actividad,
         estado="en_progreso",
     )
 

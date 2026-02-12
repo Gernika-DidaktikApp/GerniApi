@@ -17,7 +17,7 @@ os.environ["RATE_LIMIT_ENABLED"] = "false"
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 from app.config import settings
-from app.database import Base, get_db
+from app.database import Base, engine, get_db  # <-- Usar el engine de la app
 from app.main import app
 from app.models.actividad import Actividad
 from app.models.clase import Clase
@@ -30,14 +30,7 @@ from app.utils.security import generar_codigo_clase, hash_password
 # API Key para tests
 TEST_API_KEY = settings.API_KEY
 
-# Database de test en memoria
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
+# Usar el mismo engine que la app (ya configurado con StaticPool en app/database.py)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

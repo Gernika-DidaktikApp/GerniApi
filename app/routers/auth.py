@@ -124,6 +124,12 @@ def _extract_browser(user_agent: str | None) -> str | None:
                 "application/json": {"example": {"detail": "Username o contraseña incorrectos"}}
             },
         },
+        429: {
+            "description": "Too Many Requests - Rate limit excedido (5 intentos/minuto por IP)",
+            "content": {
+                "application/json": {"example": {"detail": "Rate limit exceeded: 5 per 1 minute"}}
+            },
+        },
     },
 )
 @limiter.limit(RATE_LIMIT_STRICT)
@@ -228,6 +234,12 @@ def login_app(login_data: LoginAppRequest, request: Request, db: Session = Depen
             "description": "Credenciales incorrectas",
             "content": {
                 "application/json": {"example": {"detail": "Username o contraseña incorrectos"}}
+            },
+        },
+        429: {
+            "description": "Too Many Requests - Rate limit excedido (5 intentos/minuto por IP)",
+            "content": {
+                "application/json": {"example": {"detail": "Rate limit exceeded: 5 per 1 minute"}}
             },
         },
     },

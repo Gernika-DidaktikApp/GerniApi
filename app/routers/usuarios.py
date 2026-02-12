@@ -68,6 +68,16 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     summary="Crear usuario",
     description="Crea un nuevo usuario en el sistema. Endpoint público con rate limit estricto (3 registros/hora) para prevenir spam.",
+    responses={
+        201: {"description": "Usuario creado exitosamente"},
+        400: {"description": "Username ya existe o datos inválidos"},
+        429: {
+            "description": "Too Many Requests - Rate limit excedido (3 registros/hora por IP)",
+            "content": {
+                "application/json": {"example": {"detail": "Rate limit exceeded: 3 per 1 hour"}}
+            },
+        },
+    },
 )
 @limiter.limit(RATE_LIMIT_REGISTER)
 def crear_usuario(

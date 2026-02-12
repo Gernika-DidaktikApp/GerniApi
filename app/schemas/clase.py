@@ -6,7 +6,7 @@ operaciones relacionadas con clases (grupos de estudiantes).
 Autor: Gernibide
 """
 
-from pydantic import BaseModel, Field
+from pydantic import UUID4, BaseModel, Field
 
 
 class ClaseCreate(BaseModel):
@@ -19,7 +19,7 @@ class ClaseCreate(BaseModel):
         nombre: Nombre de la clase (1-100 caracteres).
     """
 
-    id_profesor: str = Field(..., min_length=36, max_length=36)
+    id_profesor: UUID4 = Field(...)
     nombre: str = Field(..., min_length=1, max_length=100)
 
 
@@ -34,7 +34,7 @@ class ClaseUpdate(BaseModel):
         nombre: Nuevo nombre de la clase (1-100 caracteres), opcional.
     """
 
-    id_profesor: str | None = Field(None, min_length=36, max_length=36)
+    id_profesor: UUID4 | None = Field(None)
     nombre: str | None = Field(None, min_length=1, max_length=100)
 
 

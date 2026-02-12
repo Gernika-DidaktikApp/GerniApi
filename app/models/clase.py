@@ -26,5 +26,5 @@ class Clase(Base):
 
     id = Column(String(36), primary_key=True, nullable=False)
     codigo = Column(String(6), unique=True, nullable=True, index=True)
-    id_profesor = Column(String(36), ForeignKey("profesor.id"), nullable=False)
+    id_profesor = Column(String(36), ForeignKey("profesor.id", ondelete="CASCADE"), nullable=False)
     nombre = Column(String(100), nullable=False)

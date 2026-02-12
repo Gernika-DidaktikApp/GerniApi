@@ -12,6 +12,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.database import get_db
 from app.logging import log_with_context
 from app.models.actividad import Actividad as ActividadModel
@@ -181,7 +182,7 @@ def completar_actividad(
         duracion=estado.duracion,
     )
 
-    # Verificar si la partida debe marcarse como completada (19 actividades completadas)
+    # Verificar si la partida debe marcarse como completada
     total_completadas_partida = (
         db.query(ActividadProgreso)
         .filter(
@@ -191,7 +192,7 @@ def completar_actividad(
         .count()
     )
 
-    if total_completadas_partida >= 19:
+    if total_completadas_partida >= settings.ACTIVIDADES_PARA_COMPLETAR_PARTIDA:
         partida = db.query(Partida).filter(Partida.id == estado.id_juego).first()
         if partida and partida.estado != "completada":
             try:

@@ -35,6 +35,6 @@ class Usuario(Base):
     nombre = Column(String(45), nullable=False)
     apellido = Column(String(45), nullable=False)
     password = Column(String(255), nullable=False)
-    id_clase = Column(String(36), ForeignKey("clase.id"), nullable=True)
+    id_clase = Column(String(36), ForeignKey("clase.id", ondelete="SET NULL"), nullable=True)
     creation = Column(DateTime, default=datetime.now, nullable=False)
     top_score = Column(Integer, default=0, nullable=False)

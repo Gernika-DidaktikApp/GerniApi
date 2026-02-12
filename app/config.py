@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     # CORS configuration
     CORS_ORIGINS: str = "*"  # Default para desarrollo - en producción usar dominios específicos
 
+    # Game business rules
+    ACTIVIDADES_PARA_COMPLETAR_PARTIDA: int = 19
+
     @property
     def cors_origins_list(self) -> list[str]:
         """Convierte CORS_ORIGINS string a lista.

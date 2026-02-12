@@ -25,5 +25,5 @@ class Actividad(Base):
     __tablename__ = "actividad"
 
     id = Column(String(36), primary_key=True, nullable=False)
-    id_punto = Column(String(36), ForeignKey("punto.id"), nullable=False)
+    id_punto = Column(String(36), ForeignKey("punto.id", ondelete="CASCADE"), nullable=False)
     nombre = Column(String(100), nullable=False)

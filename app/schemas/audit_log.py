@@ -9,7 +9,7 @@ Autor: Gernibide
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import UUID4, BaseModel, Field
 
 
 # Schemas base
@@ -26,8 +26,8 @@ class AuditLogBase(BaseModel):
         detalles: Información adicional sobre la acción, opcional.
     """
 
-    usuario_id: str | None = Field(None, min_length=36, max_length=36)
-    profesor_id: str | None = Field(None, min_length=36, max_length=36)
+    usuario_id: UUID4 | None = Field(None)
+    profesor_id: UUID4 | None = Field(None)
     accion: str = Field(..., min_length=1, max_length=100, description="Acción realizada")
     detalles: str | None = Field(None, description="Detalles adicionales de la acción")
 

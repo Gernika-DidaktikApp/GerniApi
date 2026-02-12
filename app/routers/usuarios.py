@@ -42,6 +42,7 @@ from app.services.usuario_stats_service import UsuarioStatsService
 from app.utils.dependencies import (
     AuthResult,
     get_clase_repository,
+    get_current_profesor,
     get_usuario_perfil_service,
     get_usuario_service,
     get_usuario_stats_service,
@@ -117,6 +118,7 @@ def crear_usuarios_bulk(
     usuarios_data: UsuarioBulkCreate,
     db: Session = Depends(get_db),  # MANTENER para audit log
     auth: AuthResult = Depends(require_auth),
+    current_profesor=Depends(get_current_profesor),
     usuario_service: UsuarioService = Depends(get_usuario_service),
     clase_repo: ClaseRepository = Depends(get_clase_repository),
 ):
@@ -129,6 +131,7 @@ def crear_usuarios_bulk(
     ### Validaciones
     - Todos los usernames deben ser únicos (entre sí y con los existentes)
     - Si se proporciona id_clase, la clase debe existir
+    - Si autenticado con JWT (profesor), solo puede crear en clases propias
     - Las contraseñas se hashean automáticamente con bcrypt
 
     ### Retorna
@@ -136,6 +139,22 @@ def crear_usuarios_bulk(
     - **total**: Número total de usuarios creados
     - **errores**: Lista de errores si los hubo (en validación previa)
     """
+    # Validar ownership si no es API Key
+    if not auth.is_api_key and current_profesor:
+        for usuario_data in usuarios_data.usuarios:
+            if usuario_data.id_clase:
+                clase = clase_repo.get_by_id(usuario_data.id_clase)
+                if not clase:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=f"La clase {usuario_data.id_clase} no existe",
+                    )
+                if clase.id_profesor != current_profesor.id:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=f"No tienes permiso para agregar usuarios a la clase '{clase.nombre}'",
+                    )
+
     # Log inicio de importación
     log_info(
         "Iniciando importación masiva de usuarios",

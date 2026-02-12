@@ -8,7 +8,7 @@ Autor: Gernibide
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import UUID4, BaseModel, Field
 
 from app.schemas.enums import EstadoActividad, EstadoPunto
 
@@ -25,9 +25,9 @@ class ActividadProgresoCreate(BaseModel):
         id_actividad: ID de la actividad educativa (UUID, 36 caracteres).
     """
 
-    id_juego: str = Field(..., min_length=36, max_length=36)
-    id_punto: str = Field(..., min_length=36, max_length=36)
-    id_actividad: str = Field(..., min_length=36, max_length=36)
+    id_juego: UUID4 = Field(...)
+    id_punto: UUID4 = Field(...)
+    id_actividad: UUID4 = Field(...)
 
 
 class ActividadProgresoUpdate(BaseModel):
@@ -49,7 +49,7 @@ class ActividadProgresoUpdate(BaseModel):
     estado: EstadoActividad | None = Field(None, description="Estado de la actividad")
     puntuacion: float | None = None
     respuesta_contenido: str | None = Field(
-        None, description="Texto largo o URL de imagen del usuario"
+        None, max_length=5000, description="Texto largo o URL de imagen del usuario"
     )
 
 
@@ -68,7 +68,7 @@ class ActividadProgresoCompletar(BaseModel):
 
     puntuacion: float = Field(..., description="Puntuación obtenida en la actividad")
     respuesta_contenido: str | None = Field(
-        None, description="Respuesta del usuario (texto o URL de imagen)"
+        None, max_length=5000, description="Respuesta del usuario (texto o URL de imagen)"
     )
     device_type: str | None = Field(
         None, max_length=50, description="Tipo de dispositivo (iOS, Android)"

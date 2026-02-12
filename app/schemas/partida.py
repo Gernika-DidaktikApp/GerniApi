@@ -8,7 +8,7 @@ Autor: Gernibide
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import UUID4, BaseModel, Field
 
 
 class PartidaCreate(BaseModel):
@@ -21,7 +21,7 @@ class PartidaCreate(BaseModel):
         id_usuario: ID del usuario que inicia la partida (UUID, 36 caracteres).
     """
 
-    id_usuario: str = Field(..., min_length=36, max_length=36)
+    id_usuario: UUID4 = Field(...)
 
 
 class PartidaUpdate(BaseModel):

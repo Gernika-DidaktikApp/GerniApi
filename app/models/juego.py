@@ -30,7 +30,7 @@ class Partida(Base):
     __tablename__ = "juego"
 
     id = Column(String(36), primary_key=True, nullable=False)
-    id_usuario = Column(String(36), ForeignKey("usuario.id"), nullable=False)
+    id_usuario = Column(String(36), ForeignKey("usuario.id", ondelete="CASCADE"), nullable=False)
     fecha_inicio = Column(DateTime, default=datetime.now, nullable=False)
     fecha_fin = Column(DateTime, nullable=True)
     duracion = Column(Integer, nullable=True)

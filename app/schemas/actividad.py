@@ -8,7 +8,7 @@ Autor: Gernibide
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import UUID4, BaseModel, Field
 
 
 class ActividadCreate(BaseModel):
@@ -22,7 +22,7 @@ class ActividadCreate(BaseModel):
         nombre: Nombre de la actividad (1-100 caracteres).
     """
 
-    id_punto: str = Field(..., min_length=36, max_length=36)
+    id_punto: UUID4 = Field(...)
     nombre: str = Field(..., min_length=1, max_length=100)
 
 
@@ -37,7 +37,7 @@ class ActividadUpdate(BaseModel):
         nombre: Nuevo nombre de la actividad (1-100 caracteres), opcional.
     """
 
-    id_punto: str | None = Field(None, min_length=36, max_length=36)
+    id_punto: UUID4 | None = Field(None)
     nombre: str | None = Field(None, min_length=1, max_length=100)
 
 

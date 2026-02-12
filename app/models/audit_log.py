@@ -24,8 +24,8 @@ class AuditLog(Base):
 
     id = Column(String(36), primary_key=True, nullable=False)
     timestamp = Column(DateTime, default=datetime.now, nullable=False, index=True)
-    usuario_id = Column(String(36), ForeignKey("usuario.id"), nullable=True)
-    profesor_id = Column(String(36), ForeignKey("profesor.id"), nullable=True)
+    usuario_id = Column(String(36), ForeignKey("usuario.id", ondelete="SET NULL"), nullable=True)
+    profesor_id = Column(String(36), ForeignKey("profesor.id", ondelete="SET NULL"), nullable=True)
     accion = Column(String(100), nullable=False, index=True)
     detalles = Column(Text, nullable=True)
     tipo = Column(String(20), nullable=False, index=True)  # Discriminador: 'web' o 'app'

@@ -22,9 +22,7 @@ let currentDays = 7;
  */
 async function fetchSummary() {
     try {
-        const response = await fetch(`${API_BASE}/summary`);
-        if (!response.ok) throw new Error('Failed to fetch summary');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/summary`);
     } catch (error) {
         logger.log('error', 'Error fetching summary', { error: error.message });
         // Show error in summary cards
@@ -45,9 +43,7 @@ function showErrorInSummaryCards() {
  */
 async function fetchActiveUsersTimeline(days = 30) {
     try {
-        const response = await fetch(`${API_BASE}/active-timeline?days=${days}`);
-        if (!response.ok) throw new Error('Failed to fetch active users timeline');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/active-timeline?days=${days}`);
     } catch (error) {
         logger.log('error', 'Error fetching active users timeline', { error: error.message });
         return null;
@@ -59,9 +55,7 @@ async function fetchActiveUsersTimeline(days = 30) {
  */
 async function fetchNewUsersByDay(days = 30) {
     try {
-        const response = await fetch(`${API_BASE}/new-by-day?days=${days}`);
-        if (!response.ok) throw new Error('Failed to fetch new users');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/new-by-day?days=${days}`);
     } catch (error) {
         logger.log('error', 'Error fetching new users', { error: error.message });
         return null;
@@ -73,9 +67,7 @@ async function fetchNewUsersByDay(days = 30) {
  */
 async function fetchActiveRatioTimeline(days = 30) {
     try {
-        const response = await fetch(`${API_BASE}/active-ratio-timeline?days=${days}`);
-        if (!response.ok) throw new Error('Failed to fetch ratio timeline');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/active-ratio-timeline?days=${days}`);
     } catch (error) {
         logger.log('error', 'Error fetching ratio timeline', { error: error.message });
         return null;
@@ -87,9 +79,7 @@ async function fetchActiveRatioTimeline(days = 30) {
  */
 async function fetchLoginsByDay(days = 30) {
     try {
-        const response = await fetch(`${API_BASE}/logins-by-day?days=${days}`);
-        if (!response.ok) throw new Error('Failed to fetch logins');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/logins-by-day?days=${days}`);
     } catch (error) {
         logger.log('error', 'Error fetching logins', { error: error.message });
         return null;

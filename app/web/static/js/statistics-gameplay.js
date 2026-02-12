@@ -19,9 +19,7 @@ let currentDays = 7;
 
 async function fetchSummary() {
     try {
-        const response = await fetch(`${API_BASE}/summary`);
-        if (!response.ok) throw new Error('Failed to fetch summary');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/summary`);
     } catch (error) {
         logger.log('error', 'Error fetching summary:', error);
         showErrorInSummaryCards();
@@ -38,9 +36,7 @@ function showErrorInSummaryCards() {
 
 async function fetchPartidasByDay(days = 30) {
     try {
-        const response = await fetch(`${API_BASE}/partidas-by-day?days=${days}`);
-        if (!response.ok) throw new Error('Failed to fetch partidas by day');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/partidas-by-day?days=${days}`);
     } catch (error) {
         logger.log('error', 'Error fetching partidas by day:', error);
         return null;
@@ -49,9 +45,7 @@ async function fetchPartidasByDay(days = 30) {
 
 async function fetchPartidasByStatus() {
     try {
-        const response = await fetch(`${API_BASE}/partidas-by-status`);
-        if (!response.ok) throw new Error('Failed to fetch partidas by status');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/partidas-by-status`);
     } catch (error) {
         logger.log('error', 'Error fetching partidas by status:', error);
         return null;
@@ -60,9 +54,7 @@ async function fetchPartidasByStatus() {
 
 async function fetchActividadesByStatusTimeline(days = 30) {
     try {
-        const response = await fetch(`${API_BASE}/actividades-by-status-timeline?days=${days}`);
-        if (!response.ok) throw new Error('Failed to fetch actividades timeline');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/actividades-by-status-timeline?days=${days}`);
     } catch (error) {
         logger.log('error', 'Error fetching actividades timeline:', error);
         return null;
@@ -71,9 +63,7 @@ async function fetchActividadesByStatusTimeline(days = 30) {
 
 async function fetchMostPlayedActivities() {
     try {
-        const response = await fetch(`${API_BASE}/most-played-activities?limit=10`);
-        if (!response.ok) throw new Error('Failed to fetch most played activities');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/most-played-activities?limit=10`);
     } catch (error) {
         return null;
     }

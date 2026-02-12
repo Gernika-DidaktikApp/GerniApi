@@ -19,9 +19,7 @@ const API_BASE = '/api/v1/statistics/learning';
 
 async function fetchSummary() {
     try {
-        const response = await fetch(`${API_BASE}/summary`);
-        if (!response.ok) throw new Error('Failed to fetch summary');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/summary`);
     } catch (error) {
         logger.log('error', 'Error fetching summary:', error);
         showErrorInSummaryCards();
@@ -38,9 +36,7 @@ function showErrorInSummaryCards() {
 
 async function fetchMostPlayedActivities() {
     try {
-        const response = await fetch(`${API_BASE}/most-played-activities?limit=10`);
-        if (!response.ok) throw new Error('Failed to fetch most played activities');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/most-played-activities?limit=10`);
     } catch (error) {
         return null;
     }
@@ -48,9 +44,7 @@ async function fetchMostPlayedActivities() {
 
 async function fetchHighestScoringActivities() {
     try {
-        const response = await fetch(`${API_BASE}/highest-scoring-activities?limit=10`);
-        if (!response.ok) throw new Error('Failed to fetch highest scoring activities');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/highest-scoring-activities?limit=10`);
     } catch (error) {
         return null;
     }
@@ -58,9 +52,7 @@ async function fetchHighestScoringActivities() {
 
 async function fetchClassPerformance() {
     try {
-        const response = await fetch(`${API_BASE}/class-performance`);
-        if (!response.ok) throw new Error('Failed to fetch class performance');
-        return await response.json();
+        return await window.apiFetch(`${API_BASE}/class-performance`);
     } catch (error) {
         return null;
     }
